@@ -6,7 +6,6 @@
 #include "chunk.h"
 
 #include "debug.h"
-#include "vm.h"
 
 
 static char* read_file(const char* path) 
@@ -43,17 +42,21 @@ static char* read_file(const char* path)
 static void run_file(const char* path) 
 {
   char* source = read_file(path);
-  interpret_result result = interpret(source);
-  free(source);
 
-  if (result == INTERPRET_COMPILE_ERROR) { exit(65); }
-  if (result == INTERPRET_RUNTIME_ERROR) { exit(70); }
+  chunk c;
+  init_chunk(&c);
+
+  compile(source, &c);
+
+  disassemble_chunk(&c, "chunk");
+
+  free_chunk(&c);
+
+  free(source);
 }
 
 int main(int argc, const char* argv[])
 {
-  init_vm();
-
   // TODO run more files
   if (argc == 2)
   {
@@ -65,6 +68,5 @@ int main(int argc, const char* argv[])
     exit(64);
   }
 
-  free_vm();
   return 0;
 }

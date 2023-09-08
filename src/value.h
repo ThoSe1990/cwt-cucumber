@@ -4,17 +4,17 @@
 
 #include "common.h"
 
-typedef double value_t;
+typedef double value;
 
 typedef struct {
   int capacity;
   int count;
-  value_t* values;
+  value* values;
 } value_array;
 
 void init_value_array(value_array* arr);
-void write_value_array(value_array* arr, value_t value);
+void write_value_array(value_array* arr, value value);
 void free_value_array(value_array* arr);
-void print_value(value_t value);
+void print_value(value value);
 
 #endif 

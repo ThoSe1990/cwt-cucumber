@@ -167,10 +167,27 @@ static bool match(char expected)
   return true; 
 }
 
+// TODO macros for unix/windows fine too? 
+static bool end_of_line()
+{
+  if (peek() == '\n') 
+  {
+    return true;
+  }
+  else if (peek() == '\r' && peek_next() == '\n')
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+}
+
 
 static token string()
 {
-  while (peek() != '\n' && !is_at_end())
+  while (!end_of_line() && !is_at_end())
   {
     advance();
   }

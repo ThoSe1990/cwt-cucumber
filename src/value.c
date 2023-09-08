@@ -9,24 +9,24 @@ void init_value_array(value_array* arr)
   arr->capacity = 0;
   arr->count = 0;
 }
-void write_value_array(value_array* arr, value_t value)
+void write_value_array(value_array* arr, value v)
 {
   if (arr->capacity < arr->count+1)
   {
     int old_cap = arr->capacity;
     arr->capacity = GROW_CAPACITY(old_cap);
-    arr->values = GROW_ARRAY(value_t, arr->values, old_cap, arr->capacity);
+    arr->values = GROW_ARRAY(value, arr->values, old_cap, arr->capacity);
   }
-  arr->values[arr->count] = value;
+  arr->values[arr->count] = v;
   arr->count++;
 }
 void free_value_array(value_array* arr)
 {
-  FREE_ARRAY(value_t, arr->values, arr->capacity);
+  FREE_ARRAY(value, arr->values, arr->capacity);
   init_value_array(arr);
 }
 
-void print_value(value_t value)
+void print_value(value value)
 {
   printf("%g", value);
 }

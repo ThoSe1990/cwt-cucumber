@@ -33,7 +33,6 @@ ${PROJECT_SOURCE_DIR}/src/chunk.c
 ${PROJECT_SOURCE_DIR}/src/memory.c
 ${PROJECT_SOURCE_DIR}/src/debug.c
 ${PROJECT_SOURCE_DIR}/src/value.c
-${PROJECT_SOURCE_DIR}/src/vm.c
 ${PROJECT_SOURCE_DIR}/src/compiler.c
 ${PROJECT_SOURCE_DIR}/src/scanner.c
 )

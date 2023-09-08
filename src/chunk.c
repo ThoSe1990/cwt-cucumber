@@ -32,7 +32,7 @@ void write_chunk(chunk* c, uint8_t byte, int line)
   c->count++;
 }
 
-int add_constant(chunk* c, value_t v)
+int add_constant(chunk* c, value v)
 {
   write_value_array(&c->constants, v);
   return c->constants.count - 1;

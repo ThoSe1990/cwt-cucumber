@@ -39,8 +39,7 @@ static chunk* current_chunk()
 
 static void error_at(token* t, const char* msg)
 {
-  
-  fprintf(stderr, "[line %d] Error", t->line);
+  fprintf(stderr, "[line %i] Error", t->line);
   if (t->type == TOKEN_EOF)
   {
     fprintf(stderr, " at end");
@@ -112,7 +111,7 @@ static void consume(token_type type, const char* msg)
   error_at_current(msg);
 }
 
-static void emit_constant(value_t v)
+static void emit_constant(value v)
 {
   printf("emitting constant now ... ");
 }
@@ -128,9 +127,13 @@ static void end_compiler()
 #endif
 }
 
+static void emit_byte(uint8_t byte)
+{
+  write_chunk(current_chunk(), byte, parser.previous.line);
+}
+
 static void scenarios()
 {
-  
   if (match(TOKEN_SCENARIO))
   {
     match(TOKEN_STRING);
@@ -142,6 +145,34 @@ static void scenarios()
   }
 }
 
+static void language()
+{
+// TODO: 
+  // if (match(TOKEN_POUND) && match(TOKEN_LANGUAGE)) 
+  // {
+  //   match(TOKEN_STRING);
+  // }
+}
+
+static void name()
+{
+  match(TOKEN_STRING);
+}
+
+static void description()
+{
+  while(match(TOKEN_STRING))
+  {
+
+  }
+}
+
+static void feature()
+{
+  consume(TOKEN_FEATURE, "Expect 'Feature:'.");
+  name();
+  description();
+}
 
 bool compile(const char* source, chunk* c)
 {
@@ -152,21 +183,14 @@ bool compile(const char* source, chunk* c)
 
   advance();
 
-  if (match(TOKEN_LANGUAGE)) 
-  {
-    match(TOKEN_STRING);
-  }
-  consume(TOKEN_FEATURE, "Expect 'Feature'.");
-  // printf("Feature begin:\n");
-  if (match(TOKEN_STRING)) printf("  name ...");
-  if (match(TOKEN_STRING)) printf("  description ...");  
+  language();
+  feature();
   
-
-  while (!parser.had_error && !match(TOKEN_EOF))
-  {
-    scenarios();
-  }
-
+  // while (!parser.had_error && !match(TOKEN_EOF))
+  // {
+  //   scenarios();
+  // }
+  emit_byte(2);
   end_compiler();
   return !parser.had_error;
 }
