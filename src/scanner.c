@@ -78,6 +78,22 @@ static token error_token(const char* msg)
   return t;
 }
 
+// TODO macros for unix/windows fine too? 
+static bool end_of_line()
+{
+  if (peek() == '\n') 
+  {
+    return true;
+  }
+  else if (peek() == '\r' && peek_next() == '\n')
+  {
+    return true;
+  } 
+  else 
+  {
+    return false;
+  }
+}
 static void skip_whitespace()
 {
   for(;;)
@@ -89,7 +105,7 @@ static void skip_whitespace()
       case '\t':
         advance(); break;
       case '#':
-        while (peek() != '\n' && !is_at_end()) 
+        while (!end_of_line() && !is_at_end()) 
         { 
           advance(); 
         }
@@ -174,22 +190,6 @@ static bool match(char expected)
   return true; 
 }
 
-// TODO macros for unix/windows fine too? 
-static bool end_of_line()
-{
-  if (peek() == '\n') 
-  {
-    return true;
-  }
-  else if (peek() == '\r' && peek_next() == '\n')
-  {
-    return true;
-  } 
-  else 
-  {
-    return false;
-  }
-}
 
 static bool whitespace()
 {
@@ -238,7 +238,6 @@ static token text()
 
 
 
-
 token scan_token()
 {
   skip_whitespace();
@@ -258,10 +257,25 @@ token scan_token()
     return make_token(current);
   }
 
+  if (is_digit(c)) 
+  {
+    return number();
+  }
+
   switch(c)
   {
     case '|': return make_token(TOKEN_VERTICAL);
-    case '"': return string();
+    case '"': 
+    {
+      if (peek() == '"' && peek_next() == '"')
+      {
+        // return doc_string();
+      }
+      else 
+      {
+        return string();
+      }
+    }
     case '\r': 
     {
       if (peek() == '\n')

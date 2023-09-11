@@ -1,17 +1,20 @@
 
+Scenario: 
+  Feature: asdf Given is here 
+  some feature description
+  asdfasdf
+  line whatever
+  
+  Scenario: foo 
+  some scenario description
+    Given step1
+    When step2
+    Then step3
 
-Feature: asdf Given is here 
-some feature description
-asdfasdf
-line whatever
 Scenario: foo 
-some scenario description
-Given step1
-When step2
-Then step3
-
-Scenario: foo 
-Given step1
-asdf
-When step2
-Then step3
+some description here ... 
+  Given step1
+  #bla bla bal 
+  When step2
+  hi
+  Then step3

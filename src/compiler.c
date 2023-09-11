@@ -141,7 +141,7 @@ static void print_current()
 
 static void skip_linebreaks()
 {
-  while (match(TOKEN_LINEBREAK)) { }
+  while (match(TOKEN_LINEBREAK)) {}
 }
 
 // TODO End of file!
@@ -160,35 +160,63 @@ static void language()
 {
 // TODO
 }
+static void scenario();
 
-static void steps() 
+static void step() 
 {
+  // consume step: 
+  text_until(TOKEN_LINEBREAK);
   skip_linebreaks();
-  while (match(TOKEN_STEP))
+
+  if (match(TOKEN_STEP))
   {
-    text_until(TOKEN_LINEBREAK);
-    advance();
+    step();
+  }
+  else if (match(TOKEN_SCENARIO))
+  {
+    scenario();
+  }
+  else if (match(TOKEN_EOF))
+  {
+    return ;
+  }
+  else 
+  {
+    error_at_current("Expect StepLine or Scenario");
+    return ;
   }
 }
-
-static void scenarios()
+static void scenario()
 {
-  skip_linebreaks();
-  consume(TOKEN_SCENARIO, "Expect 'Scenario:'.");
-  printf("Scenario name: \n");
-  text_until(TOKEN_LINEBREAK); 
-  printf("Scenario description: \n");
-  text_until(TOKEN_STEP); 
-  steps();
+  // scenario name: 
+  printf("Scenario name:\n");
+  text_until(TOKEN_LINEBREAK); // name();
+  if (!check(TOKEN_STEP))
+  {
+    printf("Scenario description: \n");
+    text_until(TOKEN_STEP); 
+  }
+  match(TOKEN_STEP);
+  step();
 }
+
 static void feature()
 {
   skip_linebreaks();
-  consume(TOKEN_FEATURE, "Expect 'Feature'.");
+  consume(TOKEN_FEATURE, "Expect 'Feature:'.");
   printf("Feature name: \n");
-  text_until(TOKEN_LINEBREAK); 
-  printf("Feature description: \n");
-  text_until(TOKEN_SCENARIO); 
+  text_until(TOKEN_LINEBREAK); // name();
+  advance();
+  if (match(TOKEN_SCENARIO))
+  {
+    scenario();
+  }
+  else 
+  {
+    printf("Feature description: \n");
+    text_until(TOKEN_SCENARIO); 
+    scenario();
+  }
 }
 
 
@@ -200,15 +228,10 @@ bool compile(const char* source, chunk* c)
   compiling_chunk = c;
 
   parser.had_error = false;
-  
-  advance();
-  // language(); 
-  feature();
 
-  while (!parser.had_error && !match(TOKEN_EOF))
-  {
-    scenarios();
-  }
+  advance();
+
+  feature();
 
   end_compiler();
   return !parser.had_error;
