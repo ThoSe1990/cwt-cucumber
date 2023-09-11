@@ -46,6 +46,7 @@ static char peek()
 {
   return *scanner.current;
 }
+
 static char peek_next()
 {
   if (is_at_end()) 
@@ -60,6 +61,7 @@ static char peek_next()
 
 static token make_token(token_type type)
 {
+  printf("TOKEN: %i\n", type);
   token t; 
   t.type = type;
   t.start = scanner.start;
@@ -92,17 +94,10 @@ static void skip_whitespace()
         scanner.line++;
         advance();
         break;
-      case '/':
-        if (peek_next() == '/')
-        {
-          while (peek() != '\n' && !is_at_end()) 
-          { 
-            advance(); 
-          }
-        } 
-        else 
-        {
-          return;
+      case '#':
+        while (peek() != '\n' && !is_at_end()) 
+        { 
+          advance(); 
         }
       default:
         return;
@@ -122,32 +117,20 @@ static token_type check_keyword(int start, int length, const char* rest, token_t
     return NO_TOKEN;
   }
 }
-static token_type check_keyword_with_colon(int start, int length, const char* rest, token_type type)
-{
-  if (check_keyword(start, length, rest, type) == type 
-    && peek() == ':')
-  {
-    return type;
-  }
-  else 
-  {
-    return NO_TOKEN;
-  }
-}
 
 static token_type identifier_type()
 {
   switch (scanner.start[0])
   {
-    case 'l': return check_keyword_with_colon(1,7, "anguage", TOKEN_LANGUAGE);
-    case 'F': return check_keyword_with_colon(1,6, "eature", TOKEN_FEATURE);
-    case 'S': return check_keyword_with_colon(1,7, "cenario", TOKEN_SCENARIO);
+    case 'F': return check_keyword(1,6, "eature", TOKEN_FEATURE);
+    case 'S': return check_keyword(1,7, "cenario", TOKEN_SCENARIO);
     case 'G': return check_keyword(1,4, "iven", TOKEN_STEP);
     case 'W': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'T': return check_keyword(1,3, "hen", TOKEN_STEP);
     default: return NO_TOKEN;
   }
 }
+
 
 static token_type identifier()
 {
@@ -187,14 +170,66 @@ static bool end_of_line()
 
 static token string()
 {
+  while (peek() != '"' && !is_at_end())
+  {
+    if (peek() == '\n')
+    {
+      scanner.line++;
+    }
+    advance();
+  }
+
+  if (is_at_end()) 
+  {
+    return error_token("Unterminated string.");
+  }
+  advance();
+  return make_token(TOKEN_STRING);
+}
+
+static token text()
+{
   while (!end_of_line() && !is_at_end())
   {
     advance();
   }
-  return make_token(TOKEN_STRING);
+  return make_token(TOKEN_TEXT);
 }
 
-token scan_token(bool ignore_keywords)
+
+token scan_line()
+{
+  skip_whitespace();
+  scanner.start = scanner.current;
+  if (is_at_end()) 
+  { 
+    return make_token(TOKEN_EOF); 
+  }
+  return text();
+}
+
+token scan_identifier_or_line(token_type identifier_token)
+{ 
+  skip_whitespace();
+  scanner.start = scanner.current;
+  if (is_at_end()) 
+  { 
+    return make_token(TOKEN_EOF); 
+  }
+
+  char c = advance();
+  token_type current = identifier();
+  if (current == identifier_token) 
+  {
+    return make_token(current);
+  }
+  else 
+  {
+    return text();
+  }
+}
+
+token scan_token()
 {
   skip_whitespace();
 
@@ -215,9 +250,11 @@ token scan_token(bool ignore_keywords)
 
   switch(c)
   {
-    case '#': return make_token(TOKEN_POUND);
+    case ':': return make_token(TOKEN_COLON);
     case '|': return make_token(TOKEN_VERTICAL);
+    case '"': return string();
+    // case '<': return variable();
   }
 
-  return string();
+  return error_token("Unexpected character!");
 }
