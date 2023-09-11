@@ -72,24 +72,6 @@ static bool check(token_type type)
   return parser.current.type == type;
 }
 
-static void advance_to_end_of_line()
-{
-  parser.previous = parser.current;
-  parser.current = scan_line();
-}
-static void advance_until(token_type t)
-{
-  do 
-  {
-    parser.previous = parser.current;
-    parser.current = scan_identifier_or_line(t);
-    if (parser.current.type == TOKEN_EOF)
-    {
-      return ;
-    }
-  } while (parser.current.type != t);
-}
-
 static void advance()
 {
   parser.previous = parser.current;
@@ -105,16 +87,17 @@ static void advance()
   }
 }
 
+
 static bool match(token_type type)
 {
-  if (!check(type)) 
+  if (check(type)) 
   { 
-    return false; 
+    advance();
+    return true;
   }
   else 
   {
-    advance();
-    return true;
+    return false; 
   }
 }
 
@@ -149,54 +132,68 @@ static void emit_byte(uint8_t byte)
   write_chunk(current_chunk(), byte, parser.previous.line);
 }
 
+static void print_current()
+{
+  for (int i = 0 ; i < parser.current.length ; i++)
+    printf("%c",parser.current.start[i]);
+  printf(" ");
+}
+
+static void skip_linebreaks()
+{
+  while (match(TOKEN_LINEBREAK)) { }
+}
+
+// TODO End of file!
+static void text_until(token_type t)
+{
+  while(!check(t))
+  {
+    if (!check(TOKEN_LINEBREAK))
+      print_current();
+    advance();
+    if (check(TOKEN_EOF)) break;
+  }
+  printf("\n");
+}
 
 static void language()
 {
-// TODO: 
-  // if (match(TOKEN_POUND) && match(TOKEN_LANGUAGE)) 
-  // {
-  //   match(TOKEN_TEXT);
-  // }
-}
-
-static void feature()
-{
-  consume(TOKEN_FEATURE, "Expect 'Feature'.");
-  if (!check(TOKEN_COLON)) 
-  {
-    error_at_current("Expect ':' after Feature.");
-  }
-  advance_to_end_of_line();
-  advance_until(TOKEN_SCENARIO);
+// TODO
 }
 
 static void steps() 
 {
-  for (;;)
+  skip_linebreaks();
+  while (match(TOKEN_STEP))
   {
-    if (!check(TOKEN_STEP)) 
-    { 
-      error_at_current("Expected step after 'Scenario:'."); 
-    }
-    advance_until(TOKEN_STEP);
-    if (!check(TOKEN_STEP)) 
-    {
-      break; 
-    }
+    text_until(TOKEN_LINEBREAK);
+    advance();
   }
 }
 
 static void scenarios()
 {
-  consume(TOKEN_SCENARIO, "Expect 'Scenario'.");
-  if (!check(TOKEN_COLON)) 
-  {
-    error_at_current("Expect ':' after Scenario.");
-  }
-  advance_to_end_of_line();
-  advance_until(TOKEN_STEP);
+  skip_linebreaks();
+  consume(TOKEN_SCENARIO, "Expect 'Scenario:'.");
+  printf("Scenario name: \n");
+  text_until(TOKEN_LINEBREAK); 
+  printf("Scenario description: \n");
+  text_until(TOKEN_STEP); 
   steps();
 }
+static void feature()
+{
+  skip_linebreaks();
+  consume(TOKEN_FEATURE, "Expect 'Feature'.");
+  printf("Feature name: \n");
+  text_until(TOKEN_LINEBREAK); 
+  printf("Feature description: \n");
+  text_until(TOKEN_SCENARIO); 
+}
+
+
+
 
 bool compile(const char* source, chunk* c)
 {
@@ -204,15 +201,16 @@ bool compile(const char* source, chunk* c)
   compiling_chunk = c;
 
   parser.had_error = false;
-
+  
   advance();
-
+  // language(); 
   feature();
 
   while (!parser.had_error && !match(TOKEN_EOF))
   {
     scenarios();
   }
+
   end_compiler();
   return !parser.had_error;
 }

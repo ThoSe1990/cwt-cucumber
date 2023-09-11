@@ -1,17 +1,17 @@
 
 
-Feature: asdf is here 
+Feature: asdf Given is here 
+some feature description
 asdfasdf
-asdfasdfasdf
-asdfasdf 
-asdf
-
+line whatever
 Scenario: foo 
+some scenario description
 Given step1
 When step2
 Then step3
 
 Scenario: foo 
 Given step1
+asdf
 When step2
 Then step3
