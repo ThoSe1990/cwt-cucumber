@@ -149,8 +149,7 @@ static void text_until(token_type t)
 {
   while(!check(t))
   {
-    if (!check(TOKEN_LINEBREAK))
-      print_current();
+    if (!check(TOKEN_LINEBREAK)) print_current();
     advance();
     if (check(TOKEN_EOF)) break;
   }
