@@ -29,12 +29,32 @@ typedef struct {
   precedence_type precedence;
 } parse_rule;
 
+typedef struct {
+  token name; 
+  int depth;
+} local;
+
+typedef enum {
+  TYPE_FUNCTION,
+  TYPE_SCRIPT
+} function_type;
+
+typedef struct compiler {
+  struct compiler* enclosing;
+  obj_function* function;
+  function_type type;
+  local locals[UINT8_COUNT];
+  int local_count;
+  int scope_depth;
+} compiler;
+
+
 parser_t parser; 
-chunk* compiling_chunk;
+compiler* current = NULL;
 
 static chunk* current_chunk()
 {
-  return compiling_chunk;
+  return &current->function->chunk;
 }
 
 static void error_at(token* t, const char* msg)
@@ -111,37 +131,95 @@ static void consume(token_type type, const char* msg)
   error_at_current(msg);
 }
 
-static void emit_constant(value v)
-{
-  printf("emitting constant now ... ");
-}
 
-static void string()
+static uint8_t make_constant(value v)
 {
-  // emit_constant(OBJ_VAL)  
-}
-
-
-static void end_compiler()
-{
-#ifdef DEBUG_PRINT_CODE
-  if (!parser.had_error)
+  int constant = add_constant(current_chunk(), v);
+  if (constant > UINT8_MAX)
   {
-    disassemble_chunk(current_chunk(), "code");
+    error("Too many constants in one chunk");
+    return 0;
   }
-#endif
+  return (uint8_t)constant;
 }
-
 static void emit_byte(uint8_t byte)
 {
   write_chunk(current_chunk(), byte, parser.previous.line);
 }
 
-static void print_current()
+static void emit_bytes(uint8_t byte1, uint8_t byte2)
 {
-  for (int i = 0 ; i < parser.current.length ; i++)
-    printf("%c",parser.current.start[i]);
-  printf(" ");
+  emit_byte(byte1);
+  emit_byte(byte2);
+}
+static void emit_constant(value v)
+{
+  emit_bytes(OP_CONSTANT, make_constant(v));
+}
+
+static void string()
+{
+  emit_constant(OBJ_VAL(copy_string(parser.previous.start , parser.previous.length)));
+}
+
+
+static void emit_return()
+{
+  emit_byte(OP_NIL);
+  emit_byte(OP_RETURN);
+}
+
+static void init_compiler(compiler* c, function_type type)
+{
+  c->enclosing = current;
+  c->function = NULL;
+  c->type = type;
+  c->local_count = 0;
+  c->scope_depth = 0; 
+  c->function = new_function();
+  current = c;
+
+  if (type != TYPE_SCRIPT)
+  {
+    current->function->name = copy_string(parser.previous.start, parser.previous.length);
+  }
+
+  local* l = &current->locals[current->local_count++];
+  l->depth = 0;
+  l->name.start = "";
+  l->name.length = 0;
+}
+
+static obj_function* end_compiler()
+{
+  emit_return();
+  obj_function* func = current->function;
+
+#ifdef DEBUG_PRINT_CODE
+  if (!parser.had_error)
+  {
+    disassemble_chunk(current_chunk(), 
+      func->name != NULL ? func->name->chars : "<script>");
+  }
+#endif
+  
+  current = current->enclosing;
+  return func;
+}
+
+static void begin_scope()
+{
+  current->scope_depth++;
+}
+static void end_scope()
+{
+  current->scope_depth--;
+  while (current->local_count > 0 
+    && current->locals[current->local_count-1].depth > current->scope_depth)
+  {
+    emit_byte(OP_POP);
+    current->local_count--;
+  }
 }
 
 static void skip_linebreaks()
@@ -154,11 +232,9 @@ static void text_until(token_type t)
 {
   while(!check(t))
   {
-    if (!check(TOKEN_LINEBREAK)) print_current();
     advance();
     if (check(TOKEN_EOF)) break;
   }
-  printf("\n");
 }
 
 static void language()
@@ -169,6 +245,7 @@ static void scenario();
 
 static void step() 
 {
+  string();
   // consume step: 
   text_until(TOKEN_LINEBREAK);
   skip_linebreaks();
@@ -179,6 +256,7 @@ static void step()
   }
   else if (match(TOKEN_SCENARIO))
   {
+    string();
     scenario();
   }
   else if (match(TOKEN_EOF))
@@ -193,12 +271,9 @@ static void step()
 }
 static void scenario()
 {
-  // scenario name: 
-  printf("Scenario name:\n");
-  text_until(TOKEN_LINEBREAK); // name();
+  text_until(TOKEN_LINEBREAK);
   if (!check(TOKEN_STEP))
   {
-    printf("Scenario description: \n");
     text_until(TOKEN_STEP); 
   }
   match(TOKEN_STEP);
@@ -209,35 +284,33 @@ static void feature()
 {
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect 'Feature:'.");
-  printf("Feature name: \n");
-  text_until(TOKEN_LINEBREAK); // name();
+  string();
+  text_until(TOKEN_LINEBREAK);
   advance();
-  if (match(TOKEN_SCENARIO))
+  if (!match(TOKEN_SCENARIO))
   {
-    scenario();
-  }
-  else 
-  {
-    printf("Feature description: \n");
     text_until(TOKEN_SCENARIO); 
-    scenario();
   }
+  consume(TOKEN_SCENARIO, "Expect 'Scenario:'");
+  string();
+  scenario();
 }
 
 
 
-
-bool compile(const char* source, chunk* c)
+obj_function* compile(const char* source)
 {
   init_scanner(source);
-  compiling_chunk = c;
+  compiler cmplr; 
+  init_compiler(&cmplr, TYPE_SCRIPT);
 
   parser.had_error = false;
+  parser.panic_mode = false;
 
   advance();
 
   feature();
 
-  end_compiler();
-  return !parser.had_error;
+  obj_function* func = end_compiler();
+  return parser.had_error ? NULL : func;
 }

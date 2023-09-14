@@ -6,6 +6,19 @@
 
 typedef enum {
   OP_CONSTANT,
+  OP_NIL,
+  OP_POP,
+  OP_GET_LOCAL,
+  OP_SET_LOCAL,
+  OP_GET_GLOBAL,
+  OP_DEFINE_GLOBAL,
+  OP_SET_GLOBAL,
+  OP_PRINT,
+  OP_JUMP,
+  OP_JUMP_IF_FALSE,
+  OP_LOOP,
+  OP_CALL,
+  OP_RETURN
 } op_code;
 
 typedef struct

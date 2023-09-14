@@ -1,11 +1,11 @@
 
-Scenario: 
-  Feature: asdf Given is here 
+
+Feature: asdf Given is here 
   some feature description
   asdfasdf
   line whatever
   
-  Scenario: foo 
+Scenario: foo 
   some scenario description
     Given step1
     When step2
@@ -16,5 +16,4 @@ some description here ...
   Given step1
   #bla bla bal 
   When step2
-  hi
   Then step3

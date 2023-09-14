@@ -3,6 +3,15 @@
 #include "debug.h"
 #include "value.h"
 
+static int constant_instruction(const char* name, chunk* c, int offset)
+{
+  uint8_t constant = c->code[offset+1];
+  printf("%-16s %4d '", name, constant);
+  print_value(c->constants.values[constant]);
+  printf("'\n");
+  return offset+2;
+}
+
 static int simple_instruction(const char* name, int offset)
 {
   printf("%s\n", name);
@@ -35,12 +44,12 @@ int disassemble_instruction(chunk* c, int offset)
   uint8_t instruction = c->code[offset];
   switch (instruction)
   {
-  case 1:
-    return simple_instruction("OP1", offset);
-  case 2:
-    return simple_instruction("OP2", offset);
-  case 3:
-    return simple_instruction("OP3", offset);
+  case OP_CONSTANT:
+    return constant_instruction("OP_CONSTANT", c, offset);
+  case OP_NIL:
+    return simple_instruction("OP_NIL", offset);
+  case OP_RETURN:
+    return simple_instruction("OP_RETURN", offset);
   default:
     printf("Unknown opcode %d\n", instruction);
     return offset+1;

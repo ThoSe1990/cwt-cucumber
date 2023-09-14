@@ -3,6 +3,10 @@
 
 #include "chunk.h"
 
-bool compile(const char* source, chunk* c);
+#include "object.h"
+#include "vm.h"
+
+obj_function* compile(const char* source);
+
 
 #endif 

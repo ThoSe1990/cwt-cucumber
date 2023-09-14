@@ -4,6 +4,8 @@
 
 #include "common.h"
 #include "chunk.h"
+#include "object.h"
+#include "compiler.h"
 
 #include "debug.h"
 
@@ -43,14 +45,15 @@ static void run_file(const char* path)
 {
   char* source = read_file(path);
 
-  chunk c;
-  init_chunk(&c);
-
-  compile(source, &c);
-
-  disassemble_chunk(&c, "chunk");
-
-  free_chunk(&c);
+  obj_function* func = compile(source);
+  if (func == NULL) 
+  {
+    fprintf(stderr, "************COMPILE ERROR!*****************");
+  }
+  else 
+  {
+      disassemble_chunk(&func->chunk, "chunk");
+  }
 
   free(source);
 }
