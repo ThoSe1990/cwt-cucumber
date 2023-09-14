@@ -116,6 +116,11 @@ static void emit_constant(value v)
   printf("emitting constant now ... ");
 }
 
+static void string()
+{
+  // emit_constant(OBJ_VAL)  
+}
+
 
 static void end_compiler()
 {
