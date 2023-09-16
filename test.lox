@@ -7,7 +7,7 @@ Feature: asdf Given is here
   
 Scenario: foo 
   some scenario description
-    Given step1
+    Given step1 asdf asdf
     When step2
     Then step3
 

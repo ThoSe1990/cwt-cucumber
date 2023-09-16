@@ -40,7 +40,7 @@ static char* read_file(const char* path)
   fclose(file);
   return buffer;
 }
-
+#include "memory.h"
 static void run_file(const char* path) 
 {
   char* source = read_file(path);
@@ -56,6 +56,9 @@ static void run_file(const char* path)
   }
 
   free(source);
+  // TODO Not here
+  free_object(func);
+  
 }
 
 int main(int argc, const char* argv[])

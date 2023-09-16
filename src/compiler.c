@@ -152,16 +152,32 @@ static void emit_bytes(uint8_t byte1, uint8_t byte2)
   emit_byte(byte1);
   emit_byte(byte2);
 }
+static void emit_bytes_at(uint8_t byte1, uint8_t byte2, int line)
+{
+  write_chunk(current_chunk(), byte1, line);
+  write_chunk(current_chunk(), byte2, line);
+}
 static void emit_constant(value v)
 {
   emit_bytes(OP_CONSTANT, make_constant(v));
+}
+static void emit_step(value v)
+{
+  emit_bytes(OP_STEP, make_constant(v));
+}
+static void emit_name(value v)
+{
+  emit_bytes(OP_NAME, make_constant(v));
+}
+static void emit_description(value v)
+{
+  emit_bytes(OP_DESCRIPTION, make_constant(v));
 }
 
 static void string()
 {
   emit_constant(OBJ_VAL(copy_string(parser.previous.start , parser.previous.length)));
 }
-
 
 static void emit_return()
 {
@@ -227,15 +243,6 @@ static void skip_linebreaks()
   while (match(TOKEN_LINEBREAK)) {}
 }
 
-// TODO End of file!
-static void text_until(token_type t)
-{
-  while(!check(t))
-  {
-    advance();
-    if (check(TOKEN_EOF)) break;
-  }
-}
 
 static void language()
 {
@@ -243,11 +250,35 @@ static void language()
 }
 static void scenario();
 
+
+static void process_step()
+{
+  const char* begin = parser.current.start;
+  while(!check(TOKEN_LINEBREAK) && !check(TOKEN_EOF))
+  {
+    advance();
+  }
+  const char* end = parser.previous.start + parser.previous.length;
+  emit_step(OBJ_VAL(copy_string(begin , end-begin)));
+}
+
+static void create_op_until(op_code code, token_type type)
+{
+  const char* begin = parser.current.start;
+  const int line = parser.current.line;
+  while(!check(type))
+  {
+    advance();
+    if (check(TOKEN_EOF)) break;
+  }
+  const char* end = parser.previous.start + parser.previous.length;
+  emit_bytes_at(code, make_constant(OBJ_VAL(copy_string(begin , end-begin))), line);
+}
+
 static void step() 
 {
-  string();
-  // consume step: 
-  text_until(TOKEN_LINEBREAK);
+  skip_linebreaks();
+  process_step();
   skip_linebreaks();
 
   if (match(TOKEN_STEP))
@@ -256,7 +287,6 @@ static void step()
   }
   else if (match(TOKEN_SCENARIO))
   {
-    string();
     scenario();
   }
   else if (match(TOKEN_EOF))
@@ -271,10 +301,11 @@ static void step()
 }
 static void scenario()
 {
-  text_until(TOKEN_LINEBREAK);
+  emit_byte(OP_SCENARIO);
+  create_op_until(OP_NAME, TOKEN_LINEBREAK);
   if (!check(TOKEN_STEP))
   {
-    text_until(TOKEN_STEP); 
+    create_op_until(OP_DESCRIPTION, TOKEN_STEP);
   }
   match(TOKEN_STEP);
   step();
@@ -284,15 +315,14 @@ static void feature()
 {
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect 'Feature:'.");
-  string();
-  text_until(TOKEN_LINEBREAK);
+  emit_byte(OP_FEATURE);
+  create_op_until(OP_NAME, TOKEN_LINEBREAK);
   advance();
   if (!match(TOKEN_SCENARIO))
   {
-    text_until(TOKEN_SCENARIO); 
+    create_op_until(OP_DESCRIPTION, TOKEN_SCENARIO);
   }
   consume(TOKEN_SCENARIO, "Expect 'Scenario:'");
-  string();
   scenario();
 }
 

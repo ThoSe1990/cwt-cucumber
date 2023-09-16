@@ -20,7 +20,6 @@ void free_object(obj* object)
 {
   switch (object->type)
   {
-
     case OBJ_FUNCTION:
     {
       obj_function* func = (obj_function*)object; 

@@ -20,5 +20,6 @@
 
 void* reallocate (void* pointer, size_t old_size, size_t new_size);
 void free_objects();
-
+// TODO hide this function again
+void free_object(obj* object);
 #endif 

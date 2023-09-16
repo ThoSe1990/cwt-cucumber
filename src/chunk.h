@@ -6,6 +6,12 @@
 
 typedef enum {
   OP_CONSTANT,
+  OP_FEATURE,
+  OP_TAG,
+  OP_SCENARIO,
+  OP_STEP,
+  OP_NAME,
+  OP_DESCRIPTION,
   OP_NIL,
   OP_POP,
   OP_GET_LOCAL,

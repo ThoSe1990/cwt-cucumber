@@ -46,6 +46,18 @@ int disassemble_instruction(chunk* c, int offset)
   {
   case OP_CONSTANT:
     return constant_instruction("OP_CONSTANT", c, offset);
+  case OP_TAG:
+    return constant_instruction("OP_TAG", c, offset);
+  case OP_FEATURE:
+    return simple_instruction("OP_FEATURE", offset);
+  case OP_SCENARIO:
+    return simple_instruction("OP_SCENARIO", offset);
+  case OP_STEP:
+    return constant_instruction("OP_STEP", c, offset);
+  case OP_NAME:
+    return constant_instruction("OP_NAME", c, offset);
+  case OP_DESCRIPTION:
+    return constant_instruction("OP_DESCRIPTION", c, offset);  
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
   case OP_RETURN:
