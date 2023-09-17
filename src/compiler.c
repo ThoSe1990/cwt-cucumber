@@ -13,7 +13,6 @@ typedef struct {
   token current;
   token previous; 
   bool had_error;
-  bool panic_mode;
 } parser_t;
 
 typedef enum {
@@ -280,35 +279,41 @@ static void step()
   skip_linebreaks();
   process_step();
   skip_linebreaks();
-
   if (match(TOKEN_STEP))
   {
     step();
   }
-  else if (match(TOKEN_SCENARIO))
-  {
-    scenario();
-  }
-  else if (match(TOKEN_EOF))
-  {
-    return ;
-  }
-  else 
-  {
-    error_at_current("Expect StepLine or Scenario");
-    return ;
-  }
+  return ;
 }
 static void scenario()
 {
-  emit_byte(OP_SCENARIO);
-  create_op_until(OP_NAME, TOKEN_LINEBREAK);
-  if (!check(TOKEN_STEP))
+  for (;;)
   {
-    create_op_until(OP_DESCRIPTION, TOKEN_STEP);
+    if (match(TOKEN_EOF)) 
+    { 
+      return;
+    }
+    else if (match(TOKEN_SCENARIO))
+    {
+      begin_scope();
+      // scenario header: push scenario, name, description
+      emit_byte(OP_SCENARIO);
+      create_op_until(OP_NAME, TOKEN_LINEBREAK);
+      if (!check(TOKEN_STEP))
+      {
+        create_op_until(OP_DESCRIPTION, TOKEN_STEP);
+      }
+      match(TOKEN_STEP);
+      // once we reach steps we add all steps
+      step();
+      end_scope();
+    }
+    else 
+    {
+      error_at_current("Expect StepLine or Scenario");
+      return ;
+    }
   }
-  match(TOKEN_STEP);
-  step();
 }
 
 static void feature()
@@ -318,11 +323,10 @@ static void feature()
   emit_byte(OP_FEATURE);
   create_op_until(OP_NAME, TOKEN_LINEBREAK);
   advance();
-  if (!match(TOKEN_SCENARIO))
+  if (!match(TOKEN_SCENARIO)) // TODO add Tags here 
   {
     create_op_until(OP_DESCRIPTION, TOKEN_SCENARIO);
   }
-  consume(TOKEN_SCENARIO, "Expect 'Scenario:'");
   scenario();
 }
 
@@ -335,10 +339,8 @@ obj_function* compile(const char* source)
   init_compiler(&cmplr, TYPE_SCRIPT);
 
   parser.had_error = false;
-  parser.panic_mode = false;
 
   advance();
-
   feature();
 
   obj_function* func = end_compiler();

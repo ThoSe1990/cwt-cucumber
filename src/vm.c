@@ -158,19 +158,105 @@ static void concatenate()
 
 static interpret_result run() 
 {
-  return INTERPRET_OK;
+  call_frame* frame = &g_vm.frames[g_vm.frame_count-1];
+#define READ_BYTE() (*frame->ip++)
+#define READ_CONSTANT() (frame->function->chunk.constants.values[READ_BYTE()])
+#define READ_STRING() AS_STRING(READ_CONSTANT())
+
+  for(;;)
+  {
+  #ifdef DEBUG_TRACE_EXTENSION
+    printf("        ");
+    for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
+    {
+      printf("[ ");
+      print_value(*slot);
+      printf(" ]");
+    }
+    printf("\n");
+    disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
+  #endif 
+
+    uint8_t instruction; 
+    switch (instruction = READ_BYTE()) 
+    {
+      case OP_CONSTANT:
+      {
+        printf("OP_CONSTANT\n");
+        // value constant = READ_CONSTANT();
+        // push(constant);
+      }
+      break; case OP_NIL: 
+      { 
+        // obj_string* str = READ_STRING();
+        printf("OP_NIL\n"); 
+      }
+      break; case OP_FEATURE: 
+      { 
+        printf("OP_FEATURE:\n"); 
+      }
+      break; case OP_SCENARIO: 
+      { 
+        printf("OP_SCENARIO\n"); 
+      }
+      break; case OP_NAME: 
+      { 
+        obj_string* str = READ_STRING();
+        printf("OP_NAME %s \n", str->chars); 
+      }
+      break; case OP_DESCRIPTION: 
+      { 
+        obj_string* str = READ_STRING();
+        printf("OP_DESCRIPTION %s \n", str->chars); 
+      }
+      break; case OP_STEP:
+      {
+        obj_string* str = READ_STRING();
+        printf("OP_STEP %s \n", str->chars); 
+
+        // value constant = READ_CONSTANT();
+        // push(constant);
+      }
+      break; case OP_RETURN: 
+      {
+        printf("OP_RETURN\n");
+        return INTERPRET_OK;
+        // value result = pop();
+        // g_vm.frame_count--;
+        // if (g_vm.frame_count == 0) 
+        // {
+        //   pop();  
+        //   return INTERPRET_OK;
+        // }
+        // else 
+        // {
+        //   g_vm.stack_top = frame->slots;
+        //   push(result);
+        //   frame = &g_vm.frames[g_vm.frame_count-1];
+        //   break;
+        // }
+      }
+      break; default: 
+      {
+
+      }
+    }
+  }
+#undef READ_BYTE
+#undef READ_CONSTANT
+#undef READ_STRING
 }
 
 interpret_result interpret(const char* source)
 {
-  // obj_function* func = compile(source);
-  // if (func == NULL) 
-  // {
-  //   return INTERPRET_COMPILE_ERROR;
-  // }
+  obj_function* func = compile(source);
+  if (func == NULL) 
+  {
+    return INTERPRET_COMPILE_ERROR;
+  }
 
-  // push(OBJ_VAL(func));
-  // call(func, 0);
+  push(OBJ_VAL(func));
+  call(func, 0);
 
   return run();
 }

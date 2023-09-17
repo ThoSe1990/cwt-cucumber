@@ -44,25 +44,16 @@ static char* read_file(const char* path)
 static void run_file(const char* path) 
 {
   char* source = read_file(path);
-
-  obj_function* func = compile(source);
-  if (func == NULL) 
-  {
-    fprintf(stderr, "************COMPILE ERROR!*****************");
-  }
-  else 
-  {
-      disassemble_chunk(&func->chunk, "chunk");
-  }
-
+  interpret_result result = interpret(source);
   free(source);
-  // TODO Not here
-  free_object(func);
   
+  if (result == INTERPRET_COMPILE_ERROR) { exit(65); }
+  if (result == INTERPRET_RUNTIME_ERROR) { exit(70); } 
 }
 
 int main(int argc, const char* argv[])
 {
+  init_vm();
   // TODO run more files
   if (argc == 2)
   {
@@ -74,5 +65,6 @@ int main(int argc, const char* argv[])
     exit(64);
   }
 
+  free_vm();
   return 0;
 }
