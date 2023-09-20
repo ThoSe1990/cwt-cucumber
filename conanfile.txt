@@ -1,0 +1,6 @@
+[requires]
+gtest/1.13.0
+
+[generators]
+CMakeToolchain
+CMakeDeps

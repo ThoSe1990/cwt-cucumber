@@ -14,7 +14,6 @@ vm g_vm;
 
 static value clock_native(int arg_count, value* args)
 {
-  printf("clock native: %i -> %f\n",arg_count, AS_NUMBER(*args));
   return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
@@ -165,76 +164,50 @@ static interpret_result run()
 
   for(;;)
   {
-  #ifdef DEBUG_TRACE_EXTENSION
-    printf("        ");
-    for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
-    {
-      printf("[ ");
-      print_value(*slot);
-      printf(" ]");
-    }
-    printf("\n");
-    disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
-  #endif 
+  // #ifdef DEBUG_TRACE_EXTENSION
+  //   printf("        ");
+  //   for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
+  //   {
+  //     printf("[ ");
+  //     print_value(*slot);
+  //     printf(" ]");
+  //   }
+  //   printf("\n");
+  //   disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
+  // #endif 
 
     uint8_t instruction; 
     switch (instruction = READ_BYTE()) 
     {
       case OP_CONSTANT:
       {
-        printf("OP_CONSTANT\n");
-        // value constant = READ_CONSTANT();
-        // push(constant);
       }
       break; case OP_NIL: 
       { 
-        // obj_string* str = READ_STRING();
-        printf("OP_NIL\n"); 
       }
       break; case OP_FEATURE: 
       { 
-        printf("OP_FEATURE:\n"); 
       }
       break; case OP_SCENARIO: 
       { 
-        printf("OP_SCENARIO\n"); 
       }
       break; case OP_NAME: 
       { 
         obj_string* str = READ_STRING();
-        printf("OP_NAME %s \n", str->chars); 
       }
       break; case OP_DESCRIPTION: 
       { 
         obj_string* str = READ_STRING();
-        printf("OP_DESCRIPTION %s \n", str->chars); 
       }
       break; case OP_STEP:
       {
         obj_string* str = READ_STRING();
-        printf("OP_STEP %s \n", str->chars); 
+        printf("%s\n", str->chars);
 
-        // value constant = READ_CONSTANT();
-        // push(constant);
       }
       break; case OP_RETURN: 
       {
-        printf("OP_RETURN\n");
         return INTERPRET_OK;
-        // value result = pop();
-        // g_vm.frame_count--;
-        // if (g_vm.frame_count == 0) 
-        // {
-        //   pop();  
-        //   return INTERPRET_OK;
-        // }
-        // else 
-        // {
-        //   g_vm.stack_top = frame->slots;
-        //   push(result);
-        //   frame = &g_vm.frames[g_vm.frame_count-1];
-        //   break;
-        // }
       }
       break; default: 
       {

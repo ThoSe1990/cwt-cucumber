@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.16)
-project(cucumber-cpp)
+project(cwt-cucumber)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
@@ -26,17 +26,5 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
-set(target example)
-add_executable(${target} 
-${PROJECT_SOURCE_DIR}/src/main.c
-${PROJECT_SOURCE_DIR}/src/chunk.c
-${PROJECT_SOURCE_DIR}/src/memory.c
-${PROJECT_SOURCE_DIR}/src/debug.c
-${PROJECT_SOURCE_DIR}/src/value.c
-${PROJECT_SOURCE_DIR}/src/compiler.c
-${PROJECT_SOURCE_DIR}/src/scanner.c
-${PROJECT_SOURCE_DIR}/src/object.c
-${PROJECT_SOURCE_DIR}/src/table.c
-${PROJECT_SOURCE_DIR}/src/vm.c
-)
-target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)

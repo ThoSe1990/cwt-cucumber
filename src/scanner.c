@@ -127,43 +127,25 @@ static token_type check_keyword(int start, int length, const char* rest, token_t
     return NO_TOKEN;
   }
 }
+static token_type check_keyword_with_colon(int start, int length, const char* rest, token_type type)
+{
+  if (check_keyword(start, length, rest, type) == type && peek() == ':')
+  {
+    advance();
+    return type;
+  }
+  else 
+  {
+    return NO_TOKEN;
+  }
+}
 
-// TODO refactor : w or w/o colon ... 
 static token_type identifier_type()
 {
   switch (scanner.start[0])
   {
-    case 'F':
-    {
-      if (check_keyword(1,6, "eature", TOKEN_FEATURE) == TOKEN_FEATURE)
-      {
-        if (peek() == ':') 
-        {
-          advance();
-          return TOKEN_FEATURE;
-        }
-        else 
-        {
-          return NO_TOKEN;
-        }
-      }
-    }
-    case 'S': 
-    {
-      if (check_keyword(1,7, "cenario", TOKEN_SCENARIO) == TOKEN_SCENARIO)
-      {
-        if (peek() == ':') 
-        {
-          advance();
-          return TOKEN_SCENARIO;
-        }
-        else 
-        {
-          return NO_TOKEN;
-        }
-
-      }
-    } 
+    case 'F': return check_keyword_with_colon(1,6, "eature", TOKEN_FEATURE);
+    case 'S': return check_keyword_with_colon(1,7, "cenario", TOKEN_SCENARIO);
     case 'G': return check_keyword(1,4, "iven", TOKEN_STEP);
     case 'W': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'T': return check_keyword(1,3, "hen", TOKEN_STEP);
