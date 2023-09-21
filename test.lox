@@ -19,4 +19,4 @@ some description here ...
   Given step1
   #bla bla bal 
   When step2
-  Then step3
+  Then clock

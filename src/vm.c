@@ -14,6 +14,7 @@ vm g_vm;
 
 static value clock_native(int arg_count, value* args)
 {
+  printf("running clock here!!! \n");
   return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
 }
 
@@ -54,7 +55,7 @@ static void define_native(const char* name, native_func func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
-  table_set(&g_vm.globals, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
+  table_set_step(&g_vm.steps, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
   pop();
   pop();
 }
@@ -65,6 +66,7 @@ void init_vm()
   g_vm.objects = NULL;
   init_table(&g_vm.globals);
   init_table(&g_vm.strings);
+  init_table(&g_vm.steps);
 
   define_native("clock", clock_native);
 }
@@ -72,6 +74,7 @@ void free_vm()
 {
   free_table(&g_vm.globals);
   free_table(&g_vm.strings);
+  free_table(&g_vm.steps);
   free_objects();
 }
 
@@ -203,7 +206,16 @@ static interpret_result run()
       {
         obj_string* str = READ_STRING();
         printf("%s\n", str->chars);
-
+        value v;
+        if (table_get_step(&g_vm.steps, str, &v))
+        {
+          printf("found a step ... \n");
+          AS_NATIVE(v)(0,NULL);
+        }
+        else 
+        {
+          printf("didn't find any step ... \n");
+        }
       }
       break; case OP_RETURN: 
       {

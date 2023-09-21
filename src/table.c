@@ -1,11 +1,13 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "memory.h"
 #include "object.h"
 #include "table.h"
 #include "value.h"
+#include "step_matcher.h"
 
 #define TABLE_MAX_LOAD 0.75
 
@@ -20,6 +22,18 @@ void free_table(table* t)
 {
   FREE_ARRAY(entry, t->entries, t->capacity);
   init_table(t);
+}
+
+static entry* find_step(entry* entries, int len, obj_string* step)
+{
+  for (int i = 0 ; i < len ; i++)
+  {
+    if (is_step(entries[i].key->chars, step->chars))
+    {
+      return &entries[i];
+    }
+  }
+  return NULL;  
 }
 
 static entry* find_entry(entry* entries, int capacity, obj_string* key)
@@ -147,4 +161,38 @@ bool table_set(table* t, obj_string* key, value v)
   e->key = key;
   e->value = v;
   return is_new;
+}
+
+
+bool table_set_step(table* t, obj_string* key, value v)
+{
+  if (t->count+1 > t->capacity * TABLE_MAX_LOAD)
+  {
+    int capacity = GROW_CAPACITY(t->capacity);
+    adjust_capacity(t, capacity);
+  }
+
+  if (find_step(t->entries, t->count, key))
+  {
+    fprintf(stderr, "Can not add step '%s' because it already exists", key->chars);
+    return false;
+  }
+  t->entries[t->count].key = key;
+  t->entries[t->count].value = v;
+  t->count++;
+  return true;
+}
+
+bool table_get_step(table* t, obj_string* key, value* v)
+{
+  if (t->count == 0) { return false; }
+  
+  entry* e = find_step(t->entries, t->count, key);
+  if (e == NULL) 
+  { 
+    return false; 
+  }
+  
+  *v = e->value; 
+  return v;
 }
