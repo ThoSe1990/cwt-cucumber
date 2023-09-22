@@ -8,15 +8,17 @@ typedef struct {
   const char* start;
   const char* current;
   int line;
+  const char* filename;
 } scanner_t;
 
 scanner_t scanner; 
 
-void init_scanner(const char* source)
+void init_scanner(const char* source, const char* filename)
 {
   scanner.start = source;
   scanner.current = source; 
   scanner.line = 1; 
+  scanner.filename = filename;
 }
 
 static bool is_alpha(char c)
@@ -218,7 +220,10 @@ static token text()
   return make_token(TOKEN_TEXT);
 }
 
-
+const char* filename()
+{
+  return scanner.filename;
+}
 
 token scan_token()
 {

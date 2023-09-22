@@ -44,15 +44,22 @@ static char* read_file(const char* path)
 static void run_file(const char* path) 
 {
   char* source = read_file(path);
-  interpret_result result = interpret(source);
+  interpret_result result = interpret(source, path);
   free(source);
   
   if (result == INTERPRET_COMPILE_ERROR) { exit(65); }
   if (result == INTERPRET_RUNTIME_ERROR) { exit(70); } 
 }
 
+
+#include <time.h>
+
 int main(int argc, const char* argv[])
 {
+  clock_t start_time, end_time;
+  double cpu_time_used;
+  start_time = clock();
+
   init_vm();
   // TODO run more files
   if (argc == 2)
@@ -66,5 +73,10 @@ int main(int argc, const char* argv[])
   }
 
   free_vm();
+
+  end_time = clock();
+  cpu_time_used = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
+  printf("CPU Time Used: %f seconds\n", cpu_time_used);
+
   return 0;
 }

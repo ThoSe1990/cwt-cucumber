@@ -31,7 +31,8 @@ typedef struct {
   int line;
 } token;
 
-void init_scanner(const char* source);
+void init_scanner(const char* source, const char* filename);
 token scan_token(); 
+const char* filename();
 
 #endif

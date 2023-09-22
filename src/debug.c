@@ -57,6 +57,10 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_TAG", c, offset);
   case OP_FEATURE:
     return simple_instruction("OP_FEATURE", offset);
+  case OP_GET_GLOBAL:
+    return constant_instruction("OP_GET_GLOBAL", c, offset);
+  case OP_DEFINE_GLOBAL:
+    return constant_instruction("OP_DEFINE_GLOBAL", c, offset);
   case OP_POP:
     return simple_instruction("OP_POP", offset);
   case OP_SCENARIO:

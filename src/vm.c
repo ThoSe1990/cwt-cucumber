@@ -205,8 +205,33 @@ static interpret_result run()
       break; case OP_FEATURE: 
       { 
       }
+      break; case OP_DEFINE_GLOBAL:
+      {
+        obj_string* name = READ_STRING();
+        table_set(&g_vm.globals, name, peek(0));
+        pop();
+      }
+      break; case OP_GET_GLOBAL:
+      {
+        obj_string* name = READ_STRING();
+        value v; 
+        if (!table_get(&g_vm.globals, name, &v))
+        {
+          runtime_error("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        else 
+        {
+          push(v);
+        }
+      }
       break; case OP_SCENARIO: 
       { 
+        // TODO something todo here?? 
+        // obj_string* str = READ_STRING();
+        // printf("******************************\n");
+        // printf("%s\n", str->chars);
+        // printf("******************************\n");
       }
       break; case OP_NAME: 
       { 
@@ -241,11 +266,24 @@ static interpret_result run()
       } 
       break; case OP_RETURN: 
       {
-        return INTERPRET_OK;
+        value result = pop();
+        g_vm.frame_count--;
+        if (g_vm.frame_count == 0) 
+        {
+          pop();  
+          return INTERPRET_OK;
+        }
+        else 
+        {
+          g_vm.stack_top = frame->slots;
+          push(result);
+          frame = &g_vm.frames[g_vm.frame_count-1];
+          break;
+        }
       }
       break; default: 
       {
-
+        printf("********** SHOULD NOT HAPPEN! ************\n");
       }
     }
   }
@@ -254,9 +292,9 @@ static interpret_result run()
 #undef READ_STRING
 }
 
-interpret_result interpret(const char* source)
+interpret_result interpret(const char* source, const char* filename)
 {
-  obj_function* func = compile(source);
+  obj_function* func = compile(source, filename);
   if (func == NULL) 
   {
     return INTERPRET_COMPILE_ERROR;

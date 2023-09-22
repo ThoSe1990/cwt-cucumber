@@ -6,7 +6,7 @@
 #include "object.h"
 #include "vm.h"
 
-obj_function* compile(const char* source);
+obj_function* compile(const char* source, const char* filename);
 
 
 #endif 

@@ -172,6 +172,13 @@ static void emit_step(const char* str)
   while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
   emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
 }
+static void emit_scenario(const char* str)
+{
+  const char* begin = str; 
+  while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
+  // emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
+  emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string("my scenario" , 11))));
+}
 static void emit_name(value v)
 {
   emit_bytes(OP_NAME, make_constant(v));
@@ -198,8 +205,11 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
+static int compiler_count = 0;
 static void init_compiler(compiler* c, function_type type)
 {
+  compiler_count++;
+  printf("compiler count: %d\n", compiler_count);
   c->enclosing = current;
   c->function = NULL;
   c->type = type;
@@ -210,7 +220,11 @@ static void init_compiler(compiler* c, function_type type)
 
   if (type != TYPE_SCRIPT)
   {
-    current->function->name = copy_string(parser.previous.start, parser.previous.length);
+    // TODO unique naming for scenario, eg: filename + line
+    // current->function->name = copy_string(parser.previous.start, parser.previous.length);
+    char buffer[512];
+    sprintf(buffer, "%s:%d", filename(), parser.current.line);
+    current->function->name = copy_string(buffer, strlen(buffer));
   }
 
   local* l = &current->locals[current->local_count++];
@@ -221,6 +235,8 @@ static void init_compiler(compiler* c, function_type type)
 
 static obj_function* end_compiler()
 {
+  compiler_count--;
+  printf("compiler count: %d\n", compiler_count);
   emit_return();
   obj_function* func = current->function;
 
@@ -234,6 +250,29 @@ static obj_function* end_compiler()
   
   current = current->enclosing;
   return func;
+}
+
+static void mark_initialized()
+{
+  if (current->scope_depth == 0)
+  {
+    return ;
+  }
+  else 
+  {
+    current->locals[current->local_count-1].depth = current->scope_depth;
+  }
+}
+
+
+static void define_variable(uint8_t global)
+{
+  if (current->scope_depth > 0) 
+  {
+    mark_initialized();
+    return ;
+  }
+  emit_bytes(OP_DEFINE_GLOBAL, global);
 }
 
 static void begin_scope()
@@ -305,6 +344,8 @@ static void step()
   }
   return ;
 }
+
+
 static void scenario()
 {
   for (;;)
@@ -315,9 +356,11 @@ static void scenario()
     }
     else if (match(TOKEN_SCENARIO))
     {
+      compiler c;
+      init_compiler(&c, TYPE_FUNCTION);
       begin_scope();
       // scenario header: push scenario, name, description
-      emit_byte(OP_SCENARIO);
+      emit_scenario(parser.current.start);
       create_op_until(OP_NAME, TOKEN_LINEBREAK);
       if (!check(TOKEN_STEP))
       {
@@ -326,7 +369,13 @@ static void scenario()
       match(TOKEN_STEP);
       // once we reach steps we add all steps
       step();
-      end_scope();
+      // end_scope();
+      obj_function* func = end_compiler();
+      emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+      // TODO proof of concept
+      define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+      emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+      emit_bytes(OP_CALL, 0);
     }
     else 
     {
@@ -352,9 +401,9 @@ static void feature()
 
 
 
-obj_function* compile(const char* source)
+obj_function* compile(const char* source, const char* filename)
 {
-  init_scanner(source);
+  init_scanner(source, filename);
   compiler cmplr; 
   init_compiler(&cmplr, TYPE_SCRIPT);
 

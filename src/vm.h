@@ -36,7 +36,7 @@ extern vm g_vm;
 
 void init_vm();
 void free_vm();
-interpret_result interpret(const char* source);
+interpret_result interpret(const char* source, const char* filename);
 void push(value value);
 value pop();
 
