@@ -12,10 +12,21 @@
 
 vm g_vm;
 
+static int my_count = 0;
+
 static value clock_native(int arg_count, value* args)
 {
   printf("running clock here!!! \n");
   return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
+}
+
+static value step_test(int arg_count, value* args)
+{
+  my_count++;
+  int arg1 = (int) AS_NUMBER(args[0]);
+  obj_string* arg2 = AS_STRING(args[1]);
+  printf("[%d] running step_test with %d args, arg1: %d and arg2: '%s'\n",my_count, arg_count, arg1, arg2->chars);
+  return NIL_VAL;
 }
 
 static void reset_stack()
@@ -69,6 +80,7 @@ void init_vm()
   init_table(&g_vm.steps);
 
   define_native("clock", clock_native);
+  define_native("my step test with {int} and {string}", step_test);
 }
 void free_vm()
 {
@@ -184,6 +196,8 @@ static interpret_result run()
     {
       case OP_CONSTANT:
       {
+        value constant = READ_CONSTANT();
+        push(constant);
       }
       break; case OP_NIL: 
       { 
@@ -204,19 +218,27 @@ static interpret_result run()
       }
       break; case OP_STEP:
       {
-        obj_string* str = READ_STRING();
-        printf("%s\n", str->chars);
+        obj_string* step = READ_STRING();
         value v;
-        if (table_get_step(&g_vm.steps, str, &v))
+        if (table_get_step(&g_vm.steps, step, &v))
         {
-          printf("found a step ... \n");
-          AS_NATIVE(v)(0,NULL);
+          push(v);
         }
         else 
         {
-          printf("didn't find any step ... \n");
+          runtime_error("Undefined step '%s'.", step->chars);
+          return INTERPRET_RUNTIME_ERROR;   
         }
       }
+      break; case OP_CALL:
+      {
+        int arg_count = READ_BYTE();
+        if (!call_value(peek(arg_count), arg_count)) 
+        {
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        frame = &g_vm.frames[g_vm.frame_count-1];
+      } 
       break; case OP_RETURN: 
       {
         return INTERPRET_OK;

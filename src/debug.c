@@ -18,6 +18,13 @@ static int simple_instruction(const char* name, int offset)
   return offset+1;
 }
 
+static int byte_instruction(const char* name, chunk* c, int offset)
+{
+  uint8_t slot = c->code[offset+1];
+  printf("%-16s %4d\n", name, slot);
+  return offset + 2;
+}
+
 void disassemble_chunk(chunk* c, const char* name)
 {
   printf("== %s ==\n", name);
@@ -62,6 +69,8 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_DESCRIPTION", c, offset);  
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
+  case OP_CALL:
+    return byte_instruction("OP_CALL", c, offset);
   case OP_RETURN:
     return simple_instruction("OP_RETURN", offset);
   default:

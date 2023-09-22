@@ -187,7 +187,7 @@ static token number()
     advance();
     while(is_digit(peek())) { advance(); }
   }
-  return make_token(TOKEN_NUMBER);
+  return make_token(TOKEN_INT);
 }
 
 static token string()
@@ -251,6 +251,7 @@ token scan_token()
     {
       if (peek() == '"' && peek_next() == '"')
       {
+        // TODO
         // return doc_string();
       }
       else 
@@ -275,6 +276,5 @@ token scan_token()
     // case '<': return variable();
   }
 
-  // return error_token("Unexpected character!");
   return text(); 
 }

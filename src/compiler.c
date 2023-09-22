@@ -91,6 +91,11 @@ static bool check(token_type type)
   return parser.current.type == type;
 }
 
+static token_type current_token()
+{
+  return parser.current.type;
+}
+
 static void advance()
 {
   parser.previous = parser.current;
@@ -160,9 +165,12 @@ static void emit_constant(value v)
 {
   emit_bytes(OP_CONSTANT, make_constant(v));
 }
-static void emit_step(value v)
+// static void emit_step(value v)
+static void emit_step(const char* str)
 {
-  emit_bytes(OP_STEP, make_constant(v));
+  const char* begin = str; 
+  while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
+  emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
 }
 static void emit_name(value v)
 {
@@ -173,9 +181,15 @@ static void emit_description(value v)
   emit_bytes(OP_DESCRIPTION, make_constant(v));
 }
 
-static void string()
+static void emit_int()
 {
-  emit_constant(OBJ_VAL(copy_string(parser.previous.start , parser.previous.length)));
+  double number = strtod(parser.current.start, NULL);
+  emit_constant(NUMBER_VAL(number));
+}
+
+static void emit_string()
+{
+  emit_constant(OBJ_VAL(copy_string(parser.current.start , parser.current.length)));
 }
 
 static void emit_return()
@@ -249,16 +263,22 @@ static void language()
 }
 static void scenario();
 
-
 static void process_step()
 {
   const char* begin = parser.current.start;
+  emit_step(parser.current.start);
+  uint8_t arg_count = 0;
   while(!check(TOKEN_LINEBREAK) && !check(TOKEN_EOF))
   {
+    switch (current_token())
+    {
+      case TOKEN_STRING: emit_string(); arg_count++;
+      break; case TOKEN_INT: emit_int(); arg_count++;
+    }
     advance();
   }
+  emit_bytes(OP_CALL, arg_count);
   const char* end = parser.previous.start + parser.previous.length;
-  emit_step(OBJ_VAL(copy_string(begin , end-begin)));
 }
 
 static void create_op_until(op_code code, token_type type)
