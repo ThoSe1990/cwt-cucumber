@@ -199,9 +199,8 @@ static interpret_result run()
         value constant = READ_CONSTANT();
         push(constant);
       }
-      break; case OP_NIL: 
-      { 
-      }
+      break; case OP_POP: pop(); 
+      break; case OP_NIL: push(NIL_VAL);
       break; case OP_FEATURE: 
       { 
       }
@@ -210,6 +209,11 @@ static interpret_result run()
         obj_string* name = READ_STRING();
         table_set(&g_vm.globals, name, peek(0));
         pop();
+      }
+      break; case OP_GET_LOCAL: 
+      {
+        uint8_t slot = READ_BYTE();
+        push(frame->slots[slot]);
       }
       break; case OP_GET_GLOBAL:
       {
@@ -236,10 +240,12 @@ static interpret_result run()
       break; case OP_NAME: 
       { 
         obj_string* str = READ_STRING();
+        push(NIL_VAL);
       }
       break; case OP_DESCRIPTION: 
       { 
         obj_string* str = READ_STRING();
+        push(NIL_VAL);
       }
       break; case OP_STEP:
       {

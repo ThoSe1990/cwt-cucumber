@@ -172,13 +172,18 @@ static void emit_step(const char* str)
   while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
   emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
 }
-static void emit_scenario(const char* str)
+static void emit_scenario(int line)
 {
-  const char* begin = str; 
-  while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
-  // emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
-  emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string("my scenario" , 11))));
+  char buffer[32];
+  sprintf(buffer, "%d", line);
+  emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(buffer , strlen(buffer)))));
 }
+
+static void emit_feature(const char* str)
+{
+
+}
+
 static void emit_name(value v)
 {
   emit_bytes(OP_NAME, make_constant(v));
@@ -205,11 +210,8 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
-static int compiler_count = 0;
 static void init_compiler(compiler* c, function_type type)
 {
-  compiler_count++;
-  printf("compiler count: %d\n", compiler_count);
   c->enclosing = current;
   c->function = NULL;
   c->type = type;
@@ -223,7 +225,7 @@ static void init_compiler(compiler* c, function_type type)
     // TODO unique naming for scenario, eg: filename + line
     // current->function->name = copy_string(parser.previous.start, parser.previous.length);
     char buffer[512];
-    sprintf(buffer, "%s:%d", filename(), parser.current.line);
+    sprintf(buffer, "%s:%d", filename(), parser.previous.line);
     current->function->name = copy_string(buffer, strlen(buffer));
   }
 
@@ -232,11 +234,67 @@ static void init_compiler(compiler* c, function_type type)
   l->name.start = "";
   l->name.length = 0;
 }
+static uint8_t identifier_constant(token* name)
+{
+  return make_constant(OBJ_VAL(copy_string(name->start, name->length)));
+}
+static void named_variable(token name, bool can_assign)
+{
+  uint8_t get_op, set_op;
+  int arg = resolve_local(current, &name);
+  if (arg != -1) 
+  {
+    get_op = OP_GET_LOCAL;
+    set_op = OP_SET_LOCAL;
+  }
+  else 
+  {
+    arg = identifier_constant(&name);
+    get_op = OP_GET_GLOBAL;
+    set_op = OP_SET_GLOBAL;
+  }
+  
+  if (can_assign /*&& match(TOKEN_EQUAL)*/)
+  {
+    // expression();
+    // emit_bytes(set_op, (uint8_t)arg);
+  }
+  else 
+  {
+    emit_bytes(get_op, (uint8_t)arg);
+  }
+}
+static bool identifiers_equal(token* a, token* b)
+{
+  if (a->length != b->length)
+  {
+    return false;
+  }
+  return memcmp(a->start, b->start, a->length) == 0;
+}
+static int resolve_local(compiler* c, token* name)
+{
+  for (int i = c->local_count-1 ; i >= 0 ; i--)
+  {
+    local* l = &c->locals[i];
+    if (identifiers_equal(name, &l->name)) 
+    {
+      if (l->depth == -1) 
+      {
+        error("Can't read local variable in its own initializer.");
+      }
+      return i;
+    }
+  }
+  return -1;
+}
+static void variable(bool can_assign)
+{
+  named_variable(parser.previous, can_assign);
+}
 
 static obj_function* end_compiler()
 {
-  compiler_count--;
-  printf("compiler count: %d\n", compiler_count);
   emit_return();
   obj_function* func = current->function;
 
@@ -317,6 +375,7 @@ static void process_step()
     advance();
   }
   emit_bytes(OP_CALL, arg_count);
+  emit_byte(OP_POP);
   const char* end = parser.previous.start + parser.previous.length;
 }
 
@@ -359,8 +418,7 @@ static void scenario()
       compiler c;
       init_compiler(&c, TYPE_FUNCTION);
       begin_scope();
-      // scenario header: push scenario, name, description
-      emit_scenario(parser.current.start);
+
       create_op_until(OP_NAME, TOKEN_LINEBREAK);
       if (!check(TOKEN_STEP))
       {
@@ -369,13 +427,16 @@ static void scenario()
       match(TOKEN_STEP);
       // once we reach steps we add all steps
       step();
-      // end_scope();
+
       obj_function* func = end_compiler();
+      // emits the scenario (or the function in an abstract context)
       emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-      // TODO proof of concept
-      define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
-      emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+      
+      // to then call we need 1. to get the local (which we just emitted)
+      emit_bytes(OP_GET_LOCAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+      // and then call it
       emit_bytes(OP_CALL, 0);
+      emit_byte(OP_POP);
     }
     else 
     {
@@ -389,7 +450,11 @@ static void feature()
 {
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect 'Feature:'.");
-  emit_byte(OP_FEATURE);
+  
+  compiler c;
+  init_compiler(&c, TYPE_FUNCTION);
+  begin_scope();
+      
   create_op_until(OP_NAME, TOKEN_LINEBREAK);
   advance();
   if (!match(TOKEN_SCENARIO)) // TODO add Tags here 
@@ -397,6 +462,17 @@ static void feature()
     create_op_until(OP_DESCRIPTION, TOKEN_SCENARIO);
   }
   scenario();
+
+  obj_function* func = end_compiler();
+  // emits the function name
+  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+  // defines the global variable for this feature (or function in an abstract context)
+  define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+
+  // emits the actual call to the feature
+  emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+  emit_bytes(OP_CALL, 0);
+  emit_byte(OP_POP);
 }
 
 

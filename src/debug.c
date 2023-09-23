@@ -59,6 +59,8 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_FEATURE", offset);
   case OP_GET_GLOBAL:
     return constant_instruction("OP_GET_GLOBAL", c, offset);
+  case OP_GET_LOCAL:
+    return byte_instruction("OP_GET_LOCAL", c, offset);
   case OP_DEFINE_GLOBAL:
     return constant_instruction("OP_DEFINE_GLOBAL", c, offset);
   case OP_POP:
