@@ -240,12 +240,12 @@ static interpret_result run()
       break; case OP_NAME: 
       { 
         obj_string* str = READ_STRING();
-        push(NIL_VAL);
+        // push(NIL_VAL);
       }
       break; case OP_DESCRIPTION: 
       { 
         obj_string* str = READ_STRING();
-        push(NIL_VAL);
+        // push(NIL_VAL);
       }
       break; case OP_STEP:
       {

@@ -389,7 +389,7 @@ static void create_op_until(op_code code, token_type type)
     if (check(TOKEN_EOF)) break;
   }
   const char* end = parser.previous.start + parser.previous.length;
-  emit_bytes_at(code, make_constant(OBJ_VAL(copy_string(begin , end-begin))), line);
+  // emit_bytes_at(code, make_constant(OBJ_VAL(copy_string(begin , end-begin))), line);
 }
 
 static void step() 
@@ -436,7 +436,7 @@ static void scenario()
       emit_bytes(OP_GET_LOCAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
       // and then call it
       emit_bytes(OP_CALL, 0);
-      emit_byte(OP_POP);
+      // emit_byte(OP_POP);
     }
     else 
     {
