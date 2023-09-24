@@ -247,7 +247,8 @@ static int resolve_local(compiler* c, token* name)
   for (int i = c->local_count-1 ; i >= 0 ; i--)
   {
     local* l = &c->locals[i];
-    if (identifiers_equal(name, &l->name)) 
+    if (name->line == l->name.line)
+    // if (identifiers_equal(name, &l->name)) 
     {
       if (l->depth == -1) 
       {
@@ -374,7 +375,6 @@ static void process_step()
     advance();
   }
   emit_bytes(OP_CALL, arg_count);
-  emit_byte(OP_POP);
 }
 
 static void op_code_until(op_code code, token_type type)
@@ -403,14 +403,29 @@ static void step()
   return ;
 }
 
+static void add_local(token name)
+{
+  if (current->local_count == UINT8_COUNT)
+  {
+    error("Too many local variables in function.");
+  }
+  else 
+  {
+    local* l = &current->locals[current->local_count++];
+    l->name = name;
+    l->depth = -1;
+  }
+}
+
 
 static void scenario()
 {
   for (;;)
   {
+    begin_scope();
     if (match(TOKEN_EOF)) 
     { 
-      return;
+      break;
     }
     else if (match(TOKEN_SCENARIO))
     {
@@ -430,17 +445,23 @@ static void scenario()
       obj_function* func = end_compiler();
       // emits the scenario (or the function in an abstract context)
       emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-      
       // to then call we need 1. to get the local (which we just emitted)
-      emit_bytes(OP_GET_LOCAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+      add_local(parser.current); 
+      mark_initialized();
+      
+      int arg = resolve_local(current, &parser.current);
+      emit_bytes(OP_GET_LOCAL, arg);
       // and then call it, a scenario always will have 0 arguemnts. 
       emit_bytes(OP_CALL, 0);
+      emit_byte(OP_POP);
     }
     else 
     {
       error_at_current("Expect StepLine or Scenario");
-      return ;
+      break;
     }
+   
+    end_scope();
   }
 }
 

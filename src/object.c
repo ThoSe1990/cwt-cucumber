@@ -106,5 +106,6 @@ void print_object(value v)
   {
     case OBJ_FUNCTION: print_function(AS_FUNCTION(v));
     break; case OBJ_STRING: printf("%s", AS_CSTRING(v));
+    break; case OBJ_NATIVE: printf("step");
   }
 }
