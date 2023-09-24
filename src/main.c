@@ -1,82 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-#include "common.h"
-#include "chunk.h"
-#include "object.h"
-#include "compiler.h"
-
-#include "debug.h"
+#include "cwt_cucumber.h"
 
 
-static char* read_file(const char* path) 
+
+static void step_test(int arg_count, value* args)
 {
-  FILE* file = fopen(path, "rb");
-  if (file == NULL) 
-  {
-    fprintf(stderr, "Could not open file \"%s\".\n", path);
-    exit(74);
-  }
-
-  fseek(file, 0L, SEEK_END);
-  size_t file_size = ftell(file);
-  rewind(file);
-
-  char* buffer = (char*)malloc(file_size+1);
-  if (buffer == NULL)
-  {
-    fprintf(stderr, "Not enough memory to read \"%s\".\n", path);
-    exit(74);
-  }
-
-  size_t bytes_read = fread(buffer, sizeof(char), file_size, file);
-  if (bytes_read < file_size)
-  {
-    fprintf(stderr, "Could not read file \"%s\".\n", path);
-    exit(74);
-  }
-  buffer[bytes_read] = '\0';
-  fclose(file);
-  return buffer;
+  printf("Running step with: %d and '%s'\n", value_as_int(&args[0]), value_as_string(&args[1]));
 }
-#include "memory.h"
-static void run_file(const char* path) 
-{
-  char* source = read_file(path);
-  interpret_result result = interpret(source, path);
-  free(source);
-  
-  if (result == INTERPRET_COMPILE_ERROR) { exit(65); }
-  if (result == INTERPRET_RUNTIME_ERROR) { exit(70); } 
-}
-
-
-#include <time.h>
 
 int main(int argc, const char* argv[])
 {
-  clock_t start_time, end_time;
-  double cpu_time_used;
-  start_time = clock();
+  open_cucumber();
 
-  init_vm();
-  // TODO run more files
-  if (argc == 2)
-  {
-    run_file(argv[1]);
-  }
-  else 
-  {
-    fprintf(stderr, "Usage: clox [path]\n");
-    exit(64);
-  }
+  define_step("my step test with {int} and {string}", step_test);
 
-  free_vm();
-
-  end_time = clock();
-  cpu_time_used = ((double) (end_time - start_time)) / CLOCKS_PER_SEC;
-  printf("CPU Time Used: %f seconds\n", cpu_time_used);
+  run_cucumber(argc, argv);
+  
+  close_cucumber();
 
   return 0;
 }

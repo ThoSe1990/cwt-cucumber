@@ -28,7 +28,7 @@ void free_object(obj* object)
     } 
     break; case OBJ_NATIVE:
     {
-      printf("<native fn>");
+      FREE(obj_native, object);
     }
     break; case OBJ_STRING: 
     {

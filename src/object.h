@@ -36,7 +36,7 @@ typedef struct {
   obj_string* name;
 } obj_function;
 
-typedef value (*native_func)(int arg_count, value* args);
+typedef void (*native_func)(int arg_count, value* args);
 
 typedef struct {
   obj object;

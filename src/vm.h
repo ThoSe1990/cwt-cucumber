@@ -39,5 +39,6 @@ void free_vm();
 interpret_result interpret(const char* source, const char* filename);
 void push(value value);
 value pop();
+void define_native(const char* name, native_func func);
 
 #endif 

@@ -95,10 +95,13 @@ bool is_step(const char* defined, const char* feature)
         break; case PH_INT: integer(&feature);
       }
     }
-
+    if (*defined != '\0' && *feature != '\0') {
+      break; 
+    }
     if (*defined != *feature) {
       return false;
     }
+
     defined++; feature++;
   }
   return true;

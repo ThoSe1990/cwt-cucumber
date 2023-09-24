@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "common.h"
 #include "compiler.h"
@@ -165,7 +166,7 @@ static void emit_constant(value v)
 {
   emit_bytes(OP_CONSTANT, make_constant(v));
 }
-// static void emit_step(value v)
+
 static void emit_step(const char* str)
 {
   const char* begin = str; 
@@ -177,11 +178,6 @@ static void emit_scenario(int line)
   char buffer[32];
   sprintf(buffer, "%d", line);
   emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(buffer , strlen(buffer)))));
-}
-
-static void emit_feature(const char* str)
-{
-
 }
 
 static void emit_name(value v)
@@ -222,8 +218,6 @@ static void init_compiler(compiler* c, function_type type)
 
   if (type != TYPE_SCRIPT)
   {
-    // TODO unique naming for scenario, eg: filename + line
-    // current->function->name = copy_string(parser.previous.start, parser.previous.length);
     char buffer[512];
     sprintf(buffer, "%s:%d", filename(), parser.previous.line);
     current->function->name = copy_string(buffer, strlen(buffer));
@@ -238,32 +232,8 @@ static uint8_t identifier_constant(token* name)
 {
   return make_constant(OBJ_VAL(copy_string(name->start, name->length)));
 }
-static void named_variable(token name, bool can_assign)
-{
-  uint8_t get_op, set_op;
-  int arg = resolve_local(current, &name);
-  if (arg != -1) 
-  {
-    get_op = OP_GET_LOCAL;
-    set_op = OP_SET_LOCAL;
-  }
-  else 
-  {
-    arg = identifier_constant(&name);
-    get_op = OP_GET_GLOBAL;
-    set_op = OP_SET_GLOBAL;
-  }
-  
-  if (can_assign /*&& match(TOKEN_EQUAL)*/)
-  {
-    // expression();
-    // emit_bytes(set_op, (uint8_t)arg);
-  }
-  else 
-  {
-    emit_bytes(get_op, (uint8_t)arg);
-  }
-}
+
+// TODO later
 static bool identifiers_equal(token* a, token* b)
 {
   if (a->length != b->length)
@@ -288,10 +258,40 @@ static int resolve_local(compiler* c, token* name)
   }
   return -1;
 }
+
+
+// TODO I'll need this later, once there are variables in scenario outlines
+static void named_variable(token name, bool can_assign)
+{
+  uint8_t get_op, set_op;
+  int arg = resolve_local(current, &name);
+  if (arg != -1) 
+  {
+    get_op = OP_GET_LOCAL;
+    set_op = OP_SET_LOCAL;
+  }
+  else 
+  {
+    arg = identifier_constant(&name);
+    get_op = OP_GET_GLOBAL;
+    set_op = OP_SET_GLOBAL;
+  }
+  
+  if (can_assign)
+  {
+    // emit_bytes(set_op, (uint8_t)arg);
+  }
+  else 
+  {
+    emit_bytes(get_op, (uint8_t)arg);
+  }
+}
 static void variable(bool can_assign)
 {
   named_variable(parser.previous, can_assign);
 }
+
+
 
 static obj_function* end_compiler()
 {
@@ -356,13 +356,12 @@ static void skip_linebreaks()
 
 static void language()
 {
-// TODO
+// TODO parsing #language: en/es/de/etc.. 
 }
 static void scenario();
 
 static void process_step()
 {
-  const char* begin = parser.current.start;
   emit_step(parser.current.start);
   uint8_t arg_count = 0;
   while(!check(TOKEN_LINEBREAK) && !check(TOKEN_EOF))
@@ -376,10 +375,9 @@ static void process_step()
   }
   emit_bytes(OP_CALL, arg_count);
   emit_byte(OP_POP);
-  const char* end = parser.previous.start + parser.previous.length;
 }
 
-static void create_op_until(op_code code, token_type type)
+static void op_code_until(op_code code, token_type type)
 {
   const char* begin = parser.current.start;
   const int line = parser.current.line;
@@ -389,6 +387,7 @@ static void create_op_until(op_code code, token_type type)
     if (check(TOKEN_EOF)) break;
   }
   const char* end = parser.previous.start + parser.previous.length;
+  // TODO later we'll need names and descriptions ... 
   // emit_bytes_at(code, make_constant(OBJ_VAL(copy_string(begin , end-begin))), line);
 }
 
@@ -419,10 +418,10 @@ static void scenario()
       init_compiler(&c, TYPE_FUNCTION);
       begin_scope();
 
-      create_op_until(OP_NAME, TOKEN_LINEBREAK);
+      op_code_until(OP_NAME, TOKEN_LINEBREAK);
       if (!check(TOKEN_STEP))
       {
-        create_op_until(OP_DESCRIPTION, TOKEN_STEP);
+        op_code_until(OP_DESCRIPTION, TOKEN_STEP);
       }
       match(TOKEN_STEP);
       // once we reach steps we add all steps
@@ -434,9 +433,8 @@ static void scenario()
       
       // to then call we need 1. to get the local (which we just emitted)
       emit_bytes(OP_GET_LOCAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
-      // and then call it
+      // and then call it, a scenario always will have 0 arguemnts. 
       emit_bytes(OP_CALL, 0);
-      // emit_byte(OP_POP);
     }
     else 
     {
@@ -455,11 +453,11 @@ static void feature()
   init_compiler(&c, TYPE_FUNCTION);
   begin_scope();
       
-  create_op_until(OP_NAME, TOKEN_LINEBREAK);
+  op_code_until(OP_NAME, TOKEN_LINEBREAK);
   advance();
   if (!match(TOKEN_SCENARIO)) // TODO add Tags here 
   {
-    create_op_until(OP_DESCRIPTION, TOKEN_SCENARIO);
+    op_code_until(OP_DESCRIPTION, TOKEN_SCENARIO);
   }
   scenario();
 
@@ -480,8 +478,8 @@ static void feature()
 obj_function* compile(const char* source, const char* filename)
 {
   init_scanner(source, filename);
-  compiler cmplr; 
-  init_compiler(&cmplr, TYPE_SCRIPT);
+  compiler c; 
+  init_compiler(&c, TYPE_SCRIPT);
 
   parser.had_error = false;
 

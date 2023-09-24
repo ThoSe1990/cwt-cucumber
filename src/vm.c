@@ -12,22 +12,6 @@
 
 vm g_vm;
 
-static int my_count = 0;
-
-static value clock_native(int arg_count, value* args)
-{
-  printf("running clock here!!! \n");
-  return NUMBER_VAL((double)clock() / CLOCKS_PER_SEC);
-}
-
-static value step_test(int arg_count, value* args)
-{
-  my_count++;
-  int arg1 = (int) AS_NUMBER(args[0]);
-  obj_string* arg2 = AS_STRING(args[1]);
-  printf("[%d] running step_test with %d args, arg1: %d and arg2: '%s'\n",my_count, arg_count, arg1, arg2->chars);
-  return NIL_VAL;
-}
 
 static void reset_stack()
 {
@@ -62,7 +46,7 @@ static void runtime_error(const char* format, ...)
   reset_stack();
 }
 
-static void define_native(const char* name, native_func func)
+void define_native(const char* name, native_func func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
@@ -78,9 +62,6 @@ void init_vm()
   init_table(&g_vm.globals);
   init_table(&g_vm.strings);
   init_table(&g_vm.steps);
-
-  define_native("clock", clock_native);
-  define_native("my step test with {int} and {string}", step_test);
 }
 void free_vm()
 {
@@ -139,9 +120,9 @@ static bool call_value(value callee, int arg_count)
       case OBJ_NATIVE:
       {
         native_func native = AS_NATIVE(callee);
-        value result = native(arg_count, g_vm.stack_top - arg_count);
+        /*value result =*/ native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
-        push(result);
+        // push(result);
         return true;
       }
       default: break; // non callable obj type
@@ -179,17 +160,17 @@ static interpret_result run()
 
   for(;;)
   {
-  // #ifdef DEBUG_TRACE_EXTENSION
-  //   printf("        ");
-  //   for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
-  //   {
-  //     printf("[ ");
-  //     print_value(*slot);
-  //     printf(" ]");
-  //   }
-  //   printf("\n");
-  //   disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
-  // #endif 
+  #ifdef DEBUG_TRACE_EXTENSION
+    printf("        ");
+    for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
+    {
+      printf("[ ");
+      print_value(*slot);
+      printf(" ]");
+    }
+    printf("\n");
+    disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
+  #endif 
 
     uint8_t instruction; 
     switch (instruction = READ_BYTE()) 
@@ -231,21 +212,15 @@ static interpret_result run()
       }
       break; case OP_SCENARIO: 
       { 
-        // TODO something todo here?? 
-        // obj_string* str = READ_STRING();
-        // printf("******************************\n");
-        // printf("%s\n", str->chars);
-        // printf("******************************\n");
+        // TODO not exactly sure if i'll need this ... 
       }
       break; case OP_NAME: 
       { 
-        obj_string* str = READ_STRING();
-        // push(NIL_VAL);
+        // TODO print/report names
       }
       break; case OP_DESCRIPTION: 
       { 
-        obj_string* str = READ_STRING();
-        // push(NIL_VAL);
+        // TODO print/report descriptions
       }
       break; case OP_STEP:
       {
@@ -286,10 +261,6 @@ static interpret_result run()
           frame = &g_vm.frames[g_vm.frame_count-1];
           break;
         }
-      }
-      break; default: 
-      {
-        printf("********** SHOULD NOT HAPPEN! ************\n");
       }
     }
   }

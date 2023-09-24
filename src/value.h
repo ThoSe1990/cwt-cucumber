@@ -1,29 +1,9 @@
 #ifndef cwt_cucumber_value_h
 #define cwt_cucumber_value_h
 
-
-
 #include "common.h"
+#include "cwt_cucumber_value.h"
 
-typedef struct obj obj;
-typedef struct obj_string obj_string;
-
-
-typedef enum {
-  VAL_BOOL,
-  VAL_NIL,
-  VAL_NUMBER,
-  VAL_OBJ 
-} value_type;
-
-typedef struct {
-  value_type type;
-  union {
-    bool boolean;
-    double number;
-    obj* object; 
-  } as;
-} value;
 
 #define IS_BOOL(v)    ((v).type == VAL_BOOL)
 #define IS_NIL(v)     ((v).type == VAL_NIL)
