@@ -57,7 +57,7 @@ void integer(const char** str)
     {
       if (dot) 
       {
-        fprintf(stderr, "More than one dot in number.\n");
+        fprintf(stderr, "More than one dot in int_value.\n");
       }
       dot = true;
       (*str)++;

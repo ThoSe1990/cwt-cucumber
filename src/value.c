@@ -12,7 +12,7 @@ bool values_equal(value a, value b)
   {
     case VAL_BOOL: return AS_BOOL(a) == AS_BOOL(b);
     case VAL_NIL: return true; 
-    case VAL_NUMBER: return AS_NUMBER(a) == AS_NUMBER(b);
+    case VAL_INT: return AS_INT(a) == AS_INT(b);
     case VAL_OBJ: return AS_OBJ(a) == AS_OBJ(b);
     default: return false; // unreachable 
   }
@@ -47,7 +47,7 @@ void print_value(value v)
   {
   case VAL_BOOL: printf(AS_BOOL(v) ? "true" : "false");
   break; case VAL_NIL: printf("nil"); 
-  break; case VAL_NUMBER: printf("%g", AS_NUMBER(v));
+  break; case VAL_INT: printf("%d", AS_INT(v));
   break; case VAL_OBJ: print_object(v); 
   break;
   }

@@ -76,7 +76,7 @@ void define_step(const char* name, native_func func)
 
 int value_as_int(value* v)
 {
-  return (int)AS_NUMBER(*v);
+  return (int)AS_INT(*v);
 }
 const char* value_as_string(value* v)
 {

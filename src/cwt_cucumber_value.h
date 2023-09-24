@@ -6,11 +6,10 @@
 typedef struct obj obj;
 typedef struct obj_string obj_string;
 
-
 typedef enum {
   VAL_BOOL,
   VAL_NIL,
-  VAL_NUMBER,
+  VAL_INT,
   VAL_OBJ 
 } value_type;
 
@@ -18,7 +17,7 @@ typedef struct {
   value_type type;
   union {
     bool boolean;
-    double number;
+    int int_value;
     obj* object; 
   } as;
 } value;

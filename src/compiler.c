@@ -191,8 +191,8 @@ static void emit_description(value v)
 
 static void emit_int()
 {
-  double number = strtod(parser.current.start, NULL);
-  emit_constant(NUMBER_VAL(number));
+  int32_t int_value = strtod(parser.current.start, NULL);
+  emit_constant(INT_VAL(int_value));
 }
 
 static void emit_string()

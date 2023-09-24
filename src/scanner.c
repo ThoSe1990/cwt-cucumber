@@ -181,7 +181,7 @@ static bool whitespace()
 }
 
 
-static token number()
+static token int_value()
 {
   while (is_digit(peek())) { advance(); }
   if (peek() == '.' && is_digit(peek_next()))
@@ -246,7 +246,7 @@ token scan_token()
 
   if (is_digit(c)) 
   {
-    return number();
+    return int_value();
   }
 
   switch(c)
