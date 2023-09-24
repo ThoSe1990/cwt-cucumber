@@ -7,4 +7,4 @@ add_executable(${target}
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
 )
 target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src/cwt/implementation)
-target_link_libraries(${target} cwt-cucumber-nomain GTest::gtest_main)
+target_link_libraries(${target} cwt-cucumber GTest::gtest_main)

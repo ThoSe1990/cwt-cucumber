@@ -46,7 +46,7 @@ static void runtime_error(const char* format, ...)
   reset_stack();
 }
 
-void define_native(const char* name, native_func func)
+void define_native(const char* name, cwtc_step func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
@@ -119,7 +119,7 @@ static bool call_value(cwtc_value callee, int arg_count)
       } 
       case OBJ_NATIVE:
       {
-        native_func native = AS_NATIVE(callee);
+        cwtc_step native = AS_NATIVE(callee);
         /*cwtc_value result =*/ native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         // push(result);
@@ -247,7 +247,6 @@ static interpret_result run()
       } 
       break; case OP_RETURN: 
       {
-        cwtc_value result = pop();
         g_vm.frame_count--;
         if (g_vm.frame_count == 0) 
         {
@@ -257,7 +256,6 @@ static interpret_result run()
         else 
         {
           g_vm.stack_top = frame->slots;
-          push(result);
           frame = &g_vm.frames[g_vm.frame_count-1];
           break;
         }

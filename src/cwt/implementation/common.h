@@ -5,8 +5,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define DEBUG_PRINT_CODE
-#define DEBUG_TRACE_EXTENSION
+
+#ifdef STACK_TRACE
+  #define DEBUG_PRINT_CODE
+  #define DEBUG_TRACE_EXTENSION
+#endif
 
 #define UINT8_COUNT (UINT8_MAX + 1)
 

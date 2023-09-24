@@ -1,7 +1,7 @@
 
-set(target example)
+set(target cwt-cucumber)
 
-add_library(cwt-cucumber-nomain STATIC
+add_library(${target} STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/chunk.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/memory.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/debug.c
@@ -15,3 +15,6 @@ add_library(cwt-cucumber-nomain STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.c
 )
 
+if (STACK_TRACE)
+  target_compile_definitions(${target} PUBLIC STACK_TRACE)
+endif()

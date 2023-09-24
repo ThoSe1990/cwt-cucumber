@@ -39,6 +39,6 @@ void free_vm();
 interpret_result interpret(const char* source, const char* filename);
 void push(cwtc_value cwtc_value);
 cwtc_value pop();
-void define_native(const char* name, native_func func);
+void define_native(const char* name, cwtc_step func);
 
 #endif 

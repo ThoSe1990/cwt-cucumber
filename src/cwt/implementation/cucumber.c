@@ -5,6 +5,15 @@
 #include "../cucumber.h"
 #include "vm.h"
 
+void cwtc_true(bool assertion)
+{
+
+}
+void cwtc_false(bool assertion)
+{
+
+}
+
 static char* read_file(const char* path) 
 {
   FILE* file = fopen(path, "rb");
@@ -68,7 +77,7 @@ void close_cucumber()
   free_vm();
 }
 
-void define_step(const char* name, native_func func)
+void define_step(const char* name, cwtc_step func)
 {
   define_native(name, func);
 }

@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber)
 
+option(STACK_TRACE "Prints the compiled feature file stack and it's execution: ON/OFF" ON)
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()

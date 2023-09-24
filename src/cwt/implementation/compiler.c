@@ -39,18 +39,18 @@ typedef enum {
   TYPE_SCRIPT
 } function_type;
 
-typedef struct compiler {
-  struct compiler* enclosing;
+typedef struct cwtc_compiler {
+  struct cwtc_compiler* enclosing;
   obj_function* function;
   function_type type;
   local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
-} compiler;
+} cwtc_compiler;
 
 
 parser_t parser; 
-compiler* current = NULL;
+cwtc_compiler* current = NULL;
 
 static chunk* current_chunk()
 {
@@ -202,19 +202,18 @@ static void emit_string()
 
 static void emit_return()
 {
-  emit_byte(OP_NIL);
   emit_byte(OP_RETURN);
 }
 
-static void init_compiler(compiler* c, function_type type)
+static void init_compiler(cwtc_compiler* compiler, function_type type)
 {
-  c->enclosing = current;
-  c->function = NULL;
-  c->type = type;
-  c->local_count = 0;
-  c->scope_depth = 0; 
-  c->function = new_function();
-  current = c;
+  compiler->enclosing = current;
+  compiler->function = NULL;
+  compiler->type = type;
+  compiler->local_count = 0;
+  compiler->scope_depth = 0; 
+  compiler->function = new_function();
+  current = compiler;
 
   if (type != TYPE_SCRIPT)
   {
@@ -242,13 +241,26 @@ static bool identifiers_equal(token* a, token* b)
   }
   return memcmp(a->start, b->start, a->length) == 0;
 }
-static int resolve_local(compiler* c, token* name)
+
+static int resolve_step(cwtc_compiler* compiler, token* name)
 {
-  for (int i = c->local_count-1 ; i >= 0 ; i--)
+  for (int i = compiler->local_count-1 ; i >= 0 ; i--)
   {
-    local* l = &c->locals[i];
+    local* l = &compiler->locals[i];
     if (name->line == l->name.line)
-    // if (identifiers_equal(name, &l->name)) 
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+static int resolve_local(cwtc_compiler* compiler, token* name)
+{
+  for (int i = compiler->local_count-1 ; i >= 0 ; i--)
+  {
+    local* l = &compiler->locals[i];
+    if (identifiers_equal(name, &l->name)) 
     {
       if (l->depth == -1) 
       {
@@ -280,7 +292,7 @@ static void named_variable(token name, bool can_assign)
   
   if (can_assign)
   {
-    // emit_bytes(set_op, (uint8_t)arg);
+    emit_bytes(set_op, (uint8_t)arg);
   }
   else 
   {
@@ -429,8 +441,8 @@ static void scenario()
     }
     else if (match(TOKEN_SCENARIO))
     {
-      compiler c;
-      init_compiler(&c, TYPE_FUNCTION);
+      cwtc_compiler compiler;
+      init_compiler(&compiler, TYPE_FUNCTION);
       begin_scope();
 
       op_code_until(OP_NAME, TOKEN_LINEBREAK);
@@ -449,7 +461,7 @@ static void scenario()
       add_local(parser.current); 
       mark_initialized();
       
-      int arg = resolve_local(current, &parser.current);
+      int arg = resolve_step(current, &parser.current);
       emit_bytes(OP_GET_LOCAL, arg);
       // and then call it, a scenario always will have 0 arguemnts. 
       emit_bytes(OP_CALL, 0);
@@ -457,7 +469,7 @@ static void scenario()
     }
     else 
     {
-      error_at_current("Expect StepLine or Scenario");
+      error_at_current("Expect StepLine or Scenario.");
       break;
     }
    
@@ -468,15 +480,15 @@ static void scenario()
 static void feature()
 {
   skip_linebreaks();
-  consume(TOKEN_FEATURE, "Expect 'Feature:'.");
+  consume(TOKEN_FEATURE, "Expect FeatureLine.");
   
-  compiler c;
-  init_compiler(&c, TYPE_FUNCTION);
+  cwtc_compiler compiler;
+  init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
       
   op_code_until(OP_NAME, TOKEN_LINEBREAK);
   advance();
-  if (!match(TOKEN_SCENARIO)) // TODO add Tags here 
+  if (!check(TOKEN_SCENARIO)) // TODO add Tags here 
   {
     op_code_until(OP_DESCRIPTION, TOKEN_SCENARIO);
   }
@@ -499,8 +511,8 @@ static void feature()
 obj_function* compile(const char* source, const char* filename)
 {
   init_scanner(source, filename);
-  compiler c; 
-  init_compiler(&c, TYPE_SCRIPT);
+  cwtc_compiler compiler; 
+  init_compiler(&compiler, TYPE_SCRIPT);
 
   parser.had_error = false;
 
