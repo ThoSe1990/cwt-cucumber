@@ -137,9 +137,9 @@ static void consume(token_type type, const char* msg)
 }
 
 
-static uint8_t make_constant(value v)
+static uint8_t make_constant(cwtc_value value)
 {
-  int constant = add_constant(current_chunk(), v);
+  int constant = add_constant(current_chunk(), value);
   if (constant > UINT8_MAX)
   {
     error("Too many constants in one chunk");
@@ -162,9 +162,9 @@ static void emit_bytes_at(uint8_t byte1, uint8_t byte2, int line)
   write_chunk(current_chunk(), byte1, line);
   write_chunk(current_chunk(), byte2, line);
 }
-static void emit_constant(value v)
+static void emit_constant(cwtc_value value)
 {
-  emit_bytes(OP_CONSTANT, make_constant(v));
+  emit_bytes(OP_CONSTANT, make_constant(value));
 }
 
 static void emit_step(const char* str)
@@ -180,13 +180,13 @@ static void emit_scenario(int line)
   emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(buffer , strlen(buffer)))));
 }
 
-static void emit_name(value v)
+static void emit_name(cwtc_value value)
 {
-  emit_bytes(OP_NAME, make_constant(v));
+  emit_bytes(OP_NAME, make_constant(value));
 }
-static void emit_description(value v)
+static void emit_description(cwtc_value value)
 {
-  emit_bytes(OP_DESCRIPTION, make_constant(v));
+  emit_bytes(OP_DESCRIPTION, make_constant(value));
 }
 
 static void emit_int()

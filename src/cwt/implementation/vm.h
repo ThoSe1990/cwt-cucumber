@@ -12,14 +12,14 @@
 typedef struct {
   obj_function* function;
   uint8_t* ip;
-  value* slots;
+  cwtc_value* slots;
 } call_frame;
 
 typedef struct {
   call_frame frames[FRAMES_MAX];
   int frame_count;
-  value stack[STACK_MAX];
-  value* stack_top;
+  cwtc_value stack[STACK_MAX];
+  cwtc_value* stack_top;
   table steps;
   table globals;
   table strings;
@@ -37,8 +37,8 @@ extern vm g_vm;
 void init_vm();
 void free_vm();
 interpret_result interpret(const char* source, const char* filename);
-void push(value value);
-value pop();
+void push(cwtc_value cwtc_value);
+cwtc_value pop();
 void define_native(const char* name, native_func func);
 
 #endif 

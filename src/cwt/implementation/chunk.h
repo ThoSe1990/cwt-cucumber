@@ -39,6 +39,6 @@ typedef struct
 void init_chunk(chunk* c);
 void free_chunk(chunk* c);
 void write_chunk(chunk* c, uint8_t byte, int line);
-int add_constant(chunk* c, value v);
+int add_constant(chunk* c, cwtc_value value);
 
 #endif

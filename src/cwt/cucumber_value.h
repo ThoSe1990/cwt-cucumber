@@ -11,15 +11,15 @@ typedef enum {
   VAL_NIL,
   VAL_INT,
   VAL_OBJ 
-} value_type;
+} cwtc_value_type;
 
 typedef struct {
-  value_type type;
+  cwtc_value_type type;
   union {
     bool boolean;
     int int_value;
     obj* object; 
   } as;
-} value;
+} cwtc_value;
 
 #endif

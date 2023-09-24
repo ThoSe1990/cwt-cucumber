@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "cwt_cucumber.h"
+#include "../cucumber.h"
 #include "vm.h"
 
 static char* read_file(const char* path) 
@@ -74,11 +74,11 @@ void define_step(const char* name, native_func func)
 }
 
 
-int value_as_int(value* v)
+int value_as_int(cwtc_value* value)
 {
-  return (int)AS_INT(*v);
+  return (int)AS_INT(*value);
 }
-const char* value_as_string(value* v)
+const char* value_as_string(cwtc_value* value)
 {
-  return AS_STRING(*v)->chars;
+  return AS_STRING(*value)->chars;
 }

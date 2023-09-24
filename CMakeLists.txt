@@ -26,5 +26,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     endif()
 endif()
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(${PROJECT_SOURCE_DIR}/src/cwt)
+add_subdirectory(${PROJECT_SOURCE_DIR}/example)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)

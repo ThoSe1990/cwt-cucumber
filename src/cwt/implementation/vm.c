@@ -71,18 +71,18 @@ void free_vm()
   free_objects();
 }
 
-void push(value v)
+void push(cwtc_value value)
 {
-  *g_vm.stack_top = v;
+  *g_vm.stack_top = value;
   g_vm.stack_top++;
 }
-value pop()
+cwtc_value pop()
 {
   g_vm.stack_top--;
   return *g_vm.stack_top;
 }
 
-static value peek(int distance)
+static cwtc_value peek(int distance)
 {
   return g_vm.stack_top[-1 - distance];
 }
@@ -107,7 +107,7 @@ static bool call(obj_function* func, int arg_count)
   return true;
 }
 
-static bool call_value(value callee, int arg_count)
+static bool call_value(cwtc_value callee, int arg_count)
 {
   if (IS_OBJ(callee))
   {
@@ -120,7 +120,7 @@ static bool call_value(value callee, int arg_count)
       case OBJ_NATIVE:
       {
         native_func native = AS_NATIVE(callee);
-        /*value result =*/ native(arg_count, g_vm.stack_top - arg_count);
+        /*cwtc_value result =*/ native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         // push(result);
         return true;
@@ -132,9 +132,9 @@ static bool call_value(value callee, int arg_count)
   return false;
 }
 
-static bool is_falsey(value v)
+static bool is_falsey(cwtc_value value)
 {
-  return IS_NIL(v) || (IS_BOOL(v) && !AS_BOOL(v)); 
+  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)); 
 }
 
 static void concatenate()
@@ -162,7 +162,7 @@ static interpret_result run()
   {
   #ifdef DEBUG_TRACE_EXTENSION
     printf("        ");
-    for (value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
+    for (cwtc_value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
     {
       printf("[ ");
       print_value(*slot);
@@ -177,7 +177,7 @@ static interpret_result run()
     {
       case OP_CONSTANT:
       {
-        value constant = READ_CONSTANT();
+        cwtc_value constant = READ_CONSTANT();
         push(constant);
       }
       break; case OP_POP: pop(); 
@@ -199,15 +199,15 @@ static interpret_result run()
       break; case OP_GET_GLOBAL:
       {
         obj_string* name = READ_STRING();
-        value v; 
-        if (!table_get(&g_vm.globals, name, &v))
+        cwtc_value value; 
+        if (!table_get(&g_vm.globals, name, &value))
         {
           runtime_error("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
         else 
         {
-          push(v);
+          push(value);
         }
       }
       break; case OP_SCENARIO: 
@@ -225,10 +225,10 @@ static interpret_result run()
       break; case OP_STEP:
       {
         obj_string* step = READ_STRING();
-        value v;
-        if (table_get_step(&g_vm.steps, step, &v))
+        cwtc_value value;
+        if (table_get_step(&g_vm.steps, step, &value))
         {
-          push(v);
+          push(value);
         }
         else 
         {
@@ -247,7 +247,7 @@ static interpret_result run()
       } 
       break; case OP_RETURN: 
       {
-        value result = pop();
+        cwtc_value result = pop();
         g_vm.frame_count--;
         if (g_vm.frame_count == 0) 
         {

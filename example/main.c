@@ -1,9 +1,9 @@
 
-#include "cwt_cucumber.h"
+#include "cwt/cucumber.h"
 
 
 
-static void step_test(int arg_count, value* args)
+static void step_test(int arg_count, cwtc_value* args)
 {
   printf("Running step with: %d and '%s'\n", value_as_int(&args[0]), value_as_string(&args[1]));
 }
