@@ -11,7 +11,13 @@ static int constant_instruction(const char* name, chunk* c, int offset)
   printf("'\n");
   return offset+2;
 }
-
+static int jump_instruction(const char* name, int sign, chunk* c, int offset)
+{
+  uint16_t jump = (uint16_t)(c->code[offset+1] << 8);
+  jump |= c->code[offset+2];
+  printf("%-16s %4d -> %d\n", name, offset, offset+3+sign*jump);
+  return offset + 3;
+}
 static int simple_instruction(const char* name, int offset)
 {
   printf("%s\n", name);
@@ -69,12 +75,16 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_SCENARIO", offset);
   case OP_STEP:
     return constant_instruction("OP_STEP", c, offset);
+  case OP_JUMP_IF_FAILED:
+    return jump_instruction("OP_JUMP_IF_FAILED", 1, c, offset);
   case OP_NAME:
     return constant_instruction("OP_NAME", c, offset);
   case OP_DESCRIPTION:
     return constant_instruction("OP_DESCRIPTION", c, offset);  
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
+  case OP_PRINT_RESULT:
+    return simple_instruction("OP_PRINT_RESULT", offset);
   case OP_CALL:
     return byte_instruction("OP_CALL", c, offset);
   case OP_RETURN:

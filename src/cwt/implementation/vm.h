@@ -15,15 +15,24 @@ typedef struct {
   cwtc_value* slots;
 } call_frame;
 
+typedef enum {
+  STEP_INITIAL,
+  STEP_SKIPPED,
+  STEP_PASSED,
+  STEP_FAILED
+} step_result;
+
 typedef struct {
   call_frame frames[FRAMES_MAX];
   int frame_count;
+  step_result last_result;
   cwtc_value stack[STACK_MAX];
   cwtc_value* stack_top;
   table steps;
   table globals;
   table strings;
-  obj* objects;
+  obj_string* last_step;
+  obj*  objects;
 } vm;
 
 typedef enum {

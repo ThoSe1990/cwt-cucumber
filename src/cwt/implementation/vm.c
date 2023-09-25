@@ -120,9 +120,8 @@ static bool call_value(cwtc_value callee, int arg_count)
       case OBJ_NATIVE:
       {
         cwtc_step native = AS_NATIVE(callee);
-        /*cwtc_value result =*/ native(arg_count, g_vm.stack_top - arg_count);
+        native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
-        // push(result);
         return true;
       }
       default: break; // non callable obj type
@@ -156,6 +155,8 @@ static interpret_result run()
   call_frame* frame = &g_vm.frames[g_vm.frame_count-1];
 #define READ_BYTE() (*frame->ip++)
 #define READ_CONSTANT() (frame->function->chunk.constants.values[READ_BYTE()])
+#define READ_SHORT() \
+  (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 
   for(;;)
@@ -210,9 +211,18 @@ static interpret_result run()
           push(value);
         }
       }
+      break; case OP_JUMP_IF_FAILED:
+      {
+        uint16_t offset = READ_SHORT();
+        if (g_vm.last_result == STEP_FAILED || g_vm.last_result == STEP_SKIPPED) 
+        {
+          g_vm.last_result = STEP_SKIPPED;
+          frame->ip += offset;
+        }
+      }
       break; case OP_SCENARIO: 
       { 
-        // TODO not exactly sure if i'll need this ... 
+        g_vm.last_result = STEP_INITIAL;
       }
       break; case OP_NAME: 
       { 
@@ -222,12 +232,24 @@ static interpret_result run()
       { 
         // TODO print/report descriptions
       }
+      break; case OP_PRINT_RESULT:
+      {
+        obj_string* step_name = READ_STRING();
+        switch (g_vm.last_result)
+        {
+          case STEP_PASSED: printf("\x1b[32m[  PASSED   ] %s\x1b[0m\n", step_name->chars);
+          break; case STEP_FAILED: printf("\x1b[31m[  FAILED   ] %s\x1b[0m\n", step_name->chars);
+          break; case STEP_SKIPPED: printf("\x1b[33m[  SKIPPED  ] %s\x1b[0m\n", step_name->chars);
+          break; default: ;// shouldn't happen ... 
+        }        
+      }
       break; case OP_STEP:
       {
         obj_string* step = READ_STRING();
         cwtc_value value;
         if (table_get_step(&g_vm.steps, step, &value))
         {
+          // set status skipped;
           push(value);
         }
         else 
@@ -238,6 +260,7 @@ static interpret_result run()
       }
       break; case OP_CALL:
       {
+        g_vm.last_result = STEP_PASSED;
         int arg_count = READ_BYTE();
         if (!call_value(peek(arg_count), arg_count)) 
         {
@@ -263,6 +286,7 @@ static interpret_result run()
     }
   }
 #undef READ_BYTE
+#undef READ_SHORT
 #undef READ_CONSTANT
 #undef READ_STRING
 }

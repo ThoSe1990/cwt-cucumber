@@ -166,13 +166,35 @@ static void emit_constant(cwtc_value value)
 {
   emit_bytes(OP_CONSTANT, make_constant(value));
 }
-
-static void emit_step(const char* str)
+static int emit_jump(uint8_t instruction)
 {
+  emit_byte(instruction);
+  emit_byte(0xff);
+  emit_byte(0xff);
+  return current_chunk()->count - 2;
+}
+static void patch_jump(int offset)
+{
+  int jump = current_chunk()->count - offset - 2;
+  if (jump > UINT16_MAX)
+  {
+    error("Too much code to jump over.");
+  }
+  current_chunk()->code[offset] = (jump >> 8) & 0xff;
+  current_chunk()->code[offset+1] = jump & 0xff;
+}
+static void emit_step(const char* name, int length)
+{
+  emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(name , length))));
+}
+
+static int step_name_length(const char* str)
+{ 
   const char* begin = str; 
   while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
-  emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(begin , str-begin))));
+  return str-begin;
 }
+
 static void emit_scenario(int line)
 {
   char buffer[32];
@@ -375,7 +397,11 @@ static void scenario();
 
 static void process_step()
 {
-  emit_step(parser.current.start);
+  const char* step_name = parser.current.start;
+  const int length = step_name_length(parser.current.start);
+
+  emit_step(step_name, length);
+  int after_step = emit_jump(OP_JUMP_IF_FAILED);
   uint8_t arg_count = 0;
   while(!check(TOKEN_LINEBREAK) && !check(TOKEN_EOF))
   {
@@ -387,6 +413,8 @@ static void process_step()
     advance();
   }
   emit_bytes(OP_CALL, arg_count);
+  patch_jump(after_step);
+  emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
 }
 
 static void op_code_until(op_code code, token_type type)
@@ -434,13 +462,15 @@ static void scenario()
 {
   for (;;)
   {
-    begin_scope();
     if (match(TOKEN_EOF)) 
     { 
       break;
     }
     else if (match(TOKEN_SCENARIO))
     {
+      emit_byte(OP_SCENARIO);
+      begin_scope();
+
       cwtc_compiler compiler;
       init_compiler(&compiler, TYPE_FUNCTION);
       begin_scope();
@@ -463,17 +493,17 @@ static void scenario()
       
       int arg = resolve_step(current, &parser.current);
       emit_bytes(OP_GET_LOCAL, arg);
+
       // and then call it, a scenario always will have 0 arguemnts. 
       emit_bytes(OP_CALL, 0);
-      emit_byte(OP_POP);
+
+      end_scope();
     }
     else 
     {
       error_at_current("Expect StepLine or Scenario.");
       break;
     }
-   
-    end_scope();
   }
 }
 

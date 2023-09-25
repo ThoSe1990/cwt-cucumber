@@ -7,11 +7,17 @@
 
 void cwtc_true(bool assertion)
 {
-
+  if (!assertion) 
+  {
+    g_vm.last_result = STEP_FAILED;
+  }
 }
 void cwtc_false(bool assertion)
 {
-
+  if (assertion) 
+  {
+    g_vm.last_result = STEP_FAILED;
+  }
 }
 
 static char* read_file(const char* path) 

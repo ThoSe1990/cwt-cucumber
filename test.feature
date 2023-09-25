@@ -2,12 +2,13 @@
 
 Feature: my feature
   Scenario: foo 
-    When my step test with 1 and "one"
-    When my step test with 2 and "two"
+    When this passes
+    When this fails
+    When this passes
+    When this passes
+  
   Scenario: foo 
-    Then my step test with 99 and "it's my second step"
-    
-  # Feature: some feature ... 
-  #   Scenario: some scenario ...
-  #     Given Something given
-  #     this_is_wrong! 
+    When this passes
+    When this passes
+    When this passes
+    When my step test with 456 and "{string}"
