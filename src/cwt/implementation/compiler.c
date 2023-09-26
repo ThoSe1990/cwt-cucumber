@@ -14,7 +14,7 @@ typedef struct {
   token current;
   token previous; 
   bool had_error;
-} parser_t;
+} cwtc_parser;
 
 typedef enum {
   PREC_NONE,
@@ -49,7 +49,7 @@ typedef struct cwtc_compiler {
 } cwtc_compiler;
 
 
-parser_t parser; 
+cwtc_parser parser; 
 cwtc_compiler* current = NULL;
 
 static chunk* current_chunk()
@@ -414,21 +414,34 @@ static void process_step()
   }
   emit_bytes(OP_CALL, arg_count);
   patch_jump(after_step);
-  emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
 }
 
-static void op_code_until(op_code code, token_type type)
+static void description(token_type end)
 {
   const char* begin = parser.current.start;
   const int line = parser.current.line;
-  while(!check(type))
+  while(!check(end))
+  {
+    advance();
+    if (check(TOKEN_EOF)) break;
+  }
+  // const char* end = parser.previous.start + parser.previous.length;
+  // TODO later we'll need names and descriptions ... 
+  // emit_description(OBJ_VAL(copy_string(begin , end-begin)))
+}
+
+static void name() 
+{
+  const char* begin = parser.previous.start;
+  const int line = parser.previous.line;
+  while(!check(TOKEN_LINEBREAK))
   {
     advance();
     if (check(TOKEN_EOF)) break;
   }
   const char* end = parser.previous.start + parser.previous.length;
-  // TODO later we'll need names and descriptions ... 
-  // emit_bytes_at(code, make_constant(OBJ_VAL(copy_string(begin , end-begin))), line);
+  emit_name(OBJ_VAL(copy_string(begin , end-begin)));
 }
 
 static void step() 
@@ -474,11 +487,10 @@ static void scenario()
       cwtc_compiler compiler;
       init_compiler(&compiler, TYPE_FUNCTION);
       begin_scope();
-
-      op_code_until(OP_NAME, TOKEN_LINEBREAK);
+      name();
       if (!check(TOKEN_STEP))
       {
-        op_code_until(OP_DESCRIPTION, TOKEN_STEP);
+        description(TOKEN_STEP);
       }
       match(TOKEN_STEP);
       // once we reach steps we add all steps
@@ -516,11 +528,12 @@ static void feature()
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
       
-  op_code_until(OP_NAME, TOKEN_LINEBREAK);
+  name();
+  emit_byte(OP_PRINT_LINEBREAK);
   advance();
   if (!check(TOKEN_SCENARIO)) // TODO add Tags here 
   {
-    op_code_until(OP_DESCRIPTION, TOKEN_SCENARIO);
+    description(TOKEN_SCENARIO);
   }
   scenario();
 

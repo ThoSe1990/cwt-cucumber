@@ -12,7 +12,6 @@
 
 vm g_vm;
 
-
 static void reset_stack()
 {
   g_vm.stack_top = g_vm.stack;
@@ -42,7 +41,6 @@ static void runtime_error(const char* format, ...)
       fprintf(stderr, "%s()\n", func->name->chars);
     }
   }
-
   reset_stack();
 }
 
@@ -226,20 +224,25 @@ static interpret_result run()
       }
       break; case OP_NAME: 
       { 
-        // TODO print/report names
+        obj_string* name = READ_STRING();
+        printf("[-----------] %s:\n", name->chars);
       }
       break; case OP_DESCRIPTION: 
       { 
-        // TODO print/report descriptions
+        // TODO print/report descriptions (later for like json report)
+      }
+      break; case OP_PRINT_LINEBREAK:
+      {
+        printf("[-----------]\n");
       }
       break; case OP_PRINT_RESULT:
       {
-        obj_string* step_name = READ_STRING();
+        obj_string* step = READ_STRING();
         switch (g_vm.last_result)
         {
-          case STEP_PASSED: printf("\x1b[32m[  PASSED   ] %s\x1b[0m\n", step_name->chars);
-          break; case STEP_FAILED: printf("\x1b[31m[  FAILED   ] %s\x1b[0m\n", step_name->chars);
-          break; case STEP_SKIPPED: printf("\x1b[33m[  SKIPPED  ] %s\x1b[0m\n", step_name->chars);
+          case STEP_PASSED: printf("\x1b[32m[  PASSED   ] %s\x1b[0m\n", step->chars);
+          break; case STEP_FAILED: printf("\x1b[31m[  FAILED   ] %s\x1b[0m\n", step->chars);
+          break; case STEP_SKIPPED: printf("\x1b[33m[  SKIPPED  ] %s\x1b[0m\n", step->chars);
           break; default: ;// shouldn't happen ... 
         }        
       }

@@ -1,5 +1,5 @@
 
-set(target example)
+set(target example-c)
 
 add_executable(${target} 
   ${CMAKE_CURRENT_SOURCE_DIR}/main.c

@@ -2,6 +2,8 @@
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber)
 
+set (CMAKE_CXX_STANDARD 20)
+
 option(STACK_TRACE "Prints the compiled feature file stack and it's execution: ON/OFF" ON)
 
 if (NOT CMAKE_BUILD_TYPE)
@@ -29,5 +31,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/cwt)
-add_subdirectory(${PROJECT_SOURCE_DIR}/example)
+add_subdirectory(${PROJECT_SOURCE_DIR}/example/c)
+add_subdirectory(${PROJECT_SOURCE_DIR}/example/cpp)
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)

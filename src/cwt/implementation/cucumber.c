@@ -5,14 +5,14 @@
 #include "../cucumber.h"
 #include "vm.h"
 
-void cwtc_true(bool assertion)
+void cwtc_assert_true(bool assertion)
 {
   if (!assertion) 
   {
     g_vm.last_result = STEP_FAILED;
   }
 }
-void cwtc_false(bool assertion)
+void cwtc_assert_false(bool assertion)
 {
   if (assertion) 
   {
@@ -66,7 +66,7 @@ void open_cucumber()
 {
   init_vm();
 }
-void run_cucumber(int argc, char** argv)
+void run_cucumber(int argc, const char* argv[])
 {
   if (argc == 2)
   {
@@ -89,11 +89,11 @@ void define_step(const char* name, cwtc_step func)
 }
 
 
-int value_as_int(cwtc_value* value)
+int cwtc_to_int(cwtc_value* value)
 {
   return (int)AS_INT(*value);
 }
-const char* value_as_string(cwtc_value* value)
+const char* cwtc_to_string(cwtc_value* value)
 {
   return AS_STRING(*value)->chars;
 }
