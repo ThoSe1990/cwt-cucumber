@@ -82,11 +82,31 @@ void cwtc_step(const char* name, cwtc_step_t func)
 }
 
 
-int cwtc_to_int(cwtc_value* value)
+long long cwtc_to_int(cwtc_value* value)
 {
-  return (int)AS_INT(*value);
+  return AS_LONG(*value);
+}
+char cwtc_to_byte(cwtc_value* value)
+{
+  return (char) AS_LONG(*value);
+}
+short cwtc_to_short(cwtc_value* value)
+{
+  return (short) AS_LONG(*value);
+}
+long long cwtc_to_long(cwtc_value* value)
+{
+  return AS_LONG(*value);
 }
 const char* cwtc_to_string(cwtc_value* value)
 {
   return AS_STRING(*value)->chars;
+}
+float cwtc_to_float(cwtc_value* value)
+{
+  return (float) AS_DOUBLE(*value);
+}
+double cwtc_to_double(cwtc_value* value)
+{
+  return AS_DOUBLE(*value);
 }

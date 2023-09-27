@@ -66,24 +66,72 @@ namespace cwtc::details
         return cwtc_conversion_impl<T>::get_arg(n, arg);
     }
   };
+  
   cwtc_conversion get_arg(int n, cwtc_value* args) 
   { 
       return cwtc_conversion{n, args}; 
   }
+
+  template <>
+  struct cwtc_conversion_impl<long long> 
+  {
+      static long long get_arg(int n, cwtc_value* arg) 
+      {
+          return cwtc_to_int(arg);
+      }
+  };
+
   template <>
   struct cwtc_conversion_impl<int> 
   {
       static int get_arg(int n, cwtc_value* arg) 
       {
-          return cwtc_to_int(arg);
+          return static_cast<int>(cwtc_to_int(arg));
       }
   };
+
+  template <>
+  struct cwtc_conversion_impl<char> 
+  {
+      static char get_arg(int n, cwtc_value* arg) 
+      {
+        return cwtc_to_byte(arg);
+      }
+  };
+  
+  template <>
+  struct cwtc_conversion_impl<short> 
+  {
+      static short get_arg(int n, cwtc_value* arg) 
+      {
+        return cwtc_to_short(arg);
+      }
+  };
+
   template <>
   struct cwtc_conversion_impl<std::string>
   {
       static std::string get_arg(int n, cwtc_value* arg)
       {
           return cwtc_to_string(arg);
+      }
+  };
+
+  template <>
+  struct cwtc_conversion_impl<float>
+  {
+      static float get_arg(int n, cwtc_value* arg)
+      {
+          return cwtc_to_float(arg);
+      }
+  };
+
+  template <>
+  struct cwtc_conversion_impl<double>
+  {
+      static double get_arg(int n, cwtc_value* arg)
+      {
+          return cwtc_to_double(arg);
       }
   };
 } // namespace cwtc::details

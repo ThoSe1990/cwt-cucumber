@@ -5,6 +5,7 @@ typedef enum
 {
   TOKEN_COLON, 
   TOKEN_VERTICAL,
+  TOKEN_MINUS,
   TOKEN_DOC_STRING,
 
   TOKEN_LANGUAGE, 
@@ -15,6 +16,7 @@ typedef enum
 
   TOKEN_STRING,
   TOKEN_INT,
+  TOKEN_DOUBLE,
 
   TOKEN_VARIABLE,
   TOKEN_TEXT,  

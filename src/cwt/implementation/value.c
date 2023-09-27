@@ -12,7 +12,7 @@ bool values_equal(cwtc_value a, cwtc_value b)
   {
     case VAL_BOOL: return AS_BOOL(a) == AS_BOOL(b);
     case VAL_NIL: return true; 
-    case VAL_INT: return AS_INT(a) == AS_INT(b);
+    case VAL_LONG: return AS_LONG(a) == AS_LONG(b);
     case VAL_OBJ: return AS_OBJ(a) == AS_OBJ(b);
     default: return false; // unreachable 
   }
@@ -47,7 +47,8 @@ void print_value(cwtc_value value)
   {
   case VAL_BOOL: printf(AS_BOOL(value) ? "true" : "false");
   break; case VAL_NIL: printf("nil"); 
-  break; case VAL_INT: printf("%d", AS_INT(value));
+  break; case VAL_LONG: printf("%lld", AS_LONG(value));
+  break; case VAL_DOUBLE: printf("%lf", AS_DOUBLE(value));
   break; case VAL_OBJ: print_object(value); 
   break;
   }

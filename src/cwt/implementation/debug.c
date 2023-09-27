@@ -73,6 +73,8 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_POP", offset);
   case OP_SCENARIO:
     return simple_instruction("OP_SCENARIO", offset);
+  case OP_PRINT_LINEBREAK:
+    return simple_instruction("OP_PRINT_LINEBREAK", offset);
   case OP_STEP:
     return constant_instruction("OP_STEP", c, offset);
   case OP_JUMP_IF_FAILED:
@@ -84,13 +86,13 @@ int disassemble_instruction(chunk* c, int offset)
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
   case OP_PRINT_RESULT:
-    return simple_instruction("OP_PRINT_RESULT", offset);
+    return constant_instruction("OP_PRINT_RESULT", c, offset);
   case OP_CALL:
     return byte_instruction("OP_CALL", c, offset);
   case OP_RETURN:
     return simple_instruction("OP_RETURN", offset);
   default:
-    printf("Unknown opcode %d\n", instruction);
+    printf("Unknown op code %d\n", instruction);
     return offset+1;
   }
 }

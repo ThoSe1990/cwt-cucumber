@@ -213,8 +213,21 @@ static void emit_description(cwtc_value value)
 
 static void emit_int()
 {
-  int32_t int_value = strtod(parser.current.start, NULL);
-  emit_constant(INT_VAL(int_value));
+  long long long_value = strtold(parser.current.start, NULL);
+  if (parser.previous.type == TOKEN_MINUS) 
+  {
+    long_value *= -1;
+  }
+  emit_constant(LONG_VAL(long_value));
+}
+static void emit_double()
+{
+  double double_value = strtod(parser.current.start, NULL);
+  if (parser.previous.type == TOKEN_MINUS) 
+  {
+    double_value *= -1;
+  }
+  emit_constant(DOUBLE_VAL(double_value));
 }
 
 static void emit_string()
@@ -388,12 +401,10 @@ static void skip_linebreaks()
   while (match(TOKEN_LINEBREAK)) {}
 }
 
-
 static void language()
 {
 // TODO parsing #language: en/es/de/etc.. 
 }
-static void scenario();
 
 static void process_step()
 {
@@ -409,6 +420,7 @@ static void process_step()
     {
       case TOKEN_STRING: emit_string(); arg_count++;
       break; case TOKEN_INT: emit_int(); arg_count++;
+      break; case TOKEN_DOUBLE: emit_double(); arg_count++;
     }
     advance();
   }
@@ -470,8 +482,37 @@ static void add_local(token name)
   }
 }
 
-
 static void scenario()
+{
+  emit_byte(OP_SCENARIO);
+  begin_scope();
+
+  cwtc_compiler compiler;
+  init_compiler(&compiler, TYPE_FUNCTION);
+  begin_scope();
+
+  name();
+  if (!check(TOKEN_STEP))
+  {
+    description(TOKEN_STEP);
+  }
+  match(TOKEN_STEP);
+  step();
+
+  obj_function* func = end_compiler();
+  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+  add_local(parser.current); 
+  mark_initialized();
+  
+  int arg = resolve_step(current, &parser.current);
+  emit_bytes(OP_GET_LOCAL, arg);
+  emit_bytes(OP_CALL, 0);
+
+  end_scope();
+}
+
+
+static void parse_all_scenarios()
 {
   for (;;)
   {
@@ -481,35 +522,7 @@ static void scenario()
     }
     else if (match(TOKEN_SCENARIO))
     {
-      emit_byte(OP_SCENARIO);
-      begin_scope();
-
-      cwtc_compiler compiler;
-      init_compiler(&compiler, TYPE_FUNCTION);
-      begin_scope();
-      name();
-      if (!check(TOKEN_STEP))
-      {
-        description(TOKEN_STEP);
-      }
-      match(TOKEN_STEP);
-      // once we reach steps we add all steps
-      step();
-
-      obj_function* func = end_compiler();
-      // emits the scenario (or the function in an abstract context)
-      emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-      // to then call we need 1. to get the local (which we just emitted)
-      add_local(parser.current); 
-      mark_initialized();
-      
-      int arg = resolve_step(current, &parser.current);
-      emit_bytes(OP_GET_LOCAL, arg);
-
-      // and then call it, a scenario always will have 0 arguemnts. 
-      emit_bytes(OP_CALL, 0);
-
-      end_scope();
+      scenario();
     }
     else 
     {
@@ -519,15 +532,16 @@ static void scenario()
   }
 }
 
+
 static void feature()
 {
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect FeatureLine.");
-  
+
   cwtc_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
-      
+
   name();
   emit_byte(OP_PRINT_LINEBREAK);
   advance();
@@ -535,15 +549,12 @@ static void feature()
   {
     description(TOKEN_SCENARIO);
   }
-  scenario();
-
+  parse_all_scenarios();
+  
   obj_function* func = end_compiler();
-  // emits the function name
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  // defines the global variable for this feature (or function in an abstract context)
   define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
 
-  // emits the actual call to the feature
   emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
   emit_bytes(OP_CALL, 0);
   emit_byte(OP_POP);

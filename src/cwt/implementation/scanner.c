@@ -151,6 +151,9 @@ static token_type identifier_type()
     case 'G': return check_keyword(1,4, "iven", TOKEN_STEP);
     case 'W': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'T': return check_keyword(1,3, "hen", TOKEN_STEP);
+    case 'A': return check_keyword(1,2, "nd", TOKEN_STEP);
+    case 'B': return check_keyword(1,2, "ut", TOKEN_STEP);
+    case '*': return TOKEN_STEP;
     default: return NO_TOKEN;
   }
 }
@@ -183,13 +186,15 @@ static bool whitespace()
 
 static token int_value()
 {
+  bool is_double = false;
   while (is_digit(peek())) { advance(); }
   if (peek() == '.' && is_digit(peek_next()))
   {
+    is_double = true;
     advance();
     while(is_digit(peek())) { advance(); }
   }
-  return make_token(TOKEN_INT);
+  return is_double ? make_token(TOKEN_DOUBLE) : make_token(TOKEN_INT);
 }
 
 static token string()
@@ -252,6 +257,7 @@ token scan_token()
   switch(c)
   {
     case '|': return make_token(TOKEN_VERTICAL);
+    case '-': return make_token(TOKEN_MINUS);
     case '"': 
     {
       if (peek() == '"' && peek_next() == '"')
