@@ -234,6 +234,10 @@ static void emit_string()
 {
   emit_constant(OBJ_VAL(copy_string(parser.current.start , parser.current.length)));
 }
+static void emit_doc_string()
+{
+  emit_constant(OBJ_VAL(copy_string(parser.previous.start , parser.previous.length)));
+}
 
 static void emit_return()
 {
@@ -414,7 +418,7 @@ static void process_step()
   emit_step(step_name, length);
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
   uint8_t arg_count = 0;
-  while(!check(TOKEN_LINEBREAK) && !check(TOKEN_EOF))
+  while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
     switch (current_token())
     {
@@ -423,6 +427,10 @@ static void process_step()
       break; case TOKEN_DOUBLE: emit_double(); arg_count++;
     }
     advance();
+  }
+  if (match(TOKEN_DOC_STRING))
+  {
+    emit_doc_string(); arg_count++;
   }
   emit_bytes(OP_CALL, arg_count);
   patch_jump(after_step);

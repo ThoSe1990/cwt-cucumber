@@ -3,15 +3,13 @@
 CWT Cucumber is a Cucumber interpreter and engine to run cucumber tests in C/C++. 
 
 ## Disclaimer
-This is an educational project for me. I have read Crafting Interpreters by Robert Nystrom and I want to apply these principles by scanning the document, creating bytecodes and running them in a VM. Since the original C++ Cucumber is not really supported and it's not that easy to use (build and runtime dependencies), it seemed like a useful learning project to do this. 
-
-I have studied the Cucumber language and implemented everything to the best of my knowledge. If I missed any language features or there is something wrong, please let me know.
+This is my personal fun and educational project. I have read Crafting Interpreters by Robert Nystrom and I wanted a meaningful real world example to apply the principles. I really love the idea of Cucumber and use it a lot in my projects. Therefore I decided to create a Cucumber interpreter just for the fun of it. 
 
 
 ## Implementation Status 
 
 Current Status of what comes to my mind: ([x] = done)
-
+  
 [ ] Cucumber Language Feauters   
   [ ] langauge tag  
   [ ] Other languages  
@@ -23,7 +21,7 @@ Current Status of what comes to my mind: ([x] = done)
   [x] Steps  
   [ ] Rules  
   [ ] Tags  
-  [ ] Doc Strings  
+  [x] Doc Strings  
   
 Missing Syntax Tokens  
   [x] -  signed values  

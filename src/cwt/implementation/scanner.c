@@ -61,6 +61,15 @@ static char peek_next()
   }
 }
 
+static token make_explicit_token(token_type type, const char* start, int length)
+{
+  token t; 
+  t.type = type;
+  t.start = start;
+  t.length = length;
+  t.line = scanner.line;
+  return t;
+}
 static token make_token(token_type type)
 {
   token t; 
@@ -106,6 +115,31 @@ static void skip_whitespace()
       case ' ':
       case '\t':
         advance(); break;
+      case '#':
+        while (!end_of_line() && !is_at_end()) 
+        { 
+          advance(); 
+        }
+      default:
+        return;
+    }
+  }
+}
+static void skip_whitespace_and_linebreaks()
+{
+  for(;;)
+  {
+    char c = peek();
+    switch (c)
+    {
+      case ' ':
+      case '\r':
+      case '\t':
+        advance(); break;
+      case '\n':
+        scanner.line++;
+        advance();
+        break;
       case '#':
         while (!end_of_line() && !is_at_end()) 
         { 
@@ -203,7 +237,7 @@ static token string()
   {
     if (peek() == '\n')
     {
-      scanner.line++;
+      return error_token("Unexpected linebreak in string value.");
     }
     advance();
   }
@@ -214,6 +248,34 @@ static token string()
   }
   advance();
   return make_token(TOKEN_STRING);
+}
+
+static token doc_string()
+{
+  const char* start = scanner.current;
+  const char* end;
+  while (peek() != '"' && peek_next() != '"' && !is_at_end())
+  {
+    if (peek() == '\n')
+    {
+      end = scanner.current; 
+      if (*end == '\r') end--;
+      scanner.line++;
+    }
+    advance();
+  }
+
+  skip_whitespace();
+  advance();
+  advance();
+  advance();
+  skip_whitespace_and_linebreaks();
+  
+  if (is_at_end()) 
+  {
+    return error_token("Unterminated doc string.");
+  }
+  return make_explicit_token(TOKEN_DOC_STRING, start, end-start);
 }
 
 static token text()
@@ -262,8 +324,11 @@ token scan_token()
     {
       if (peek() == '"' && peek_next() == '"')
       {
-        // TODO
-        // return doc_string();
+        advance();
+        advance();
+        advance();
+        skip_whitespace_and_linebreaks();
+        return doc_string();
       }
       else 
       {
