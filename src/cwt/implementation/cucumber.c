@@ -5,16 +5,9 @@
 #include "../cucumber.h"
 #include "vm.h"
 
-void cwtc_assert_true(bool assertion)
+void cwtc_assert(bool assertion)
 {
   if (!assertion) 
-  {
-    g_vm.last_result = STEP_FAILED;
-  }
-}
-void cwtc_assert_false(bool assertion)
-{
-  if (assertion) 
   {
     g_vm.last_result = STEP_FAILED;
   }
@@ -83,7 +76,7 @@ void close_cucumber()
   free_vm();
 }
 
-void define_step(const char* name, cwtc_step func)
+void cwtc_step(const char* name, cwtc_step_t func)
 {
   define_native(name, func);
 }

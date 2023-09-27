@@ -29,7 +29,7 @@ obj_function* new_function()
   return func;
 }
 
-obj_native* new_native(cwtc_step function)
+obj_native* new_native(cwtc_step_t function)
 {
   obj_native* native = ALLOCATE_OBJ(obj_native, OBJ_NATIVE);
   native->function = function;

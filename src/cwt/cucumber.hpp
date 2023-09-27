@@ -10,7 +10,7 @@ extern "C" {
 
 namespace cwtc::details
 {
-  std::vector<std::pair<const char*,cwtc_step>> steps;
+  std::vector<std::pair<const char*, cwtc_step_t>> steps;
 } // namespace cwtc::details
 
 #define CONCAT_INTERNAL(a, b) a ## b
@@ -27,34 +27,32 @@ namespace cwtc::details
     } \
     void CONCAT(__cwtc_step_impl_,n)(int arg_count, cwtc_value* args)
 
-#define cwtc_step(step) INTERNAL_STEP(step, __COUNTER__)
-
-
-template<typename T>
-struct cwtc_conversion_impl{};
-
-
-template<typename T>
-class has_cwtc_conversion_function
-{
-    using one = char;
-    struct two
-    {
-        char x[2];
-    };
-
-    template<typename C>
-    static one test(decltype(&C::get_arg));
-    template<typename C>
-    static two test(...);
-
-public:
-    static constexpr bool value = sizeof(test<T>(0)) == sizeof(char);
-};
+#define CWTC_STEP(step) INTERNAL_STEP(step, __COUNTER__)
 
 
 namespace cwtc::details
 {
+  template<typename T>
+  struct cwtc_conversion_impl{};
+
+  template<typename T>
+  class has_cwtc_conversion_function
+  {
+      using one = char;
+      struct two
+      {
+          char x[2];
+      };
+
+      template<typename C>
+      static one test(decltype(&C::get_arg));
+      template<typename C>
+      static two test(...);
+
+  public:
+      static constexpr bool value = sizeof(test<T>(0)) == sizeof(char);
+  };
+
   template<typename T>
   static constexpr bool has_cwtc_conversion_v = has_cwtc_conversion_function<cwtc_conversion_impl<T>>::value;
 
@@ -88,17 +86,15 @@ namespace cwtc::details
           return cwtc_to_string(arg);
       }
   };
-
 } // namespace cwtc::details
 
 
-
-#define cwtc_arg(i) cwtc::details::get_arg(arg_count, &args[i-1])  
-
+#define CWTC_ARG(i) cwtc::details::get_arg(arg_count, &args[i-1])  
 
 
 namespace cwtc
 {
+
   class tests 
   {
     public:
@@ -107,7 +103,7 @@ namespace cwtc
         open_cucumber();
         for (const auto& pair : details::steps) 
         {
-          define_step(pair.first, pair.second);
+          cwtc_step(pair.first, pair.second);
         }
       }
       ~tests() 

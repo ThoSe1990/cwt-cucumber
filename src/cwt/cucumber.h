@@ -8,13 +8,12 @@ void run_cucumber(int argc, const char* argv[]);
 void close_cucumber();
 
 
-typedef void (*cwtc_step)(int arg_count, cwtc_value* args);
-void define_step(const char* name, cwtc_step func);
+typedef void (*cwtc_step_t)(int arg_count, cwtc_value* args);
+void cwtc_step(const char* name, cwtc_step_t func);
 
 int cwtc_to_int(cwtc_value* value);
 const char* cwtc_to_string(cwtc_value* value);
 
-void cwtc_assert_true(bool assertion);
-void cwtc_assert_false(bool assertion);
+void cwtc_assert(bool assertion);
 
 #endif

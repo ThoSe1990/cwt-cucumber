@@ -36,11 +36,11 @@ typedef struct {
   obj_string* name;
 } obj_function;
 
-typedef void (*cwtc_step)(int arg_count, cwtc_value* args);
+typedef void (*cwtc_step_t)(int arg_count, cwtc_value* args);
 
 typedef struct {
   obj object;
-  cwtc_step function;
+  cwtc_step_t function;
 } obj_native;
 
 struct obj_string {
@@ -51,7 +51,7 @@ struct obj_string {
 };
 
 obj_string* take_string(char* chars, int length);
-obj_native* new_native(cwtc_step function);
+obj_native* new_native(cwtc_step_t function);
 obj_function* new_function();
 obj_string* copy_string(const char* chars, int length);
 void print_object(cwtc_value value);

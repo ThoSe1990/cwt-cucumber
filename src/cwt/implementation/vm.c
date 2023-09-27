@@ -44,7 +44,7 @@ static void runtime_error(const char* format, ...)
   reset_stack();
 }
 
-void define_native(const char* name, cwtc_step func)
+void define_native(const char* name, cwtc_step_t func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
@@ -117,7 +117,7 @@ static bool call_value(cwtc_value callee, int arg_count)
       } 
       case OBJ_NATIVE:
       {
-        cwtc_step native = AS_NATIVE(callee);
+        cwtc_step_t native = AS_NATIVE(callee);
         native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         return true;

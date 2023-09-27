@@ -1,23 +1,30 @@
 
 #include "cwt/cucumber.hpp"
 
+// TODO same statements with differtent types doesn't work ... 
 
-cwtc_step("hello int world {int}")
+CWTC_STEP("this can fail with {int}")
 {
-  int arg1 = cwtc_arg(1);
-  std::cout << "glad to see you ...  " << arg1 << std::endl;
-  cwtc_assert_true(arg1 == 0);
+  const int arg1 = CWTC_ARG(1);
+  cwtc_assert(arg1 == 0);
+}
+CWTC_STEP("this is an {int}")
+{
+  int arg1 = CWTC_ARG(1);
+  cwtc_assert(arg1 == 0);
 }
 
-cwtc_step("hello string world {string}")
+CWTC_STEP("this is a {string}")
 {
-  std::string arg1 = cwtc_arg(1);
-  std::cout << "glad to see you ...  " << arg1 << std::endl;
+  std::string arg1 = CWTC_ARG(1);
 }
 
 int main(int argc, const char* argv[])
 {
   cwtc::tests c; 
+
+
+
   c.run(argc, argv);
   return 0;
 }

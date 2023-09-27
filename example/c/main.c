@@ -4,11 +4,11 @@
 
 static void step_pass(int arg_count, cwtc_value* args)
 {
-  cwtc_assert_true(true);
+  cwtc_assert(true);
 }
 static void step_fail(int arg_count, cwtc_value* args)
 {
-  cwtc_assert_true(false);
+  cwtc_assert(false);
 }
 static void step_test(int arg_count, cwtc_value* args)
 {
@@ -19,9 +19,9 @@ int main(int argc, const char* argv[])
 {
   open_cucumber();
 
-  define_step("my step test with {int} and {string}", step_test);
-  define_step("this passes", step_pass);
-  define_step("this fails", step_fail);
+  cwtc_step("my step test with {int} and {string}", step_test);
+  cwtc_step("this passes", step_pass);
+  cwtc_step("this fails", step_fail);
 
   run_cucumber(argc, argv);
   
