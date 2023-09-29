@@ -22,6 +22,9 @@ Current Status of what comes to my mind: ([x] = done)
   [ ] Rules  
   [ ] Tags  
   [x] Doc Strings  
+  [ ] before, after, before scenario, after scenario 
+  [ ] background
+  [ ] undefined scenarios (proper error handling)
   
 Missing Syntax Tokens  
   [x] -  signed values  

@@ -451,6 +451,26 @@ static void description(token_type end)
   // emit_description(OBJ_VAL(copy_string(begin , end-begin)))
 }
 
+static void feature_description()
+{
+  const char* begin = parser.current.start;
+  const int line = parser.current.line;
+  for (;;)
+  {
+    advance();
+    if (check(TOKEN_SCENARIO) 
+      || check(TOKEN_SCENARIO_OUTLINE)
+      || check(TOKEN_TAG)
+      || check(TOKEN_EOF))
+    {
+      break;
+    }
+  }
+  // const char* end = parser.previous.start + parser.previous.length;
+  // TODO later we'll need names and descriptions ... 
+  // emit_description(OBJ_VAL(copy_string(begin , end-begin)))
+}
+
 static void name() 
 {
   const char* begin = parser.previous.start;
@@ -490,6 +510,10 @@ static void add_local(token name)
   }
 }
 
+static void scenario_outline()
+{
+  printf("****** DOING SCENARIO OUTLINE !! ");
+}
 static void scenario()
 {
   emit_byte(OP_SCENARIO);
@@ -532,6 +556,10 @@ static void parse_all_scenarios()
     {
       scenario();
     }
+    else if (match(TOKEN_SCENARIO_OUTLINE))
+    {
+      scenario_outline();
+    }
     else 
     {
       error_at_current("Expect StepLine or Scenario.");
@@ -553,10 +581,13 @@ static void feature()
   name();
   emit_byte(OP_PRINT_LINEBREAK);
   advance();
-  if (!check(TOKEN_SCENARIO)) // TODO add Tags here 
-  {
-    description(TOKEN_SCENARIO);
-  }
+  // TODO Refactor, add tags to identify description too
+
+  // if (!check(TOKEN_SCENARIO)) 
+  // {
+  //   description(TOKEN_SCENARIO);
+  // }
+  feature_description();
   parse_all_scenarios();
   
   obj_function* func = end_compiler();

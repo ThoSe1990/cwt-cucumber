@@ -151,10 +151,22 @@ static void skip_whitespace_and_linebreaks()
   }
 }
 
+bool is_same(const char* s1, const char* s2, int length)
+{
+  for (int i = 0 ; i < 0 ; i++)
+  {
+    if (s1[i] != s2[i]) 
+    {
+      return false; 
+    }
+  }
+  return true;
+}
+
 static token_type check_keyword(int start, int length, const char* rest, token_type type)
 {
   if (scanner.current - scanner.start == start + length && 
-    memcmp(scanner.start + start, rest, length) == 0 )
+    is_same(scanner.start + start, rest, length))
   {
     return type;
   }
@@ -163,6 +175,7 @@ static token_type check_keyword(int start, int length, const char* rest, token_t
     return NO_TOKEN;
   }
 }
+
 static token_type check_keyword_with_colon(int start, int length, const char* rest, token_type type)
 {
   if (check_keyword(start, length, rest, type) == type && peek() == ':')
@@ -176,12 +189,33 @@ static token_type check_keyword_with_colon(int start, int length, const char* re
   }
 }
 
+void next_word()
+{
+  while (is_alpha(peek())) 
+  {
+    advance();
+  }
+}
+
+static token_type scenario() 
+{
+  token_type t = check_keyword_with_colon(1,7, "cenario", TOKEN_SCENARIO);
+  if (t == NO_TOKEN)
+  {
+    advance();
+    next_word();
+    t = check_keyword_with_colon(1,15, "cenario Outline", TOKEN_SCENARIO_OUTLINE);
+  }
+  return t;
+}
+
 static token_type identifier_type()
 {
   switch (scanner.start[0])
   {
     case 'F': return check_keyword_with_colon(1,6, "eature", TOKEN_FEATURE);
-    case 'S': return check_keyword_with_colon(1,7, "cenario", TOKEN_SCENARIO);
+    case 'S': return scenario();
+    case 'E': return check_keyword_with_colon(1,7, "xamples", TOKEN_EXAMPLES);
     case 'G': return check_keyword(1,4, "iven", TOKEN_STEP);
     case 'W': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'T': return check_keyword(1,3, "hen", TOKEN_STEP);
@@ -195,10 +229,7 @@ static token_type identifier_type()
 
 static token_type identifier()
 {
-  while (is_alpha(peek())) 
-  {
-    advance();
-  }
+  next_word();
   return identifier_type();
 }
 
@@ -217,8 +248,21 @@ static bool whitespace()
   return peek() == ' ';
 }
 
+static token variable()
+{
+  while (peek() != '>')
+  {
+    if (peek() == '\n')
+    {
+      return error_token("Expect '>' after variable.");
+    }
+    advance();
+  }
+  advance();
+  return make_token(TOKEN_VAR);
+}
 
-static token int_value()
+static token number()
 {
   bool is_double = false;
   while (is_digit(peek())) { advance(); }
@@ -313,13 +357,14 @@ token scan_token()
 
   if (is_digit(c)) 
   {
-    return int_value();
+    return number();
   }
 
   switch(c)
   {
     case '|': return make_token(TOKEN_VERTICAL);
     case '-': return make_token(TOKEN_MINUS);
+    case '<': return variable();
     case '"': 
     {
       if (peek() == '"' && peek_next() == '"')
@@ -349,7 +394,6 @@ token scan_token()
       scanner.line++;
       return make_token(TOKEN_LINEBREAK);
     }
-    // case '<': return variable();
   }
 
   return text(); 
