@@ -30,7 +30,7 @@ Current Status of what comes to my mind: ([x] = done)
 
 [ ] error handling invalid indices on get arg
 [ ] optional arg, eg. doc strings? 
-[ ] currently all variables are captured, skip constants in steps? 
+[x] currently all variables are captured, skip constants in steps? 
   
 Missing Syntax Tokens  
   [x] -  signed values  

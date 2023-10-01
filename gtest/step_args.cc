@@ -72,3 +72,30 @@ TEST_F(step_args, get_values_6)
   EXPECT_STREQ(cwtc_to_string(&m_args.values[2]), "three");
   EXPECT_EQ(cwtc_to_int(&m_args.values[3]), 4);
 }
+
+TEST_F(step_args, get_values_7)
+{
+  const char* step = 
+R"*(a docstring 
+"""
+any docstring
+"""
+)*";
+  EXPECT_TRUE(parse_step("a docstring", step, &m_args));
+  ASSERT_EQ(m_args.count, 1);
+  EXPECT_STREQ(cwtc_to_string(&m_args.values[0]), "any docstring");
+}
+
+TEST_F(step_args, get_values_8)
+{
+  const char* step = 
+R"*(some value 123
+"""
+any docstring
+"""
+)*";
+  EXPECT_TRUE(parse_step("some value {int}", step, &m_args));
+  ASSERT_EQ(m_args.count, 2);
+  EXPECT_EQ(cwtc_to_int(&m_args.values[0]), 123);
+  EXPECT_STREQ(cwtc_to_string(&m_args.values[1]), "any docstring");
+}

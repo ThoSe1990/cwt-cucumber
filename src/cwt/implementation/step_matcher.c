@@ -38,10 +38,6 @@ static placeholder_type get_placehoder(const char* begin, int length)
   }
 }
 
-static bool is_digit(char c)
-{
-  return c >= '0' && c <= '9';
-}
 
 typedef struct {
   const char* start;
@@ -50,6 +46,19 @@ typedef struct {
 
 step_scanner g_defined;
 step_scanner g_feature;
+
+static bool tripple_quotes()
+{
+  return *g_feature.current == '"' 
+    && g_feature.current[1] == '"'
+    && g_feature.current[2] == '"';
+}
+
+
+static bool is_digit(char c)
+{
+  return c >= '0' && c <= '9';
+}
 
 static void init_step_scanner(const char* defined, const char* feature)
 {
@@ -75,12 +84,6 @@ static void advance()
   g_feature.current++;
 }
 
-static bool not_at_end()
-{
-  return *g_defined.current != '\0' 
-    && *g_feature.current != '\0';
-}
-
 static bool is_at_placeholder()
 {
   return *g_defined.current == '{';
@@ -99,7 +102,67 @@ static placeholder_type read_placeholder()
   return t;
 }
 
+static void skip_quotes_and_breaks()
+{
+  for (;;)
+  {
+    switch (*g_feature.current)
+    {
+    case '\r':
+    case '\n':
+    case ' ':
+    case '"':
+    {
+      g_feature.current++;
+    }
+    break; default:
+      return;
+    }
+  }
+}
+static void skip_spaces_and_breaks()
+{
+  for (;;)
+  {
+    switch (*g_feature.current)
+    {
+    case '\r':
+    case '\n':
+    case ' ':
+    {
+      g_feature.current++;
+    }
+    break; default:
+      return;
+    }
+  }
+}
+
 // TODO refactor, lot of DRY in this read_* functions.. 
+
+static void read_doc_string(value_array* args)
+{
+  skip_quotes_and_breaks();
+
+  const char* start = g_feature.current;
+  const char* end;
+  while(!tripple_quotes())
+  {
+    g_feature.current++;
+    if (*g_feature.current == '\n')
+    {
+      end = g_feature.current;
+    }
+  }
+  
+  skip_quotes_and_breaks();
+  if (args)
+  {
+    cwtc_value value = OBJ_VAL(copy_string(start, end - start));
+    write_value_array(args, value);
+  }
+  return ;
+}
 
 static bool read_string(value_array* args)
 {
@@ -140,11 +203,13 @@ static bool read_integer(value_array* args)
   {
     g_feature.current++;
   }
-  if (*g_feature.current != ' ' && *g_feature.current != '\0')
-  {
-    fprintf(stderr, "Expect only digits in an integer value.");
-    return false;
-  }
+
+  // TODO if end of defined step is int and a doc string follows this wont work .. 
+  // if (*g_feature.current != ' ' && *g_feature.current != '\0')
+  // {
+  //   fprintf(stderr, "Expect only digits in an integer value.");
+  //   return false;
+  // }
   
   if (args)
   {
@@ -203,12 +268,31 @@ static bool read_double(value_array* args)
   return true;
 }
 
+static void trim_right()
+{
+  if (*g_defined.current == '\0') 
+  {
+    skip_spaces_and_breaks();
+  }
+  while (*g_defined.current == ' ' && *g_feature.current == '\0') 
+  {
+    g_defined.current++;
+  }
+}
+static void doc_string(value_array* args)
+{
+  if (tripple_quotes())
+  {
+    read_doc_string(args);
+  }
+}
+
 bool parse_step(const char* defined, const char* feature, value_array* args)
 {
   init_step_scanner(defined, feature);
   skip_whitespaces();
 
-  while(not_at_end())
+  for (;;)
   {
     if (is_at_placeholder())
     {
@@ -224,14 +308,10 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
         break; case PH_FLOAT: if (read_double(args) == false) return false;
       }
     }
-    while (*g_defined.current == '\0' && *g_feature.current == ' ') 
-    {
-      g_feature.current++;
-    }
-    while (*g_defined.current == ' ' && *g_feature.current == '\0') 
-    {
-      g_defined.current++;
-    }
+    
+    trim_right();
+    doc_string(args);
+    
     if (*g_defined.current == '\0' && *g_feature.current == '\0') 
     {
       break; 

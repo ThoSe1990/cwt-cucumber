@@ -480,6 +480,7 @@ static void process_step_in_outline()
 
 static void process_step()
 {
+  const char* step_start = parser.current.start;
   const char* step_name = parser.current.start;
   const int length = step_name_length(parser.current.start);
 
@@ -495,12 +496,14 @@ static void process_step()
     // }
     advance();
   }
+  match(TOKEN_DOC_STRING);
   // if (match(TOKEN_DOC_STRING))
   // {
   //   emit_doc_string(); arg_count++;
   // }
   // emit_step(step_name, length);
-  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  // emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_start , parser.current.start - step_start))));
   patch_jump(after_step);
   emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
 }
@@ -525,7 +528,6 @@ static void feature_description()
   const int line = parser.current.line;
   for (;;)
   {
-    advance();
     if (check(TOKEN_SCENARIO) 
       || check(TOKEN_SCENARIO_OUTLINE)
       || check(TOKEN_TAG)
@@ -533,6 +535,7 @@ static void feature_description()
     {
       break;
     }
+    advance();
   }
   // const char* end = parser.previous.start + parser.previous.length;
   // TODO later we'll need names and descriptions ... 

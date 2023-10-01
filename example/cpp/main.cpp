@@ -14,6 +14,16 @@ CWTC_STEP("this fails!")
   cwtc_assert(false);
 }
 
+CWTC_STEP("this is {int}")
+{
+  int i = CWTC_ARG(1);
+  std::string s = CWTC_ARG(2);
+  std::cout << "int value: " << i << std::endl;
+  std::cout << "string value: " << s << std::endl;
+}
+
+
+
 int main(int argc, const char* argv[])
 {
   cwtc::tests c; 

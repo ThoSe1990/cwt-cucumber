@@ -9,6 +9,7 @@
 #include "memory.h"
 #include "vm.h"
 #include "compiler.h"
+#include "step_matcher.h"
 
 vm g_vm;
 
@@ -292,7 +293,7 @@ static interpret_result run()
           value_array args;
           init_value_array(&args); 
 
-          get_step_args(step, &step_definition, &args);
+          parse_step(step_definition.chars, step->chars, &args);
 
           cwtc_step_t native = AS_NATIVE(value);
           native(args.count, args.values);
