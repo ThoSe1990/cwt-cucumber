@@ -9,6 +9,7 @@ typedef enum {
   OP_FEATURE,
   OP_TAG,
   OP_SCENARIO,
+  OP_SCENARIO_OUTLINE,
   OP_STEP,
   OP_NAME,
   OP_DESCRIPTION,

@@ -362,6 +362,20 @@ static obj_function* end_compiler()
   return func;
 }
 
+static void add_local(token name)
+{
+  if (current->local_count == UINT8_COUNT)
+  {
+    error("Too many local variables in function.");
+  }
+  else 
+  {
+    local* l = &current->locals[current->local_count++];
+    l->name = name;
+    l->depth = -1;
+  }
+}
+
 static void mark_initialized()
 {
   if (current->scope_depth == 0)
@@ -410,6 +424,60 @@ static void language()
 // TODO parsing #language: en/es/de/etc.. 
 }
 
+static void declare_variable()
+{
+  if (current->scope_depth == 0) 
+  {
+    return;
+  }
+  else 
+  {
+    token* name = &parser.previous;
+
+    for (int i = current->local_count - 1 ; i >= 0 ; i--)
+    {
+      local* l = &current->locals[i];
+      if (l->depth != -1 && l->depth < current->scope_depth)
+      {
+        break;
+      }
+      // if (identifiers_equal(name, &l->name)) 
+      // {
+      //   error("Already a variable with this name in this scope");
+      // }
+    }
+
+    add_local(*name);
+  }
+}
+static void step_variable()
+{
+  declare_variable();
+}
+
+static void process_step_in_outline()
+{
+  const char* step_name = parser.current.start;
+  const int length = step_name_length(parser.current.start);
+
+  emit_step(step_name, length);
+  int after_step = emit_jump(OP_JUMP_IF_FAILED);
+  uint8_t arg_count = 0;
+  while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
+  {
+    switch (current_token())
+    {
+      case TOKEN_STRING: emit_string(); arg_count++;
+      break; case TOKEN_INT: emit_int(); arg_count++;
+      break; case TOKEN_DOUBLE: emit_double(); arg_count++;
+      break; case TOKEN_VAR: step_variable(); arg_count++;
+    }
+    advance();
+  }
+
+  patch_jump(after_step);
+}
+
 static void process_step()
 {
   const char* step_name = parser.current.start;
@@ -437,11 +505,11 @@ static void process_step()
   emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
 }
 
-static void description(token_type end)
+static void scenario_description()
 {
   const char* begin = parser.current.start;
   const int line = parser.current.line;
-  while(!check(end))
+  while(!check(TOKEN_STEP))
   {
     advance();
     if (check(TOKEN_EOF)) break;
@@ -484,6 +552,18 @@ static void name()
   emit_name(OBJ_VAL(copy_string(begin , end-begin)));
 }
 
+static void step_in_outline() 
+{
+  skip_linebreaks();
+  process_step_in_outline();
+  skip_linebreaks();
+  if (match(TOKEN_STEP))
+  {
+    step_in_outline();
+  }
+  return ;
+}
+
 static void step() 
 {
   skip_linebreaks();
@@ -496,24 +576,37 @@ static void step()
   return ;
 }
 
-static void add_local(token name)
-{
-  if (current->local_count == UINT8_COUNT)
-  {
-    error("Too many local variables in function.");
-  }
-  else 
-  {
-    local* l = &current->locals[current->local_count++];
-    l->name = name;
-    l->depth = -1;
-  }
-}
 
 static void scenario_outline()
 {
-  printf("****** DOING SCENARIO OUTLINE !! ");
+  emit_byte(OP_SCENARIO_OUTLINE);
+  begin_scope();
+
+  cwtc_compiler compiler;
+  init_compiler(&compiler, TYPE_FUNCTION);
+  begin_scope();
+
+  name();
+  scenario_description();
+  
+  match(TOKEN_STEP);
+
+  step_in_outline();
+  // examples();
+
+  obj_function* func = end_compiler();
+  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+  add_local(parser.current); 
+  mark_initialized();
+  
+  int arg = resolve_step(current, &parser.current);
+  emit_bytes(OP_GET_LOCAL, arg);
+  emit_bytes(OP_CALL, 0);
+
+  end_scope();
 }
+
+
 static void scenario()
 {
   emit_byte(OP_SCENARIO);
@@ -524,10 +617,8 @@ static void scenario()
   begin_scope();
 
   name();
-  if (!check(TOKEN_STEP))
-  {
-    description(TOKEN_STEP);
-  }
+  scenario_description();
+  
   match(TOKEN_STEP);
   step();
 
@@ -581,13 +672,9 @@ static void feature()
   name();
   emit_byte(OP_PRINT_LINEBREAK);
   advance();
-  // TODO Refactor, add tags to identify description too
 
-  // if (!check(TOKEN_SCENARIO)) 
-  // {
-  //   description(TOKEN_SCENARIO);
-  // }
   feature_description();
+
   parse_all_scenarios();
   
   obj_function* func = end_compiler();

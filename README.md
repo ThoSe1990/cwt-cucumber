@@ -25,6 +25,12 @@ Current Status of what comes to my mind: ([x] = done)
   [ ] before, after, before scenario, after scenario 
   [ ] background
   [ ] undefined scenarios (proper error handling)
+
+
+
+[ ] error handling invalid indices on get arg
+[ ] optional arg, eg. doc strings? 
+[ ] currently all variables are captured, skip constants in steps? 
   
 Missing Syntax Tokens  
   [x] -  signed values  

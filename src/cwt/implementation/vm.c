@@ -74,6 +74,10 @@ void push(cwtc_value value)
   *g_vm.stack_top = value;
   g_vm.stack_top++;
 }
+void replace(int position, cwtc_value value)
+{
+  g_vm.stack[position] = value;
+}
 cwtc_value pop()
 {
   g_vm.stack_top--;
@@ -103,6 +107,19 @@ static bool call(obj_function* func, int arg_count)
   frame->ip = func->chunk.code;
   frame->slots = g_vm.stack_top - arg_count - 1;
   return true;
+}
+
+static void call_step(cwtc_value callee, value_array* args)
+{
+  if (IS_OBJ(callee))
+  {
+    if (OBJ_TYPE(callee) == OBJ_NATIVE)
+    {
+      cwtc_step_t native = AS_NATIVE(callee);
+      native(args->count, args->values);
+    }
+    // else TODO Error 
+  }
 }
 
 static bool call_value(cwtc_value callee, int arg_count)
@@ -218,6 +235,10 @@ static interpret_result run()
           frame->ip += offset;
         }
       }
+      break; case OP_SCENARIO_OUTLINE:
+      {
+        // TODO check if theres something todo ... 
+      }
       break; case OP_SCENARIO: 
       { 
         g_vm.last_result = STEP_INITIAL;
@@ -250,10 +271,12 @@ static interpret_result run()
       {
         obj_string* step = READ_STRING();
         cwtc_value value;
+        const int stack_position = g_vm.stack_top - g_vm.stack;
+        push(NIL_VAL);
+
         if (table_get_step(&g_vm.steps, step, &value))
         {
-          // set status skipped;
-          push(value);
+          replace(stack_position, value); 
         }
         else 
         {

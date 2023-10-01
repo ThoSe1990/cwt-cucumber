@@ -77,7 +77,7 @@ namespace cwtc::details
   {
       static long long get_arg(int n, cwtc_value* arg) 
       {
-          return cwtc_to_int(arg);
+          return cwtc_to_long(arg);
       }
   };
 

@@ -1,6 +1,6 @@
 
 #include "cwt/cucumber.h"
-
+#include <stdio.h>
 
 static void step_pass(int arg_count, cwtc_value* args)
 {

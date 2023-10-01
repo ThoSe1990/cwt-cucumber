@@ -243,9 +243,9 @@ static bool match(char expected)
 }
 
 
-static bool whitespace()
+static bool text_delimiter()
 {
-  return peek() == ' ';
+  return peek() == ' ' || peek() == '|';
 }
 
 static token variable()
@@ -324,7 +324,7 @@ static token doc_string()
 
 static token text()
 {
-  while (!whitespace() && !end_of_line() && !is_at_end())
+  while (!text_delimiter() && !end_of_line() && !is_at_end())
   {
     advance();
   }

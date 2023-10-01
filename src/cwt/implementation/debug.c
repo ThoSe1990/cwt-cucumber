@@ -71,6 +71,8 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_DEFINE_GLOBAL", c, offset);
   case OP_POP:
     return simple_instruction("OP_POP", offset);
+  case OP_SCENARIO_OUTLINE:
+    return simple_instruction("OP_SCENARIO_OUTLINE", offset);
   case OP_SCENARIO:
     return simple_instruction("OP_SCENARIO", offset);
   case OP_PRINT_LINEBREAK:
