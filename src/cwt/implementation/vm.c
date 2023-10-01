@@ -109,17 +109,9 @@ static bool call(obj_function* func, int arg_count)
   return true;
 }
 
-static void call_step(cwtc_value callee, value_array* args)
+static void get_step_args(obj_string* step, obj_string* definition, value_array* args)
 {
-  if (IS_OBJ(callee))
-  {
-    if (OBJ_TYPE(callee) == OBJ_NATIVE)
-    {
-      cwtc_step_t native = AS_NATIVE(callee);
-      native(args->count, args->values);
-    }
-    // else TODO Error 
-  }
+
 }
 
 static bool call_value(cwtc_value callee, int arg_count)
@@ -271,17 +263,41 @@ static interpret_result run()
       {
         obj_string* step = READ_STRING();
         cwtc_value value;
-        const int stack_position = g_vm.stack_top - g_vm.stack;
-        push(NIL_VAL);
 
-        if (table_get_step(&g_vm.steps, step, &value))
+        // if (table_get_step(&g_vm.steps, step, &value))
+        // {
+          // push(value);
+          // push args
+          // push args count
+
+          // reading args on call:
+          // argcount == pop 
+          // call 
+          // for argcount do pop 
+          // push args
+        // }
+        // else 
+        // {
+        //   runtime_error("Undefined step '%s'.", step->chars);
+        //   return INTERPRET_RUNTIME_ERROR;   
+        // }
+      }
+      break; case OP_CALL_STEP:
+      {
+        obj_string* step = READ_STRING();
+        obj_string step_definition;
+        cwtc_value value;
+        if (table_get_step(&g_vm.steps, step, &value, &step_definition))
         {
-          replace(stack_position, value); 
-        }
-        else 
-        {
-          runtime_error("Undefined step '%s'.", step->chars);
-          return INTERPRET_RUNTIME_ERROR;   
+          value_array args;
+          init_value_array(&args); 
+
+          get_step_args(step, &step_definition, &args);
+
+          cwtc_step_t native = AS_NATIVE(value);
+          native(args.count, args.values);
+
+          free_value_array(&args);
         }
       }
       break; case OP_CALL:

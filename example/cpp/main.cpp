@@ -3,22 +3,15 @@
 
 // TODO same statements with differtent types doesn't work ... 
 
-CWTC_STEP("{byte} is below 99")
+CWTC_STEP("my first step passes!")
 {
-  const char arg1 = CWTC_ARG(1);
-  const int arg2 = CWTC_ARG(2);
-
-  cwtc_assert(arg1 < 0);
+  std::cout << "hello world!" << std::endl;
+  cwtc_assert(true);
 }
-CWTC_STEP("this is a {double}")
+CWTC_STEP("this fails!")
 {
-  double arg1 = CWTC_ARG(1);
-  cwtc_assert(arg1 == 0);
-}
-
-CWTC_STEP("this is a {string}")
-{
-  std::string arg1 = CWTC_ARG(1);
+  std::cout << "FATAL FATAL!!!" << std::endl;
+  cwtc_assert(false);
 }
 
 int main(int argc, const char* argv[])

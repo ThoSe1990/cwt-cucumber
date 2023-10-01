@@ -483,24 +483,24 @@ static void process_step()
   const char* step_name = parser.current.start;
   const int length = step_name_length(parser.current.start);
 
-  emit_step(step_name, length);
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
-    switch (current_token())
-    {
-      case TOKEN_STRING: emit_string(); arg_count++;
-      break; case TOKEN_INT: emit_int(); arg_count++;
-      break; case TOKEN_DOUBLE: emit_double(); arg_count++;
-    }
+    // switch (current_token())
+    // {
+    //   case TOKEN_STRING: emit_string(); arg_count++;
+    //   break; case TOKEN_INT: emit_int(); arg_count++;
+    //   break; case TOKEN_DOUBLE: emit_double(); arg_count++;
+    // }
     advance();
   }
-  if (match(TOKEN_DOC_STRING))
-  {
-    emit_doc_string(); arg_count++;
-  }
-  emit_bytes(OP_CALL, arg_count);
+  // if (match(TOKEN_DOC_STRING))
+  // {
+  //   emit_doc_string(); arg_count++;
+  // }
+  // emit_step(step_name, length);
+  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
   patch_jump(after_step);
   emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
 }

@@ -31,7 +31,6 @@ typedef struct {
   table steps;
   table globals;
   table strings;
-  obj_string* last_step;
   obj*  objects;
 } vm;
 

@@ -28,7 +28,7 @@ static entry* find_step(entry* entries, int len, obj_string* step)
 {
   for (int i = 0 ; i < len ; i++)
   {
-    if (is_step(entries[i].key->chars, step->chars))
+    if (parse_step(entries[i].key->chars, step->chars, NULL))
     {
       return &entries[i];
     }
@@ -183,7 +183,7 @@ bool table_set_step(table* t, obj_string* key, cwtc_value v)
   return true;
 }
 
-bool table_get_step(table* t, obj_string* key, cwtc_value* v)
+bool table_get_step(table* t, obj_string* key, cwtc_value* v, obj_string* step_definition)
 {
   if (t->count == 0) { return false; }
   
@@ -194,5 +194,6 @@ bool table_get_step(table* t, obj_string* key, cwtc_value* v)
   }
   
   *v = e->value; 
+  *step_definition = *e->key;
   return v;
 }

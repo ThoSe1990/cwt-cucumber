@@ -2,7 +2,8 @@
 #define cwt_cucumber_step_matcher_h
 
 #include "common.h"
+#include "value.h"
 
-bool is_step(const char* lhs, const char* rhs);
+bool parse_step(const char* defined, const char* feature, value_array* args);
 
 #endif
