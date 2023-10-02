@@ -69,15 +69,6 @@ static void init_step_scanner(const char* defined, const char* feature)
   g_feature.current = feature;
 }
 
-static void skip_whitespaces()
-{
-  while (*g_defined.current == ' ') { g_defined.current++; }
-  g_defined.start = g_defined.current;
-
-  while (*g_feature.current == ' ') { g_feature.current++; }
-  g_feature.start = g_feature.current;
-}
-
 static void advance()
 {
   g_defined.current++;
@@ -120,7 +111,86 @@ static void skip_quotes_and_breaks()
     }
   }
 }
-static void skip_spaces_and_breaks()
+
+static bool is_space_or_break(char c)
+{
+  switch (c)
+  {
+    case '\r':
+    case '\n':
+    case ' ':
+    case '\0':
+      return true;
+  default:
+    return false;
+  }
+}
+
+
+static bool is_negative()
+{
+  if (*g_feature.current == '-') 
+  { 
+    g_feature.current++;
+    return true;
+  }
+  else 
+  {
+    return false;
+  }
+}
+
+static void consume_digits()
+{
+  while (is_digit(*g_feature.current))
+  {
+    g_feature.current++;
+  }
+}
+
+static bool is_space_break_or_end(char c)
+{
+  return c == ' ' || c == '\0' || c == '\n' || c == '\r';
+}
+
+static void push_long(value_array* args, bool negative)
+{
+  long long long_value = strtold(g_feature.start, NULL);
+  if (negative) 
+  {
+    long_value *= -1;
+  }
+  cwtc_value value = LONG_VAL(long_value);
+  write_value_array(args, value);
+}
+
+static void push_double(value_array* args, bool negative)
+{
+  double double_value = strtod(g_feature.start, NULL);
+  if (negative) 
+  {
+    double_value *= -1;
+  }
+  cwtc_value value = DOUBLE_VAL(double_value);
+  write_value_array(args, value);
+}
+
+
+static bool is_variable()
+{
+  return *g_feature.current == '<';
+}
+
+static void trim_left()
+{
+  while (*g_defined.current == ' ') { g_defined.current++; }
+  g_defined.start = g_defined.current;
+
+  while (*g_feature.current == ' ') { g_feature.current++; }
+  g_feature.start = g_feature.current;
+}
+
+static void trim_right()
 {
   for (;;)
   {
@@ -138,7 +208,37 @@ static void skip_spaces_and_breaks()
   }
 }
 
-// TODO refactor, lot of DRY in this read_* functions.. 
+static bool is_at_end(char c)
+{
+  return c == '\0';
+}
+
+static bool read_variable(value_array* args)
+{
+  g_feature.current++;
+  g_feature.start = g_feature.current;
+
+  while(*g_feature.current != '>')
+  {
+    if (*g_feature.current == '\0') 
+    {
+      fprintf(stderr, "Expect '>' to end a variable.\n");
+      return false;
+    }
+    g_feature.current++;
+  }
+
+  if (args)
+  {
+    // int length = g_feature.current - g_feature.start
+    // get_local(g_feature.start) length needed? 
+    
+    // write_value_array(args, value);
+  }
+
+  g_feature.current++;
+  return true;
+}
 
 static void read_doc_string(value_array* args)
 {
@@ -154,7 +254,7 @@ static void read_doc_string(value_array* args)
       end = g_feature.current;
     }
   }
-  
+
   skip_quotes_and_breaks();
   if (args)
   {
@@ -166,6 +266,10 @@ static void read_doc_string(value_array* args)
 
 static bool read_string(value_array* args)
 {
+  if (is_variable())
+  {
+    return read_variable(args);
+  }
   if (*g_feature.current != '"') 
   {
     fprintf(stderr, "Expect '\"' for string value.\n");
@@ -176,6 +280,11 @@ static bool read_string(value_array* args)
 
   while(*g_feature.current != '"')
   {
+    if (*g_feature.current == '\0') 
+    {
+      fprintf(stderr, "Expect '\"' to end a string.\n");
+      return false;
+    }
     g_feature.current++;
   }
 
@@ -191,35 +300,26 @@ static bool read_string(value_array* args)
 
 static bool read_integer(value_array* args)
 {
-  bool negative = false;
-  if (*g_feature.current == '-') 
+  if (is_variable())
   {
-    g_feature.current++;
-    negative = true;
+    return read_variable(args);
   }
+
+  bool negative = is_negative();
+
   g_feature.start = g_feature.current;
 
-  while (is_digit(*g_feature.current))
-  {
-    g_feature.current++;
-  }
+  consume_digits();
 
-  // TODO if end of defined step is int and a doc string follows this wont work .. 
-  // if (*g_feature.current != ' ' && *g_feature.current != '\0')
-  // {
-  //   fprintf(stderr, "Expect only digits in an integer value.");
-  //   return false;
-  // }
+  if (!is_space_or_break(*g_feature.current))
+  {
+    fprintf(stderr, "Expect only digits in an integer value.\n");
+    return false;
+  }
   
   if (args)
   {
-    long long long_value = strtold(g_feature.start, NULL);
-    if (negative) 
-    {
-      long_value *= -1;
-    }
-    cwtc_value value = LONG_VAL(long_value);
-    write_value_array(args, value);
+    push_long(args, negative);
   }
 
   return true;
@@ -227,28 +327,22 @@ static bool read_integer(value_array* args)
 
 static bool read_double(value_array* args)
 {
-  bool negative = false;
-  if (*g_feature.current == '-') 
+  if (is_variable())
   {
-    g_feature.current++;
-    negative = true;
+    return read_variable(args);
   }
+
+  bool negative = is_negative();
   g_feature.start = g_feature.current;
 
-  while (is_digit(*g_feature.current))
-  {
-    g_feature.current++;
-  }
+  consume_digits();
   if (*g_feature.current == '.')
   {
     g_feature.current++;
-  }
-  while (is_digit(*g_feature.current))
-  {
-    g_feature.current++;
+    consume_digits();
   }
 
-  if (*g_feature.current != ' ' && *g_feature.current != '\0')
+  if (!is_space_break_or_end(*g_feature.current))
   {
     fprintf(stderr, "Expect only digits or '.' in an double value.");
     return false;
@@ -256,29 +350,13 @@ static bool read_double(value_array* args)
   
   if (args)
   {
-    double double_value = strtod(g_feature.start, NULL);
-    if (negative) 
-    {
-      double_value *= -1;
-    }
-    cwtc_value value = DOUBLE_VAL(double_value);
-    write_value_array(args, value);
+    push_double(args, negative);
   }
 
   return true;
 }
 
-static void trim_right()
-{
-  if (*g_defined.current == '\0') 
-  {
-    skip_spaces_and_breaks();
-  }
-  while (*g_defined.current == ' ' && *g_feature.current == '\0') 
-  {
-    g_defined.current++;
-  }
-}
+
 static void doc_string(value_array* args)
 {
   if (tripple_quotes())
@@ -287,10 +365,11 @@ static void doc_string(value_array* args)
   }
 }
 
+
 bool parse_step(const char* defined, const char* feature, value_array* args)
 {
   init_step_scanner(defined, feature);
-  skip_whitespaces();
+  trim_left();
 
   for (;;)
   {
@@ -309,8 +388,16 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
       }
     }
     
-    trim_right();
-    doc_string(args);
+    if (is_at_end(*g_feature.current))
+    {
+      while (*g_defined.current == ' ') g_defined.current++;
+    }
+
+    if (is_at_end(*g_defined.current))
+    {
+      trim_right();
+      doc_string(args);
+    }
     
     if (*g_defined.current == '\0' && *g_feature.current == '\0') 
     {

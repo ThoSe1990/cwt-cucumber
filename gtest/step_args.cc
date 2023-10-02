@@ -24,6 +24,27 @@ protected:
 };
 
 
+TEST_F(step_args, get_values_failing_0)
+{
+  EXPECT_FALSE(parse_step("this is one step", "this is another", &m_args));
+}
+TEST_F(step_args, get_values_failing_1)
+{
+  EXPECT_FALSE(parse_step("never closing {string}", "never closing \"this never closes", &m_args));
+}
+TEST_F(step_args, get_values_failing_2)
+{
+  EXPECT_FALSE(parse_step("never closing {string}", "never closing <var1", &m_args));
+}
+TEST_F(step_args, get_values_failing_3)
+{
+  EXPECT_FALSE(parse_step("never closing {string}", "never closing 123", &m_args));
+}
+TEST_F(step_args, get_values_failing_4)
+{
+  EXPECT_FALSE(parse_step("never closing {int}", "never closing \"this is no int\"", &m_args));
+}
+
 TEST_F(step_args, get_values_0)
 {
   EXPECT_TRUE(parse_step("step without args", "step without args", &m_args));
