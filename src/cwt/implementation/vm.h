@@ -28,9 +28,10 @@ typedef struct {
   step_result last_result;
   cwtc_value stack[STACK_MAX];
   cwtc_value* stack_top;
-  table steps;
-  table globals;
-  table strings;
+  // TODO
+  table steps; // this are my steps -> check "local" (add_local) in source code, rename!
+  table globals; // -> these values are the args in scenario outlines
+  table strings; // check if needed
   obj*  objects;
 } vm;
 

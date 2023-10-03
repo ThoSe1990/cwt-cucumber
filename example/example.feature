@@ -8,6 +8,8 @@ Feature: my feature
     | 123 | 
     | 789 | 
 
+  Scenario: meainginless scenario
+    Given two numbers: 11111 and 999
 
   Scenario Outline: foo
     Given two numbers: <n1> and <n2>
