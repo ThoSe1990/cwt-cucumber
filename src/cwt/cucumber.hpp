@@ -131,7 +131,7 @@ namespace cwtc::details
   {
       static double get_arg(int n, cwtc_value* arg)
       {
-          return cwtc_to_double(arg);
+        return cwtc_to_double(arg);
       }
   };
 } // namespace cwtc::details

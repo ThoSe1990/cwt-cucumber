@@ -5,6 +5,7 @@
 #include "step_matcher.h"
 #include "value.h"
 #include "object.h"
+#include "vm.h"
 
 typedef enum {
   PH_STRING,
@@ -155,7 +156,7 @@ static bool is_space_break_or_end(char c)
 
 static void push_long(value_array* args, bool negative)
 {
-  long long long_value = strtold(g_feature.start, NULL);
+  long long long_value = strtoll(g_feature.start, NULL, 10);
   if (negative) 
   {
     long_value *= -1;
@@ -230,10 +231,7 @@ static bool read_variable(value_array* args)
 
   if (args)
   {
-    // int length = g_feature.current - g_feature.start
-    // get_local(g_feature.start) length needed? 
-    
-    // write_value_array(args, value);
+    write_value_array(args, NIL_VAL);
   }
 
   g_feature.current++;
@@ -365,6 +363,20 @@ static void doc_string(value_array* args)
   }
 }
 
+void map_variables_to_args(value_array* args)
+{
+  // TODO better error handling here?
+  if (args)
+  {
+    for(int i = args->count-1 ; i >= 0 ; i--)
+    {
+      if (IS_NIL(args->values[i]))
+      {
+        args->values[i] = pop();
+      }
+    }
+  }
+}
 
 bool parse_step(const char* defined, const char* feature, value_array* args)
 {
@@ -408,5 +420,6 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
     }
     advance();
   }
+  map_variables_to_args(args);
   return true;
 }

@@ -3,25 +3,27 @@
 
 // TODO same statements with differtent types doesn't work ... 
 
-CWTC_STEP("my first step passes!")
+CWTC_STEP("two numbers: {int} and {int}")
 {
-  std::cout << "hello world!" << std::endl;
-  cwtc_assert(true);
+  int n1 = CWTC_ARG(1);
+  int n2 = CWTC_ARG(2);
+  std::cout << "n1: " << n1 << "  n2: " << n2 << std::endl;
 }
-CWTC_STEP("this fails!")
+CWTC_STEP("one number: {int}")
 {
-  std::cout << "FATAL FATAL!!!" << std::endl;
-  cwtc_assert(false);
+  int one = CWTC_ARG(1);
+  std::cout << "one " << one << std::endl;
 }
-
-CWTC_STEP("this is {int}")
+CWTC_STEP("one double: {double}")
 {
-  int i = CWTC_ARG(1);
-  std::string s = CWTC_ARG(2);
-  std::cout << "int value: " << i << std::endl;
-  std::cout << "string value: " << s << std::endl;
+  double d = CWTC_ARG(1);
+  std::cout << "double " << d << std::endl;
 }
-
+CWTC_STEP("string: {str}")
+{
+  std::string str = CWTC_ARG(1);
+  std::cout << "string: " << str << std::endl;
+}
 
 
 int main(int argc, const char* argv[])

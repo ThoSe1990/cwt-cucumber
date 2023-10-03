@@ -100,11 +100,13 @@ long long cwtc_to_long(cwtc_value* value)
 }
 float cwtc_to_float(cwtc_value* value)
 {
-  return (float) AS_DOUBLE(*value);
+  // TODO better error handling, eg. waht if this is a  string 
+  return IS_DOUBLE(*value) ? (float)AS_DOUBLE(*value) : (float)AS_LONG(*value);
 }
 double cwtc_to_double(cwtc_value* value)
 {
-  return AS_DOUBLE(*value);
+  // TODO better error handling, eg. waht if this is a  string 
+  return IS_DOUBLE(*value) ? AS_DOUBLE(*value) : (double)AS_LONG(*value);
 }
 const char* cwtc_to_string(cwtc_value* value)
 {

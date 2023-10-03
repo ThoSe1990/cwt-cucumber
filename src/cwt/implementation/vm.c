@@ -219,6 +219,17 @@ static interpret_result run()
           push(value);
         }
       }
+      break; case OP_SET_GLOBAL:
+      {
+        obj_string* name = READ_STRING();
+        if (table_set(&g_vm.globals, name, peek(0)))
+        {
+          table_delete(&g_vm.globals, name);
+          runtime_error("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        pop();
+      }
       break; case OP_JUMP_IF_FAILED:
       {
         uint16_t offset = READ_SHORT();
@@ -260,6 +271,7 @@ static interpret_result run()
           break; default: ;// shouldn't happen ... 
         }        
       }
+      // TODO probably not necessary
       break; case OP_STEP:
       {
         obj_string* step = READ_STRING();

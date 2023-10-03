@@ -272,7 +272,7 @@ static token number()
     advance();
     while(is_digit(peek())) { advance(); }
   }
-  return is_double ? make_token(TOKEN_DOUBLE) : make_token(TOKEN_INT);
+  return is_double ? make_token(TOKEN_DOUBLE) : make_token(TOKEN_LONG);
 }
 
 static token string()

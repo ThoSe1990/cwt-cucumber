@@ -183,6 +183,7 @@ static void patch_jump(int offset)
   current_chunk()->code[offset] = (jump >> 8) & 0xff;
   current_chunk()->code[offset+1] = jump & 0xff;
 }
+// TODO probably not necessary 
 static void emit_step(const char* name, int length)
 {
   emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(name , length))));
@@ -213,7 +214,7 @@ static void emit_description(cwtc_value value)
 
 static void emit_int()
 {
-  long long long_value = strtold(parser.current.start, NULL);
+  long long long_value = strtoll(parser.current.start, NULL, 10);
   if (parser.previous.type == TOKEN_MINUS) 
   {
     long_value *= -1;
@@ -455,55 +456,31 @@ static void step_variable()
   declare_variable();
 }
 
-static void process_step_in_outline()
-{
-  const char* step_name = parser.current.start;
-  const int length = step_name_length(parser.current.start);
-
-  emit_step(step_name, length);
-  int after_step = emit_jump(OP_JUMP_IF_FAILED);
-  uint8_t arg_count = 0;
-  while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
-  {
-    switch (current_token())
-    {
-      case TOKEN_STRING: emit_string(); arg_count++;
-      break; case TOKEN_INT: emit_int(); arg_count++;
-      break; case TOKEN_DOUBLE: emit_double(); arg_count++;
-      break; case TOKEN_VAR: step_variable(); arg_count++;
-    }
-    advance();
-  }
-
-  patch_jump(after_step);
-}
 
 static void process_step()
 {
   const char* step_start = parser.current.start;
   const char* step_name = parser.current.start;
+  token step_token = parser.current;
   const int length = step_name_length(parser.current.start);
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
-    // switch (current_token())
-    // {
-    //   case TOKEN_STRING: emit_string(); arg_count++;
-    //   break; case TOKEN_INT: emit_int(); arg_count++;
-    //   break; case TOKEN_DOUBLE: emit_double(); arg_count++;
-    // }
     advance();
+    if (check(TOKEN_VAR))
+    {
+      arg_count++;
+      emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(&parser.current.start[1] , parser.current.length-2))));
+    }
   }
   match(TOKEN_DOC_STRING);
-  // if (match(TOKEN_DOC_STRING))
-  // {
-  //   emit_doc_string(); arg_count++;
-  // }
-  // emit_step(step_name, length);
-  // emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  
+  // emit_constant(LONG_VAL(arg_count));
+
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_start , parser.current.start - step_start))));
+  // emit_bytes(OP_CALL_STEP, resolve_step(current, &step_token));
   patch_jump(after_step);
   emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
 }
@@ -555,17 +532,6 @@ static void name()
   emit_name(OBJ_VAL(copy_string(begin , end-begin)));
 }
 
-static void step_in_outline() 
-{
-  skip_linebreaks();
-  process_step_in_outline();
-  skip_linebreaks();
-  if (match(TOKEN_STEP))
-  {
-    step_in_outline();
-  }
-  return ;
-}
 
 static void step() 
 {
@@ -579,7 +545,54 @@ static void step()
   return ;
 }
 
+static void examples_header(value_array* vars)
+{
+  consume(TOKEN_VERTICAL, "Expect '|' after examples begin.");
+  while(!match(TOKEN_LINEBREAK))
+  {
+    consume(TOKEN_TEXT, "Expect variable name.");
 
+    cwtc_value v = OBJ_VAL(copy_string(parser.previous.start, parser.previous.length ));
+    write_value_array(vars, v);
+
+    //TODO delete printf
+    consume(TOKEN_VERTICAL, "Expect '|' after variable.");
+  }
+}
+
+static void emit_table_value()
+{
+  switch(parser.current.type)
+  {
+    case TOKEN_LONG:
+    {
+      emit_int(); 
+      consume(TOKEN_LONG, "Expect long value.");
+    }
+    break; case TOKEN_DOUBLE:
+    {
+      emit_double(); 
+      consume(TOKEN_DOUBLE, "Expect double/float value.");
+    }
+    break; case TOKEN_STRING:
+    {
+      emit_string(); 
+      consume(TOKEN_STRING, "Expect string value.");
+    }
+  }
+}
+
+static void examples_body(value_array* vars)
+{
+  consume(TOKEN_VERTICAL, "Expect '|' after examples begin.");
+  for (int i = 0; i < vars->count ; i++)
+  { 
+    emit_table_value();
+    emit_bytes(OP_SET_GLOBAL, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
+    
+    consume(TOKEN_VERTICAL, "Expect '|' after value.");
+  }
+}
 static void scenario_outline()
 {
   emit_byte(OP_SCENARIO_OUTLINE);
@@ -594,17 +607,41 @@ static void scenario_outline()
   
   match(TOKEN_STEP);
 
-  step_in_outline();
-  // examples();
+  step();
 
   obj_function* func = end_compiler();
-  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  add_local(parser.current); 
-  mark_initialized();
-  
-  int arg = resolve_step(current, &parser.current);
-  emit_bytes(OP_GET_LOCAL, arg);
-  emit_bytes(OP_CALL, 0);
+
+ 
+  consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
+  // TODO name + description is in general possible
+  consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
+
+  // temporary storage for all vars
+  value_array vars;
+  init_value_array(&vars);
+
+  // read all given variables in the header
+  examples_header(&vars);
+
+  // publish all variables:
+  for (int i = 0; i < vars.count ; i++)
+  {
+    uint8_t global = make_constant(vars.values[i]);
+    emit_constant(LONG_VAL(0));
+    emit_bytes(OP_DEFINE_GLOBAL, global);
+  }
+
+  // now read the body, we need the given ordering from the variables:
+  while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO) && !check(TOKEN_EOF))
+  {
+    examples_body(&vars); 
+    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+    emit_bytes(OP_CALL, 0);
+    while(match(TOKEN_LINEBREAK)){};
+  }
+
+  // cleanup
+  free_value_array(&vars);
 
   end_scope();
 }
