@@ -9,6 +9,12 @@ CWTC_STEP("two numbers: {int} and {int}")
   int n2 = CWTC_ARG(2);
   std::cout << "n1: " << n1 << "  n2: " << n2 << std::endl;
 }
+
+CWTC_STEP("fail")
+{
+  cwtc_assert(false);
+}
+
 CWTC_STEP("one number: {int}")
 {
   int one = CWTC_ARG(1);

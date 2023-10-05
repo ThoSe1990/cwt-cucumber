@@ -191,9 +191,6 @@ static interpret_result run()
       }
       break; case OP_POP: pop(); 
       break; case OP_NIL: push(NIL_VAL);
-      break; case OP_FEATURE: 
-      { 
-      }
       break; case OP_DEFINE_GLOBAL:
       {
         obj_string* name = READ_STRING();
@@ -238,14 +235,6 @@ static interpret_result run()
           g_vm.last_result = STEP_SKIPPED;
           frame->ip += offset;
         }
-      }
-      break; case OP_SCENARIO_OUTLINE:
-      {
-        // TODO check if theres something todo ... 
-      }
-      break; case OP_SCENARIO: 
-      { 
-        g_vm.last_result = STEP_INITIAL;
       }
       break; case OP_NAME: 
       { 

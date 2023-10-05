@@ -16,7 +16,6 @@ typedef struct {
 } call_frame;
 
 typedef enum {
-  STEP_INITIAL,
   STEP_SKIPPED,
   STEP_PASSED,
   STEP_FAILED

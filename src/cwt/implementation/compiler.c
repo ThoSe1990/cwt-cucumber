@@ -183,24 +183,12 @@ static void patch_jump(int offset)
   current_chunk()->code[offset] = (jump >> 8) & 0xff;
   current_chunk()->code[offset+1] = jump & 0xff;
 }
-// TODO probably not necessary 
-static void emit_step(const char* name, int length)
-{
-  emit_bytes(OP_STEP, make_constant(OBJ_VAL(copy_string(name , length))));
-}
 
 static int step_name_length(const char* str)
 { 
   const char* begin = str; 
   while (*str != '\n' && *str != '\r' && *str != '\0') { str++; }
   return str-begin;
-}
-
-static void emit_scenario(int line)
-{
-  char buffer[32];
-  sprintf(buffer, "%d", line);
-  emit_bytes(OP_SCENARIO, make_constant(OBJ_VAL(copy_string(buffer , strlen(buffer)))));
 }
 
 static void emit_name(cwtc_value value)
@@ -212,7 +200,7 @@ static void emit_description(cwtc_value value)
   emit_bytes(OP_DESCRIPTION, make_constant(value));
 }
 
-static void emit_int()
+static void emit_long()
 {
   long long long_value = strtoll(parser.current.start, NULL, 10);
   if (parser.previous.type == TOKEN_MINUS) 
@@ -267,20 +255,6 @@ static void init_compiler(cwtc_compiler* compiler, function_type type)
   l->name.start = "";
   l->name.length = 0;
 }
-static uint8_t identifier_constant(token* name)
-{
-  return make_constant(OBJ_VAL(copy_string(name->start, name->length)));
-}
-
-// TODO later
-static bool identifiers_equal(token* a, token* b)
-{
-  if (a->length != b->length)
-  {
-    return false;
-  }
-  return memcmp(a->start, b->start, a->length) == 0;
-}
 
 static int resolve_step(cwtc_compiler* compiler, token* name)
 {
@@ -294,56 +268,6 @@ static int resolve_step(cwtc_compiler* compiler, token* name)
   }
   return -1;
 }
-
-static int resolve_local(cwtc_compiler* compiler, token* name)
-{
-  for (int i = compiler->local_count-1 ; i >= 0 ; i--)
-  {
-    local* l = &compiler->locals[i];
-    if (identifiers_equal(name, &l->name)) 
-    {
-      if (l->depth == -1) 
-      {
-        error("Can't read local variable in its own initializer.");
-      }
-      return i;
-    }
-  }
-  return -1;
-}
-
-
-// TODO I'll need this later, once there are variables in scenario outlines
-static void named_variable(token name, bool can_assign)
-{
-  uint8_t get_op, set_op;
-  int arg = resolve_local(current, &name);
-  if (arg != -1) 
-  {
-    get_op = OP_GET_LOCAL;
-    set_op = OP_SET_LOCAL;
-  }
-  else 
-  {
-    arg = identifier_constant(&name);
-    get_op = OP_GET_GLOBAL;
-    set_op = OP_SET_GLOBAL;
-  }
-  
-  if (can_assign)
-  {
-    emit_bytes(set_op, (uint8_t)arg);
-  }
-  else 
-  {
-    emit_bytes(get_op, (uint8_t)arg);
-  }
-}
-static void variable(bool can_assign)
-{
-  named_variable(parser.previous, can_assign);
-}
-
 
 
 static obj_function* end_compiler()
@@ -425,37 +349,11 @@ static void language()
 // TODO parsing #language: en/es/de/etc.. 
 }
 
-static void declare_variable()
+static cwtc_value variable_name()
 {
-  if (current->scope_depth == 0) 
-  {
-    return;
-  }
-  else 
-  {
-    token* name = &parser.previous;
-
-    for (int i = current->local_count - 1 ; i >= 0 ; i--)
-    {
-      local* l = &current->locals[i];
-      if (l->depth != -1 && l->depth < current->scope_depth)
-      {
-        break;
-      }
-      // if (identifiers_equal(name, &l->name)) 
-      // {
-      //   error("Already a variable with this name in this scope");
-      // }
-    }
-
-    add_local(*name);
-  }
+  int length_wo_angle_brackets = parser.current.length - 2;
+  return OBJ_VAL(copy_string(&parser.current.start[1] , length_wo_angle_brackets));
 }
-static void step_variable()
-{
-  declare_variable();
-}
-
 
 static void process_step()
 {
@@ -472,7 +370,7 @@ static void process_step()
     if (check(TOKEN_VAR))
     {
       arg_count++;
-      emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(&parser.current.start[1] , parser.current.length-2))));
+      emit_bytes(OP_GET_GLOBAL, make_constant(variable_name()));
     }
   }
   match(TOKEN_DOC_STRING);
@@ -555,18 +453,17 @@ static void examples_header(value_array* vars)
     cwtc_value v = OBJ_VAL(copy_string(parser.previous.start, parser.previous.length ));
     write_value_array(vars, v);
 
-    //TODO delete printf
     consume(TOKEN_VERTICAL, "Expect '|' after variable.");
   }
 }
 
 static void emit_table_value()
 {
-  switch(parser.current.type)
+  switch(current_token())
   {
     case TOKEN_LONG:
     {
-      emit_int(); 
+      emit_long(); 
       consume(TOKEN_LONG, "Expect long value.");
     }
     break; case TOKEN_DOUBLE:
@@ -595,7 +492,6 @@ static void examples_body(value_array* vars)
 }
 static void scenario_outline()
 {
-  emit_byte(OP_SCENARIO_OUTLINE);
   begin_scope();
 
   cwtc_compiler compiler;
@@ -611,7 +507,6 @@ static void scenario_outline()
 
   obj_function* func = end_compiler();
 
- 
   consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
   // TODO name + description is in general possible
   consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
@@ -632,7 +527,7 @@ static void scenario_outline()
   }
 
   // now read the body, we need the given ordering from the variables:
-  while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO) && !check(TOKEN_EOF))
+  while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
   {
     examples_body(&vars); 
     emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
@@ -649,7 +544,6 @@ static void scenario_outline()
 
 static void scenario()
 {
-  emit_byte(OP_SCENARIO);
   begin_scope();
 
   cwtc_compiler compiler;
