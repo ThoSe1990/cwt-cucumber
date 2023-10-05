@@ -24,6 +24,9 @@ Feature: my feature
     Given one number: <one>
     Given one double: <double>
     Given two numbers: 17 and <n2>
+    Given one double: <double>
+    Given fail
+    Given two numbers: 17 and <n2>
     Given string: <str>
 
     Examples:

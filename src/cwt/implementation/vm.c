@@ -187,13 +187,13 @@ static interpret_result run()
       }
       break; case OP_POP: pop(); 
       break; case OP_NIL: push(NIL_VAL);
-      break; case OP_DEFINE_GLOBAL:
+      break; case OP_DEFINE_VARIABLE:
       {
         obj_string* name = READ_STRING();
         table_set(&g_vm.variables, name, peek(0));
         pop();
       }
-      break; case OP_GET_GLOBAL:
+      break; case OP_GET_VARIABLE:
       {
         obj_string* name = READ_STRING();
         cuke_value value; 
@@ -207,7 +207,7 @@ static interpret_result run()
           push(value);
         }
       }
-      break; case OP_SET_GLOBAL:
+      break; case OP_SET_VARIABLE:
       {
         obj_string* name = READ_STRING();
         if (table_set(&g_vm.variables, name, peek(0)))

@@ -61,12 +61,12 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_CONSTANT", c, offset);
   case OP_TAG:
     return constant_instruction("OP_TAG", c, offset);
-  case OP_GET_GLOBAL:
-    return constant_instruction("OP_GET_GLOBAL", c, offset);
-  case OP_SET_GLOBAL:
-    return constant_instruction("OP_SET_GLOBAL", c, offset);
-  case OP_DEFINE_GLOBAL:
-    return constant_instruction("OP_DEFINE_GLOBAL", c, offset);
+  case OP_GET_VARIABLE:
+    return constant_instruction("OP_GET_VARIABLE", c, offset);
+  case OP_SET_VARIABLE:
+    return constant_instruction("OP_SET_VARIABLE", c, offset);
+  case OP_DEFINE_VARIABLE:
+    return constant_instruction("OP_DEFINE_VARIABLE", c, offset);
   case OP_POP:
     return simple_instruction("OP_POP", offset);
   case OP_PRINT_LINEBREAK:

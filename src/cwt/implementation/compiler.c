@@ -317,7 +317,7 @@ static void define_variable(uint8_t global)
     mark_initialized();
     return ;
   }
-  emit_bytes(OP_DEFINE_GLOBAL, global);
+  emit_bytes(OP_DEFINE_VARIABLE, global);
 }
 
 static void begin_scope()
@@ -365,7 +365,7 @@ static void process_step()
     if (check(TOKEN_VAR))
     {
       arg_count++;
-      emit_bytes(OP_GET_GLOBAL, make_constant(variable_name()));
+      emit_bytes(OP_GET_VARIABLE, make_constant(variable_name()));
     }
   }
   match(TOKEN_DOC_STRING);
@@ -476,7 +476,7 @@ static void examples_body(value_array* vars)
   for (int i = 0; i < vars->count ; i++)
   { 
     emit_table_value();
-    emit_bytes(OP_SET_GLOBAL, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
+    emit_bytes(OP_SET_VARIABLE, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
     
     consume(TOKEN_VERTICAL, "Expect '|' after value.");
   }
@@ -514,7 +514,7 @@ static void scenario_outline()
   {
     uint8_t global = make_constant(vars.values[i]);
     emit_constant(LONG_VAL(0)); // initial value 
-    emit_bytes(OP_DEFINE_GLOBAL, global);
+    emit_bytes(OP_DEFINE_VARIABLE, global);
   }
 
   // now read the body, we need the given ordering from the variables:
@@ -600,7 +600,7 @@ static void feature()
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
   define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
 
-  emit_bytes(OP_GET_GLOBAL, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
+  emit_bytes(OP_GET_VARIABLE, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
   emit_bytes(OP_CALL, 0);
   emit_byte(OP_POP);
 }
