@@ -1,6 +1,6 @@
-# CWT Cucumber
+# Coding With Thomas: Cucumber
 
-CWT Cucumber is a Cucumber interpreter and engine to run cucumber tests in C/C++. 
+This is a Cucumber interpreter and engine to run cucumber tests in C/C++. 
 
 ## Disclaimer
 This is my personal fun and educational project. I have read Crafting Interpreters by Robert Nystrom and I wanted a meaningful real world example to apply the principles. I really love the idea of Cucumber and use it a lot in my projects. Therefore I decided to create a Cucumber interpreter just for the fun of it. 

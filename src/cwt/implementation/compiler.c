@@ -14,7 +14,7 @@ typedef struct {
   token current;
   token previous; 
   bool had_error;
-} cwtc_parser;
+} cuke_parser;
 
 typedef enum {
   PREC_NONE,
@@ -39,18 +39,18 @@ typedef enum {
   TYPE_SCRIPT
 } function_type;
 
-typedef struct cwtc_compiler {
-  struct cwtc_compiler* enclosing;
+typedef struct cuke_compiler {
+  struct cuke_compiler* enclosing;
   obj_function* function;
   function_type type;
   local locals[UINT8_COUNT];
   int local_count;
   int scope_depth;
-} cwtc_compiler;
+} cuke_compiler;
 
 
-cwtc_parser parser; 
-cwtc_compiler* current = NULL;
+cuke_parser parser; 
+cuke_compiler* current = NULL;
 
 static chunk* current_chunk()
 {
@@ -137,7 +137,7 @@ static void consume(token_type type, const char* msg)
 }
 
 
-static uint8_t make_constant(cwtc_value value)
+static uint8_t make_constant(cuke_value value)
 {
   int constant = add_constant(current_chunk(), value);
   if (constant > UINT8_MAX)
@@ -162,7 +162,7 @@ static void emit_bytes_at(uint8_t byte1, uint8_t byte2, int line)
   write_chunk(current_chunk(), byte1, line);
   write_chunk(current_chunk(), byte2, line);
 }
-static void emit_constant(cwtc_value value)
+static void emit_constant(cuke_value value)
 {
   emit_bytes(OP_CONSTANT, make_constant(value));
 }
@@ -191,13 +191,9 @@ static int step_name_length(const char* str)
   return str-begin;
 }
 
-static void emit_name(cwtc_value value)
+static void emit_print_line(obj_string* value)
 {
-  emit_bytes(OP_NAME, make_constant(value));
-}
-static void emit_description(cwtc_value value)
-{
-  emit_bytes(OP_DESCRIPTION, make_constant(value));
+  emit_bytes(OP_PRINT_LINE, make_constant(OBJ_VAL(value)));
 }
 
 static void emit_long()
@@ -233,7 +229,7 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
-static void init_compiler(cwtc_compiler* compiler, function_type type)
+static void init_compiler(cuke_compiler* compiler, function_type type)
 {
   compiler->enclosing = current;
   compiler->function = NULL;
@@ -256,7 +252,7 @@ static void init_compiler(cwtc_compiler* compiler, function_type type)
   l->name.length = 0;
 }
 
-static int resolve_step(cwtc_compiler* compiler, token* name)
+static int resolve_step(cuke_compiler* compiler, token* name)
 {
   for (int i = compiler->local_count-1 ; i >= 0 ; i--)
   {
@@ -349,7 +345,7 @@ static void language()
 // TODO parsing #language: en/es/de/etc.. 
 }
 
-static cwtc_value variable_name()
+static cuke_value variable_name()
 {
   int length_wo_angle_brackets = parser.current.length - 2;
   return OBJ_VAL(copy_string(&parser.current.start[1] , length_wo_angle_brackets));
@@ -357,12 +353,11 @@ static cwtc_value variable_name()
 
 static void process_step()
 {
-  const char* step_start = parser.current.start;
   const char* step_name = parser.current.start;
-  token step_token = parser.current;
   const int length = step_name_length(parser.current.start);
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
+
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
@@ -375,12 +370,12 @@ static void process_step()
   }
   match(TOKEN_DOC_STRING);
   
-  // emit_constant(LONG_VAL(arg_count));
-
-  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_start , parser.current.start - step_start))));
-  // emit_bytes(OP_CALL_STEP, resolve_step(current, &step_token));
+  // TODO push arg count? 
+  // TODO check if these redundant string pushes are necessary... 
+  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
   patch_jump(after_step);
   emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
+  
 }
 
 static void scenario_description()
@@ -392,9 +387,7 @@ static void scenario_description()
     advance();
     if (check(TOKEN_EOF)) break;
   }
-  // const char* end = parser.previous.start + parser.previous.length;
-  // TODO later we'll need names and descriptions ... 
-  // emit_description(OBJ_VAL(copy_string(begin , end-begin)))
+  // TODO print description to report or so
 }
 
 static void feature_description()
@@ -412,9 +405,7 @@ static void feature_description()
     }
     advance();
   }
-  // const char* end = parser.previous.start + parser.previous.length;
-  // TODO later we'll need names and descriptions ... 
-  // emit_description(OBJ_VAL(copy_string(begin , end-begin)))
+  // TODO print description to report or so
 }
 
 static void name() 
@@ -427,7 +418,7 @@ static void name()
     if (check(TOKEN_EOF)) break;
   }
   const char* end = parser.previous.start + parser.previous.length;
-  emit_name(OBJ_VAL(copy_string(begin , end-begin)));
+  emit_print_line(copy_string(begin , end-begin));
 }
 
 
@@ -450,7 +441,7 @@ static void examples_header(value_array* vars)
   {
     consume(TOKEN_TEXT, "Expect variable name.");
 
-    cwtc_value v = OBJ_VAL(copy_string(parser.previous.start, parser.previous.length ));
+    cuke_value v = OBJ_VAL(copy_string(parser.previous.start, parser.previous.length ));
     write_value_array(vars, v);
 
     consume(TOKEN_VERTICAL, "Expect '|' after variable.");
@@ -494,7 +485,7 @@ static void scenario_outline()
 {
   begin_scope();
 
-  cwtc_compiler compiler;
+  cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
 
@@ -522,7 +513,7 @@ static void scenario_outline()
   for (int i = 0; i < vars.count ; i++)
   {
     uint8_t global = make_constant(vars.values[i]);
-    emit_constant(LONG_VAL(0));
+    emit_constant(LONG_VAL(0)); // initial value 
     emit_bytes(OP_DEFINE_GLOBAL, global);
   }
 
@@ -546,7 +537,7 @@ static void scenario()
 {
   begin_scope();
 
-  cwtc_compiler compiler;
+  cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
 
@@ -558,14 +549,8 @@ static void scenario()
 
   obj_function* func = end_compiler();
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  add_local(parser.current); 
-  mark_initialized();
   
-  int arg = resolve_step(current, &parser.current);
-  emit_bytes(OP_GET_LOCAL, arg);
   emit_bytes(OP_CALL, 0);
-
-  end_scope();
 }
 
 
@@ -599,7 +584,7 @@ static void feature()
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect FeatureLine.");
 
-  cwtc_compiler compiler;
+  cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
 
@@ -625,12 +610,14 @@ static void feature()
 obj_function* compile(const char* source, const char* filename)
 {
   init_scanner(source, filename);
-  cwtc_compiler compiler; 
+  cuke_compiler compiler; 
   init_compiler(&compiler, TYPE_SCRIPT);
 
   parser.had_error = false;
 
   advance();
+  // TODO langauge 
+  // TODO background
   feature();
 
   obj_function* func = end_compiler();

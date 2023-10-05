@@ -45,7 +45,7 @@ static void runtime_error(const char* format, ...)
   reset_stack();
 }
 
-void define_native(const char* name, cwtc_step_t func)
+void define_native(const char* name, cuke_step_t func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
@@ -58,34 +58,35 @@ void init_vm()
 {
   reset_stack();
   g_vm.objects = NULL;
-  init_table(&g_vm.globals);
+  init_table(&g_vm.variables);
   init_table(&g_vm.strings);
   init_table(&g_vm.steps);
 }
 void free_vm()
 {
-  free_table(&g_vm.globals);
+  free_table(&g_vm.variables);
   free_table(&g_vm.strings);
   free_table(&g_vm.steps);
   free_objects();
 }
 
-void push(cwtc_value value)
+void push(cuke_value value)
 {
   *g_vm.stack_top = value;
   g_vm.stack_top++;
 }
-void replace(int position, cwtc_value value)
-{
-  g_vm.stack[position] = value;
-}
-cwtc_value pop()
+cuke_value pop()
 {
   g_vm.stack_top--;
   return *g_vm.stack_top;
 }
 
-static cwtc_value peek(int distance)
+static void replace(int position, cuke_value value)
+{
+  g_vm.stack[position] = value;
+}
+
+static cuke_value peek(int distance)
 {
   return g_vm.stack_top[-1 - distance];
 }
@@ -110,12 +111,7 @@ static bool call(obj_function* func, int arg_count)
   return true;
 }
 
-static void get_step_args(obj_string* step, obj_string* definition, value_array* args)
-{
-
-}
-
-static bool call_value(cwtc_value callee, int arg_count)
+static bool call_value(cuke_value callee, int arg_count)
 {
   if (IS_OBJ(callee))
   {
@@ -127,7 +123,7 @@ static bool call_value(cwtc_value callee, int arg_count)
       } 
       case OBJ_NATIVE:
       {
-        cwtc_step_t native = AS_NATIVE(callee);
+        cuke_step_t native = AS_NATIVE(callee);
         native(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         return true;
@@ -139,7 +135,7 @@ static bool call_value(cwtc_value callee, int arg_count)
   return false;
 }
 
-static bool is_falsey(cwtc_value value)
+static bool is_falsey(cuke_value value)
 {
   return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value)); 
 }
@@ -171,7 +167,7 @@ static interpret_result run()
   {
   #ifdef DEBUG_TRACE_EXTENSION
     printf("        ");
-    for (cwtc_value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
+    for (cuke_value* slot = g_vm.stack; slot < g_vm.stack_top; slot++)
     {
       printf("[ ");
       print_value(*slot);
@@ -186,7 +182,7 @@ static interpret_result run()
     {
       case OP_CONSTANT:
       {
-        cwtc_value constant = READ_CONSTANT();
+        cuke_value constant = READ_CONSTANT();
         push(constant);
       }
       break; case OP_POP: pop(); 
@@ -194,19 +190,14 @@ static interpret_result run()
       break; case OP_DEFINE_GLOBAL:
       {
         obj_string* name = READ_STRING();
-        table_set(&g_vm.globals, name, peek(0));
+        table_set(&g_vm.variables, name, peek(0));
         pop();
-      }
-      break; case OP_GET_LOCAL: 
-      {
-        uint8_t slot = READ_BYTE();
-        push(frame->slots[slot]);
       }
       break; case OP_GET_GLOBAL:
       {
         obj_string* name = READ_STRING();
-        cwtc_value value; 
-        if (!table_get(&g_vm.globals, name, &value))
+        cuke_value value; 
+        if (!table_get(&g_vm.variables, name, &value))
         {
           runtime_error("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
@@ -219,9 +210,9 @@ static interpret_result run()
       break; case OP_SET_GLOBAL:
       {
         obj_string* name = READ_STRING();
-        if (table_set(&g_vm.globals, name, peek(0)))
+        if (table_set(&g_vm.variables, name, peek(0)))
         {
-          table_delete(&g_vm.globals, name);
+          table_delete(&g_vm.variables, name);
           runtime_error("Undefined variable '%s'.", name->chars);
           return INTERPRET_RUNTIME_ERROR;
         }
@@ -236,14 +227,10 @@ static interpret_result run()
           frame->ip += offset;
         }
       }
-      break; case OP_NAME: 
+      break; case OP_PRINT_LINE: 
       { 
         obj_string* name = READ_STRING();
         printf("[-----------] %s:\n", name->chars);
-      }
-      break; case OP_DESCRIPTION: 
-      { 
-        // TODO print/report descriptions (later for like json report)
       }
       break; case OP_PRINT_LINEBREAK:
       {
@@ -260,43 +247,30 @@ static interpret_result run()
           break; default: ;// shouldn't happen ... 
         }        
       }
-      // TODO probably not necessary
-      break; case OP_STEP:
-      {
-        obj_string* step = READ_STRING();
-        cwtc_value value;
-
-        // if (table_get_step(&g_vm.steps, step, &value))
-        // {
-          // push(value);
-          // push args
-          // push args count
-
-          // reading args on call:
-          // argcount == pop 
-          // call 
-          // for argcount do pop 
-          // push args
-        // }
-        // else 
-        // {
-        //   runtime_error("Undefined step '%s'.", step->chars);
-        //   return INTERPRET_RUNTIME_ERROR;   
-        // }
-      }
       break; case OP_CALL_STEP:
       {
-        obj_string* step = READ_STRING();
+        obj_string* step_in_feature = READ_STRING();
+        
         obj_string step_definition;
-        cwtc_value value;
-        if (table_get_step(&g_vm.steps, step, &value, &step_definition))
+        cuke_value value;
+        
+        if (table_get_step(&g_vm.steps, step_in_feature, &value, &step_definition))
         {
           value_array args;
           init_value_array(&args); 
 
-          parse_step(step_definition.chars, step->chars, &args);
-
-          cwtc_step_t native = AS_NATIVE(value);
+          parse_step(step_definition.chars, step_in_feature->chars, &args);
+          
+          // TODO check arg count properly? 
+          for(int i = args.count-1 ; i >= 0 ; i--)
+          {
+            if (IS_NIL(args.values[i]))
+            {
+              args.values[i] = pop();
+            }
+          }
+          
+          cuke_step_t native = AS_NATIVE(value);
           native(args.count, args.values);
 
           free_value_array(&args);

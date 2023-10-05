@@ -12,16 +12,16 @@ typedef enum {
   VAL_LONG,
   VAL_DOUBLE,
   VAL_OBJ 
-} cwtc_value_type;
+} cuke_value_type;
 
 typedef struct {
-  cwtc_value_type type;
+  cuke_value_type type;
   union {
     bool boolean;
     long long long_value;
     double double_value;
     obj* object; 
   } as;
-} cwtc_value;
+} cuke_value;
 
 #endif

@@ -5,7 +5,6 @@
 #include "step_matcher.h"
 #include "value.h"
 #include "object.h"
-#include "vm.h"
 
 typedef enum {
   PH_STRING,
@@ -161,7 +160,7 @@ static void push_long(value_array* args, bool negative)
   {
     long_value *= -1;
   }
-  cwtc_value value = LONG_VAL(long_value);
+  cuke_value value = LONG_VAL(long_value);
   write_value_array(args, value);
 }
 
@@ -172,7 +171,7 @@ static void push_double(value_array* args, bool negative)
   {
     double_value *= -1;
   }
-  cwtc_value value = DOUBLE_VAL(double_value);
+  cuke_value value = DOUBLE_VAL(double_value);
   write_value_array(args, value);
 }
 
@@ -233,7 +232,6 @@ static bool read_variable(value_array* args)
   {
     write_value_array(args, NIL_VAL);
   }
-
   g_feature.current++;
   return true;
 }
@@ -256,7 +254,7 @@ static void read_doc_string(value_array* args)
   skip_quotes_and_breaks();
   if (args)
   {
-    cwtc_value value = OBJ_VAL(copy_string(start, end - start));
+    cuke_value value = OBJ_VAL(copy_string(start, end - start));
     write_value_array(args, value);
   }
   return ;
@@ -288,7 +286,7 @@ static bool read_string(value_array* args)
 
   if (args)
   {
-    cwtc_value value = OBJ_VAL(copy_string(g_feature.start, g_feature.current - g_feature.start));
+    cuke_value value = OBJ_VAL(copy_string(g_feature.start, g_feature.current - g_feature.start));
     write_value_array(args, value);
   }
 
@@ -354,27 +352,11 @@ static bool read_double(value_array* args)
   return true;
 }
 
-
 static void doc_string(value_array* args)
 {
   if (tripple_quotes())
   {
     read_doc_string(args);
-  }
-}
-
-void map_variables_to_args(value_array* args)
-{
-  // TODO better error handling here?
-  if (args)
-  {
-    for(int i = args->count-1 ; i >= 0 ; i--)
-    {
-      if (IS_NIL(args->values[i]))
-      {
-        args->values[i] = pop();
-      }
-    }
   }
 }
 
@@ -420,6 +402,5 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
     }
     advance();
   }
-  map_variables_to_args(args);
   return true;
 }

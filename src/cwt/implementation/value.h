@@ -16,22 +16,22 @@
 #define AS_DOUBLE(value)  ((value).as.double_value)
 #define AS_OBJ(value)     ((value).as.object)
 
-#define BOOL_VAL(value)   ((cwtc_value){VAL_BOOL, {.boolean = value}})
-#define NIL_VAL       ((cwtc_value){VAL_NIL, {.long_value = 0}})
-#define LONG_VAL(value) ((cwtc_value){VAL_LONG, {.long_value = value}})
-#define DOUBLE_VAL(value) ((cwtc_value){VAL_DOUBLE, {.double_value = value}})
-#define OBJ_VAL(value)    ((cwtc_value){VAL_OBJ, {.object = (obj*)value}})
+#define BOOL_VAL(value)   ((cuke_value){VAL_BOOL, {.boolean = value}})
+#define NIL_VAL       ((cuke_value){VAL_NIL, {.long_value = 0}})
+#define LONG_VAL(value) ((cuke_value){VAL_LONG, {.long_value = value}})
+#define DOUBLE_VAL(value) ((cuke_value){VAL_DOUBLE, {.double_value = value}})
+#define OBJ_VAL(value)    ((cuke_value){VAL_OBJ, {.object = (obj*)value}})
 
 
 typedef struct {
   int capacity;
   int count;
-  cwtc_value* values;
+  cuke_value* values;
 } value_array;
 
-bool values_equal(cwtc_value a, cwtc_value b);
+bool values_equal(cuke_value a, cuke_value b);
 void init_value_array(value_array* arr);
-void write_value_array(value_array* arr, cwtc_value value);
+void write_value_array(value_array* arr, cuke_value value);
 void free_value_array(value_array* arr);
-void print_value(cwtc_value value);
+void print_value(cuke_value value);
 #endif 

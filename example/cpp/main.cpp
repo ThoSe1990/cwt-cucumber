@@ -3,38 +3,38 @@
 
 // TODO same statements with differtent types doesn't work ... 
 
-CWTC_STEP("two numbers: {int} and {int}")
+cuke_STEP("two numbers: {int} and {int}")
 {
-  int n1 = CWTC_ARG(1);
-  int n2 = CWTC_ARG(2);
+  int n1 = CUKE_ARG(1);
+  int n2 = CUKE_ARG(2);
   std::cout << "n1: " << n1 << "  n2: " << n2 << std::endl;
 }
 
-CWTC_STEP("fail")
+cuke_STEP("fail")
 {
-  cwtc_assert(false);
+  cuke_assert(false);
 }
 
-CWTC_STEP("one number: {int}")
+cuke_STEP("one number: {int}")
 {
-  int one = CWTC_ARG(1);
+  int one = CUKE_ARG(1);
   std::cout << "one " << one << std::endl;
 }
-CWTC_STEP("one double: {double}")
+cuke_STEP("one double: {double}")
 {
-  double d = CWTC_ARG(1);
+  double d = CUKE_ARG(1);
   std::cout << "double " << d << std::endl;
 }
-CWTC_STEP("string: {str}")
+cuke_STEP("string: {str}")
 {
-  std::string str = CWTC_ARG(1);
+  std::string str = CUKE_ARG(1);
   std::cout << "string: " << str << std::endl;
 }
 
 
 int main(int argc, const char* argv[])
 {
-  cwtc::tests c; 
+  cuke::tests c; 
 
   c.run(argc, argv);
   return 0;

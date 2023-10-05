@@ -29,7 +29,7 @@ obj_function* new_function()
   return func;
 }
 
-obj_native* new_native(cwtc_step_t function)
+obj_native* new_native(cuke_step_t function)
 {
   obj_native* native = ALLOCATE_OBJ(obj_native, OBJ_NATIVE);
   native->function = function;
@@ -100,7 +100,7 @@ static void print_function(obj_function* func)
   }
 }
 
-void print_object(cwtc_value value)
+void print_object(cuke_value value)
 {
   switch(OBJ_TYPE(value))
   {

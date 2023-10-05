@@ -5,7 +5,7 @@
 #include "memory.h"
 #include "value.h"
 
-bool values_equal(cwtc_value a, cwtc_value b)
+bool values_equal(cuke_value a, cuke_value b)
 {
   if (a.type != b.type) { return false; }
   switch (a.type)
@@ -24,24 +24,24 @@ void init_value_array(value_array* arr)
   arr->capacity = 0;
   arr->count = 0;
 }
-void write_value_array(value_array* arr, cwtc_value value)
+void write_value_array(value_array* arr, cuke_value value)
 {
   if (arr->capacity < arr->count+1)
   {
     int old_cap = arr->capacity;
     arr->capacity = GROW_CAPACITY(old_cap);
-    arr->values = GROW_ARRAY(cwtc_value, arr->values, old_cap, arr->capacity);
+    arr->values = GROW_ARRAY(cuke_value, arr->values, old_cap, arr->capacity);
   }
   arr->values[arr->count] = value;
   arr->count++;
 }
 void free_value_array(value_array* arr)
 {
-  FREE_ARRAY(cwtc_value, arr->values, arr->capacity);
+  FREE_ARRAY(cuke_value, arr->values, arr->capacity);
   init_value_array(arr);
 }
 
-void print_value(cwtc_value value)
+void print_value(cuke_value value)
 {
   switch (value.type)
   {

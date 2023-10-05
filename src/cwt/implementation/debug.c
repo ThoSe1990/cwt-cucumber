@@ -65,22 +65,16 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_GET_GLOBAL", c, offset);
   case OP_SET_GLOBAL:
     return constant_instruction("OP_SET_GLOBAL", c, offset);
-  case OP_GET_LOCAL:
-    return byte_instruction("OP_GET_LOCAL", c, offset);
   case OP_DEFINE_GLOBAL:
     return constant_instruction("OP_DEFINE_GLOBAL", c, offset);
   case OP_POP:
     return simple_instruction("OP_POP", offset);
   case OP_PRINT_LINEBREAK:
     return simple_instruction("OP_PRINT_LINEBREAK", offset);
-  case OP_STEP:
-    return constant_instruction("OP_STEP", c, offset);
   case OP_JUMP_IF_FAILED:
     return jump_instruction("OP_JUMP_IF_FAILED", 1, c, offset);
-  case OP_NAME:
-    return constant_instruction("OP_NAME", c, offset);
-  case OP_DESCRIPTION:
-    return constant_instruction("OP_DESCRIPTION", c, offset);  
+  case OP_PRINT_LINE:
+    return constant_instruction("OP_PRINT_LINE", c, offset);
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
   case OP_PRINT_RESULT:

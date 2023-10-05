@@ -36,11 +36,11 @@ typedef struct {
   obj_string* name;
 } obj_function;
 
-typedef void (*cwtc_step_t)(int arg_count, cwtc_value* args);
+typedef void (*cuke_step_t)(int arg_count, cuke_value* args);
 
 typedef struct {
   obj object;
-  cwtc_step_t function;
+  cuke_step_t function;
 } obj_native;
 
 struct obj_string {
@@ -51,12 +51,12 @@ struct obj_string {
 };
 
 obj_string* take_string(char* chars, int length);
-obj_native* new_native(cwtc_step_t function);
+obj_native* new_native(cuke_step_t function);
 obj_function* new_function();
 obj_string* copy_string(const char* chars, int length);
-void print_object(cwtc_value value);
+void print_object(cuke_value value);
 
-static inline bool is_obj_type(cwtc_value value, obj_type type) 
+static inline bool is_obj_type(cuke_value value, obj_type type) 
 {
   return IS_OBJ(value) && AS_OBJ(value)->type == type;
 }

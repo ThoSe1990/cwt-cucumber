@@ -7,12 +7,9 @@
 typedef enum {
   OP_CONSTANT,
   OP_TAG,
-  OP_STEP,
-  OP_NAME,
-  OP_DESCRIPTION,
+  OP_PRINT_LINE,
   OP_NIL,
   OP_POP,
-  OP_GET_LOCAL,
   OP_SET_LOCAL,
   OP_GET_GLOBAL,
   OP_DEFINE_GLOBAL,
@@ -38,6 +35,6 @@ typedef struct
 void init_chunk(chunk* c);
 void free_chunk(chunk* c);
 void write_chunk(chunk* c, uint8_t byte, int line);
-int add_constant(chunk* c, cwtc_value value);
+int add_constant(chunk* c, cuke_value value);
 
 #endif

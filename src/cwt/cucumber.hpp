@@ -8,35 +8,35 @@ extern "C" {
   #include "cwt/cucumber.h"
 }
 
-namespace cwtc::details
+namespace cuke::details
 {
-  std::vector<std::pair<const char*, cwtc_step_t>> steps;
-} // namespace cwtc::details
+  std::vector<std::pair<const char*, cuke_step_t>> steps;
+} // namespace cuke::details
 
 #define CONCAT_INTERNAL(a, b) a ## b
 #define CONCAT(a, b) CONCAT_INTERNAL(a, b)
 
 #define INTERNAL_STEP(step_definition, n) \
-    void CONCAT(__cwtc_step_impl_,n)(int arg_count, cwtc_value* args); \
+    void CONCAT(__cuke_step_impl_,n)(int arg_count, cuke_value* args); \
     namespace { \
         struct CONCAT(cwt_step,n) { \
             CONCAT(cwt_step,n)() { \
-             cwtc::details::steps.push_back( {step_definition ,CONCAT(__cwtc_step_impl_,n)} ); \
+             cuke::details::steps.push_back( {step_definition ,CONCAT(__cuke_step_impl_,n)} ); \
             } \
         } CONCAT(g_cwt_step,n); \
     } \
-    void CONCAT(__cwtc_step_impl_,n)(int arg_count, cwtc_value* args)
+    void CONCAT(__cuke_step_impl_,n)(int arg_count, cuke_value* args)
 
-#define CWTC_STEP(step) INTERNAL_STEP(step, __COUNTER__)
+#define cuke_STEP(step) INTERNAL_STEP(step, __COUNTER__)
 
 
-namespace cwtc::details
+namespace cuke::details
 {
   template<typename T>
-  struct cwtc_conversion_impl{};
+  struct cuke_conversion_impl{};
 
   template<typename T>
-  class has_cwtc_conversion_function
+  class has_cuke_conversion_function
   {
       using one = char;
       struct two
@@ -54,93 +54,93 @@ namespace cwtc::details
   };
 
   template<typename T>
-  static constexpr bool has_cwtc_conversion_v = has_cwtc_conversion_function<cwtc_conversion_impl<T>>::value;
+  static constexpr bool has_cuke_conversion_v = has_cuke_conversion_function<cuke_conversion_impl<T>>::value;
 
-  struct cwtc_conversion 
+  struct cuke_conversion 
   {
     int n;
-    cwtc_value* arg;
+    cuke_value* arg;
     template<typename T>
     operator T() const{
-        static_assert(has_cwtc_conversion_v<T>, "conversion to T not supported");
-        return cwtc_conversion_impl<T>::get_arg(n, arg);
+        static_assert(has_cuke_conversion_v<T>, "conversion to T not supported");
+        return cuke_conversion_impl<T>::get_arg(n, arg);
     }
   };
   
-  cwtc_conversion get_arg(int n, cwtc_value* args) 
+  cuke_conversion get_arg(int n, cuke_value* args) 
   { 
-      return cwtc_conversion{n, args}; 
+      return cuke_conversion{n, args}; 
   }
 
   template <>
-  struct cwtc_conversion_impl<long long> 
+  struct cuke_conversion_impl<long long> 
   {
-      static long long get_arg(int n, cwtc_value* arg) 
+      static long long get_arg(int n, cuke_value* arg) 
       {
-          return cwtc_to_long(arg);
+          return cuke_to_long(arg);
       }
   };
 
   template <>
-  struct cwtc_conversion_impl<int> 
+  struct cuke_conversion_impl<int> 
   {
-      static int get_arg(int n, cwtc_value* arg) 
+      static int get_arg(int n, cuke_value* arg) 
       {
-          return static_cast<int>(cwtc_to_int(arg));
+          return static_cast<int>(cuke_to_int(arg));
       }
   };
 
   template <>
-  struct cwtc_conversion_impl<char> 
+  struct cuke_conversion_impl<char> 
   {
-      static char get_arg(int n, cwtc_value* arg) 
+      static char get_arg(int n, cuke_value* arg) 
       {
-        return cwtc_to_byte(arg);
+        return cuke_to_byte(arg);
       }
   };
   
   template <>
-  struct cwtc_conversion_impl<short> 
+  struct cuke_conversion_impl<short> 
   {
-      static short get_arg(int n, cwtc_value* arg) 
+      static short get_arg(int n, cuke_value* arg) 
       {
-        return cwtc_to_short(arg);
+        return cuke_to_short(arg);
       }
   };
 
   template <>
-  struct cwtc_conversion_impl<std::string>
+  struct cuke_conversion_impl<std::string>
   {
-      static std::string get_arg(int n, cwtc_value* arg)
+      static std::string get_arg(int n, cuke_value* arg)
       {
-          return cwtc_to_string(arg);
+          return cuke_to_string(arg);
       }
   };
 
   template <>
-  struct cwtc_conversion_impl<float>
+  struct cuke_conversion_impl<float>
   {
-      static float get_arg(int n, cwtc_value* arg)
+      static float get_arg(int n, cuke_value* arg)
       {
-          return cwtc_to_float(arg);
+          return cuke_to_float(arg);
       }
   };
 
   template <>
-  struct cwtc_conversion_impl<double>
+  struct cuke_conversion_impl<double>
   {
-      static double get_arg(int n, cwtc_value* arg)
+      static double get_arg(int n, cuke_value* arg)
       {
-        return cwtc_to_double(arg);
+        return cuke_to_double(arg);
       }
   };
-} // namespace cwtc::details
+} // namespace cuke::details
 
 
-#define CWTC_ARG(i) cwtc::details::get_arg(arg_count, &args[i-1])  
+#define CUKE_ARG(i) cuke::details::get_arg(arg_count, &args[i-1])  
 
 
-namespace cwtc
+namespace cuke
 {
 
   class tests 
@@ -151,7 +151,7 @@ namespace cwtc
         open_cucumber();
         for (const auto& pair : details::steps) 
         {
-          cwtc_step(pair.first, pair.second);
+          cuke_step(pair.first, pair.second);
         }
       }
       ~tests() 
@@ -164,4 +164,4 @@ namespace cwtc
         run_cucumber(argc, argv);
       }
   };
-} // namespace cwtc
+} // namespace cuke

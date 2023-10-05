@@ -5,7 +5,7 @@
 #include "../cucumber.h"
 #include "vm.h"
 
-void cwtc_assert(bool assertion)
+void cuke_assert(bool assertion)
 {
   if (!assertion) 
   {
@@ -76,39 +76,39 @@ void close_cucumber()
   free_vm();
 }
 
-void cwtc_step(const char* name, cwtc_step_t func)
+void cuke_step(const char* name, cuke_step_t func)
 {
   define_native(name, func);
 }
 
 
-char cwtc_to_byte(cwtc_value* value)
+char cuke_to_byte(cuke_value* value)
 {
   return (char) AS_LONG(*value);
 }
-short cwtc_to_short(cwtc_value* value)
+short cuke_to_short(cuke_value* value)
 {
   return (short) AS_LONG(*value);
 }
-int cwtc_to_int(cwtc_value* value)
+int cuke_to_int(cuke_value* value)
 {
   return (int) AS_LONG(*value);
 }
-long long cwtc_to_long(cwtc_value* value)
+long long cuke_to_long(cuke_value* value)
 {
   return AS_LONG(*value);
 }
-float cwtc_to_float(cwtc_value* value)
+float cuke_to_float(cuke_value* value)
 {
   // TODO better error handling, eg. waht if this is a  string 
   return IS_DOUBLE(*value) ? (float)AS_DOUBLE(*value) : (float)AS_LONG(*value);
 }
-double cwtc_to_double(cwtc_value* value)
+double cuke_to_double(cuke_value* value)
 {
   // TODO better error handling, eg. waht if this is a  string 
   return IS_DOUBLE(*value) ? AS_DOUBLE(*value) : (double)AS_LONG(*value);
 }
-const char* cwtc_to_string(cwtc_value* value)
+const char* cuke_to_string(cuke_value* value)
 {
   return AS_STRING(*value)->chars;
 }
