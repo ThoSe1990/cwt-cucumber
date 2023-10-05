@@ -29,14 +29,15 @@ Current Status of what comes to my mind: ([x] = done)
 
 
 [ ] error handling invalid indices on get arg
-[ ] optional arg, eg. doc strings? 
+[x] optional arg, eg. doc strings? 
 [x] currently all variables are captured, skip constants in steps? 
-  
+[x] Scenario Outline after Scenario Outline does not work
+
 Missing Syntax Tokens  
   [x] -  signed values  
   [ ] @  tags  
   [ ] "or" for tags   
-  [ ] <>  variables  
+  [x] <>  variables  
   [ ] #language:   
   
   
