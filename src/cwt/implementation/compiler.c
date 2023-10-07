@@ -29,10 +29,6 @@ typedef struct {
   precedence_type precedence;
 } parse_rule;
 
-typedef struct {
-  token name; 
-  int depth;
-} local;
 
 typedef enum {
   TYPE_FUNCTION,
@@ -43,8 +39,8 @@ typedef struct cuke_compiler {
   struct cuke_compiler* enclosing;
   obj_function* function;
   function_type type;
-  local locals[UINT8_COUNT];
-  int local_count;
+  // local locals[UINT8_COUNT];
+  // int local_count;
   int scope_depth;
 } cuke_compiler;
 
@@ -234,7 +230,6 @@ static void init_compiler(cuke_compiler* compiler, function_type type)
   compiler->enclosing = current;
   compiler->function = NULL;
   compiler->type = type;
-  compiler->local_count = 0;
   compiler->scope_depth = 0; 
   compiler->function = new_function();
   current = compiler;
@@ -245,25 +240,8 @@ static void init_compiler(cuke_compiler* compiler, function_type type)
     sprintf(buffer, "%s:%d", filename(), parser.previous.line);
     current->function->name = copy_string(buffer, strlen(buffer));
   }
-
-  local* l = &current->locals[current->local_count++];
-  l->depth = 0;
-  l->name.start = "";
-  l->name.length = 0;
 }
 
-static int resolve_step(cuke_compiler* compiler, token* name)
-{
-  for (int i = compiler->local_count-1 ; i >= 0 ; i--)
-  {
-    local* l = &compiler->locals[i];
-    if (name->line == l->name.line)
-    {
-      return i;
-    }
-  }
-  return -1;
-}
 
 
 static obj_function* end_compiler()
@@ -283,40 +261,10 @@ static obj_function* end_compiler()
   return func;
 }
 
-static void add_local(token name)
-{
-  if (current->local_count == UINT8_COUNT)
-  {
-    error("Too many local variables in function.");
-  }
-  else 
-  {
-    local* l = &current->locals[current->local_count++];
-    l->name = name;
-    l->depth = -1;
-  }
-}
-
-static void mark_initialized()
-{
-  if (current->scope_depth == 0)
-  {
-    return ;
-  }
-  else 
-  {
-    current->locals[current->local_count-1].depth = current->scope_depth;
-  }
-}
 
 
 static void define_variable(uint8_t global)
 {
-  if (current->scope_depth > 0) 
-  {
-    mark_initialized();
-    return ;
-  }
   emit_bytes(OP_DEFINE_VARIABLE, global);
 }
 
@@ -327,12 +275,6 @@ static void begin_scope()
 static void end_scope()
 {
   current->scope_depth--;
-  while (current->local_count > 0 
-    && current->locals[current->local_count-1].depth > current->scope_depth)
-  {
-    emit_byte(OP_POP);
-    current->local_count--;
-  }
 }
 
 static void skip_linebreaks()
@@ -511,7 +453,6 @@ static void scenario_outline()
   for (int i = 0; i < vars.count ; i++)
   {
     uint8_t global = make_constant(vars.values[i]);
-    emit_constant(LONG_VAL(0)); // initial value 
     emit_bytes(OP_DEFINE_VARIABLE, global);
   }
 
@@ -596,7 +537,6 @@ static void feature()
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
   define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
 
-  emit_bytes(OP_GET_VARIABLE, make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
   emit_bytes(OP_CALL, 0);
   emit_byte(OP_POP);
 }

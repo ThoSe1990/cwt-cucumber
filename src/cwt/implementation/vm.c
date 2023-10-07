@@ -191,7 +191,6 @@ static interpret_result run()
       {
         obj_string* name = READ_STRING();
         table_set(&g_vm.variables, name, peek(0));
-        pop();
       }
       break; case OP_GET_VARIABLE:
       {
