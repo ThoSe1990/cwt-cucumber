@@ -77,12 +77,16 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_PRINT_LINE", c, offset);
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
-  case OP_PRINT_RESULT:
-    return constant_instruction("OP_PRINT_RESULT", c, offset);
+  case OP_STEP_RESULT:
+    return constant_instruction("OP_STEP_RESULT", c, offset);
   case OP_CALL:
     return byte_instruction("OP_CALL", c, offset);
   case OP_CALL_STEP:
     return constant_instruction("OP_CALL_STEP", c, offset);
+  case OP_SCENARIO_RESULT:
+    return simple_instruction("OP_SCENARIO_RESULT", offset);
+  case OP_OVERALL_RESULTS:
+    return simple_instruction("OP_OVERALL_RESULTS", offset);
   case OP_RETURN:
     return simple_instruction("OP_RETURN", offset);
   default:

@@ -303,7 +303,7 @@ static void process_step()
   // TODO check if these redundant string pushes are necessary... 
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
   patch_jump(after_step);
-  emit_bytes(OP_PRINT_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
+  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
   
 }
 
@@ -448,6 +448,7 @@ static void scenario_outline()
     examples_body(&vars); 
     emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
     emit_bytes(OP_CALL, 0);
+    emit_byte(OP_SCENARIO_RESULT);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -469,8 +470,8 @@ static void scenario()
 
   obj_function* func = end_compiler();
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  
   emit_bytes(OP_CALL, 0);
+  emit_byte(OP_SCENARIO_RESULT);
 }
 
 
@@ -520,7 +521,7 @@ static void feature()
   define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
 
   emit_bytes(OP_CALL, 0);
-  emit_byte(OP_POP);
+  emit_byte(OP_OVERALL_RESULTS);
 }
 
 

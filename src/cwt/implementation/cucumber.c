@@ -9,7 +9,8 @@ void cuke_assert(bool assertion)
 {
   if (!assertion) 
   {
-    g_vm.last_result = STEP_FAILED;
+    g_vm.scenario_results.last = FAILED;
+    g_vm.step_results.last = FAILED;
   }
 }
 

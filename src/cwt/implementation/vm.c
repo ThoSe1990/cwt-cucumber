@@ -19,6 +19,43 @@ static void reset_stack()
   g_vm.frame_count = 0;
 }
 
+static void print_red(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  printf("\x1b[31m");
+  vprintf(format, args);
+  printf("\x1b[0m");
+  va_end(args);
+}
+static void print_yellow(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  printf("\x1b[33m");
+  vprintf(format, args);
+  printf("\x1b[0m");
+  va_end(args);
+}
+static void print_blue(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  printf("\x1b[34m");
+  vprintf(format, args);
+  printf("\x1b[0m");
+  va_end(args);
+}
+static void print_green(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  printf("\x1b[32m");
+  vprintf(format, args);
+  printf("\x1b[0m");
+  va_end(args);
+}
+
 static void runtime_error(const char* format, ...)
 {
   va_list args;
@@ -45,6 +82,15 @@ static void runtime_error(const char* format, ...)
   reset_stack();
 }
 
+static void init_results(results* result)
+{
+  result->failed = 0;
+  result->passed = 0;
+  result->skipped = 0;
+  result->undefined = 0;
+  result->last = PASSED;
+}
+
 void define_native(const char* name, cuke_step_t func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
@@ -54,6 +100,8 @@ void define_native(const char* name, cuke_step_t func)
   pop();
 }
 
+
+
 void init_vm()
 {
   reset_stack();
@@ -61,6 +109,8 @@ void init_vm()
   init_table(&g_vm.variables);
   init_table(&g_vm.strings);
   init_table(&g_vm.steps);
+  init_results(&g_vm.scenario_results);
+  init_results(&g_vm.step_results);
 }
 void free_vm()
 {
@@ -79,6 +129,66 @@ cuke_value pop()
 {
   g_vm.stack_top--;
   return *g_vm.stack_top;
+}
+
+static void print_results(const char* type, results* result)
+{
+  const int count = result->failed + result->passed +
+                   result->skipped + result->undefined; 
+
+  printf("%d %s (", count, type);
+
+  if (result->failed > 0)
+  {
+    print_red("%d failed", result->failed);
+  }
+  if (result->undefined > 0)
+  {
+    if (result->failed > 0) printf(", ");
+    print_yellow("%d undefined", result->undefined);
+  }
+  if (result->skipped > 0)
+  {
+    if (result->undefined > 0 || result->failed > 0) printf(", ");
+    print_blue("%d skipped", result->skipped);
+  }
+  if (result->passed > 0)
+  {
+    if (result->skipped > 0 || result->undefined > 0 || result->failed > 0) printf(", ");
+    print_green("%d passed", result->passed);
+  }
+  printf(")\n");
+}
+
+void print_step_result(obj_string* step)
+{
+  switch (g_vm.step_results.last)
+  {
+    case PASSED: 
+    {
+      g_vm.step_results.passed++;
+      print_green("[  PASSED     ] %s\n", step->chars);
+    }
+    break; case FAILED: 
+    {
+      g_vm.scenario_results.last = FAILED;
+      g_vm.step_results.failed++;
+      print_red("[  FAILED     ] %s\n", step->chars);
+    }
+    break; case SKIPPED: 
+    {
+      g_vm.scenario_results.last = FAILED;
+      g_vm.step_results.skipped++;
+      print_blue("[  SKIPPED    ] %s\n", step->chars);
+    }
+    break; case UNDEFINED: 
+    {
+      g_vm.scenario_results.last = g_vm.scenario_results.last == FAILED ? FAILED : UNDEFINED;
+      g_vm.step_results.undefined++;
+      print_yellow("[  UNDEFINED  ] %s\n", step->chars);
+    }
+    break; default: ;// shouldn't happen ... 
+  }  
 }
 
 static void replace(int position, cuke_value value)
@@ -220,39 +330,18 @@ static interpret_result run()
       break; case OP_JUMP_IF_FAILED:
       {
         uint16_t offset = READ_SHORT();
-        if (g_vm.last_result == STEP_FAILED || g_vm.last_result == STEP_SKIPPED) 
+        if (g_vm.step_results.last == FAILED || g_vm.step_results.last == SKIPPED)
         {
-          g_vm.last_result = STEP_SKIPPED;
+          g_vm.step_results.last = SKIPPED;
           frame->ip += offset;
         }
-      }
-      break; case OP_PRINT_LINE: 
-      { 
-        obj_string* name = READ_STRING();
-        printf("[-----------] %s:\n", name->chars);
-      }
-      break; case OP_PRINT_LINEBREAK:
-      {
-        printf("[-----------]\n");
-      }
-      break; case OP_PRINT_RESULT:
-      {
-        obj_string* step = READ_STRING();
-        switch (g_vm.last_result)
-        {
-          case STEP_PASSED: printf("\x1b[32m[  PASSED   ] %s\x1b[0m\n", step->chars);
-          break; case STEP_FAILED: printf("\x1b[31m[  FAILED   ] %s\x1b[0m\n", step->chars);
-          break; case STEP_SKIPPED: printf("\x1b[33m[  SKIPPED  ] %s\x1b[0m\n", step->chars);
-          break; default: ;// shouldn't happen ... 
-        }        
       }
       break; case OP_CALL_STEP:
       {
         obj_string* step_in_feature = READ_STRING();
-        
+  
         obj_string step_definition;
-        cuke_value value;
-        
+        cuke_value value;      
         if (table_get_step(&g_vm.steps, step_in_feature, &value, &step_definition))
         {
           value_array args;
@@ -273,11 +362,16 @@ static interpret_result run()
           native(args.count, args.values);
 
           free_value_array(&args);
+        } 
+        else 
+        {
+          // TODO print proper message
+          g_vm.step_results.last = UNDEFINED;
         }
       }
       break; case OP_CALL:
       {
-        g_vm.last_result = STEP_PASSED;
+        g_vm.step_results.last = PASSED;
         int arg_count = READ_BYTE();
         if (!call_value(peek(arg_count), arg_count)) 
         {
@@ -285,6 +379,38 @@ static interpret_result run()
         }
         frame = &g_vm.frames[g_vm.frame_count-1];
       } 
+      break; case OP_PRINT_LINE: 
+      { 
+        obj_string* name = READ_STRING();
+        printf("[-------------] %s:\n", name->chars);
+      }
+      break; case OP_PRINT_LINEBREAK:
+      {
+        printf("[-------------]\n");
+      }
+      break; case OP_STEP_RESULT:
+      {
+        obj_string* step = READ_STRING();
+        print_step_result(step);      
+      }
+      break; case OP_SCENARIO_RESULT:
+      {
+        switch (g_vm.scenario_results.last)
+        {
+          case PASSED: g_vm.scenario_results.passed++;
+          break; case FAILED: g_vm.scenario_results.failed++;
+          break; case SKIPPED: g_vm.scenario_results.skipped++;
+          break; case UNDEFINED: g_vm.scenario_results.undefined++;
+          break; default: ;// shouldn't happen ... 
+        }
+        g_vm.scenario_results.last = PASSED;
+      
+      }
+      break; case OP_OVERALL_RESULTS:
+      {
+        print_results("Scenarios", &g_vm.scenario_results);
+        print_results("Steps", &g_vm.step_results);
+      }
       break; case OP_RETURN: 
       {
         g_vm.frame_count--;

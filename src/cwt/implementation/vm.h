@@ -16,21 +16,31 @@ typedef struct {
 } call_frame;
 
 typedef enum {
-  STEP_SKIPPED,
-  STEP_PASSED,
-  STEP_FAILED
-} step_result;
+  SKIPPED,
+  PASSED,
+  FAILED,
+  UNDEFINED
+} result_type;
+
+typedef struct {
+  result_type last;
+  unsigned int passed;
+  unsigned int failed; 
+  unsigned int skipped;
+  unsigned int undefined;
+} results;
+
 
 typedef struct {
   call_frame frames[FRAMES_MAX];
   int frame_count;
-  step_result last_result;
+  results scenario_results;
+  results step_results;
   cuke_value stack[STACK_MAX];
   cuke_value* stack_top;
-  // TODO
-  table steps; // this are my steps -> check "local" (add_local) in source code, rename!
-  table variables; // -> these values are the args in scenario outlines
-  table strings; // check if needed
+  table steps; 
+  table variables; 
+  table strings; 
   obj*  objects;
 } vm;
 

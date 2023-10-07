@@ -16,18 +16,19 @@ namespace cuke::details
 #define CONCAT_INTERNAL(a, b) a ## b
 #define CONCAT(a, b) CONCAT_INTERNAL(a, b)
 
-#define INTERNAL_STEP(step_definition, n) \
-    void CONCAT(__cuke_step_impl_,n)(int arg_count, cuke_value* args); \
+#define INTERNAL_STEP(step_definition, name) \
+    void name(int arg_count, cuke_value* args); \
     namespace { \
-        struct CONCAT(cwt_step,n) { \
-            CONCAT(cwt_step,n)() { \
-             cuke::details::steps.push_back( {step_definition ,CONCAT(__cuke_step_impl_,n)} ); \
+        struct CONCAT(cwt_step_,name) { \
+            CONCAT(cwt_step_,name)() { \
+             cuke::details::steps.push_back( {step_definition ,name } ); \
             } \
-        } CONCAT(g_cwt_step,n); \
+        } CONCAT(g_cwt_step_,name); \
     } \
-    void CONCAT(__cuke_step_impl_,n)(int arg_count, cuke_value* args)
+    void name(int arg_count, cuke_value* args)
 
-#define cuke_STEP(step) INTERNAL_STEP(step, __COUNTER__)
+#define STEP(step) INTERNAL_STEP(step, CONCAT(__cuke_step_impl_,__LINE__))
+#define STEP_(name, step) INTERNAL_STEP(step, name)
 
 
 namespace cuke::details

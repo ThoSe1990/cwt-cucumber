@@ -14,6 +14,14 @@ Feature: my feature
     Given fail
     Given two numbers: 11111 and 999
 
+  Scenario: undef
+    Given two numbers: 11111 and 999
+    Given asdfasdf
+
+  Scenario: undef
+    Given fail
+    Given asdfasdf
+
   Scenario: meainginless scenario
     Given two numbers: 11111 and 999
     Given fail

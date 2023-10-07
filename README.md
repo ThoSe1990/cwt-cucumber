@@ -27,7 +27,9 @@ Current Status of what comes to my mind: ([x] = done)
   [ ] undefined scenarios (proper error handling)
 
 
+[ ] syntax error after examples table -> endless loop!
 
+[x] print results (colored + overall results)
 [ ] error handling invalid indices on get arg
 [x] optional arg, eg. doc strings? 
 [x] currently all variables are captured, skip constants in steps? 
