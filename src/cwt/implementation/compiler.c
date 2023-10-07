@@ -39,9 +39,6 @@ typedef struct cuke_compiler {
   struct cuke_compiler* enclosing;
   obj_function* function;
   function_type type;
-  // local locals[UINT8_COUNT];
-  // int local_count;
-  int scope_depth;
 } cuke_compiler;
 
 
@@ -230,7 +227,6 @@ static void init_compiler(cuke_compiler* compiler, function_type type)
   compiler->enclosing = current;
   compiler->function = NULL;
   compiler->type = type;
-  compiler->scope_depth = 0; 
   compiler->function = new_function();
   current = compiler;
 
@@ -266,15 +262,6 @@ static obj_function* end_compiler()
 static void define_variable(uint8_t global)
 {
   emit_bytes(OP_DEFINE_VARIABLE, global);
-}
-
-static void begin_scope()
-{
-  current->scope_depth++;
-}
-static void end_scope()
-{
-  current->scope_depth--;
 }
 
 static void skip_linebreaks()
@@ -427,7 +414,6 @@ static void scenario_outline()
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
-  begin_scope();
 
   name();
   scenario_description();
@@ -467,8 +453,6 @@ static void scenario_outline()
 
   // cleanup
   free_value_array(&vars);
-
-  end_scope();
 }
 
 
@@ -476,7 +460,6 @@ static void scenario()
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
-  begin_scope();
 
   name();
   scenario_description();
@@ -523,7 +506,6 @@ static void feature()
 
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
-  begin_scope();
 
   name();
   emit_byte(OP_PRINT_LINEBREAK);
