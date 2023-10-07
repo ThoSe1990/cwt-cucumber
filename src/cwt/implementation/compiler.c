@@ -483,8 +483,6 @@ static void examples_body(value_array* vars)
 }
 static void scenario_outline()
 {
-  begin_scope();
-
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
@@ -535,8 +533,6 @@ static void scenario_outline()
 
 static void scenario()
 {
-  begin_scope();
-
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
   begin_scope();
