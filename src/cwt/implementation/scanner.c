@@ -220,7 +220,15 @@ static token_type identifier_type()
     case 'W': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'T': return check_keyword(1,3, "hen", TOKEN_STEP);
     case 'A': return check_keyword(1,2, "nd", TOKEN_STEP);
-    case 'B': return check_keyword(1,2, "ut", TOKEN_STEP);
+    case 'B': 
+    {
+      switch (scanner.start[1])
+      {
+        case 'u': return check_keyword(1,2, "ut", TOKEN_STEP);
+        case 'a': return check_keyword_with_colon(1,9, "ackground", TOKEN_BACKGROUND);
+      }
+      
+    }
     case '*': return TOKEN_STEP;
     default: return NO_TOKEN;
   }
@@ -243,9 +251,14 @@ static bool match(char expected)
 }
 
 
+static bool whitespace()
+{
+  return peek() == ' ';
+}
+
 static bool text_delimiter()
 {
-  return peek() == ' ' || peek() == '|';
+  return whitespace() || peek() == '|';
 }
 
 static token variable()
@@ -324,11 +337,27 @@ static token doc_string()
 
 static token text()
 {
-  while (!text_delimiter() && !end_of_line() && !is_at_end())
+  for(;;)
   {
+    if (text_delimiter() || end_of_line() || is_at_end())
+    {
+      break;
+    }
     advance();
   }
   return make_token(TOKEN_TEXT);
+}
+
+static token tag()
+{
+  for(;;)
+  {
+    if (whitespace() || end_of_line() || is_at_end())
+    {
+      advance();
+    }
+  }
+  return make_token(TOKEN_TAG);
 }
 
 const char* filename()
@@ -362,6 +391,7 @@ token scan_token()
 
   switch(c)
   {
+    case '@': return tag();
     case '|': return make_token(TOKEN_VERTICAL);
     case '-': return make_token(TOKEN_MINUS);
     case '<': return variable();

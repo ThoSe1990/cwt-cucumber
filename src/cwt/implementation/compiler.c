@@ -328,7 +328,8 @@ static void feature_description()
     if (check(TOKEN_SCENARIO) 
       || check(TOKEN_SCENARIO_OUTLINE)
       || check(TOKEN_TAG)
-      || check(TOKEN_EOF))
+      || check(TOKEN_EOF)
+      || check(TOKEN_BACKGROUND))
     {
       break;
     }
@@ -410,7 +411,7 @@ static void examples_body(value_array* vars)
     consume(TOKEN_VERTICAL, "Expect '|' after value.");
   }
 }
-static void scenario_outline()
+static void scenario_outline(obj_function* background)
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
@@ -446,6 +447,12 @@ static void scenario_outline()
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
   {
     examples_body(&vars); 
+    
+    if (background)
+    {
+      emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
+      emit_bytes(OP_CALL, 0);
+    }
     emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
     emit_bytes(OP_CALL, 0);
     emit_byte(OP_SCENARIO_RESULT);
@@ -457,7 +464,7 @@ static void scenario_outline()
 }
 
 
-static void scenario()
+static void scenario(obj_function* background)
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
@@ -469,13 +476,18 @@ static void scenario()
   step();
 
   obj_function* func = end_compiler();
+  if (background)
+  {
+    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
+    emit_bytes(OP_CALL, 0);
+  }
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
   emit_bytes(OP_CALL, 0);
   emit_byte(OP_SCENARIO_RESULT);
 }
 
 
-static void parse_all_scenarios()
+static void parse_all_scenarios(obj_function* background)
 {
   for (;;)
   {
@@ -485,11 +497,11 @@ static void parse_all_scenarios()
     }
     else if (match(TOKEN_SCENARIO))
     {
-      scenario();
+      scenario(background);
     }
     else if (match(TOKEN_SCENARIO_OUTLINE))
     {
-      scenario_outline();
+      scenario_outline(background);
     }
     else 
     {
@@ -499,6 +511,27 @@ static void parse_all_scenarios()
   }
 }
 
+static obj_function* get_background() 
+{
+  if (match(TOKEN_BACKGROUND))
+  {
+    cuke_compiler compiler;
+    init_compiler(&compiler, TYPE_FUNCTION);
+
+    name();
+
+    // TODO :
+    // description
+    skip_linebreaks();
+    match(TOKEN_STEP);
+    step();
+    return end_compiler();
+  }
+  else 
+  {
+    return NULL;
+  }
+}
 
 static void feature()
 {
@@ -514,7 +547,8 @@ static void feature()
 
   feature_description();
 
-  parse_all_scenarios();
+
+  parse_all_scenarios(get_background());
   
   obj_function* func = end_compiler();
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
@@ -536,7 +570,6 @@ obj_function* compile(const char* source, const char* filename)
 
   advance();
   // TODO langauge 
-  // TODO background
   feature();
 
   obj_function* func = end_compiler();

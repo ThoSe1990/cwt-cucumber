@@ -16,14 +16,15 @@ Current Status of what comes to my mind: ([x] = done)
   [x] Comments  
   [x] Feature  
   [x] Scenario  
-  [ ] Scenario Outline  
-  [ ] Examples  
+  [x] Scenario Outline  
+  [x] Examples  
   [x] Steps  
   [ ] Rules  
   [ ] Tags  
   [x] Doc Strings  
   [ ] before, after, before scenario, after scenario 
-  [ ] background
+  [x] background
+  [ ] background/examples description
   [ ] undefined scenarios (proper error handling)
 
 

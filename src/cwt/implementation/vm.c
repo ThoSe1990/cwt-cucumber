@@ -371,7 +371,6 @@ static interpret_result run()
       }
       break; case OP_CALL:
       {
-        g_vm.step_results.last = PASSED;
         int arg_count = READ_BYTE();
         if (!call_value(peek(arg_count), arg_count)) 
         {
@@ -404,7 +403,7 @@ static interpret_result run()
           break; default: ;// shouldn't happen ... 
         }
         g_vm.scenario_results.last = PASSED;
-      
+        g_vm.step_results.last = PASSED;
       }
       break; case OP_OVERALL_RESULTS:
       {
