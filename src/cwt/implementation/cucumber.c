@@ -79,8 +79,13 @@ void close_cucumber()
 
 void cuke_step(const char* name, cuke_step_t func)
 {
-  define_native(name, func);
+  define_step(name, func);
 }
+void cuke_hook(const char* name, cuke_step_t func)
+{
+  define_hook(name, func);
+}
+
 
 
 char cuke_to_byte(cuke_value* value)

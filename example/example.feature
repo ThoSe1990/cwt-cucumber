@@ -1,50 +1,11 @@
 Feature: my feature
 
-Background: this is my background!
-  Given fail
+  Scenario: My first cube
+    Given A cube with 3 side length
+    Then The side area is 9
+    And The cube volume is 27
 
-  Scenario: meainginless scenario
-    Given two numbers: 11111 and 999
-
-  # Scenario Outline: test:
-  #   Given one double: <d>
-  #   Given fail
-
-  # Examples:
-  #   | d   | 
-  #   | 123 | 
-  #   | 789 | 
-
-  # Scenario: meainginless scenario
-  #   Given two numbers: 11111 and 999
-  #   Given fail
-  #   Given two numbers: 11111 and 999
-
-  # Scenario: undef
-  #   Given two numbers: 11111 and 999
-  #   Given asdfasdf
-
-  # Scenario: undef
-  #   Given fail
-  #   Given asdfasdf
-
-  # Scenario: meainginless scenario
-  #   Given two numbers: 11111 and 999
-  #   Given fail
-  #   Given two numbers: 11111 and 999
-
-  # Scenario Outline: foo
-  #   Given two numbers: <n1> and <n2>
-  #   Given one number: <one>
-  #   Given one double: <double>
-  #   Given two numbers: 17 and <n2>
-  #   Given one double: <double>
-  #   Given fail
-  #   Given two numbers: 17 and <n2>
-  #   Given string: <str>
-
-  #   Examples:
-  #       | n1  | n2 | one  | double  | str |
-  #       | 11  | 22 | 100  | 1.1122  | "first string here" |
-  #       # | 11  | 22 | 100  | 1.1122  | "first string here" |
-  #       | 99  | 98 | 900  | 900  | "and another here ...!!" |
+  Scenario: My second cube
+    Given A cube with 4 side length
+    Then The side area is 16
+    And The cube volume is 64

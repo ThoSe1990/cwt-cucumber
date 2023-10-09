@@ -287,6 +287,8 @@ static void process_step()
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
 
+  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before_step", 11))));
+
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
@@ -302,6 +304,8 @@ static void process_step()
   // TODO push arg count? 
   // TODO check if these redundant string pushes are necessary... 
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after_step", 10))));
+
   patch_jump(after_step);
   emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
   
@@ -411,6 +415,23 @@ static void examples_body(value_array* vars)
     consume(TOKEN_VERTICAL, "Expect '|' after value.");
   }
 }
+
+static void call_scenario(obj_function* background, obj_function* scenario_func)
+{
+  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("reset_context", 13))));
+  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before", 6))));
+  if (background)
+  {
+    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
+    emit_bytes(OP_CALL, 0);
+  }
+  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(scenario_func)));
+  emit_bytes(OP_CALL, 0);
+  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after", 6))));
+
+  emit_byte(OP_SCENARIO_RESULT);
+} 
+
 static void scenario_outline(obj_function* background)
 {
   cuke_compiler compiler;
@@ -447,15 +468,15 @@ static void scenario_outline(obj_function* background)
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
   {
     examples_body(&vars); 
-    
-    if (background)
-    {
-      emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
-      emit_bytes(OP_CALL, 0);
-    }
-    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-    emit_bytes(OP_CALL, 0);
-    emit_byte(OP_SCENARIO_RESULT);
+    call_scenario(background, func);
+    // if (background)
+    // {
+    //   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
+    //   emit_bytes(OP_CALL, 0);
+    // }
+    // emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+    // emit_bytes(OP_CALL, 0);
+    // emit_byte(OP_SCENARIO_RESULT);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -476,14 +497,15 @@ static void scenario(obj_function* background)
   step();
 
   obj_function* func = end_compiler();
-  if (background)
-  {
-    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
-    emit_bytes(OP_CALL, 0);
-  }
-  emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  emit_bytes(OP_CALL, 0);
-  emit_byte(OP_SCENARIO_RESULT);
+  call_scenario(background, func);
+  // if (background)
+  // {
+  //   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
+  //   emit_bytes(OP_CALL, 0);
+  // }
+  // emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
+  // emit_bytes(OP_CALL, 0);
+  // emit_byte(OP_SCENARIO_RESULT);
 }
 
 

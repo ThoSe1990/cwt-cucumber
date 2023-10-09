@@ -8,9 +8,12 @@ extern "C" {
   #include "cwt/cucumber.h"
 }
 
+#include "cucumber_context.hpp"
+
 namespace cuke::details
 {
   std::vector<std::pair<const char*, cuke_step_t>> steps;
+  std::vector<std::pair<const char*, cuke_step_t>> hooks;
 } // namespace cuke::details
 
 #define CONCAT_INTERNAL(a, b) a ## b
@@ -19,16 +22,33 @@ namespace cuke::details
 #define INTERNAL_STEP(step_definition, name) \
     void name(int arg_count, cuke_value* args); \
     namespace { \
-        struct CONCAT(cwt_step_,name) { \
-            CONCAT(cwt_step_,name)() { \
-             cuke::details::steps.push_back( {step_definition ,name } ); \
+        struct CONCAT(name, _t) { \
+            CONCAT(name, _t)() { \
+             cuke::details::steps.push_back({step_definition,name}); \
             } \
-        } CONCAT(g_cwt_step_,name); \
+        } CONCAT(g_,name); \
     } \
     void name(int arg_count, cuke_value* args)
 
-#define STEP(step) INTERNAL_STEP(step, CONCAT(__cuke_step_impl_,__LINE__))
-#define STEP_(name, step) INTERNAL_STEP(step, name)
+#define STEP(step) INTERNAL_STEP(step, CONCAT(__cuke_step_,__LINE__))
+#define STEP_NAME(name, step) INTERNAL_STEP(step, name)
+
+
+#define INTERNAL_HOOK(hook, name) \
+    void name(int arg_count, cuke_value* args); \
+    namespace { \
+        struct CONCAT(name, _t) { \
+            CONCAT(name, _t)() { \
+             cuke::details::hooks.push_back({hook,name}); \
+            } \
+        } CONCAT(g_,name); \
+    } \
+    void name(int arg_count, cuke_value* args)
+
+#define BEFORE() INTERNAL_HOOK("before", __cuke_hook_before)
+#define AFTER() INTERNAL_HOOK("after", __cuke_hook_after)
+#define BEFORE_STEP() INTERNAL_HOOK("before_step", __cuke_hook_before_step)
+#define AFTER_STEP() INTERNAL_HOOK("after_step", __cuke_hook_after_step)
 
 
 namespace cuke::details
@@ -79,6 +99,15 @@ namespace cuke::details
       static long long get_arg(int n, cuke_value* arg) 
       {
           return cuke_to_long(arg);
+      }
+  };
+
+  template <>
+  struct cuke_conversion_impl<std::size_t> 
+  {
+      static std::size_t get_arg(int n, cuke_value* arg) 
+      {
+          return static_cast<std::size_t>(cuke_to_long(arg));
       }
   };
 
@@ -143,7 +172,6 @@ namespace cuke::details
 
 namespace cuke
 {
-
   class tests 
   {
     public:
@@ -154,6 +182,11 @@ namespace cuke
         {
           cuke_step(pair.first, pair.second);
         }
+        for (const auto& pair : details::hooks)
+        {
+          cuke_hook(pair.first, pair.second);
+        }
+        cuke_hook("reset_context", details::reset_scenario_context);
       }
       ~tests() 
       {

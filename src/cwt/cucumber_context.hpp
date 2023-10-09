@@ -10,80 +10,101 @@
 #include <typeinfo>
 #include <unordered_map>
 
-namespace cwt {
-
-class character 
-{
-public:
-    character() = default; 
-    template<typename T> 
-    character(T&& value) {
-        m_value = std::make_unique<c_model<T>>(std::move(value));
-    }
-
-    template<typename T> 
-    T& get() {
-        return static_cast<c_model<T>*>(m_value.get())->m_value;
-    }
-
-private:   
-    struct c_concept {
-        virtual ~c_concept() {}
-    };
-
-    template<typename T>
-    struct c_model : public c_concept 
-    {
-        c_model(T const& value) 
-        : m_value(value) {};
-
-        T m_value;
-    };
-
-private:
-    std::unique_ptr<c_concept> m_value;
-};
-
-} // namespace cwt 
-
-struct foo {
-  void hi() { std::cout << value << std::endl; }
-  int value = 123;
-};
-struct bar {
-  void f() { std::cout << "its bar " << std::endl; }
-};
-
-
-
-template <typename T>
-constexpr std::type_index getTypeID() {
-    return std::type_index(typeid(T));
+extern "C" {
+  #include "cwt/cucumber_value.h"
 }
 
-struct context {
+namespace cuke {
+  namespace details {
 
-  template<typename T>
-  T& get() 
+    class context_type
+    {
+    public:
+        context_type() = default; 
+
+        template<typename T> 
+        context_type(T&& value) 
+        {
+          m_value = std::make_unique<c_model<T>>(std::move(value));
+        }
+
+        template<typename T> 
+        T& get() 
+        {
+          return static_cast<c_model<T>*>(m_value.get())->m_value;
+        }
+
+    private:   
+        struct c_concept 
+        {
+            virtual ~c_concept() {}
+        };
+
+        template<typename T>
+        struct c_model : public c_concept 
+        {
+            c_model(T const& value) 
+              : m_value(value) {};
+            T m_value;
+        };
+
+    private:
+        std::unique_ptr<c_concept> m_value;
+    };
+
+} // namespace details 
+
+  template <typename T>
+  constexpr std::type_index get_type_id() 
   {
-    if (data.count(getTypeID<T>()) == 0) {
-      data[getTypeID<T>()] = T{};
-    }
-    return data[getTypeID<T>()].template get<T>();
+      return std::type_index(typeid(T));
   }
 
-  std::unordered_map<std::type_index, cwt::character> data;
-};
+  class scenario_context
+  {
+    public:
+    //TODO another get method: forward values to ctor
+      template<typename T>
+      T& get() 
+      {
+        if (m_data.count(get_type_id<T>()) == 0) {
+          m_data[get_type_id<T>()] = T{};
+        }
+        return m_data[get_type_id<T>()].template get<T>();
+      }
 
-int main(){
+      void clear() 
+      {
+        m_data.clear();
+      }
+    private:
+      std::unordered_map<std::type_index, details::context_type> m_data;
+  };
+
+  namespace details
+  {
+    scenario_context& get_context()
+    {
+      static scenario_context sc; 
+      return sc;
+    }
   
-  context c; 
-  c.get<foo>().hi();
-  c.get<foo>().value = 999;
-  c.get<foo>().hi();
-  c.get<bar>().f();
+    void reset_scenario_context(int, cuke_value*)
+    {
+      get_context().clear();
+    }
+  } // namespace details
+  
+  template<typename T>
+  T& context()
+  {
+    return details::get_context().get<T>();
+  }
 
-  c.data.clear();
-  c.get<foo>().hi();
+  template<typename T>
+  void assert_equal(T t1, T t2)
+  {
+    cuke_assert(t1 == t2);
+  }
 
-}
+} // namespace cuke 

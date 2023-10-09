@@ -91,7 +91,7 @@ static void init_results(results* result)
   result->last = PASSED;
 }
 
-void define_native(const char* name, cuke_step_t func)
+void define_step(const char* name, cuke_step_t func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
@@ -99,6 +99,15 @@ void define_native(const char* name, cuke_step_t func)
   pop();
   pop();
 }
+void define_hook(const char* name, cuke_step_t func)
+{
+  push(OBJ_VAL(copy_string(name, (int)strlen(name))));
+  push(OBJ_VAL(new_native(func)));
+  table_set_step(&g_vm.hooks, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
+  pop();
+  pop();
+}
+
 
 
 
@@ -109,6 +118,7 @@ void init_vm()
   init_table(&g_vm.variables);
   init_table(&g_vm.strings);
   init_table(&g_vm.steps);
+  init_table(&g_vm.hooks);
   init_results(&g_vm.scenario_results);
   init_results(&g_vm.step_results);
 }
@@ -117,6 +127,7 @@ void free_vm()
   free_table(&g_vm.variables);
   free_table(&g_vm.strings);
   free_table(&g_vm.steps);
+  free_table(&g_vm.hooks);
   free_objects();
 }
 
@@ -334,6 +345,16 @@ static interpret_result run()
         {
           g_vm.step_results.last = SKIPPED;
           frame->ip += offset;
+        }
+      }
+      break; case OP_HOOK:
+      {
+        obj_string* hook = READ_STRING();
+        cuke_value value;   
+        if (table_get_hook(&g_vm.hooks, hook, &value))
+        {
+          cuke_step_t native = AS_NATIVE(value);
+          native(0, NULL);
         }
       }
       break; case OP_CALL_STEP:

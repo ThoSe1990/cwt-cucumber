@@ -22,11 +22,12 @@ Current Status of what comes to my mind: ([x] = done)
   [ ] Rules  
   [ ] Tags  
   [x] Doc Strings  
-  [ ] before, after, before scenario, after scenario 
+  [x] hooks: before, after, before scenario, after scenario 
   [x] background
   [ ] background/examples description
   [ ] undefined scenarios (proper error handling)
 
+[ ] adjaust capacity (tables) for steps crashes with >8 steps
 
 [ ] syntax error after examples table -> endless loop!
 
@@ -38,8 +39,7 @@ Current Status of what comes to my mind: ([x] = done)
 
 Missing Syntax Tokens  
   [x] -  signed values  
-  [ ] @  tags  
-  [ ] "or" for tags   
+  [ ] @  tags    
   [x] <>  variables  
   [ ] #language:   
   
@@ -47,7 +47,7 @@ Missing Syntax Tokens
 [x] Mising English Keywords: And, But, *  
   
 [x] Concept for C++ bindings  
-[ ] Scenario Scope / Context  
+[x] Scenario Scope / Context  
 [ ] json report  
 [ ] Program Options (argc, argv from main)  
 [ ] Running all files from dir  

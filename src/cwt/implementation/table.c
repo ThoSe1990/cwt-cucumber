@@ -197,3 +197,17 @@ bool table_get_step(table* t, obj_string* key, cuke_value* v, obj_string* step_d
   *step_definition = *e->key;
   return v;
 }
+
+bool table_get_hook(table* t, obj_string* key, cuke_value* v)
+{
+  if (t->count == 0) { return false; }
+  
+  entry* e = find_step(t->entries, t->count, key);
+  if (e == NULL) 
+  { 
+    return false; 
+  }
+  
+  *v = e->value; 
+  return v;
+}

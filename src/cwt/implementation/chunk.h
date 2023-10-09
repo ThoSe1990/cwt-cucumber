@@ -21,6 +21,7 @@ typedef enum {
   OP_LOOP,
   OP_CALL,
   OP_CALL_STEP,
+  OP_HOOK,
   OP_RETURN
 } op_code;
 

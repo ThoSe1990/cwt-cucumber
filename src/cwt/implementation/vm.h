@@ -38,6 +38,7 @@ typedef struct {
   results step_results;
   cuke_value stack[STACK_MAX];
   cuke_value* stack_top;
+  table hooks;
   table steps; 
   table variables; 
   table strings; 
@@ -57,6 +58,7 @@ void free_vm();
 interpret_result interpret(const char* source, const char* filename);
 void push(cuke_value cuke_value);
 cuke_value pop();
-void define_native(const char* name, cuke_step_t func);
+void define_step(const char* name, cuke_step_t func);
+void define_hook(const char* name, cuke_step_t func);
 
 #endif 

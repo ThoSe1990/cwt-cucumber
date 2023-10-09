@@ -3,44 +3,50 @@
 
 // TODO same statements with differtent types doesn't work ... 
 
-STEP_(test, "hello world")
+class cube 
 {
-  
+public:
+  void set_side(std::size_t side)
+  {
+    m_side = side;
+  }
+
+  std::size_t square_area()
+  {
+    return m_side * m_side;
+  }
+
+  std::size_t volume()
+  {
+    return m_side * m_side * m_side;
+  }
+
+private:
+  std::size_t m_side;
+};
+
+
+STEP("A cube with {int} side length")
+{
+  const std::size_t side = CUKE_ARG(1);
+  cuke::context<cube>().set_side(side);
 }
 
-STEP("two numbers: {int} and {int}")
+STEP("The side area is {int}")
 {
-  int n1 = CUKE_ARG(1);
-  int n2 = CUKE_ARG(2);
-  std::cout << "n1: " << n1 << "  n2: " << n2 << std::endl;
+  const std::size_t area = CUKE_ARG(1);
+  cuke::assert_equal(area, cuke::context<cube>().square_area());  
 }
-
-STEP("fail")
+STEP("The cube volume is {int}")
 {
-  cuke_assert(false);
-}
-
-STEP("one number: {int}")
-{
-  int one = CUKE_ARG(1);
-  std::cout << "one " << one << std::endl;
-}
-STEP("one double: {double}")
-{
-  double d = CUKE_ARG(1);
-  std::cout << "double " << d << std::endl;
-}
-STEP("string: {str}")
-{
-  std::string str = CUKE_ARG(1);
-  std::cout << "string: " << str << std::endl;
+  const std::size_t volume = CUKE_ARG(1);
+  cuke::assert_equal(volume, cuke::context<cube>().volume());  
 }
 
 
 int main(int argc, const char* argv[])
 {
   cuke::tests c; 
-
   c.run(argc, argv);
   return 0;
 }
