@@ -6,6 +6,14 @@
 class cube 
 {
 public:
+  cube()
+  {
+    std::cout << "creating a new cube cool\n";
+  }
+  ~cube()
+  {
+    std::cout << "destroying my cube sad\n";
+  }
   void set_side(std::size_t side)
   {
     m_side = side;

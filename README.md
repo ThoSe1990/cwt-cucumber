@@ -66,5 +66,11 @@ Missing Syntax Tokens
   [x] short  
   [x] long  
 
+
+after first step undefined the next step is supposed to be skipped, not failed
+[-------------] Scenario: My second cube:
+[  UNDEFINED  ] A box with 4 side length
+[  FAILED     ] The side area is 16
+[  SKIPPED    ] The cube volume is 64
   
 

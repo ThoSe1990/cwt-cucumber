@@ -188,7 +188,7 @@ void print_step_result(obj_string* step)
     }
     break; case SKIPPED: 
     {
-      g_vm.scenario_results.last = FAILED;
+      g_vm.scenario_results.last = SKIPPED;
       g_vm.step_results.skipped++;
       print_blue("[  SKIPPED    ] %s\n", step->chars);
     }
