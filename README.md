@@ -27,10 +27,13 @@ Current Status of what comes to my mind: ([x] = done)
   [ ] background/examples description
   [ ] undefined scenarios (proper error handling)
 
-[ ] adjaust capacity (tables) for steps crashes with >8 steps
+[x] adjust capacity (tables) for steps crashes with >8 steps
 
+[ ] print file location to results
+[ ] scenario outline -> variables are printed into the steps -> steps look similar in different examples
+[ ] return value from run_cucumber -> return 0 if all tests pass from main
 [ ] syntax error after examples table -> endless loop!
-
+[ ] uint8_t => uint16_t (or 32?)
 [x] print results (colored + overall results)
 [ ] error handling invalid indices on get arg
 [x] optional arg, eg. doc strings? 
@@ -48,11 +51,11 @@ Missing Syntax Tokens
   
 [x] Concept for C++ bindings  
 [x] Scenario Scope / Context  
-[ ] json report  
 [ ] Program Options (argc, argv from main)  
 [ ] Running all files from dir  
 [ ] Running single step  
 [ ] Tests, tests, tests, ...   
+[ ] cleanup cleanup cleanup
   
 [x] Steps: trim  
 [ ] Steps: Missing Cucumber Expressions:   
@@ -65,12 +68,3 @@ Missing Syntax Tokens
   [x] byte  
   [x] short  
   [x] long  
-
-
-after first step undefined the next step is supposed to be skipped, not failed
-[-------------] Scenario: My second cube:
-[  UNDEFINED  ] A box with 4 side length
-[  FAILED     ] The side area is 16
-[  SKIPPED    ] The cube volume is 64
-  
-

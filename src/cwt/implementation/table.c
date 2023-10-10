@@ -87,6 +87,28 @@ static void adjust_capacity(table* t, int capacity)
   t->capacity = capacity;
 }
 
+static void adjust_step_capacity(table* t, int capacity)
+{
+  entry* entries = ALLOCATE(entry, capacity);
+  for (int i = 0 ; i < capacity ; i++)
+  {
+    entries[i].key = NULL;
+    entries[i].value = NIL_VAL;
+  }
+  t->count = 0;
+  for (int i = 0; i < t->capacity; i++)
+  {
+    entry* e = &t->entries[i];
+    if (e->key == NULL) { continue; }
+    entries[i].key = e->key;
+    entries[i].value = e->value;
+    t->count++;
+  }
+  FREE_ARRAY(entry, t->entries, t->capacity);
+  t->entries = entries;
+  t->capacity = capacity;
+}
+
 void table_add_all(table* from, table* to)
 {
   for (int i = 0; i < from->capacity ; i++)
@@ -169,7 +191,7 @@ bool table_set_step(table* t, obj_string* key, cuke_value v)
   if (t->count+1 > t->capacity * TABLE_MAX_LOAD)
   {
     int capacity = GROW_CAPACITY(t->capacity);
-    adjust_capacity(t, capacity);
+    adjust_step_capacity(t, capacity);
   }
 
   if (find_step(t->entries, t->count, key))

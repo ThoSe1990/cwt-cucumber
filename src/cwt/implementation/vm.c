@@ -55,6 +55,15 @@ static void print_green(const char* format, ...)
   printf("\x1b[0m");
   va_end(args);
 }
+static void print_black(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  printf("\x1b[30m");
+  vprintf(format, args);
+  printf("\x1b[0m");
+  va_end(args);
+}
 
 static void runtime_error(const char* format, ...)
 {
@@ -149,24 +158,29 @@ static void print_results(const char* type, results* result)
 
   printf("%d %s (", count, type);
 
+  bool print_coma = false;
   if (result->failed > 0)
   {
     print_red("%d failed", result->failed);
+    print_coma = true;
   }
   if (result->undefined > 0)
   {
-    if (result->failed > 0) printf(", ");
+    if (print_coma) printf(", ");
     print_yellow("%d undefined", result->undefined);
+    print_coma = true;
   }
   if (result->skipped > 0)
   {
-    if (result->undefined > 0 || result->failed > 0) printf(", ");
+    if (print_coma) printf(", ");
     print_blue("%d skipped", result->skipped);
+    print_coma = true;
   }
   if (result->passed > 0)
   {
-    if (result->skipped > 0 || result->undefined > 0 || result->failed > 0) printf(", ");
+    if (print_coma) printf(", ");
     print_green("%d passed", result->passed);
+    print_coma = true;
   }
   printf(")\n");
 }
@@ -178,19 +192,19 @@ void print_step_result(obj_string* step)
     case PASSED: 
     {
       g_vm.step_results.passed++;
-      print_green("[  PASSED     ] %s\n", step->chars);
+      print_green("[   PASSED    ] %s\n", step->chars);
     }
     break; case FAILED: 
     {
       g_vm.scenario_results.last = FAILED;
       g_vm.step_results.failed++;
-      print_red("[  FAILED     ] %s\n", step->chars);
+      print_red("[   FAILED    ] %s\n", step->chars);
     }
     break; case SKIPPED: 
     {
       g_vm.scenario_results.last = SKIPPED;
       g_vm.step_results.skipped++;
-      print_blue("[  SKIPPED    ] %s\n", step->chars);
+      print_blue("[   SKIPPED   ] %s\n", step->chars);
     }
     break; case UNDEFINED: 
     {
@@ -341,7 +355,8 @@ static interpret_result run()
       break; case OP_JUMP_IF_FAILED:
       {
         uint16_t offset = READ_SHORT();
-        if (g_vm.step_results.last == FAILED || g_vm.step_results.last == SKIPPED)
+        // if (g_vm.step_results.last == FAILED || g_vm.step_results.last == SKIPPED)
+        if (g_vm.step_results.last != PASSED)
         {
           g_vm.step_results.last = SKIPPED;
           frame->ip += offset;

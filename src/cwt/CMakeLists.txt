@@ -13,6 +13,8 @@ add_library(${target} STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/vm.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/step_matcher.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/tag_compiler.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/tag_scanner.c
 )
 
 if (STACK_TRACE)

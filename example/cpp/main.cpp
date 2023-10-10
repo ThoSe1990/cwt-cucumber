@@ -1,18 +1,16 @@
 
 #include "cwt/cucumber.hpp"
 
-// TODO same statements with differtent types doesn't work ... 
-
 class cube 
 {
 public:
   cube()
   {
-    std::cout << "creating a new cube cool\n";
+    std::cout << "creating a new cube - cool\n";
   }
   ~cube()
   {
-    std::cout << "destroying my cube sad\n";
+    std::cout << "destroying my cube - sad\n";
   }
   void set_side(std::size_t side)
   {
@@ -34,6 +32,11 @@ private:
 };
 
 
+STEP("hi")
+{
+  std::cout << "hi " << std::endl;
+}
+
 STEP("A cube with {int} side length")
 {
   const std::size_t side = CUKE_ARG(1);
@@ -50,7 +53,6 @@ STEP("The cube volume is {int}")
   const std::size_t volume = CUKE_ARG(1);
   cuke::assert_equal(volume, cuke::context<cube>().volume());  
 }
-
 
 int main(int argc, const char* argv[])
 {
