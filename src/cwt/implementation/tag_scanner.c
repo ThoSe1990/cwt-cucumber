@@ -144,3 +144,48 @@ tag_token scan_tag_token()
 
   return error_tag_token("Invalid tags given.");
 }
+
+#include "value.h"
+
+typedef struct {
+  tag_token current;
+  tag_token previous; 
+  bool had_error;
+} tag_parser_t;
+
+tag_parser_t tag_parser; 
+
+static void advance()
+{
+  tag_parser.previous = tag_parser.current;
+
+  for (;;) 
+  {
+    tag_parser.current = scan_tag_token();
+    if (tag_parser.current.type != TAG_TOKEN_ERROR) 
+    {
+      break;
+    }
+    // TODO error msg 
+    // error_at_current(parser.current.start);
+  }
+}
+
+value_array* operators;
+value_array* output;
+
+static void expression()
+{
+  if 
+}
+
+value_array* get_tag_condition(const char* tags)
+{
+  init_tag_scanner(tags);
+  
+  init_value_array(&output);
+  init_value_array(&operators);
+
+  advance();
+  expression();
+}

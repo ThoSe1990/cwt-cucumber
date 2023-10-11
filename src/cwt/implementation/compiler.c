@@ -16,19 +16,6 @@ typedef struct {
   bool had_error;
 } cuke_parser;
 
-typedef enum {
-  PREC_NONE,
-  PREC_CALL,
-} precedence_type;
-
-typedef void (*parse_fn)();
-
-typedef struct {
-  parse_fn prefix;
-  parse_fn infix;
-  precedence_type precedence;
-} parse_rule;
-
 
 typedef enum {
   TYPE_FUNCTION,
@@ -416,7 +403,7 @@ static void examples_body(value_array* vars)
   }
 }
 
-static void call_scenario(obj_function* background, obj_function* scenario_func)
+static void create_scenario_call(obj_function* background, obj_function* scenario_func)
 {
   emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("reset_context", 13))));
   emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before", 6))));
@@ -468,15 +455,7 @@ static void scenario_outline(obj_function* background)
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
   {
     examples_body(&vars); 
-    call_scenario(background, func);
-    // if (background)
-    // {
-    //   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
-    //   emit_bytes(OP_CALL, 0);
-    // }
-    // emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-    // emit_bytes(OP_CALL, 0);
-    // emit_byte(OP_SCENARIO_RESULT);
+    create_scenario_call(background, func);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -497,15 +476,7 @@ static void scenario(obj_function* background)
   step();
 
   obj_function* func = end_compiler();
-  call_scenario(background, func);
-  // if (background)
-  // {
-  //   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
-  //   emit_bytes(OP_CALL, 0);
-  // }
-  // emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(func)));
-  // emit_bytes(OP_CALL, 0);
-  // emit_byte(OP_SCENARIO_RESULT);
+  create_scenario_call(background, func);
 }
 
 
