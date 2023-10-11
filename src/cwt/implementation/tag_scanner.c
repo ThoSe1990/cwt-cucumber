@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "tag_scanner.h"
 #include "object.h"
@@ -17,6 +18,8 @@ void init_tag_scanner(const char* tags)
   scanner.current = tags;
   scanner.start = tags;
 }
+
+
 
 static bool is_lower_case_alpha(char c)
 {
@@ -48,7 +51,10 @@ static bool is_whitespace()
 {
   return *scanner.current == ' ';
 }
-
+static bool is_at_sign() 
+{
+  return *scanner.current == '@';
+}
 static char advance() 
 {
   scanner.current++;
@@ -66,14 +72,7 @@ static tag_token make_token(tag_token_type type)
   t.length = (int)(scanner.current - scanner.start);
   return t;
 }
-static tag_token error_tag_token(const char* msg)
-{
-  tag_token t;
-  t.type = TAG_TOKEN_ERROR;
-  t.start = msg;
-  t.length = (int)strlen(msg);
-  return t;
-}
+
 static void skip_whitespace()
 {
   for(;;)
@@ -96,6 +95,10 @@ static bool is_alpha(char c)
 {
   return  (c >= 'a' && c <= 'z');
 }
+
+static void error(const char* msg);
+
+
 static tag_token_type check_keyword(int start, int length, const char* rest, tag_token_type type)
 {
   if (  scanner.current - scanner.start == start + length && 
@@ -105,6 +108,7 @@ static tag_token_type check_keyword(int start, int length, const char* rest, tag
   } 
   else 
   {
+    error("Unexpected identifier in tags.");
     return TAG_TOKEN_ERROR;
   }
 }
@@ -116,20 +120,29 @@ static tag_token_type identifier_type()
     case 'a': return check_keyword(1,2, "nd", TAG_TOKEN_AND);
     case 'o': return check_keyword(1,1, "r", TAG_TOKEN_OR);
     case 'n': return check_keyword(1,2, "ot", TAG_TOKEN_NOT);
-    default: return TAG_TOKEN_ERROR;
+    default: 
+    {
+      error("Unexpected identifier in tags.");
+      return TAG_TOKEN_ERROR;
+    }
   }
 }
 
 static tag_token identifier()
 {
-  while (!is_whitespace() && !is_at_end()) 
+  while (!is_whitespace() && !is_at_end() && !is_at_sign()) 
   {
     advance();
   }
-  tag_token_type t = identifier_type();
-  return t != TAG_TOKEN_ERROR 
-    ?  make_token(identifier_type())
-    : error_tag_token("invalid identifier in tags");
+  return make_token(identifier_type());
+  // tag_token_type t = identifier_type();
+  // if (t == TAG_TOKEN_ERROR)
+  // {
+  //   error("")
+  // }
+  // return t != TAG_TOKEN_ERROR 
+  //   ?  make_token(identifier_type())
+  //   : error_tag_token("invalid identifier in tags");
 }
 static tag_token make_tag()
 {
@@ -159,12 +172,13 @@ tag_token scan_tag_token()
 
   switch (c)
   {
-  case '(' : return make_token(TAG_TOKEN_LEFT_PAREN);
-  case ')' : return make_token(TAG_TOKEN_RIGHT_PAREN);
-  case '@' : return make_tag();
+    case '(' : return make_token(TAG_TOKEN_LEFT_PAREN);
+    case ')' : return make_token(TAG_TOKEN_RIGHT_PAREN);
+    case '@' : return make_tag();
   }
 
-  return error_tag_token("Invalid tags given.");
+  error("Invalid tags given.");
+  return make_token(TAG_TOKEN_ERROR);
 }
 
 #include "value.h"
@@ -188,9 +202,15 @@ static void next_token()
     {
       break;
     }
-    // TODO error msg 
-    // error_at_current(parser.current.start);
   }
+}
+
+static void error(const char* msg)
+{
+  fprintf(stderr, "\x1b[31m");
+  fprintf(stderr, "Tag-Error: %s\n", msg);
+  fprintf(stderr,"\x1b[0m");
+  tag_parser.had_error = true;
 }
 
 static bool check(tag_token_type type)
@@ -238,21 +258,6 @@ void push_out(cuke_value value)
   *tag_values.out_top = value;
   tag_values.out_top++;
 }
-cuke_value pop_out()
-{
-  tag_values.out_top--;
-  return *tag_values.out_top;
-}
-
-
-static void error(const char* msg)
-{
-  fprintf(stderr, "\x1b[31m");
-  fprintf(stderr, "Tag-Error: %s\n", msg);
-  fprintf(stderr,"\x1b[0m");
-  tag_parser.had_error = true;
-}
-
 
 static void consume(tag_token_type type, const char* msg)
 {
@@ -266,6 +271,59 @@ static void consume(tag_token_type type, const char* msg)
 }
 
 static void expression();
+
+static obj_string* last_operator()
+{
+  if (tag_values.operators == tag_values.operators_top)
+  {
+    return NULL;
+  }
+  return AS_STRING(*(tag_values.operators_top-1));
+}
+
+static bool is_same(obj_string* str, const char* c, int length)
+{
+  if (str->length != length)
+  {
+    return false;
+  }
+  return memcmp(str->chars, c, length) == 0;
+}
+
+static bool last_operator_is_and_or()
+{
+  obj_string* last_op = last_operator();
+  if (!last_op) 
+  {
+    return false;
+  }
+  return is_same(last_op, "and", 3) || is_same(last_op, "or", 2);
+}
+
+static bool last_operator_is_not()
+{
+  obj_string* last_op = last_operator();
+  if (!last_op) 
+  {
+    return false;
+  }
+  return is_same(last_op, "not", 3);
+}
+
+static void left_association()
+{
+  if (last_operator_is_and_or())
+  {
+    push_out(pop_operator());
+  }
+}
+
+static void and_or()
+{
+  left_association();
+  push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+  expression();
+}
 
 static void close_grouping()
 {
@@ -281,8 +339,11 @@ static void close_grouping()
 
   if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR))
   {
-    push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
-    expression();
+    and_or();
+  }
+  else if (match(TAG_TOKEN_RIGHT_PAREN))
+  {
+    close_grouping();
   }
   else if (match(TAG_TOKEN_EOL))
   {
@@ -303,10 +364,15 @@ static void grouping()
 static void tag()
 {
   push_out(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+
+  if (last_operator_is_not())
+  {
+    push_out(pop_operator());
+  }
+
   if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR))
   {
-    push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
-    expression();
+    and_or();
   }
   else if (match(TAG_TOKEN_RIGHT_PAREN))
   {
@@ -363,9 +429,18 @@ int tags_to_rpn_stack(const char* tags, cuke_value* result)
   next_token();
   expression();
 
+  if (tag_parser.had_error) 
+  {
+    return 0;
+  }
+
   while (tag_values.operators_top != tag_values.operators)
   {
-    push_out(pop_operator());
+    cuke_value operator = pop_operator();
+    if (*AS_CSTRING(operator) != '(')
+    {
+      push_out(operator);
+    }
   }
   int size = tag_values.out_top - tag_values.out;
   for (int i = 0 ; i < size ; i++)
