@@ -5,6 +5,24 @@
 #include "tag_scanner.h"
 #include "object.h"
 
+typedef enum 
+{
+  TAG_TOKEN_TAG,
+  TAG_TOKEN_AND,
+  TAG_TOKEN_OR,
+  TAG_TOKEN_NOT,
+  TAG_TOKEN_LEFT_PAREN,
+  TAG_TOKEN_RIGHT_PAREN,
+  TAG_TOKEN_ERROR,
+  TAG_TOKEN_EOL
+} tag_token_type;
+
+typedef struct {
+  tag_token_type type;
+  const char* start;
+  int length;
+} tag_token;
+
 typedef struct {
   const char* start;
   const char* current;
@@ -13,13 +31,11 @@ typedef struct {
 tag_scanner_t scanner; 
 
 
-void init_tag_scanner(const char* tags)
+static void init_tag_scanner(const char* tags)
 {
   scanner.current = tags;
   scanner.start = tags;
 }
-
-
 
 static bool is_lower_case_alpha(char c)
 {
@@ -135,14 +151,6 @@ static tag_token identifier()
     advance();
   }
   return make_token(identifier_type());
-  // tag_token_type t = identifier_type();
-  // if (t == TAG_TOKEN_ERROR)
-  // {
-  //   error("")
-  // }
-  // return t != TAG_TOKEN_ERROR 
-  //   ?  make_token(identifier_type())
-  //   : error_tag_token("invalid identifier in tags");
 }
 static tag_token make_tag()
 {
@@ -152,7 +160,7 @@ static tag_token make_tag()
   }
   return make_token(TAG_TOKEN_TAG);
 }
-tag_token scan_tag_token()
+static tag_token scan_tag_token()
 {
   skip_whitespace();
 
