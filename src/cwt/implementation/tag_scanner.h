@@ -1,6 +1,8 @@
 #ifndef cwt_cucumber_tag_scanner_h
 #define cwt_cucumber_tag_scanner_h
 
+#include "../cucumber_value.h"
+
 typedef enum 
 {
   TAG_TOKEN_TAG,
@@ -21,5 +23,9 @@ typedef struct {
 
 void init_tag_scanner(const char* source);
 tag_token scan_tag_token(); 
+
+#define TAGS_RPN_MAX 32
+
+int tags_to_rpn_stack(const char* tags, cuke_value* result);
 
 #endif
