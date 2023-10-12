@@ -112,8 +112,6 @@ static bool is_alpha(char c)
   return  (c >= 'a' && c <= 'z');
 }
 
-static void error(const char* msg);
-
 
 static tag_token_type check_keyword(int start, int length, const char* rest, tag_token_type type)
 {
@@ -124,7 +122,6 @@ static tag_token_type check_keyword(int start, int length, const char* rest, tag
   } 
   else 
   {
-    error("Unexpected identifier in tags.");
     return TAG_TOKEN_ERROR;
   }
 }
@@ -138,7 +135,6 @@ static tag_token_type identifier_type()
     case 'n': return check_keyword(1,2, "ot", TAG_TOKEN_NOT);
     default: 
     {
-      error("Unexpected identifier in tags.");
       return TAG_TOKEN_ERROR;
     }
   }
@@ -185,7 +181,6 @@ static tag_token scan_tag_token()
     case '@' : return make_tag();
   }
 
-  error("Invalid tags given.");
   return make_token(TAG_TOKEN_ERROR);
 }
 
@@ -199,6 +194,20 @@ typedef struct {
 
 tag_parser_t tag_parser; 
 
+static void error(const char* msg, tag_token* t)
+{
+  fprintf(stderr, "\x1b[31m");
+  fprintf(stderr, "Tag-Error at: '%.*s': ",t->length, t->start);
+  fprintf(stderr,"%s\n", msg);
+  fprintf(stderr,"\x1b[0m");
+  tag_parser.had_error = true;
+}
+
+static void error_at_current(const char* msg)
+{
+  error(msg, &tag_parser.current);
+}
+
 static void next_token()
 {
   tag_parser.previous = tag_parser.current;
@@ -210,15 +219,12 @@ static void next_token()
     {
       break;
     }
+    else 
+    {
+      error_at_current("Unexpected identifier");
+      return ;
+    }
   }
-}
-
-static void error(const char* msg)
-{
-  fprintf(stderr, "\x1b[31m");
-  fprintf(stderr, "Tag-Error: %s\n", msg);
-  fprintf(stderr,"\x1b[0m");
-  tag_parser.had_error = true;
 }
 
 static bool check(tag_token_type type)
@@ -265,17 +271,6 @@ void push_out(cuke_value value)
 {
   *tag_values.out_top = value;
   tag_values.out_top++;
-}
-
-static void consume(tag_token_type type, const char* msg)
-{
-  if (tag_parser.current.type == type) 
-  {
-    next_token();
-    return;
-  }
-
-  error(msg);
 }
 
 static void expression();
@@ -359,7 +354,7 @@ static void close_grouping()
   }
   else 
   {
-    error("Expect operator or end of tags after ')'");
+    error_at_current("Expect operator or end of tags after ')': ");
   }
 }
 
@@ -392,7 +387,7 @@ static void tag()
   }
   else 
   {
-    error("Expect 'and' or 'or' after tag.");
+    error_at_current("Expect 'and' or 'or' after tag.");
   }
 }
 
@@ -417,7 +412,7 @@ static void expression()
   }
   else 
   {
-    error("Expect '@tag', '(' or 'not'.");
+    error_at_current("Expect '@tag', '(' or 'not'.");
   }
 }
 

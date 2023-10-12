@@ -20,6 +20,16 @@ TEST(tags, tags_1_not_tag)
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag");
   EXPECT_STREQ(AS_CSTRING(values[1]), "not");
 }
+TEST(tags, tags_2_not_tag)
+{
+  cuke_value values[TAGS_RPN_MAX];
+  int size = tags_to_rpn_stack("not (@tag1 or @tag2)", values);
+  ASSERT_EQ(size, 4);
+  EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
+  EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
+  EXPECT_STREQ(AS_CSTRING(values[2]), "or");
+  EXPECT_STREQ(AS_CSTRING(values[3]), "not");
+}
 TEST(tags, tags_1_tag_w_paren)
 {
   cuke_value values[TAGS_RPN_MAX];
