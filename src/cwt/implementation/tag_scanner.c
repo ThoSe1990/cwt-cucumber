@@ -5,18 +5,6 @@
 #include "tag_scanner.h"
 #include "object.h"
 
-typedef enum 
-{
-  TAG_TOKEN_TAG,
-  TAG_TOKEN_AND,
-  TAG_TOKEN_OR,
-  TAG_TOKEN_NOT,
-  TAG_TOKEN_LEFT_PAREN,
-  TAG_TOKEN_RIGHT_PAREN,
-  TAG_TOKEN_ERROR,
-  TAG_TOKEN_EOL
-} tag_token_type;
-
 typedef struct {
   tag_token_type type;
   const char* start;
@@ -267,6 +255,20 @@ cuke_value pop_operator()
   return *tag_values.operators_top;
 }
 
+cuke_value token_to_cuke_value()
+{
+  switch (tag_parser.previous.type)
+  {
+    case TAG_TOKEN_TAG: return OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length));
+    case TAG_TOKEN_AND: return LONG_VAL(TAG_TOKEN_AND);
+    case TAG_TOKEN_OR: return LONG_VAL(TAG_TOKEN_OR);
+    case TAG_TOKEN_NOT: return LONG_VAL(TAG_TOKEN_NOT);
+    case TAG_TOKEN_LEFT_PAREN: return LONG_VAL(TAG_TOKEN_LEFT_PAREN);
+    case TAG_TOKEN_RIGHT_PAREN: return LONG_VAL(TAG_TOKEN_RIGHT_PAREN);
+    default: return NIL_VAL;
+  }
+}
+
 void push_out(cuke_value value)
 {
   *tag_values.out_top = value;
@@ -275,42 +277,33 @@ void push_out(cuke_value value)
 
 static void expression();
 
-static obj_string* last_operator()
+static int last_operator()
 {
   if (tag_values.operators == tag_values.operators_top)
   {
-    return NULL;
+    return 0;
   }
-  return AS_STRING(*(tag_values.operators_top-1));
-}
-
-static bool is_same(obj_string* str, const char* c, int length)
-{
-  if (str->length != length)
-  {
-    return false;
-  }
-  return memcmp(str->chars, c, length) == 0;
+  return (int)AS_LONG(*(tag_values.operators_top-1));
 }
 
 static bool last_operator_is_and_or()
 {
-  obj_string* last_op = last_operator();
-  if (!last_op) 
+  int last_op = last_operator();
+  if (last_op == 0) 
   {
     return false;
   }
-  return is_same(last_op, "and", 3) || is_same(last_op, "or", 2);
+  return last_op == TAG_TOKEN_AND || last_op == TAG_TOKEN_OR;
 }
 
 static bool last_operator_is_not()
 {
-  obj_string* last_op = last_operator();
-  if (!last_op) 
+  int last_op = last_operator();
+  if (last_op == 0) 
   {
     return false;
   }
-  return is_same(last_op, "not", 3);
+  return last_op == TAG_TOKEN_NOT;
 }
 
 static void left_association()
@@ -324,7 +317,7 @@ static void left_association()
 static void and_or()
 {
   left_association();
-  push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+  push_operator(token_to_cuke_value());
   expression();
 }
 
@@ -333,7 +326,7 @@ static void close_grouping()
   for(;;)
   {
     cuke_value operator = pop_operator();
-    if (*AS_CSTRING(operator) == '(') 
+    if (IS_INT(operator) && AS_LONG(operator) == TAG_TOKEN_LEFT_PAREN)
     {
       break;
     }
@@ -360,13 +353,13 @@ static void close_grouping()
 
 static void grouping()
 {
-  push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+  push_operator(token_to_cuke_value());
   expression();
 }
 
 static void tag()
 {
-  push_out(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+  push_out(token_to_cuke_value());
 
   if (last_operator_is_not())
   {
@@ -403,7 +396,7 @@ static void expression()
   }
   else if (match(TAG_TOKEN_NOT))
   {
-    push_operator(OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length)));
+    push_operator(token_to_cuke_value());
     expression();
   }
   else if (match(TAG_TOKEN_EOL))
@@ -440,7 +433,7 @@ int tags_to_rpn_stack(const char* tags, cuke_value* result)
   while (tag_values.operators_top != tag_values.operators)
   {
     cuke_value operator = pop_operator();
-    if (*AS_CSTRING(operator) != '(')
+    if (IS_INT(operator) && AS_LONG(operator) != TAG_TOKEN_LEFT_PAREN)
     {
       push_out(operator);
     }
@@ -451,4 +444,142 @@ int tags_to_rpn_stack(const char* tags, cuke_value* result)
     result[i] = tag_values.out[i];
   }
   return size;
+}
+
+
+typedef struct node_t
+{
+  bool data;
+  struct node_t* next;
+} node_t;
+
+typedef struct 
+{
+  unsigned int size;
+  node_t* top;  
+} stack_t;
+
+
+static node_t* new_node(bool data) 
+{
+    node_t* node = (node_t*) malloc(sizeof(node_t));
+    node->data = data;
+    node->next = NULL;
+    return node;
+}
+
+static void init_stack(stack_t* stack) 
+{
+    stack->size = 0;
+    stack->top = NULL;
+}
+
+static bool is_empty(stack_t* stack) 
+{
+    return stack->top == NULL;
+}
+
+static void push_to_stack(stack_t* stack, bool data) 
+{
+    node_t* node = new_node(data);
+    node->next = stack->top;
+    stack->top = node;
+    stack->size++;
+}
+
+static bool pop_from_stack(stack_t* stack) 
+{
+    if (is_empty(stack)) {
+        return false;
+    }
+
+    node_t* temp = stack->top;
+    bool data = temp->data;
+    stack->top = temp->next;
+    stack->size--;
+    free(temp);
+    return data;
+}
+
+static void clear_stack(stack_t* stack)
+{
+    while (!is_empty(stack))
+    {
+        pop_from_stack(stack);
+    }
+}
+
+static bool is_same(obj_string* s1, obj_string* s2)
+{
+  if (s1->length != s2->length)
+  {
+    return false;
+  }
+  return memcmp(s1->chars, s2->chars, s1->length) == 0;
+}
+
+static bool contains(obj_string* value, value_array* tags)
+{
+  for (int i = 0 ; i < tags->count ; i++)
+  {
+    if (is_same(value, AS_STRING(tags->values[i])));
+    {
+      return true;
+    }
+  }
+  return false; 
+}
+
+bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
+{
+  stack_t stack; 
+  init_stack(&stack);
+
+  for (unsigned int i = 0 ; i < rpn_size ; i++)
+  {
+    if (IS_STRING(rpn_stack[i])) 
+    {
+      push_to_stack(&stack, contains(AS_STRING(rpn_stack[i]), tags));
+    }
+    else if (IS_INT(rpn_stack[i]))
+    {
+      switch (AS_LONG(rpn_stack[i]))
+      {
+        case TAG_TOKEN_NOT:
+        {
+          bool value = pop_from_stack(&stack);
+          push_to_stack(&stack, !value);
+        }
+        break; case TAG_TOKEN_OR:
+        {
+          bool lhs = pop_from_stack(&stack);
+          bool rhs = pop_from_stack(&stack);
+          push_to_stack(&stack, lhs || rhs);
+        }
+        break; case TAG_TOKEN_AND:
+        {
+          bool lhs = pop_from_stack(&stack);
+          bool rhs = pop_from_stack(&stack);
+          push_to_stack(&stack, lhs && rhs);
+        }
+        break; case TAG_TOKEN_XOR:
+        {
+          bool lhs = pop_from_stack(&stack);
+          bool rhs = pop_from_stack(&stack);
+          push_to_stack(&stack, lhs != rhs);
+        }
+        break; default : ;// can not happen ... 
+      }
+
+    }
+  }
+
+  return pop_from_stack(&stack);
+}
+
+// TODO !
+#include <string.h>
+void test_push (value_array* arr, const char* c)
+{
+  write_value_array(arr, OBJ_VAL(copy_string(c, strlen(c))));
 }
