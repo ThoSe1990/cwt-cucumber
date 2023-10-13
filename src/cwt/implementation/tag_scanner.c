@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "tag_scanner.h"
 #include "object.h"
@@ -16,13 +17,13 @@ typedef struct {
   const char* current;
 } tag_scanner_t;
 
-tag_scanner_t scanner; 
+tag_scanner_t tag_scanner; 
 
 
 static void init_tag_scanner(const char* tags)
 {
-  scanner.current = tags;
-  scanner.start = tags;
+  tag_scanner.current = tags;
+  tag_scanner.start = tags;
 }
 
 static bool is_lower_case_alpha(char c)
@@ -32,7 +33,7 @@ static bool is_lower_case_alpha(char c)
 
 static bool is_at_end()
 {
-  return *scanner.current == '\0';
+  return *tag_scanner.current == '\0';
 }
 
 static char peek_next()
@@ -43,37 +44,37 @@ static char peek_next()
   }
   else 
   {
-    return scanner.current[1];
+    return tag_scanner.current[1];
   }
 }
 
 static bool right_paren()
 {
-  return *scanner.current == ')'; 
+  return *tag_scanner.current == ')'; 
 }
 static bool is_whitespace()
 {
-  return *scanner.current == ' ';
+  return *tag_scanner.current == ' ';
 }
 static bool is_at_sign() 
 {
-  return *scanner.current == '@';
+  return *tag_scanner.current == '@';
 }
 static char advance() 
 {
-  scanner.current++;
-  return scanner.current[-1];
+  tag_scanner.current++;
+  return tag_scanner.current[-1];
 }
 static char peek() 
 {
-  return *scanner.current;
+  return *tag_scanner.current;
 }
 static tag_token make_token(tag_token_type type)
 {
   tag_token t; 
   t.type = type;
-  t.start = scanner.start;
-  t.length = (int)(scanner.current - scanner.start);
+  t.start = tag_scanner.start;
+  t.length = (int)(tag_scanner.current - tag_scanner.start);
   return t;
 }
 
@@ -103,8 +104,8 @@ static bool is_alpha(char c)
 
 static tag_token_type check_keyword(int start, int length, const char* rest, tag_token_type type)
 {
-  if (  scanner.current - scanner.start == start + length && 
-        memcmp(scanner.start + start, rest, length) == 0 )
+  if (  tag_scanner.current - tag_scanner.start == start + length && 
+        memcmp(tag_scanner.start + start, rest, length) == 0 )
   {
     return  type;
   } 
@@ -116,7 +117,7 @@ static tag_token_type check_keyword(int start, int length, const char* rest, tag
 
 static tag_token_type identifier_type()
 {
-  switch (scanner.start[0])
+  switch (tag_scanner.start[0])
   {
     case 'a': return check_keyword(1,2, "nd", TAG_TOKEN_AND);
     case 'o': return check_keyword(1,1, "r", TAG_TOKEN_OR);
@@ -149,7 +150,7 @@ static tag_token scan_tag_token()
 {
   skip_whitespace();
 
-  scanner.start = scanner.current;
+  tag_scanner.start = tag_scanner.current;
 
   if (is_at_end())
   {
@@ -417,7 +418,7 @@ static void reset_tag_values()
   tag_values.out_top = tag_values.out;
 }
 
-int compile_evaluate_tags(const char* tags, cuke_value* result)
+int compile_tag_expression(const char* tags, cuke_value* result)
 {
   init_tag_scanner(tags);
 
@@ -534,11 +535,6 @@ static bool contains(obj_string* value, value_array* tags)
 
 bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
 {
-  if (tags->count == 0)
-  {
-    return false;
-  }
-
   stack_t stack; 
   init_stack(&stack);
 
@@ -580,7 +576,6 @@ bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
 
     }
   }
-
   return pop_from_stack(&stack);
 }
 

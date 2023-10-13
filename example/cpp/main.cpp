@@ -31,7 +31,7 @@ private:
   std::size_t m_side;
 };
 
-AFTER()
+AFTER("@tag1 or @tag2")
 {
   std::cout << "hook after step! " << std::endl;
 }

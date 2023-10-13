@@ -108,10 +108,11 @@ void define_step(const char* name, cuke_step_t func)
   pop();
   pop();
 }
-void define_hook(const char* name, cuke_step_t func)
+void define_hook(const char* name, cuke_step_t func, const char* tag_expression)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
-  push(OBJ_VAL(new_native(func)));
+  // push(OBJ_VAL(new_native(func)));
+  push(OBJ_VAL(new_hook(func, tag_expression)));
   table_set_step(&g_vm.hooks, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
   pop();
   pop();
@@ -252,6 +253,7 @@ static bool call_value(cuke_value callee, int arg_count)
   {
     switch(OBJ_TYPE(callee))
     {
+      // TODO OBJ_FUNCTION does not exist in cucumber
       case OBJ_FUNCTION:
       {
         return call(AS_FUNCTION(callee), arg_count);
@@ -260,6 +262,26 @@ static bool call_value(cuke_value callee, int arg_count)
       {
         cuke_step_t native = AS_NATIVE(callee);
         native(arg_count, g_vm.stack_top - arg_count);
+        g_vm.stack_top -= arg_count+1;
+        return true;
+      }
+      case OBJ_STRING:
+      {
+        cuke_value value;   
+        if (table_get_hook(&g_vm.hooks, AS_STRING(callee), &value))
+        {
+          // cuke_step_t native = AS_NATIVE(value);
+          // native(0, NULL);
+          obj_hook* hook = AS_HOOK(value);
+          hook->function(0, NULL);
+          printf("RPN SIZE: %d\n", hook->rpn_size);
+        }
+
+
+        // obj_hook* hook = AS_HOOK(callee);
+        // TODO evaluate_tags expects value_array... 
+        // evaluate_tags(hook->rpn_tags, hook->rpn_size, )
+        // hook->function(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         return true;
       }
@@ -311,7 +333,6 @@ static interpret_result run()
     printf("\n");
     disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
   #endif 
-
     uint8_t instruction; 
     switch (instruction = READ_BYTE()) 
     {
@@ -364,13 +385,34 @@ static interpret_result run()
       }
       break; case OP_HOOK:
       {
-        obj_string* hook = READ_STRING();
+        int arg_count = READ_BYTE();
+        obj_string* hook_str = AS_STRING(peek(arg_count));
         cuke_value value;   
-        if (table_get_hook(&g_vm.hooks, hook, &value))
+
+        // TODO call all after/begin hooks here!
+        if (table_get_hook(&g_vm.hooks, hook_str, &value))
         {
-          cuke_step_t native = AS_NATIVE(value);
-          native(0, NULL);
+          value_array tags;
+          init_value_array(&tags);
+          
+          for (int i = 0 ; i < arg_count ; i++) 
+          {
+            cuke_value* current = g_vm.stack_top - arg_count + i;
+            obj_string* current_tag = AS_STRING(*current);
+            write_c_string(&tags, current_tag->chars, current_tag->length);
+          }
+
+          obj_hook* hook = AS_HOOK(value);
+          if (hook->rpn_size == 0 || 
+            evaluate_tags(hook->rpn_tags, hook->rpn_size, &tags))
+          {
+            hook->function(0, NULL);
+          }
+
+          free_value_array(&tags);
         }
+        g_vm.stack_top -= arg_count+1;
+        frame = &g_vm.frames[g_vm.frame_count-1];
       }
       break; case OP_CALL_STEP:
       {

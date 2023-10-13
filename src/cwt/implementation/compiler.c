@@ -285,7 +285,7 @@ static void process_step()
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
 
-  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before_step", 11))));
+  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before_step", 11))));
 
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
@@ -302,7 +302,7 @@ static void process_step()
   // TODO push arg count? 
   // TODO check if these redundant string pushes are necessary... 
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
-  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after_step", 10))));
+  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after_step", 10))));
 
   patch_jump(after_step);
   emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
@@ -413,10 +413,10 @@ static void examples_body(value_array* vars)
   }
 }
 
-static void create_scenario_call(obj_function* background, obj_function* scenario_func)
+static void create_scenario_call(obj_function* background, obj_function* scenario_func, value_array* tags)
 {
-  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("reset_context", 13))));
-  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before", 6))));
+  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("reset_context", 13))));
+  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before", 6))));
   if (background)
   {
     emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
@@ -424,7 +424,21 @@ static void create_scenario_call(obj_function* background, obj_function* scenari
   }
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(scenario_func)));
   emit_bytes(OP_CALL, 0);
-  emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after", 6))));
+
+  emit_constant(OBJ_VAL(copy_string("after", 6)));
+  if (tags)
+  {
+    for (int i = 0 ; i < tags->count ; i++)
+    {
+      emit_constant(tags->values[i]);
+    }
+    emit_bytes(OP_HOOK, tags->count);
+  }
+  else
+  {
+    emit_bytes(OP_HOOK, 0);
+  }
+  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after", 6))));
 
   emit_byte(OP_SCENARIO_RESULT);
 } 
@@ -466,7 +480,8 @@ static void scenario_outline(obj_function* background)
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
   {
     examples_body(&vars); 
-    create_scenario_call(background, func);
+    // TODO read tags in example and pass them to create_scenario_call
+    create_scenario_call(background, func, NULL);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -475,7 +490,7 @@ static void scenario_outline(obj_function* background)
 }
 
 
-static void scenario(obj_function* background)
+static void scenario(obj_function* background, value_array* tags)
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
@@ -487,9 +502,60 @@ static void scenario(obj_function* background)
   step();
 
   obj_function* func = end_compiler();
-  create_scenario_call(background, func);
+  create_scenario_call(background, func, tags);
 }
 
+static void read_tags(value_array* tags)
+{
+  while (!match(TOKEN_LINEBREAK) && !parser.had_error)
+  {
+    if (match(TOKEN_TAG))
+    {
+      write_c_string(tags, parser.previous.start, parser.previous.length);
+    }
+    else 
+    {
+      break;
+    }
+  }
+}
+
+static void skip_scenario()
+{
+  for(;;)
+  {
+    if (check(TOKEN_TAG) 
+      || check(TOKEN_SCENARIO) 
+      || check(TOKEN_SCENARIO_OUTLINE) 
+      || check(TOKEN_TAG) 
+      || check(TOKEN_EOF))
+    {
+      break;
+    }
+    advance();
+  }
+}
+
+static void tags(obj_function* background)
+{
+  value_array tags;
+  init_value_array(&tags);
+
+  read_tags(&tags);
+
+  consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
+  
+  if (tag_expression.size == 0 
+    || evaluate_tags(tag_expression.rpn_stack, tag_expression.size, &tags))
+  {
+    scenario(background, &tags);
+  }
+  else 
+  {
+    skip_scenario();
+  }
+  free_value_array(&tags);
+}
 
 static void parse_all_scenarios(obj_function* background)
 {
@@ -506,40 +572,18 @@ static void parse_all_scenarios(obj_function* background)
     // to a scenario and are independent from the cmd line given tag expression
     else if (check(TOKEN_TAG))
     {
-      value_array tags;
-      init_value_array(&tags);
-      while (!match(TOKEN_LINEBREAK) && !parser.had_error)
-      {
-        if (match(TOKEN_TAG))
-        {
-          write_c_string(&tags, parser.previous.start, parser.previous.length);
-        }
-        else 
-        {
-          break;
-        }
-      }
-      consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
-      if (evaluate_tags(tag_expression.rpn_stack, tag_expression.size, &tags))
-      {
-        scenario(background);
-      }
-      else 
-      {
-        for(;;)
-        {
-          if (check(TOKEN_TAG) || check(TOKEN_SCENARIO) || check(TOKEN_SCENARIO_OUTLINE) || check(TOKEN_TAG) || check(TOKEN_EOF))
-          {
-            break;
-          }
-          advance();
-        }
-      }
-      free_value_array(&tags);
+      tags(background);
     }
     else if (match(TOKEN_SCENARIO))
     {
-      scenario(background);
+      if (tag_expression.size == 0)
+      {
+        scenario(background, NULL);
+      }
+      else 
+      {
+        skip_scenario();
+      }
     }
     else if (match(TOKEN_SCENARIO_OUTLINE))
     {
@@ -604,10 +648,9 @@ static void feature()
 
 obj_function* compile(const char* source, const char* filename)
 {
-
   // TODO get tag expression from argv
-  tag_expression.size = compile_evaluate_tags(
-    "@tag1 or @tag2", 
+  tag_expression.size = compile_tag_expression(
+    "@asdf", 
     tag_expression.rpn_stack);
 
   init_scanner(source, filename);

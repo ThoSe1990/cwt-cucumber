@@ -81,9 +81,10 @@ void cuke_step(const char* name, cuke_step_t func)
 {
   define_step(name, func);
 }
-void cuke_hook(const char* name, cuke_step_t func)
+void cuke_hook(const char* name, cuke_step_t func, const char* tag_expression)
 {
-  define_hook(name, func);
+  // TODO proof of concept
+  define_hook(name, func, tag_expression);
 }
 
 

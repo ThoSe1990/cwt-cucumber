@@ -18,7 +18,7 @@ typedef enum
   TAG_TOKEN_EOL
 } tag_token_type;
 
-int compile_evaluate_tags(const char* tags, cuke_value* result);
+int compile_tag_expression(const char* tags, cuke_value* result);
 bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags);
 
 // TODO : 

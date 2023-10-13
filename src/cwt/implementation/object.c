@@ -36,6 +36,14 @@ obj_native* new_native(cuke_step_t function)
   return native;
 }
 
+obj_hook* new_hook(cuke_step_t function, const char* tag_expression)
+{
+  obj_hook* hook = ALLOCATE_OBJ(obj_hook, OBJ_HOOK);
+  hook->function = function;
+  hook->rpn_size = compile_tag_expression(tag_expression, hook->rpn_tags);
+  return hook;
+}
+
 static obj_string* allocate_string(char* chars, int length, uint32_t hash)
 {
   obj_string* str = ALLOCATE_OBJ(obj_string, OBJ_STRING);
@@ -107,5 +115,6 @@ void print_object(cuke_value value)
     case OBJ_FUNCTION: print_function(AS_FUNCTION(value));
     break; case OBJ_STRING: printf("%s", AS_CSTRING(value));
     break; case OBJ_NATIVE: printf("step");
+    break; case OBJ_HOOK: printf("hook"); 
   }
 }

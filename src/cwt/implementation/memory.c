@@ -36,6 +36,10 @@ void free_object(obj* object)
       FREE_ARRAY(char, str->chars, str->length+1);
       FREE(obj_string, object);
     }
+    break; case OBJ_HOOK:
+    {
+      FREE(obj_hook, object);
+    }
   }
 }
 

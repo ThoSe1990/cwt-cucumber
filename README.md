@@ -20,12 +20,20 @@ Current Status of what comes to my mind: ([x] = done)
   [x] Examples  
   [x] Steps  
   [ ] Rules  
-  [ ] Tags  
+  [ ] Tags   
   [x] Doc Strings  
   [x] hooks: before, after, before scenario, after scenario 
   [x] background
   [ ] background/examples description
   [ ] undefined scenarios (proper error handling)
+
+[ ] compiler copmpile(): quick n dirty tags which "simulate" argv
+[ ] after tag with hook works for now but:
+  [ ] call all hooks (all after, all begin accordingly)
+  [ ] implement hooks for begin
+  [ ] implment step hooks too (no tags needed)
+  [ ] implement tags for scenario outline before example.
+
 
 [x] adjust capacity (tables) for steps crashes with >8 steps
 

@@ -60,7 +60,8 @@ int disassemble_instruction(chunk* c, int offset)
   case OP_CONSTANT:
     return constant_instruction("OP_CONSTANT", c, offset);
   case OP_HOOK:
-    return constant_instruction("OP_HOOK", c, offset);
+    // return constant_instruction("OP_HOOK", c, offset);
+    return byte_instruction("OP_HOOK", c, offset);
   case OP_TAG:
     return constant_instruction("OP_TAG", c, offset);
   case OP_GET_VARIABLE:

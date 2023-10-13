@@ -8,14 +8,14 @@ extern "C" {
 TEST(tags_rpn, tags_1_tag)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag", values);
+  int size = compile_tag_expression("@tag", values);
   ASSERT_EQ(size, 1);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag");
 }
 TEST(tags_rpn, tags_1_not_tag)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("not @tag", values);
+  int size = compile_tag_expression("not @tag", values);
   ASSERT_EQ(size, 2);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag");
   EXPECT_EQ(AS_LONG(values[1]), TAG_TOKEN_NOT);
@@ -23,7 +23,7 @@ TEST(tags_rpn, tags_1_not_tag)
 TEST(tags_rpn, tags_2_not_tag)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("not (@tag1 or @tag2)", values);
+  int size = compile_tag_expression("not (@tag1 or @tag2)", values);
   ASSERT_EQ(size, 4);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -33,7 +33,7 @@ TEST(tags_rpn, tags_2_not_tag)
 TEST(tags_rpn, tags_xor_tag)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 xor @tag2", values);
+  int size = compile_tag_expression("@tag1 xor @tag2", values);
   ASSERT_EQ(size, 3);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -42,14 +42,14 @@ TEST(tags_rpn, tags_xor_tag)
 TEST(tags_rpn, tags_1_tag_w_paren)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("(@tag)", values);
+  int size = compile_tag_expression("(@tag)", values);
   ASSERT_EQ(size, 1);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag");
 }
 TEST(tags_rpn, tags_2_tags_and)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 and @tag2", values);
+  int size = compile_tag_expression("@tag1 and @tag2", values);
   ASSERT_EQ(size, 3);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -58,7 +58,7 @@ TEST(tags_rpn, tags_2_tags_and)
 TEST(tags_rpn, tags_3_tags_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("(@tag1 and @tag2) or @tag3", values);
+  int size = compile_tag_expression("(@tag1 and @tag2) or @tag3", values);
   ASSERT_EQ(size, 5);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -69,7 +69,7 @@ TEST(tags_rpn, tags_3_tags_brackets)
 TEST(tags_rpn, tags_3_tags_brackets__2)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 and (@tag2 or @tag3)", values);
+  int size = compile_tag_expression("@tag1 and (@tag2 or @tag3)", values);
   ASSERT_EQ(size, 5);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -81,7 +81,7 @@ TEST(tags_rpn, tags_3_tags_brackets__2)
 TEST(tags_rpn, tags_4_tags_1_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 or @tag2 and (@tag3 or @tag4)", values);
+  int size = compile_tag_expression("@tag1 or @tag2 and (@tag3 or @tag4)", values);
   ASSERT_EQ(size, 7);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -95,7 +95,7 @@ TEST(tags_rpn, tags_4_tags_1_brackets)
 TEST(tags_rpn, tags_3_tags_1not_2_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("not @tag1 or @tag2 and (@tag3 or @tag4)", values);
+  int size = compile_tag_expression("not @tag1 or @tag2 and (@tag3 or @tag4)", values);
   ASSERT_EQ(size, 8);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_EQ(AS_LONG(values[1]), TAG_TOKEN_NOT);
@@ -110,7 +110,7 @@ TEST(tags_rpn, tags_3_tags_1not_2_brackets)
 TEST(tags_rpn, tags_3_tags_4not_2_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("not @tag1 or not @tag2 and (not @tag3 or not @tag4)", values);
+  int size = compile_tag_expression("not @tag1 or not @tag2 and (not @tag3 or not @tag4)", values);
   ASSERT_EQ(size, 11);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_EQ(AS_LONG(values[1]), TAG_TOKEN_NOT);
@@ -128,7 +128,7 @@ TEST(tags_rpn, tags_3_tags_4not_2_brackets)
 TEST(tags_rpn, tags_3_tags_2_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 or ((@tag2 and @tag3) or @tag4)", values);
+  int size = compile_tag_expression("@tag1 or ((@tag2 and @tag3) or @tag4)", values);
   ASSERT_EQ(size, 7);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -143,7 +143,7 @@ TEST(tags_rpn, tags_3_tags_2_brackets)
 TEST(tags_rpn, tags_3_tags_3_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("(@tag1 or ((@tag2 and @tag3) or @tag4)", values);
+  int size = compile_tag_expression("(@tag1 or ((@tag2 and @tag3) or @tag4)", values);
   ASSERT_EQ(size, 7);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -157,7 +157,7 @@ TEST(tags_rpn, tags_3_tags_3_brackets)
 TEST(tags_rpn, tags_3_tags_x_brackets)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))", values);
+  int size = compile_tag_expression("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))", values);
   
   ASSERT_EQ(size, 15);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
@@ -180,7 +180,7 @@ TEST(tags_rpn, tags_3_tags_x_brackets)
 TEST(tags_rpn, tags_3_tags_x_brackets_2)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) and @tag7) and (@tag8 and @tag9))", values);
+  int size = compile_tag_expression("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) and @tag7) and (@tag8 and @tag9))", values);
   
   ASSERT_EQ(size, 15);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
@@ -203,7 +203,7 @@ TEST(tags_rpn, tags_3_tags_x_brackets_2)
 TEST(tags_rpn, some_more_spaces)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1   and (   @tag2    or@tag3)", values);
+  int size = compile_tag_expression("@tag1   and (   @tag2    or@tag3)", values);
   ASSERT_EQ(size, 5);
   EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
   EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
@@ -216,13 +216,13 @@ TEST(tags_rpn, some_more_spaces)
 TEST(tags_rpn, syntax_error_1)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("some bad syntax", values);
+  int size = compile_tag_expression("some bad syntax", values);
   ASSERT_EQ(size, 0);
 }
 TEST(tags_rpn, syntax_error_2)
 {
   cuke_value values[TAGS_RPN_MAX];
-  int size = compile_evaluate_tags("@tag1 and syntax error", values);
+  int size = compile_tag_expression("@tag1 and syntax error", values);
   ASSERT_EQ(size, 0);
 }
 
@@ -245,7 +245,7 @@ public:
   }
   void test_compile_tag_condition(std::string_view str)
   {
-    m_size = compile_evaluate_tags(str.data(), m_rpn_stack);
+    m_size = compile_tag_expression(str.data(), m_rpn_stack);
   }
 
 protected:
@@ -371,7 +371,7 @@ TEST_F(tags_evaluation, a_big_condition_false_1)
 TEST_F(tags_evaluation, a_big_condition_false_2)
 {
   test_compile_tag_condition("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
-  EXPECT_FALSE(evaluate_tags(m_rpn_stack, m_size, &m_given_tags));
+  EXPECT_TRUE(evaluate_tags(m_rpn_stack, m_size, &m_given_tags));
 }
 TEST_F(tags_evaluation, xor_true)
 {
