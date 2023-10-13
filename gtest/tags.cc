@@ -30,6 +30,15 @@ TEST(tags_rpn, tags_2_not_tag)
   EXPECT_EQ(AS_LONG(values[2]), TAG_TOKEN_OR);
   EXPECT_EQ(AS_LONG(values[3]), TAG_TOKEN_NOT);
 }
+TEST(tags_rpn, tags_xor_tag)
+{
+  cuke_value values[TAGS_RPN_MAX];
+  int size = compile_tag_expression("@tag1 xor @tag2", values);
+  ASSERT_EQ(size, 3);
+  EXPECT_STREQ(AS_CSTRING(values[0]), "@tag1");
+  EXPECT_STREQ(AS_CSTRING(values[1]), "@tag2");
+  EXPECT_EQ(AS_LONG(values[2]), TAG_TOKEN_XOR);
+}
 TEST(tags_rpn, tags_1_tag_w_paren)
 {
   cuke_value values[TAGS_RPN_MAX];
@@ -321,6 +330,35 @@ TEST_F(tags_evaluation, a_big_condition_true_2)
   test_compile_tag_condition("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
   EXPECT_TRUE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
 }
+TEST_F(tags_evaluation, a_big_condition_true_3)
+{
+  add_tags("@tag1");
+  add_tags("@tag2");
+  add_tags("@tag7");
+  add_tags("@tag8");
+  add_tags("@tag9");
+  test_compile_tag_condition("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
+  EXPECT_TRUE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+TEST_F(tags_evaluation, a_big_condition_true_w_xor_4)
+{
+  add_tags("@tag4");
+  add_tags("@tag5");
+  add_tags("@tag8");
+  add_tags("@tag9");
+  test_compile_tag_condition("@tag1 xor (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
+  EXPECT_TRUE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+TEST_F(tags_evaluation, a_big_condition_false_w_xor)
+{
+  add_tags("@tag1");
+  add_tags("@tag4");
+  add_tags("@tag5");
+  add_tags("@tag8");
+  add_tags("@tag9");
+  test_compile_tag_condition("@tag1 xor (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
+  EXPECT_FALSE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
 TEST_F(tags_evaluation, a_big_condition_false_1)
 {
   add_tags("@tag2");
@@ -333,5 +371,30 @@ TEST_F(tags_evaluation, a_big_condition_false_1)
 TEST_F(tags_evaluation, a_big_condition_false_2)
 {
   test_compile_tag_condition("@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 and @tag9))");
+  EXPECT_FALSE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+TEST_F(tags_evaluation, xor_true)
+{
+  add_tags("@tag2");
+  test_compile_tag_condition("@tag1 xor @tag2");
+  EXPECT_TRUE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+TEST_F(tags_evaluation, syntax_error_1)
+{
+  add_tags("@tag2");
+  test_compile_tag_condition("@tag1 helloworld @tag2");
+  EXPECT_FALSE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+TEST_F(tags_evaluation, syntax_error_2)
+{
+  add_tags("@tag2");
+  test_compile_tag_condition("tag1 @tag2");
+  EXPECT_FALSE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
+}
+
+TEST_F(tags_evaluation, syntax_error_3)
+{
+  add_tags("@tag");
+  test_compile_tag_condition("$tag");
   EXPECT_FALSE(tag_expression(m_rpn_stack, m_size, &m_given_tags));
 }

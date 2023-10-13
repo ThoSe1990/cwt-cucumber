@@ -120,6 +120,7 @@ static tag_token_type identifier_type()
   {
     case 'a': return check_keyword(1,2, "nd", TAG_TOKEN_AND);
     case 'o': return check_keyword(1,1, "r", TAG_TOKEN_OR);
+    case 'x': return check_keyword(1,2, "or", TAG_TOKEN_XOR);
     case 'n': return check_keyword(1,2, "ot", TAG_TOKEN_NOT);
     default: 
     {
@@ -262,6 +263,7 @@ cuke_value token_to_cuke_value()
     case TAG_TOKEN_TAG: return OBJ_VAL(copy_string(tag_parser.previous.start, tag_parser.previous.length));
     case TAG_TOKEN_AND: return LONG_VAL(TAG_TOKEN_AND);
     case TAG_TOKEN_OR: return LONG_VAL(TAG_TOKEN_OR);
+    case TAG_TOKEN_XOR: return LONG_VAL(TAG_TOKEN_XOR);
     case TAG_TOKEN_NOT: return LONG_VAL(TAG_TOKEN_NOT);
     case TAG_TOKEN_LEFT_PAREN: return LONG_VAL(TAG_TOKEN_LEFT_PAREN);
     case TAG_TOKEN_RIGHT_PAREN: return LONG_VAL(TAG_TOKEN_RIGHT_PAREN);
@@ -286,14 +288,14 @@ static int last_operator()
   return (int)AS_LONG(*(tag_values.operators_top-1));
 }
 
-static bool last_operator_is_and_or()
+static bool last_operator_is_and_or_xor()
 {
   int last_op = last_operator();
   if (last_op == 0) 
   {
     return false;
   }
-  return last_op == TAG_TOKEN_AND || last_op == TAG_TOKEN_OR;
+  return last_op == TAG_TOKEN_AND || last_op == TAG_TOKEN_OR || last_op == TAG_TOKEN_XOR;
 }
 
 static bool last_operator_is_not()
@@ -308,13 +310,13 @@ static bool last_operator_is_not()
 
 static void left_association()
 {
-  if (last_operator_is_and_or())
+  if (last_operator_is_and_or_xor())
   {
     push_out(pop_operator());
   }
 }
 
-static void and_or()
+static void and_or_xor()
 {
   left_association();
   push_operator(token_to_cuke_value());
@@ -333,9 +335,9 @@ static void close_grouping()
     push_out(operator);
   }
 
-  if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR))
+  if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR) || match(TAG_TOKEN_XOR))
   {
-    and_or();
+    and_or_xor();
   }
   else if (match(TAG_TOKEN_RIGHT_PAREN))
   {
@@ -366,9 +368,9 @@ static void tag()
     push_out(pop_operator());
   }
 
-  if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR))
+  if (match(TAG_TOKEN_AND) || match(TAG_TOKEN_OR) || match(TAG_TOKEN_XOR))
   {
-    and_or();
+    and_or_xor();
   }
   else if (match(TAG_TOKEN_RIGHT_PAREN))
   {
