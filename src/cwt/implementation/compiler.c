@@ -499,6 +499,11 @@ static void parse_all_scenarios(obj_function* background)
     { 
       break;
     }
+    // TODO / notes:
+    // works for skipping the tags if tags were given
+    // but i have to deal with hooks: before("@tag1")/after("@tag1") 
+    // which means i have to emit the tags. tagged hoooks running according
+    // to a scenario and are independent from the cmd line given tag expression
     else if (check(TOKEN_TAG))
     {
       value_array tags;

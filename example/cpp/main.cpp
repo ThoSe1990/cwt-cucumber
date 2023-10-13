@@ -31,10 +31,9 @@ private:
   std::size_t m_side;
 };
 
-
-STEP("hi")
+AFTER()
 {
-  std::cout << "hi " << std::endl;
+  std::cout << "hook after step! " << std::endl;
 }
 
 STEP("A cube with {int} side length")
