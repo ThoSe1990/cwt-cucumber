@@ -415,7 +415,7 @@ static void reset_tag_values()
   tag_values.out_top = tag_values.out;
 }
 
-int tags_to_rpn_stack(const char* tags, cuke_value* result)
+int compile_tag_expression(const char* tags, cuke_value* result)
 {
   init_tag_scanner(tags);
 
@@ -522,7 +522,7 @@ static bool contains(obj_string* value, value_array* tags)
 {
   for (int i = 0 ; i < tags->count ; i++)
   {
-    if (is_same(value, AS_STRING(tags->values[i])));
+    if (is_same(value, AS_STRING(tags->values[i])))
     {
       return true;
     }
@@ -530,8 +530,13 @@ static bool contains(obj_string* value, value_array* tags)
   return false; 
 }
 
-bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
+bool tag_expression(cuke_value* rpn_stack, int rpn_size, value_array* tags)
 {
+  if (tags->count == 0)
+  {
+    return false;
+  }
+
   stack_t stack; 
   init_stack(&stack);
 
@@ -577,9 +582,3 @@ bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
   return pop_from_stack(&stack);
 }
 
-// TODO !
-#include <string.h>
-void test_push (value_array* arr, const char* c)
-{
-  write_value_array(arr, OBJ_VAL(copy_string(c, strlen(c))));
-}

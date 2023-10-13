@@ -24,6 +24,8 @@ void init_value_array(value_array* arr)
   arr->capacity = 0;
   arr->count = 0;
 }
+
+
 void write_value_array(value_array* arr, cuke_value value)
 {
   if (arr->capacity < arr->count+1)
@@ -35,6 +37,13 @@ void write_value_array(value_array* arr, cuke_value value)
   arr->values[arr->count] = value;
   arr->count++;
 }
+
+void write_c_string(value_array* arr, const char* str, int length)
+{
+  write_value_array(arr, OBJ_VAL(copy_string(str, length)));
+}
+
+
 void free_value_array(value_array* arr)
 {
   FREE_ARRAY(cuke_value, arr->values, arr->capacity);

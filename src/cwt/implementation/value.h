@@ -32,6 +32,7 @@ typedef struct {
 bool values_equal(cuke_value a, cuke_value b);
 void init_value_array(value_array* arr);
 void write_value_array(value_array* arr, cuke_value value);
+void write_c_string(value_array* arr, const char* str, int length);
 void free_value_array(value_array* arr);
 void print_value(cuke_value value);
 #endif 
