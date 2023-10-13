@@ -417,7 +417,7 @@ static void reset_tag_values()
   tag_values.out_top = tag_values.out;
 }
 
-int compile_tag_expression(const char* tags, cuke_value* result)
+int compile_evaluate_tags(const char* tags, cuke_value* result)
 {
   init_tag_scanner(tags);
 
@@ -532,7 +532,7 @@ static bool contains(obj_string* value, value_array* tags)
   return false; 
 }
 
-bool tag_expression(cuke_value* rpn_stack, int rpn_size, value_array* tags)
+bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
 {
   if (tags->count == 0)
   {

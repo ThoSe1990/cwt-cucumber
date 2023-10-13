@@ -354,8 +354,9 @@ static token tag()
   {
     if (whitespace() || end_of_line() || is_at_end())
     {
-      advance();
+      break;
     }
+    advance();
   }
   return make_token(TOKEN_TAG);
 }

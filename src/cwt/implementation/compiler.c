@@ -5,32 +5,43 @@
 #include "common.h"
 #include "compiler.h"
 #include "scanner.h"
+#include "tag_scanner.h"
 
 #ifdef DEBUG_PRINT_CODE
   #include "debug.h"
 #endif
 
-typedef struct {
+typedef struct 
+{
   token current;
   token previous; 
   bool had_error;
 } cuke_parser;
 
 
-typedef enum {
+typedef enum 
+{
   TYPE_FUNCTION,
   TYPE_SCRIPT
 } function_type;
 
-typedef struct cuke_compiler {
+typedef struct cuke_compiler 
+{
   struct cuke_compiler* enclosing;
   obj_function* function;
   function_type type;
 } cuke_compiler;
 
-
 cuke_parser parser; 
 cuke_compiler* current = NULL;
+
+typedef struct 
+{
+  cuke_value rpn_stack[TAGS_RPN_MAX];
+  unsigned int size; 
+} tag_expression_t;
+
+tag_expression_t tag_expression;
 
 static chunk* current_chunk()
 {
@@ -253,7 +264,7 @@ static void define_variable(uint8_t global)
 
 static void skip_linebreaks()
 {
-  while (match(TOKEN_LINEBREAK)) {}
+  while (match(TOKEN_LINEBREAK)) { }
 }
 
 static void language()
@@ -294,8 +305,7 @@ static void process_step()
   emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after_step", 10))));
 
   patch_jump(after_step);
-  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));  
-  
+  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
 }
 
 static void scenario_description()
@@ -433,6 +443,7 @@ static void scenario_outline(obj_function* background)
 
   obj_function* func = end_compiler();
 
+  // TODO check tags before examples
   consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
   // TODO name + description is in general possible
   consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
@@ -487,6 +498,39 @@ static void parse_all_scenarios(obj_function* background)
     if (match(TOKEN_EOF)) 
     { 
       break;
+    }
+    else if (check(TOKEN_TAG))
+    {
+      value_array tags;
+      init_value_array(&tags);
+      while (!match(TOKEN_LINEBREAK) && !parser.had_error)
+      {
+        if (match(TOKEN_TAG))
+        {
+          write_c_string(&tags, parser.previous.start, parser.previous.length);
+        }
+        else 
+        {
+          break;
+        }
+      }
+      consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
+      if (evaluate_tags(tag_expression.rpn_stack, tag_expression.size, &tags))
+      {
+        scenario(background);
+      }
+      else 
+      {
+        for(;;)
+        {
+          if (check(TOKEN_TAG) || check(TOKEN_SCENARIO) || check(TOKEN_SCENARIO_OUTLINE) || check(TOKEN_TAG) || check(TOKEN_EOF))
+          {
+            break;
+          }
+          advance();
+        }
+      }
+      free_value_array(&tags);
     }
     else if (match(TOKEN_SCENARIO))
     {
@@ -555,6 +599,12 @@ static void feature()
 
 obj_function* compile(const char* source, const char* filename)
 {
+
+  // TODO get tag expression from argv
+  tag_expression.size = compile_evaluate_tags(
+    "@tag1 or @tag2", 
+    tag_expression.rpn_stack);
+
   init_scanner(source, filename);
   cuke_compiler compiler; 
   init_compiler(&compiler, TYPE_SCRIPT);
