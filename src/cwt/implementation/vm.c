@@ -104,7 +104,7 @@ void define_step(const char* name, cuke_step_t func)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   push(OBJ_VAL(new_native(func)));
-  table_set_step(&g_vm.steps, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
+  table_set_step(&g_vm.steps, AS_STRING(g_vm.stack[0]), g_vm.stack[1], true);
   pop();
   pop();
 }
@@ -113,7 +113,7 @@ void define_hook(const char* name, cuke_step_t func, const char* tag_expression)
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
   // push(OBJ_VAL(new_native(func)));
   push(OBJ_VAL(new_hook(func, tag_expression)));
-  table_set_step(&g_vm.hooks, AS_STRING(g_vm.stack[0]), g_vm.stack[1]);
+  table_set_step(&g_vm.hooks, AS_STRING(g_vm.stack[0]), g_vm.stack[1], false);
   pop();
   pop();
 }
@@ -376,7 +376,6 @@ static interpret_result run()
       break; case OP_JUMP_IF_FAILED:
       {
         uint16_t offset = READ_SHORT();
-        // if (g_vm.step_results.last == FAILED || g_vm.step_results.last == SKIPPED)
         if (g_vm.step_results.last != PASSED)
         {
           g_vm.step_results.last = SKIPPED;
@@ -385,33 +384,11 @@ static interpret_result run()
       }
       break; case OP_HOOK:
       {
-        int arg_count = READ_BYTE();
-        obj_string* hook_str = AS_STRING(peek(arg_count));
-        cuke_value value;   
-
-        // TODO call all after/begin hooks here!
-        if (table_get_hook(&g_vm.hooks, hook_str, &value))
-        {
-          value_array tags;
-          init_value_array(&tags);
-          
-          for (int i = 0 ; i < arg_count ; i++) 
-          {
-            cuke_value* current = g_vm.stack_top - arg_count + i;
-            obj_string* current_tag = AS_STRING(*current);
-            write_c_string(&tags, current_tag->chars, current_tag->length);
-          }
-
-          obj_hook* hook = AS_HOOK(value);
-          if (hook->rpn_size == 0 || 
-            evaluate_tags(hook->rpn_tags, hook->rpn_size, &tags))
-          {
-            hook->function(0, NULL);
-          }
-
-          free_value_array(&tags);
-        }
-        g_vm.stack_top -= arg_count+1;
+        int tag_count = READ_BYTE();
+        obj_string* hook_str = AS_STRING(peek(tag_count));
+        run_all_hooks(&g_vm.hooks, hook_str,  g_vm.stack_top-tag_count, tag_count);
+    
+        g_vm.stack_top -= tag_count+1;
         frame = &g_vm.frames[g_vm.frame_count-1];
       }
       break; case OP_CALL_STEP:
@@ -511,9 +488,9 @@ static interpret_result run()
 #undef READ_STRING
 }
 
-interpret_result interpret(const char* source, const char* filename)
+interpret_result interpret(const char* source, const char* filename, const char* tag_expression)
 {
-  obj_function* func = compile(source, filename);
+  obj_function* func = compile(source, filename, tag_expression);
   if (func == NULL) 
   {
     return INTERPRET_COMPILE_ERROR;

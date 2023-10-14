@@ -186,7 +186,7 @@ bool table_set(table* t, obj_string* key, cuke_value v)
 }
 
 
-bool table_set_step(table* t, obj_string* key, cuke_value v)
+bool table_set_step(table* t, obj_string* key, cuke_value v, bool check_if_exists)
 {
   if (t->count+1 > t->capacity * TABLE_MAX_LOAD)
   {
@@ -194,7 +194,7 @@ bool table_set_step(table* t, obj_string* key, cuke_value v)
     adjust_step_capacity(t, capacity);
   }
 
-  if (find_step(t->entries, t->count, key))
+  if (check_if_exists && find_step(t->entries, t->count, key))
   {
     fprintf(stderr, "Can not add step '%s' because it already exists", key->chars);
     return false;
@@ -232,4 +232,24 @@ bool table_get_hook(table* t, obj_string* key, cuke_value* v)
   
   *v = e->value; 
   return v;
+}
+
+static void execute_hook(obj_hook* hook, cuke_value *tags, int tags_count)
+{
+  if (hook->rpn_size == 0 
+    || evaluate_tags(hook->rpn_tags, hook->rpn_size,tags, tags_count))
+  {
+    hook->function(0, NULL);
+  }
+}
+
+void run_all_hooks(table *t, obj_string* key, cuke_value *tags, int tags_count)
+{
+  for (int i = 0 ; i < t->count ; i++)
+  {
+    if (parse_step(t->entries[i].key->chars, key->chars, NULL))
+    {
+      execute_hook(AS_HOOK(t->entries[i].value), tags, tags_count);
+    }
+  }
 }

@@ -91,6 +91,7 @@ namespace cuke {
   
     void reset_scenario_context(int, cuke_value*)
     {
+      std::cout << "clearing context!" << std::endl;
       get_context().clear();
     }
   } // namespace details

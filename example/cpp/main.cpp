@@ -33,8 +33,32 @@ private:
 
 AFTER("@tag1 or @tag2")
 {
-  std::cout << "hook after step! " << std::endl;
+  std::cout << "hook after  @tag1 or @tag2 " << std::endl;
 }
+AFTER("")
+{
+  std::cout << "hook after for all!!!!! " << std::endl;
+}
+
+BEFORE("@tag1")
+{
+  std::cout << "hook BEFORE  @tag1 " << std::endl;
+}
+BEFORE("")
+{
+  std::cout << "hook BEFORE for all!!!!! " << std::endl;
+}
+
+BEFORE_STEP()
+{
+  std::cout << "hook BEFORE_STEP" << std::endl;
+}
+AFTER_STEP()
+{
+  std::cout << "hook AFTER_STEP" << std::endl;
+}
+
+
 
 STEP("A cube with {int} side length")
 {

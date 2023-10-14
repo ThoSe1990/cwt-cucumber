@@ -39,9 +39,9 @@ typedef struct
 {
   cuke_value rpn_stack[TAGS_RPN_MAX];
   unsigned int size; 
-} tag_expression_t;
+} tag_rpn_stack_t;
 
-tag_expression_t tag_expression;
+tag_rpn_stack_t tag_rpn_stack;
 
 static chunk* current_chunk()
 {
@@ -220,6 +220,23 @@ static void emit_return()
   emit_byte(OP_RETURN);
 }
 
+static void emit_hook(obj_string* name, value_array* tags)
+{
+  emit_constant(OBJ_VAL(name));
+  if (tags && tags->count > 0)
+  {
+    for (int i = 0 ; i < tags->count ; i++)
+    {
+      emit_constant(tags->values[i]);
+    }
+    emit_bytes(OP_HOOK, tags->count);
+  }
+  else
+  {
+    emit_bytes(OP_HOOK, 0);
+  }
+}
+
 static void init_compiler(cuke_compiler* compiler, function_type type)
 {
   compiler->enclosing = current;
@@ -285,7 +302,7 @@ static void process_step()
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
 
-  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before_step", 11))));
+  emit_hook(copy_string("before_step", 11), NULL);
 
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
@@ -299,10 +316,9 @@ static void process_step()
   }
   match(TOKEN_DOC_STRING);
   
-  // TODO push arg count? 
-  // TODO check if these redundant string pushes are necessary... 
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
-  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after_step", 10))));
+  
+  emit_hook(copy_string("after_step", 10), NULL);
 
   patch_jump(after_step);
   emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
@@ -413,10 +429,13 @@ static void examples_body(value_array* vars)
   }
 }
 
+
+
+
 static void create_scenario_call(obj_function* background, obj_function* scenario_func, value_array* tags)
 {
-  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("reset_context", 13))));
-  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("before", 6))));
+  emit_hook(copy_string("reset_context", 13), NULL);
+  emit_hook(copy_string("before", 6), tags);
   if (background)
   {
     emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(background)));
@@ -425,25 +444,13 @@ static void create_scenario_call(obj_function* background, obj_function* scenari
   emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(scenario_func)));
   emit_bytes(OP_CALL, 0);
 
-  emit_constant(OBJ_VAL(copy_string("after", 6)));
-  if (tags)
-  {
-    for (int i = 0 ; i < tags->count ; i++)
-    {
-      emit_constant(tags->values[i]);
-    }
-    emit_bytes(OP_HOOK, tags->count);
-  }
-  else
-  {
-    emit_bytes(OP_HOOK, 0);
-  }
-  // emit_bytes(OP_HOOK, make_constant(OBJ_VAL(copy_string("after", 6))));
+  emit_hook(copy_string("after", 6), tags);
 
   emit_byte(OP_SCENARIO_RESULT);
 } 
 
-static void scenario_outline(obj_function* background)
+
+static void scenario(obj_function* background, value_array* tags)
 {
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
@@ -452,13 +459,36 @@ static void scenario_outline(obj_function* background)
   scenario_description();
   
   match(TOKEN_STEP);
-
   step();
 
   obj_function* func = end_compiler();
+  create_scenario_call(background, func, tags);
+}
+
+static bool no_tags_given() 
+{
+  return tag_rpn_stack.size == 0;
+}
+static void read_tags(value_array* tags)
+{
+  while (!match(TOKEN_LINEBREAK) && !parser.had_error)
+  {
+    if (match(TOKEN_TAG))
+    {
+      write_c_string(tags, parser.previous.start, parser.previous.length);
+    }
+    else 
+    {
+      break;
+    }
+  }
+}
+
+static void parse_examples(obj_function* background, obj_function* steps, value_array* tags)
+{
 
   // TODO check tags before examples
-  consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
+  // consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
   // TODO name + description is in general possible
   consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
 
@@ -477,11 +507,11 @@ static void scenario_outline(obj_function* background)
   }
 
   // now read the body, we need the given ordering from the variables:
-  while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF))
+  while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF) && !check(TOKEN_EXAMPLES) && !check(TOKEN_TAG))
   {
     examples_body(&vars); 
     // TODO read tags in example and pass them to create_scenario_call
-    create_scenario_call(background, func, NULL);
+    create_scenario_call(background, steps, tags);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -489,45 +519,14 @@ static void scenario_outline(obj_function* background)
   free_value_array(&vars);
 }
 
-
-static void scenario(obj_function* background, value_array* tags)
-{
-  cuke_compiler compiler;
-  init_compiler(&compiler, TYPE_FUNCTION);
-
-  name();
-  scenario_description();
-  
-  match(TOKEN_STEP);
-  step();
-
-  obj_function* func = end_compiler();
-  create_scenario_call(background, func, tags);
-}
-
-static void read_tags(value_array* tags)
-{
-  while (!match(TOKEN_LINEBREAK) && !parser.had_error)
-  {
-    if (match(TOKEN_TAG))
-    {
-      write_c_string(tags, parser.previous.start, parser.previous.length);
-    }
-    else 
-    {
-      break;
-    }
-  }
-}
-
-static void skip_scenario()
+static void skip_examples()
 {
   for(;;)
   {
     if (check(TOKEN_TAG) 
+      || check(TOKEN_EXAMPLES) 
       || check(TOKEN_SCENARIO) 
       || check(TOKEN_SCENARIO_OUTLINE) 
-      || check(TOKEN_TAG) 
       || check(TOKEN_EOF))
     {
       break;
@@ -536,17 +535,100 @@ static void skip_scenario()
   }
 }
 
-static void tags(obj_function* background)
+static void tagged_examples(obj_function* background, obj_function* steps)
 {
   value_array tags;
-  init_value_array(&tags);
+  init_value_array(&tags); 
+  read_tags(&tags);
+  if (no_tags_given() 
+    || evaluate_tags(tag_rpn_stack.rpn_stack, tag_rpn_stack.size, tags.values, tags.count))
+  {
+    if (match(TOKEN_EXAMPLES))
+    {
+      parse_examples(background, steps, &tags);
+    }
+    else if (match(TOKEN_SCENARIO))
+    {
+      scenario(background, &tags);
+    }
+    else 
+    {
+      error_at_current("Expect ScenarioLine or Examples (in ScenarioOutline) after tags.");
+    }
+  }
+  else 
+  {
+    skip_examples();
+  }
+  free_value_array(&tags);
+}
 
+static void start_examples(obj_function* background, obj_function* steps)
+{
+  if (check(TOKEN_TAG))
+  {
+    tagged_examples(background, steps);
+    start_examples(background, steps);
+  }
+  else if(match(TOKEN_EXAMPLES))
+  {
+    if (no_tags_given())
+    {
+      parse_examples(background, steps, NULL);
+    }
+    else 
+    {
+      skip_examples();
+    }
+    start_examples(background, steps);
+  }
+}
+
+static void scenario_outline(obj_function* background)
+{
+  cuke_compiler compiler;
+  init_compiler(&compiler, TYPE_FUNCTION);
+
+  name();
+  scenario_description();
+  
+  match(TOKEN_STEP);
+
+  step();
+
+  obj_function* steps = end_compiler();
+
+  start_examples(background, steps);
+}
+
+
+
+static void skip_scenario()
+{
+  for(;;)
+  {
+    if (check(TOKEN_TAG) 
+      || check(TOKEN_SCENARIO) 
+      || check(TOKEN_SCENARIO_OUTLINE) 
+      || check(TOKEN_EOF))
+    {
+      break;
+    }
+    advance();
+  }
+}
+
+
+static void tagged_scenario(obj_function* background)
+{
+  value_array tags;
+  init_value_array(&tags); 
   read_tags(&tags);
 
   consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
   
-  if (tag_expression.size == 0 
-    || evaluate_tags(tag_expression.rpn_stack, tag_expression.size, &tags))
+  if (no_tags_given() 
+    || evaluate_tags(tag_rpn_stack.rpn_stack, tag_rpn_stack.size, tags.values, tags.count))
   {
     scenario(background, &tags);
   }
@@ -565,18 +647,13 @@ static void parse_all_scenarios(obj_function* background)
     { 
       break;
     }
-    // TODO / notes:
-    // works for skipping the tags if tags were given
-    // but i have to deal with hooks: before("@tag1")/after("@tag1") 
-    // which means i have to emit the tags. tagged hoooks running according
-    // to a scenario and are independent from the cmd line given tag expression
     else if (check(TOKEN_TAG))
     {
-      tags(background);
+      tagged_scenario(background);
     }
     else if (match(TOKEN_SCENARIO))
     {
-      if (tag_expression.size == 0)
+      if (no_tags_given())
       {
         scenario(background, NULL);
       }
@@ -633,7 +710,6 @@ static void feature()
 
   feature_description();
 
-
   parse_all_scenarios(get_background());
   
   obj_function* func = end_compiler();
@@ -646,12 +722,12 @@ static void feature()
 
 
 
-obj_function* compile(const char* source, const char* filename)
+obj_function* compile(const char* source, const char* filename, const char* tag_expression)
 {
   // TODO get tag expression from argv
-  tag_expression.size = compile_tag_expression(
-    "@asdf", 
-    tag_expression.rpn_stack);
+  tag_rpn_stack.size = compile_tag_expression(
+    tag_expression, 
+    tag_rpn_stack.rpn_stack);
 
   init_scanner(source, filename);
   cuke_compiler compiler; 

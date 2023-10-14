@@ -521,11 +521,11 @@ static bool is_same(obj_string* s1, obj_string* s2)
   return memcmp(s1->chars, s2->chars, s1->length) == 0;
 }
 
-static bool contains(obj_string* value, value_array* tags)
+static bool contains(obj_string* value, cuke_value* tags, int tags_count)
 {
-  for (int i = 0 ; i < tags->count ; i++)
+  for (int i = 0 ; i < tags_count ; i++)
   {
-    if (is_same(value, AS_STRING(tags->values[i])))
+    if (is_same(value, AS_STRING(tags[i])))
     {
       return true;
     }
@@ -533,7 +533,7 @@ static bool contains(obj_string* value, value_array* tags)
   return false; 
 }
 
-bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
+bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, cuke_value* tags, int tags_count)
 {
   stack_t stack; 
   init_stack(&stack);
@@ -542,7 +542,7 @@ bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags)
   {
     if (IS_STRING(rpn_stack[i])) 
     {
-      push_to_stack(&stack, contains(AS_STRING(rpn_stack[i]), tags));
+      push_to_stack(&stack, contains(AS_STRING(rpn_stack[i]), tags, tags_count));
     }
     else if (IS_INT(rpn_stack[i]))
     {

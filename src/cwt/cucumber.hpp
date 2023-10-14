@@ -51,10 +51,12 @@ namespace cuke::details
     } \
     void name(int arg_count, cuke_value* args)
 
-#define BEFORE() INTERNAL_HOOK("before", __cuke_hook_before)
-#define AFTER(tag_expression) INTERNAL_HOOK("after", __cuke_hook_after,tag_expression)
-#define BEFORE_STEP() INTERNAL_HOOK("before_step", __cuke_hook_before_step)
-#define AFTER_STEP() INTERNAL_HOOK("after_step", __cuke_hook_after_step)
+// #define BEFORE() INTERNAL_HOOK("before", __cuke_hook_before)
+// TODO is __LINE__ so good here? 
+#define BEFORE(tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),tag_expression)
+#define AFTER(tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),tag_expression)
+#define BEFORE_STEP() INTERNAL_HOOK("before_step", CONCAT(__cuke_hook_before_step,__LINE__),"")
+#define AFTER_STEP() INTERNAL_HOOK("after_step", CONCAT(__cuke_hook_after_step,__LINE__),"")
 
 
 namespace cuke::details

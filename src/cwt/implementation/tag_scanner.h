@@ -19,7 +19,7 @@ typedef enum
 } tag_token_type;
 
 int compile_tag_expression(const char* tags, cuke_value* result);
-bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, value_array* tags);
+bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, cuke_value* tags, int tags_count);
 
 // TODO : 
 void test_push (value_array* arr, const char* c);
