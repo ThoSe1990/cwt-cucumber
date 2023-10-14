@@ -460,7 +460,7 @@ typedef struct
 {
   unsigned int size;
   node_t* top;  
-} stack_t;
+} rpn_stack_t;
 
 
 static node_t* new_node(bool data) 
@@ -471,18 +471,18 @@ static node_t* new_node(bool data)
     return node;
 }
 
-static void init_stack(stack_t* stack) 
+static void init_stack(rpn_stack_t* stack) 
 {
     stack->size = 0;
     stack->top = NULL;
 }
 
-static bool is_empty(stack_t* stack) 
+static bool is_empty(rpn_stack_t* stack) 
 {
     return stack->top == NULL;
 }
 
-static void push_to_stack(stack_t* stack, bool data) 
+static void push_to_stack(rpn_stack_t* stack, bool data) 
 {
     node_t* node = new_node(data);
     node->next = stack->top;
@@ -490,7 +490,7 @@ static void push_to_stack(stack_t* stack, bool data)
     stack->size++;
 }
 
-static bool pop_from_stack(stack_t* stack) 
+static bool pop_from_stack(rpn_stack_t* stack) 
 {
     if (is_empty(stack)) {
         return false;
@@ -504,7 +504,7 @@ static bool pop_from_stack(stack_t* stack)
     return data;
 }
 
-static void clear_stack(stack_t* stack)
+static void clear_stack(rpn_stack_t* stack)
 {
     while (!is_empty(stack))
     {
@@ -535,7 +535,7 @@ static bool contains(obj_string* value, cuke_value* tags, int tags_count)
 
 bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, cuke_value* tags, int tags_count)
 {
-  stack_t stack; 
+  rpn_stack_t stack; 
   init_stack(&stack);
 
   for (unsigned int i = 0 ; i < rpn_size ; i++)

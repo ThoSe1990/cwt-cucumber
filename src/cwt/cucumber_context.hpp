@@ -51,7 +51,7 @@ namespace cuke {
 } // namespace details 
 
   template <typename T>
-  constexpr std::type_index get_type_id() 
+  std::type_index get_type_id() 
   {
       return std::type_index(typeid(T));
   }
