@@ -111,7 +111,6 @@ void define_step(const char* name, cuke_step_t func)
 void define_hook(const char* name, cuke_step_t func, const char* tag_expression)
 {
   push(OBJ_VAL(copy_string(name, (int)strlen(name))));
-  // push(OBJ_VAL(new_native(func)));
   push(OBJ_VAL(new_hook(func, tag_expression)));
   table_set_step(&g_vm.hooks, AS_STRING(g_vm.stack[0]), g_vm.stack[1], false);
   pop();
@@ -262,26 +261,6 @@ static bool call_value(cuke_value callee, int arg_count)
       {
         cuke_step_t native = AS_NATIVE(callee);
         native(arg_count, g_vm.stack_top - arg_count);
-        g_vm.stack_top -= arg_count+1;
-        return true;
-      }
-      case OBJ_STRING:
-      {
-        cuke_value value;   
-        if (table_get_hook(&g_vm.hooks, AS_STRING(callee), &value))
-        {
-          // cuke_step_t native = AS_NATIVE(value);
-          // native(0, NULL);
-          obj_hook* hook = AS_HOOK(value);
-          hook->function(0, NULL);
-          printf("RPN SIZE: %d\n", hook->rpn_size);
-        }
-
-
-        // obj_hook* hook = AS_HOOK(callee);
-        // TODO evaluate_tags expects value_array... 
-        // evaluate_tags(hook->rpn_tags, hook->rpn_size, )
-        // hook->function(arg_count, g_vm.stack_top - arg_count);
         g_vm.stack_top -= arg_count+1;
         return true;
       }

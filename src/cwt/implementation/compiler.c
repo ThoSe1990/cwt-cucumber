@@ -486,9 +486,6 @@ static void read_tags(value_array* tags)
 
 static void parse_examples(obj_function* background, obj_function* steps, value_array* tags)
 {
-
-  // TODO check tags before examples
-  // consume(TOKEN_EXAMPLES, "Expect Examples after ScenarioOutline");
   // TODO name + description is in general possible
   consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
 
