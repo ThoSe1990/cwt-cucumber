@@ -3,7 +3,7 @@
 extern "C" {
   #include "value.h"
   #include "step_matcher.h"
-  #include "cucumber.h"
+  #include "cwt/cucumber.h"
 }
 
 

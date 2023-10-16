@@ -17,6 +17,15 @@ typedef enum {
   PH_INVALID
 } placeholder_type;
 
+static void error(const char* step, const char* msg)
+{
+  fprintf(stderr, "\x1b[31m");
+  fprintf(stderr, "In '%s': %s", step, msg);
+  fprintf(stderr,"%s\n", msg);
+  fprintf(stderr,"\x1b[0m");
+}
+
+
 static placeholder_type get_placehoder(const char* begin, int length)
 {
   switch (*begin)
@@ -222,7 +231,7 @@ static bool read_variable(value_array* args)
   {
     if (*g_feature.current == '\0') 
     {
-      fprintf(stderr, "Expect '>' to end a variable.\n");
+      error(g_feature.start, "Expect '>' to end a variable.\n");
       return false;
     }
     g_feature.current++;
@@ -268,7 +277,7 @@ static bool read_string(value_array* args)
   }
   if (*g_feature.current != '"') 
   {
-    fprintf(stderr, "Expect '\"' for string value.\n");
+    error(g_feature.start, "Expect '\"' for string value.\n");
     return false;
   }
   g_feature.current++;
@@ -278,7 +287,7 @@ static bool read_string(value_array* args)
   {
     if (*g_feature.current == '\0') 
     {
-      fprintf(stderr, "Expect '\"' to end a string.\n");
+      error(g_feature.start, "Expect '\"' to end a string.\n");
       return false;
     }
     g_feature.current++;
@@ -309,7 +318,7 @@ static bool read_integer(value_array* args)
 
   if (!is_space_or_break(*g_feature.current))
   {
-    fprintf(stderr, "Expect only digits in an integer value.\n");
+    error(g_feature.start, "Expect only digits in an integer value.\n");
     return false;
   }
   
@@ -340,7 +349,7 @@ static bool read_double(value_array* args)
 
   if (!is_space_break_or_end(*g_feature.current))
   {
-    fprintf(stderr, "Expect only digits or '.' in an double value.");
+    error(g_feature.start, "Expect only digits or '.' in an double value.");
     return false;
   }
   
@@ -379,6 +388,7 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
         break; case PH_LONG: if (read_integer(args) == false) return false;
         break; case PH_DOUBLE: if (read_double(args) == false) return false;
         break; case PH_FLOAT: if (read_double(args) == false) return false;
+        break; default: error(g_feature.start, "Invalid placeholder"); return false;
       }
     }
     

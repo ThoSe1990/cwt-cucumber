@@ -314,7 +314,11 @@ static void process_step()
       emit_bytes(OP_GET_VARIABLE, make_constant(variable_name()));
     }
   }
-  match(TOKEN_DOC_STRING);
+  if (match(TOKEN_DOC_STRING))
+  {
+    emit_doc_string();
+  }
+
   
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
   
@@ -414,6 +418,7 @@ static void emit_table_value()
       emit_string(); 
       consume(TOKEN_STRING, "Expect string value.");
     }
+    break; default: error_at_current("Expect a number or string value in table.\n");
   }
 }
 

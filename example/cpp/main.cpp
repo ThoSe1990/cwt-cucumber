@@ -80,6 +80,5 @@ STEP("The cube volume is {int}")
 int main(int argc, const char* argv[])
 {
   cuke::tests c; 
-  c.run(argc, argv);
-  return 0;
+  return c.run(argc, argv);
 }

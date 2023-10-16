@@ -10,6 +10,7 @@
 #include "vm.h"
 #include "compiler.h"
 #include "step_matcher.h"
+#include "../cucumber.h"
 
 vm g_vm;
 
@@ -65,6 +66,7 @@ static void print_black(const char* format, ...)
   va_end(args);
 }
 
+// TODO no need for recursively printing the call stack!
 static void runtime_error(const char* format, ...)
 {
   va_list args;
@@ -149,6 +151,19 @@ cuke_value pop()
 {
   g_vm.stack_top--;
   return *g_vm.stack_top;
+}
+
+static int get_test_result()
+{
+  if (g_vm.scenario_results.failed > 0 
+    || g_vm.scenario_results.undefined > 0)
+  {
+    return CUKE_FAILED;
+  }
+  else 
+  {
+    return CUKE_SUCCESS;
+  }
 }
 
 static void print_results(const char* type, results* result)
@@ -399,8 +414,8 @@ static interpret_result run()
         } 
         else 
         {
-          // TODO print proper message
           g_vm.step_results.last = UNDEFINED;
+          g_vm.scenario_results.last = FAILED;
         }
       }
       break; case OP_CALL:
@@ -450,7 +465,7 @@ static interpret_result run()
         if (g_vm.frame_count == 0) 
         {
           pop();  
-          return INTERPRET_OK;
+          return get_test_result();
         }
         else 
         {

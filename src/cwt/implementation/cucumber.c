@@ -45,14 +45,13 @@ static char* read_file(const char* path)
   return buffer;
 }
 
-static void run_file(const char* path) 
+int run_cuke(const char* source, const char* path) 
 {
-  char* source = read_file(path);
   interpret_result result = interpret(source, path, "");
-  free(source);
   
-  if (result == INTERPRET_COMPILE_ERROR) { exit(65); }
-  if (result == INTERPRET_RUNTIME_ERROR) { exit(70); } 
+  if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }
+  if (result == INTERPRET_RUNTIME_ERROR) { return CUKE_FAILED; } 
+  return CUKE_SUCCESS;
 }
 
 
@@ -60,16 +59,20 @@ void open_cucumber()
 {
   init_vm();
 }
-void run_cucumber(int argc, const char* argv[])
+
+int run_cuke_from_argv(int argc, const char* argv[])
 {
   if (argc == 2)
   {
-    run_file(argv[1]);
+    char* source = read_file(argv[1]);
+    int result = run_cuke(source, argv[1]);
+    free(source);
+    return result;
   }
   else 
   {
     fprintf(stderr, "Invalid argc/argv\n");
-    exit(64);
+    return CUKE_FAILED;
   }
 }
 void close_cucumber()

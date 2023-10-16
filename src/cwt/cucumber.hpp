@@ -201,9 +201,9 @@ namespace cuke
         close_cucumber();
       }
 
-      void run(int argc, const char* argv[])
+      int run(int argc, const char* argv[])
       {
-        run_cucumber(argc, argv);
+        return run_cuke_from_argv(argc, argv);
       }
   };
 } // namespace cuke
