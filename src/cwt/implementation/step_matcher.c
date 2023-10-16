@@ -5,6 +5,14 @@
 #include "step_matcher.h"
 #include "value.h"
 #include "object.h"
+#include "vm.h"
+
+typedef enum 
+{
+  INTEGER_TYPE,
+  DOUBLE_TYPE,
+  STRING_TYPE
+} variable_type;
 
 typedef enum {
   PH_STRING,
@@ -222,7 +230,7 @@ static bool is_at_end(char c)
   return c == '\0';
 }
 
-static bool read_variable(value_array* args, cuke_value value_type)
+static bool read_variable(value_array* args, variable_type type)
 {
   g_feature.current++;
   g_feature.start = g_feature.current;
@@ -237,11 +245,51 @@ static bool read_variable(value_array* args, cuke_value value_type)
     g_feature.current++;
   }
 
+  // TODO refactor: 
   if (args)
   {
-    // write_value_array(args, NIL_V/AL);
-    write_value_array(args, value_type);
+    cuke_value value = pop();
+    switch (type)
+    {
+      case STRING_TYPE:
+      {
+        if (IS_STRING(value))
+        {
+          write_value_array(args, value);
+        }
+        else 
+        {
+          // TODO error
+          return false;
+        }
+      }
+      break; case DOUBLE_TYPE:
+      {
+        if (IS_DOUBLE(value))
+        {
+          write_value_array(args, value);
+        }
+        else 
+        {
+          // TODO error
+          return false;
+        }
+      }
+      break; case INTEGER_TYPE:
+      {
+        if (IS_INT(value))
+        {
+          write_value_array(args, value);
+        }
+        else 
+        {
+          // TODO error
+          return false;
+        }
+      }
+    }
   }
+
   g_feature.current++;
   return true;
 }
@@ -274,7 +322,7 @@ static bool read_string(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args, LONG_VAL(STRING_TYPE));
+    return read_variable(args, STRING_TYPE);
   }
   if (*g_feature.current != '"') 
   {
@@ -308,7 +356,7 @@ static bool read_integer(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args, LONG_VAL(INTEGER_TYPE));
+    return read_variable(args, INTEGER_TYPE);
   }
 
   bool negative = is_negative();
@@ -335,7 +383,7 @@ static bool read_double(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args, LONG_VAL(DOUBLE_TYPE));
+    return read_variable(args, DOUBLE_TYPE);
   }
 
   bool negative = is_negative();

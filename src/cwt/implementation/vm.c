@@ -418,11 +418,10 @@ static interpret_result run()
         {
           value_array args;
           init_value_array(&args); 
-
-          parse_step(step_definition.chars, step_in_feature->chars, &args);
-          
-          if (values_match(&args))
-          {
+          // TODO refactor: redundant calls here.. parse step is called
+          // in table_get_step
+          if (parse_step(step_definition.chars, step_in_feature->chars, &args))
+                    {
             cuke_step_t native = AS_NATIVE(value);
             native(args.count, args.values);
           }

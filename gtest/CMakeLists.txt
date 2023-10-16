@@ -6,6 +6,7 @@ add_executable(${target}
 ${CMAKE_CURRENT_SOURCE_DIR}/compile_errors.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/runtime_errors.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/runtime_tags.cc
+${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/step_args.cc
 ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
