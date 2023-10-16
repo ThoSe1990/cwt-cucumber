@@ -10,6 +10,8 @@ This is my personal fun and educational project. I have read Crafting Interprete
 
 Current Status of what comes to my mind: ([x] = done)
   
+scenario / scenarou outline step with beginning variable does not work! alwaays undefined..
+
 [ ] Cucumber Language Feauters   
   [ ] langauge tag  
   [ ] Other languages  

@@ -8,8 +8,8 @@ protected:
   void SetUp() override
   {
     open_cucumber();
-    cuke_step("a test step with a {string}", test_step_1);
-    cuke_step("any {int} value", test_step_2);
+    cuke_step("a test step with a {string}", test_step);
+    cuke_step("any {int} value", test_step);
   }
 
   void TearDown() override 
@@ -17,14 +17,10 @@ protected:
     close_cucumber();
   }
   
-  static void test_step_1(int arg_count, cuke_value* args)
+  static void test_step(int arg_count, cuke_value* args)
   {
 
-  }  
-  static void test_step_2(int arg_count, cuke_value* args)
-  {
-
-  }
+  } 
 };
 
 TEST_F(runtime_error, unknown_step)
@@ -37,7 +33,7 @@ const char* script = R"*(
       But this is an unknown step
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 
@@ -54,7 +50,7 @@ const char* script = R"*(
       | 1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 
@@ -71,7 +67,7 @@ const char* script = R"*(
       1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 
@@ -90,7 +86,7 @@ const char* script = R"*(
       | 1 | 
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 TEST_F(runtime_error, invalid_tag_2)
@@ -109,7 +105,7 @@ const char* script = R"*(
     
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 
@@ -128,7 +124,7 @@ const char* script = R"*(
       | 123   |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
 
 TEST_F(runtime_error, examples_after_scenario)
@@ -145,5 +141,5 @@ const char* script = R"*(
       | 2 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }

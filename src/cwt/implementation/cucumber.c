@@ -45,9 +45,9 @@ static char* read_file(const char* path)
   return buffer;
 }
 
-int run_cuke(const char* source, const char* path) 
+int run_cuke(const char* source, const char* path, const char* tag_expression) 
 {
-  interpret_result result = interpret(source, path, "");
+  interpret_result result = interpret(source, path, tag_expression);
   
   if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }
   if (result == INTERPRET_RUNTIME_ERROR) { return CUKE_FAILED; } 
@@ -65,7 +65,7 @@ int run_cuke_from_argv(int argc, const char* argv[])
   if (argc == 2)
   {
     char* source = read_file(argv[1]);
-    int result = run_cuke(source, argv[1]);
+    int result = run_cuke(source, argv[1], "");
     free(source);
     return result;
   }

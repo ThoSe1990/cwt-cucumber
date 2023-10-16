@@ -51,7 +51,7 @@ namespace cuke {
 } // namespace details 
 
   template <typename T>
-  std::type_index get_type_id() 
+  inline std::type_index get_type_id() 
   {
       return std::type_index(typeid(T));
   }
@@ -79,13 +79,13 @@ namespace cuke {
 
   namespace details
   {
-    scenario_context& get_context()
+    inline scenario_context& get_context()
     {
       static scenario_context sc; 
       return sc;
     }
   
-    void reset_scenario_context(int, cuke_value*)
+    inline void reset_scenario_context(int, cuke_value*)
     {
       std::cout << "clearing context!" << std::endl;
       get_context().clear();
@@ -93,13 +93,13 @@ namespace cuke {
   } // namespace details
   
   template<typename T>
-  T& context()
+  inline T& context()
   {
     return details::get_context().get<T>();
   }
 
   template<typename T>
-  void assert_equal(T t1, T t2)
+  inline void assert_equal(T t1, T t2)
   {
     cuke_assert(t1 == t2);
   }
