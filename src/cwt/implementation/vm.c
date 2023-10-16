@@ -156,7 +156,8 @@ cuke_value pop()
 static int get_test_result()
 {
   if (g_vm.scenario_results.failed > 0 
-    || g_vm.scenario_results.undefined > 0)
+    || g_vm.scenario_results.undefined > 0
+    || g_vm.scenario_results.skipped > 0)
   {
     return CUKE_FAILED;
   }
@@ -259,6 +260,28 @@ static bool call(obj_function* func, int arg_count)
   frame->ip = func->chunk.code;
   frame->slots = g_vm.stack_top - arg_count - 1;
   return true;
+}
+
+static bool values_match(value_array* args)
+{
+  bool result = true;
+  for(int i = args->count-1 ; i >= 0 ; i--)
+  {
+    cuke_value value = pop();
+    if (!IS_INT(args->values[i]))
+    {
+      result = false;
+    }
+    else if (value.type != args->values[i].type)
+    {
+      result = false;
+    }
+    else 
+    {
+      args->values[i] = value;
+    }
+  }
+  return result;
 }
 
 static bool call_value(cuke_value callee, int arg_count)
@@ -398,18 +421,16 @@ static interpret_result run()
 
           parse_step(step_definition.chars, step_in_feature->chars, &args);
           
-          // TODO check arg count properly? 
-          for(int i = args.count-1 ; i >= 0 ; i--)
+          if (values_match(&args))
           {
-            if (IS_NIL(args.values[i]))
-            {
-              args.values[i] = pop();
-            }
+            cuke_step_t native = AS_NATIVE(value);
+            native(args.count, args.values);
           }
-          
-          cuke_step_t native = AS_NATIVE(value);
-          native(args.count, args.values);
-
+          else 
+          {
+            g_vm.step_results.last = UNDEFINED;
+            g_vm.scenario_results.last = FAILED;            
+          }
           free_value_array(&args);
         } 
         else 

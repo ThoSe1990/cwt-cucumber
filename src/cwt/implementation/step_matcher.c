@@ -222,7 +222,7 @@ static bool is_at_end(char c)
   return c == '\0';
 }
 
-static bool read_variable(value_array* args)
+static bool read_variable(value_array* args, cuke_value value_type)
 {
   g_feature.current++;
   g_feature.start = g_feature.current;
@@ -239,7 +239,8 @@ static bool read_variable(value_array* args)
 
   if (args)
   {
-    write_value_array(args, NIL_VAL);
+    // write_value_array(args, NIL_V/AL);
+    write_value_array(args, value_type);
   }
   g_feature.current++;
   return true;
@@ -273,7 +274,7 @@ static bool read_string(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args);
+    return read_variable(args, LONG_VAL(STRING_TYPE));
   }
   if (*g_feature.current != '"') 
   {
@@ -307,7 +308,7 @@ static bool read_integer(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args);
+    return read_variable(args, LONG_VAL(INTEGER_TYPE));
   }
 
   bool negative = is_negative();
@@ -334,7 +335,7 @@ static bool read_double(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args);
+    return read_variable(args, LONG_VAL(DOUBLE_TYPE));
   }
 
   bool negative = is_negative();

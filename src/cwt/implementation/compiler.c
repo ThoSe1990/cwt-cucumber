@@ -424,7 +424,7 @@ static void emit_table_value()
 
 static void examples_body(value_array* vars)
 {
-  consume(TOKEN_VERTICAL, "Expect '|' after examples begin.");
+  consume(TOKEN_VERTICAL, "Invalid table when parsing its values.");
   for (int i = 0; i < vars->count ; i++)
   { 
     emit_table_value();
