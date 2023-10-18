@@ -241,7 +241,7 @@ static void emit_location(int line)
 {
   char buffer[512];
   sprintf(buffer, "%s:%d", filename(), line);
-  emit_bytes(OP_PRINT_LOCATION, make_constant(
+  emit_bytes(OP_PRINT_BLACK, make_constant(
       OBJ_VAL(copy_string(
         buffer, strlen(buffer)
       ))));
@@ -384,7 +384,7 @@ static void feature_description()
   // TODO print description to report or so
 }
 
-static void name() 
+static void name(bool print_name) 
 {
   const char* begin = parser.previous.start;
   const int line = parser.previous.line;
@@ -394,9 +394,12 @@ static void name()
     if (check(TOKEN_EOF)) break;
   }
   const char* end = parser.previous.start + parser.previous.length;
-  emit_print_line(copy_string(begin , end-begin));
-  emit_location(parser.previous.line);
-  emit_byte(OP_PRINT_LINEBREAK);
+  if (print_name)
+  {
+    emit_print_line(copy_string(begin , end-begin));
+    emit_location(parser.previous.line);
+    emit_byte(OP_PRINT_LINEBREAK);
+  }
 }
 
 
@@ -428,6 +431,7 @@ static void examples_header(value_array* vars)
 
 static void emit_table_value()
 {
+  match(TOKEN_MINUS);
   switch(current_token())
   {
     case TOKEN_LONG:
@@ -449,6 +453,16 @@ static void emit_table_value()
   }
 }
 
+static void print_variables(const char* prefix_str, value_array* vars)
+{
+  emit_print_line(copy_string(prefix_str, strlen(prefix_str)));
+  for (int i = 0; i < vars->count ; i++)
+  { 
+    emit_bytes(OP_PRINT_VARIABLE, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
+  }  
+  emit_byte(OP_PRINT_LINEBREAK);
+}
+
 static void examples_body(value_array* vars)
 {
   consume(TOKEN_VERTICAL, "Invalid table when parsing its values.");
@@ -456,7 +470,6 @@ static void examples_body(value_array* vars)
   { 
     emit_table_value();
     emit_bytes(OP_SET_VARIABLE, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
-    
     consume(TOKEN_VERTICAL, "Expect '|' after value.");
   }
 }
@@ -487,7 +500,7 @@ static void scenario(obj_function* background, value_array* tags)
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  name();
+  name(true);
   scenario_description();
   
   match(TOKEN_STEP);
@@ -519,7 +532,7 @@ static void read_tags(value_array* tags)
 static void parse_examples(obj_function* background, obj_function* steps, value_array* tags)
 {
   // read examples name and description
-  name();
+  name(false);
   examples_description();
 
   // temporary storage for all vars
@@ -542,6 +555,7 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
   {
     examples_body(&vars); 
     create_scenario_call(background, steps, tags);
+    print_variables("          with: ", &vars);
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -619,7 +633,7 @@ static void scenario_outline(obj_function* background)
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  name();
+  name(true);
   scenario_description();
   
   match(TOKEN_STEP);
@@ -711,7 +725,7 @@ static obj_function* get_background()
     cuke_compiler compiler;
     init_compiler(&compiler, TYPE_FUNCTION);
 
-    name();
+    name(false);
 
     // TODO :
     // description
@@ -734,7 +748,7 @@ static void feature()
   cuke_compiler compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  name();
+  name(true);
   emit_byte(OP_PRINT_LINEBREAK);
   advance();
 

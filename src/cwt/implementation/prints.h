@@ -6,7 +6,8 @@ void print_yellow(const char* format, ...);
 void print_blue(const char* format, ...);
 void print_green(const char* format, ...);
 void print_black(const char* format, ...);
-
+void start_black();
+void end_black();
 
 
 #endif

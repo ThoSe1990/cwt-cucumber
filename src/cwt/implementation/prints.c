@@ -5,6 +5,15 @@
 #include "common.h"
 #include "prints.h"
 
+void start_black()
+{
+  printf("\x1b[30m");
+}
+void end_black()
+{
+  printf("\x1b[0m");
+}
+
 void print_red(const char* format, ...)
 {
   va_list args;

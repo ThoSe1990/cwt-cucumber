@@ -66,6 +66,8 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_TAG", c, offset);
   case OP_GET_VARIABLE:
     return constant_instruction("OP_GET_VARIABLE", c, offset);
+  case OP_PRINT_VARIABLE:
+    return constant_instruction("OP_PRINT_VARIABLE", c, offset);
   case OP_SET_VARIABLE:
     return constant_instruction("OP_SET_VARIABLE", c, offset);
   case OP_DEFINE_VARIABLE:
@@ -82,8 +84,8 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_NIL", offset);
   case OP_STEP_RESULT:
     return constant_instruction("OP_STEP_RESULT", c, offset);
-  case OP_PRINT_LOCATION:
-    return constant_instruction("OP_PRINT_LOCATION", c, offset);
+  case OP_PRINT_BLACK:
+    return constant_instruction("OP_PRINT_BLACK", c, offset);
   case OP_CALL:
     return byte_instruction("OP_CALL", c, offset);
   case OP_CALL_STEP:

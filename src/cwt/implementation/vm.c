@@ -299,6 +299,25 @@ static interpret_result run()
           push(value);
         }
       }
+      break; case OP_PRINT_VARIABLE:
+      {
+        obj_string* name = READ_STRING();
+        cuke_value value; 
+        if (!table_get(&g_vm.variables, name, &value))
+        {
+          runtime_error("Undefined variable '%s'.", name->chars);
+          return INTERPRET_RUNTIME_ERROR;
+        }
+        else 
+        {
+          // TODO this is not so nice .. 
+          print_black("%s=", name->chars);
+          start_black();
+          print_value(value);
+          end_black();
+          printf("  ");
+        }
+      }
       break; case OP_SET_VARIABLE:
       {
         obj_string* name = READ_STRING();
@@ -370,7 +389,7 @@ static interpret_result run()
       break; case OP_PRINT_LINE: 
       { 
         obj_string* name = READ_STRING();
-        printf("[-------------] %s", name->chars);
+        printf("  %s", name->chars);
       }
       break; case OP_PRINT_LINEBREAK:
       {
@@ -381,10 +400,10 @@ static interpret_result run()
         obj_string* step = READ_STRING();
         print_step_result(step);
       }
-      break; case OP_PRINT_LOCATION:
+      break; case OP_PRINT_BLACK:
       {
-        obj_string* step = READ_STRING();
-        print_black("  %s", step->chars);
+        obj_string* str = READ_STRING();
+        print_black("  %s", str->chars);
       }
       break; case OP_SCENARIO_RESULT:
       {
