@@ -22,7 +22,7 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
   [x] Examples  
   [x] Steps  
   [ ] Rules  
-  [ ] Tags   
+  [x] Tags   
   [x] Doc Strings  
   [x] hooks: before, after, before scenario, after scenario 
   [x] background
@@ -30,11 +30,11 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
   [ ] undefined scenarios (proper error handling)
 
 [ ] compiler copmpile(): quick n dirty tags which "simulate" argv
-[ ] after tag with hook works for now but:
-  [ ] call all hooks (all after, all begin accordingly)
-  [ ] implement hooks for begin
-  [ ] implment step hooks too (no tags needed)
-  [ ] implement tags for scenario outline before example.
+[x] after tag with hook works for now but:
+  [x] call all hooks (all after, all begin accordingly)
+  [x] implement hooks for begin
+  [x] implment step hooks too (no tags needed)
+  [x] implement tags for scenario outline before example.
 
 
 [x] adjust capacity (tables) for steps crashes with >8 steps
@@ -45,14 +45,14 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
 [ ] syntax error after examples table -> endless loop!
 [ ] uint8_t => uint16_t (or 32?)
 [x] print results (colored + overall results)
-[ ] error handling invalid indices on get arg
+[x] error handling invalid indices on get arg
 [x] optional arg, eg. doc strings? 
 [x] currently all variables are captured, skip constants in steps? 
 [x] Scenario Outline after Scenario Outline does not work
 
 Missing Syntax Tokens  
   [x] -  signed values  
-  [ ] @  tags    
+  [x] @  tags    
   [x] <>  variables  
   [ ] #language:   
   

@@ -4,6 +4,7 @@
 
 #include "../cucumber.h"
 #include "vm.h"
+#include "compiler.h"
 
 void cuke_assert(bool assertion)
 {
@@ -47,6 +48,7 @@ static char* read_file(const char* path)
 
 int run_cuke(const char* source, const char* path, const char* tag_expression) 
 {
+  set_tag_option(tag_expression);
   interpret_result result = interpret(source, path, tag_expression);
   
   if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }

@@ -504,7 +504,7 @@ static interpret_result run()
 
 interpret_result interpret(const char* source, const char* filename, const char* tag_expression)
 {
-  obj_function* func = compile(source, filename, tag_expression);
+  obj_function* func = compile(source, filename);
   if (func == NULL) 
   {
     return INTERPRET_COMPILE_ERROR;

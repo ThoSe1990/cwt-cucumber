@@ -723,14 +723,15 @@ static void feature()
 }
 
 
-
-obj_function* compile(const char* source, const char* filename, const char* tag_expression)
+void set_tag_option(const char* expression)
 {
-  // TODO get tag expression from argv
   tag_rpn_stack.size = compile_tag_expression(
-    tag_expression, 
+    expression, 
     tag_rpn_stack.rpn_stack);
+}
 
+obj_function* compile(const char* source, const char* filename)
+{
   init_scanner(source, filename);
   cuke_compiler compiler; 
   init_compiler(&compiler, TYPE_SCRIPT);

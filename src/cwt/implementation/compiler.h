@@ -5,7 +5,9 @@
 #include "object.h"
 #include "vm.h"
 
-obj_function* compile(const char* source, const char* filename, const char* tag_expression);
+void set_tag_option(const char* expression);
+
+obj_function* compile(const char* source, const char* filename);
 
 
 #endif 
