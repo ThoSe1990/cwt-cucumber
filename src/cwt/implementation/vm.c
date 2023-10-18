@@ -30,7 +30,6 @@ static void reset_stack()
   g_vm.frame_count = 0;
 }
 
-// TODO no need for recursively printing the call stack!
 static void runtime_error(const char* format, ...)
 {
   va_list args;
@@ -121,30 +120,33 @@ static int get_test_result()
 
 void print_step_result(obj_string* step)
 {
+  call_frame* frame = &g_vm.frames[g_vm.frame_count - 1];
+  obj_function* func = frame->function;
+  
   switch (g_vm.step_results.last)
   {
     case PASSED: 
     {
       g_vm.step_results.passed++;
-      print_green("[   PASSED    ] %s\n", step->chars);
+      print_green("[   PASSED    ] %s", step->chars);
     }
     break; case FAILED: 
     {
       g_vm.scenario_results.last = FAILED;
       g_vm.step_results.failed++;
-      print_red("[   FAILED    ] %s\n", step->chars);
+      print_red("[   FAILED    ] %s", step->chars);
     }
     break; case SKIPPED: 
     {
       g_vm.scenario_results.last = SKIPPED;
       g_vm.step_results.skipped++;
-      print_blue("[   SKIPPED   ] %s\n", step->chars);
+      print_blue("[   SKIPPED   ] %s", step->chars);
     }
     break; case UNDEFINED: 
     {
       g_vm.scenario_results.last = g_vm.scenario_results.last == FAILED ? FAILED : UNDEFINED;
       g_vm.step_results.undefined++;
-      print_yellow("[  UNDEFINED  ] %s\n", step->chars);
+      print_yellow("[  UNDEFINED  ] %s", step->chars);
     }
     break; default: ;// shouldn't happen ... 
   }  
@@ -368,16 +370,21 @@ static interpret_result run()
       break; case OP_PRINT_LINE: 
       { 
         obj_string* name = READ_STRING();
-        printf("[-------------] %s:\n", name->chars);
+        printf("[-------------] %s", name->chars);
       }
       break; case OP_PRINT_LINEBREAK:
       {
-        printf("[-------------]\n");
+        printf("\n");
       }
       break; case OP_STEP_RESULT:
       {
         obj_string* step = READ_STRING();
-        print_step_result(step);      
+        print_step_result(step);
+      }
+      break; case OP_PRINT_LOCATION:
+      {
+        obj_string* step = READ_STRING();
+        print_black("  %s", step->chars);
       }
       break; case OP_SCENARIO_RESULT:
       {

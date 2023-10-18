@@ -237,6 +237,16 @@ static void emit_hook(obj_string* name, value_array* tags)
   }
 }
 
+static void emit_location(int line)
+{
+  char buffer[512];
+  sprintf(buffer, "%s:%d", filename(), line);
+  emit_bytes(OP_PRINT_LOCATION, make_constant(
+      OBJ_VAL(copy_string(
+        buffer, strlen(buffer)
+      ))));
+}
+
 static void init_compiler(cuke_compiler* compiler, function_type type)
 {
   compiler->enclosing = current;
@@ -299,6 +309,7 @@ static void process_step()
 {
   const char* step_name = parser.current.start;
   const int length = step_name_length(parser.current.start);
+  const int line = parser.current.line;
 
   int after_step = emit_jump(OP_JUMP_IF_FAILED);
 
@@ -325,7 +336,21 @@ static void process_step()
   emit_hook(copy_string("after_step", 10), NULL);
 
   patch_jump(after_step);
-  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
+  emit_location(line);
+  emit_byte(OP_PRINT_LINEBREAK);
+}
+
+static void examples_description()
+{
+  const char* begin = parser.current.start;
+  const int line = parser.current.line;
+  while(!check(TOKEN_VERTICAL))
+  {
+    advance();
+    if (check(TOKEN_EOF)) break;
+  }
+  // TODO print description to report or so
 }
 
 static void scenario_description()
@@ -370,6 +395,8 @@ static void name()
   }
   const char* end = parser.previous.start + parser.previous.length;
   emit_print_line(copy_string(begin , end-begin));
+  emit_location(parser.previous.line);
+  emit_byte(OP_PRINT_LINEBREAK);
 }
 
 
@@ -491,12 +518,14 @@ static void read_tags(value_array* tags)
 
 static void parse_examples(obj_function* background, obj_function* steps, value_array* tags)
 {
-  // TODO name + description is in general possible
-  consume(TOKEN_LINEBREAK, "Expect linebreak after Examples");
+  // read examples name and description
+  name();
+  examples_description();
 
   // temporary storage for all vars
   value_array vars;
   init_value_array(&vars);
+
 
   // read all given variables in the header
   examples_header(&vars);
@@ -512,7 +541,6 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF) && !check(TOKEN_EXAMPLES) && !check(TOKEN_TAG))
   {
     examples_body(&vars); 
-    // TODO read tags in example and pass them to create_scenario_call
     create_scenario_call(background, steps, tags);
     while(match(TOKEN_LINEBREAK)){};
   }

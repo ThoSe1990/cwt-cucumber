@@ -66,3 +66,24 @@ const char* script = R"*(
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
+
+TEST_F(run_scenarios, simple_scenario_outline)
+{
+const char* script = R"*(
+  Feature: some feature 
+  with some description 
+    Scenario Outline: some scenario
+      * <var1> and <var2> are equal
+    
+    Examples: some name here 
+    and a very nice 
+    multiline description
+    before the table
+    | var1 | var2 |
+    | 1    |  1   |
+
+    | 2    |   2 |
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
