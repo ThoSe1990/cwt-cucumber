@@ -55,7 +55,7 @@ extern vm g_vm;
 
 void init_vm();
 void free_vm();
-interpret_result interpret(const char* source, const char* filename, const char* tag_expression);
+interpret_result interpret(const char* source, const char* filename);
 void push(cuke_value cuke_value);
 cuke_value pop();
 void define_step(const char* name, cuke_step_t func);

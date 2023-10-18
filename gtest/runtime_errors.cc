@@ -35,7 +35,7 @@ const char* script = R"*(
       But this is an unknown step
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 
@@ -52,7 +52,7 @@ const char* script = R"*(
       | 1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 
@@ -69,7 +69,7 @@ const char* script = R"*(
       1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 
@@ -88,7 +88,7 @@ const char* script = R"*(
       | 1 | 
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 TEST_F(runtime_error, invalid_tag_2)
@@ -107,7 +107,7 @@ const char* script = R"*(
     
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 
@@ -126,7 +126,7 @@ const char* script = R"*(
       | 123   |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 TEST_F(runtime_error, examples_after_scenario)
@@ -143,7 +143,7 @@ const char* script = R"*(
       | 2 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 
@@ -161,5 +161,5 @@ const char* script = R"*(
       | 2 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }

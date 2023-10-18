@@ -507,7 +507,7 @@ static interpret_result run()
 #undef READ_STRING
 }
 
-interpret_result interpret(const char* source, const char* filename, const char* tag_expression)
+interpret_result interpret(const char* source, const char* filename)
 {
   obj_function* func = compile(source, filename);
   if (func == NULL) 

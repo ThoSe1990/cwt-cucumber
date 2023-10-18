@@ -8,7 +8,7 @@
 
 void open_cucumber();
 int run_cuke_from_argv(int argc, const char* argv[]);
-int run_cuke(const char* source, const char* path, const char* tag_expression);
+int run_cuke(const char* source, const char* path);
 void close_cucumber();
 
 

@@ -6,12 +6,25 @@
 #include "vm.h"
 #include "compiler.h"
 
-void cuke_assert(bool assertion)
+void set_program_options(int argc, const char* argv[])
 {
-  if (!assertion) 
+  for (int i = 1; i < argc; i++) 
   {
-    g_vm.scenario_results.last = FAILED;
-    g_vm.step_results.last = FAILED;
+    if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
+    {
+      if (i+1 < argc)
+      {
+        set_tag_option(argv[i+1]);
+      }
+      else 
+      {
+        fprintf(stderr, "Expect value after '%s'.", argv[i]);
+      }
+    } 
+    else if (*argv[i] == '-')
+    {
+      fprintf(stderr, "Unknown program option: '%s'.", argv[i]);
+    }
   }
 }
 
@@ -46,10 +59,9 @@ static char* read_file(const char* path)
   return buffer;
 }
 
-int run_cuke(const char* source, const char* path, const char* tag_expression) 
+int run_cuke(const char* source, const char* path) 
 {
-  set_tag_option(tag_expression);
-  interpret_result result = interpret(source, path, tag_expression);
+  interpret_result result = interpret(source, path);
   
   if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }
   if (result == INTERPRET_RUNTIME_ERROR) { return CUKE_FAILED; } 
@@ -64,10 +76,12 @@ void open_cucumber()
 
 int run_cuke_from_argv(int argc, const char* argv[])
 {
-  if (argc == 2)
+  set_program_options(argc, argv);
+  
+  if (argc >= 2)
   {
     char* source = read_file(argv[1]);
-    int result = run_cuke(source, argv[1], "");
+    int result = run_cuke(source, argv[1]);
     free(source);
     return result;
   }
@@ -122,4 +136,13 @@ double cuke_to_double(cuke_value* value)
 const char* cuke_to_string(cuke_value* value)
 {
   return AS_STRING(*value)->chars;
+}
+
+void cuke_assert(bool assertion)
+{
+  if (!assertion) 
+  {
+    g_vm.scenario_results.last = FAILED;
+    g_vm.step_results.last = FAILED;
+  }
 }

@@ -2,6 +2,7 @@
 
 extern "C" {
     #include "cwt/cucumber.h"   
+    extern void set_program_options(int argc, const char* argv[]);
 }
 
 class runtime_tags : public ::testing::Test 
@@ -48,8 +49,13 @@ const char* script = R"*(
     Scenario: some scenario
       Given this passes
 )*";
-
-  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, "", "@pass"));
+  int argc = 3;
+  const char* argv[argc];
+  argv[0] = "some program";
+  argv[1] = "-t";
+  argv[2] = "@pass";
+  set_program_options(argc, argv);
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
 
 TEST_F(runtime_tags, will_fail)
@@ -65,7 +71,14 @@ const char* script = R"*(
       Given this passes
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", "@fail"));
+  int argc = 3;
+  const char* argv[argc];
+  argv[0] = "some program";
+  argv[1] = "-t";
+  argv[2] = "@fail";
+  set_program_options(argc, argv);
+
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 TEST_F(runtime_tags, scenario_outline_fails)
@@ -89,7 +102,15 @@ const char* script = R"*(
     | 3  | 4  |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", "@fail"));
+
+  int argc = 3;
+  const char* argv[argc];
+  argv[0] = "some program";
+  argv[1] = "-t";
+  argv[2] = "@fail";
+  set_program_options(argc, argv);
+
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
 TEST_F(runtime_tags, scenario_outline_passes)
@@ -113,5 +134,13 @@ const char* script = R"*(
     | 3  | 4  |
 )*";
 
-  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, "", "@pass"));
+
+  int argc = 3;
+  const char* argv[argc];
+  argv[0] = "some program";
+  argv[1] = "-t";
+  argv[2] = "@pass";
+  set_program_options(argc, argv);
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }

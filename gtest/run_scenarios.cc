@@ -41,7 +41,7 @@ const char* script = R"*(
       Then 5 and 5 are equal
 )*";
 
-  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
 TEST_F(run_scenarios, simple_scenario_2)
 {
@@ -52,7 +52,7 @@ const char* script = R"*(
       Then 5 is greater than 2
 )*";
 
-  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
 TEST_F(run_scenarios, simple_scenario_3)
 {
@@ -64,5 +64,5 @@ const char* script = R"*(
       And 10 and 10 are equal
 )*";
 
-  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, "", ""));
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
