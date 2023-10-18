@@ -87,102 +87,153 @@ namespace cuke::details
   template<typename T>
   static constexpr bool has_cuke_conversion_v = has_cuke_conversion_function<cuke_conversion_impl<T>>::value;
 
+  static void print_error() {}
+
+  template <typename T, typename... Args>
+  static void print_error(const T& t, const Args&... args) 
+  {
+      std::cerr << "\x1B[31m" << t << "\x1B[0m";
+      print_error(args...);
+  }
+
   struct cuke_conversion 
   {
-    int n;
     cuke_value* arg;
+    const std::string& file;
+    int line;
+
     template<typename T>
     operator T() const{
         static_assert(has_cuke_conversion_v<T>, "conversion to T not supported");
-        return cuke_conversion_impl<T>::get_arg(n, arg);
+        return cuke_conversion_impl<T>::get_arg(arg, file, line);
     }
   };
   
-  inline cuke_conversion get_arg(int n, cuke_value* args) 
-  { 
-      return cuke_conversion{n, args}; 
+  inline cuke_conversion get_arg(cuke_value* args, int i, int arg_count, const std::string& file, int line) 
+  {  
+    if (i <= arg_count)
+    {
+      return cuke_conversion{&args[i-1], file, line}; 
+    }
+    print_error(file, ':', line, ": Can not acces index ", i, ". Argument count is: ", arg_count);
+    throw std::out_of_range("");
   }
 
   template <>
   struct cuke_conversion_impl<long long> 
   {
-      static long long get_arg(int n, cuke_value* arg) 
+      static long long get_arg(cuke_value* arg, const std::string& file, int line) 
       {
         if (arg->type == VAL_LONG)
         {
           return cuke_to_long(arg);
         }
-        // TODO error 
-        return 0;
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<std::size_t> 
   {
-      static std::size_t get_arg(int n, cuke_value* arg) 
+      static std::size_t get_arg(cuke_value* arg, const std::string& file, int line) 
       {
+        if (arg->type == VAL_LONG)
+        {
           return static_cast<std::size_t>(cuke_to_long(arg));
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<int> 
   {
-      static int get_arg(int n, cuke_value* arg) 
+      static int get_arg(cuke_value* arg, const std::string& file, int line) 
       {
+        if (arg->type == VAL_LONG)
+        {
           return static_cast<int>(cuke_to_int(arg));
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<char> 
   {
-      static char get_arg(int n, cuke_value* arg) 
+      static char get_arg(cuke_value* arg, const std::string& file, int line) 
       {
-        return cuke_to_byte(arg);
+        if (arg->type == VAL_LONG)
+        {
+          return cuke_to_byte(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
   
   template <>
   struct cuke_conversion_impl<short> 
   {
-      static short get_arg(int n, cuke_value* arg) 
+      static short get_arg(cuke_value* arg, const std::string& file, int line) 
       {
-        return cuke_to_short(arg);
+        if (arg->type == VAL_LONG)
+        {
+          return cuke_to_short(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<std::string>
   {
-      static std::string get_arg(int n, cuke_value* arg)
+      static std::string get_arg(cuke_value* arg, const std::string& file, int line)
       {
+        if (arg->type == VAL_OBJ)
+        {
           return cuke_to_string(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<float>
   {
-      static float get_arg(int n, cuke_value* arg)
+      static float get_arg(cuke_value* arg, const std::string& file, int line)
       {
-        return cuke_to_float(arg);
+        if (arg->type == VAL_DOUBLE)
+        {
+          return cuke_to_float(arg);
+        }
+        print_error(file, ':', line, ": Value is not a floating point type.");
+        throw std::bad_cast();
       }
   };
 
   template <>
   struct cuke_conversion_impl<double>
   {
-      static double get_arg(int n, cuke_value* arg)
+      static double get_arg(cuke_value* arg, const std::string& file, int line)
       {
-        return cuke_to_double(arg);
+        if (arg->type == VAL_DOUBLE)
+        {
+          return cuke_to_double(arg);
+        }
+        print_error(file, ':', line, ": Value is not a floating point type.");
+        throw std::bad_cast();
       }
   };
 } // namespace cuke::details
 
 
-#define CUKE_ARG(i) cuke::details::get_arg(arg_count, &args[i-1])  
+#define CUKE_ARG(i) cuke::details::get_arg(args, i, arg_count, __FILE__, __LINE__)  
 
 
 namespace cuke
