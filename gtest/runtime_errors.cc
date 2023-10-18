@@ -145,3 +145,21 @@ const char* script = R"*(
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
 }
+
+
+TEST_F(runtime_error, undefined_variable)
+{
+const char* script = R"*(
+  Feature: some feature ... 
+
+  Scenario Outline: My cubes  
+    Given any <value> value
+    
+    Examples:
+      | another   |
+      | 1 |
+      | 2 |
+)*";
+
+  EXPECT_EQ(CUKE_FAILED, run_cuke(script, "", ""));
+}

@@ -75,22 +75,27 @@ static void runtime_error(const char* format, ...)
   va_end(args);
   fputs("\n", stderr);
 
-  for (int i = g_vm.frame_count - 1 ; i >= 0 ; i--)
-  {
-    call_frame* frame = &g_vm.frames[i];
-    obj_function* func = frame->function;
-    size_t instruction = frame->ip - func->chunk.code - 1;
-    fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);
-    if (func->name == NULL)
-    {
-      fprintf(stderr, "script\n");
-    } 
-    else 
-    {
-      fprintf(stderr, "%s()\n", func->name->chars);
-    }
-  }
-  reset_stack();
+  call_frame* frame = &g_vm.frames[g_vm.frame_count - 1];
+  obj_function* func = frame->function;
+  size_t instruction = frame->ip - func->chunk.code - 1;
+  fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);  
+
+  // for (int i = g_vm.frame_count - 1 ; i >= 0 ; i--)
+  // {
+  //   call_frame* frame = &g_vm.frames[i];
+  //   obj_function* func = frame->function;
+  //   size_t instruction = frame->ip - func->chunk.code - 1;
+  //   fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);
+  //   if (func->name == NULL)
+  //   {
+  //     fprintf(stderr, "script\n");
+  //   } 
+  //   else 
+  //   {
+  //     fprintf(stderr, "%s()\n", func->name->chars);
+  //   }
+  // }
+  // reset_stack();
 }
 
 static void init_results(results* result)
