@@ -28,14 +28,14 @@ typedef struct {
   unsigned int failed; 
   unsigned int skipped;
   unsigned int undefined;
-} results;
+} result_t;
 
 
 typedef struct {
   call_frame frames[FRAMES_MAX];
   int frame_count;
-  results scenario_results;
-  results step_results;
+  result_t scenario_results;
+  result_t step_results;
   cuke_value stack[STACK_MAX];
   cuke_value* stack_top;
   table hooks;

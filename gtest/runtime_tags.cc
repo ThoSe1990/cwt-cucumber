@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-    #include "cwt/cucumber.h"   
-    extern void set_program_options(int argc, const char* argv[]);
+  #include "cwt/cucumber.h"   
 }
 
 class runtime_tags : public ::testing::Test 

@@ -6,27 +6,6 @@
 #include "vm.h"
 #include "compiler.h"
 
-void set_program_options(int argc, const char* argv[])
-{
-  for (int i = 1; i < argc; i++) 
-  {
-    if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
-    {
-      if (i+1 < argc)
-      {
-        set_tag_option(argv[i+1]);
-      }
-      else 
-      {
-        fprintf(stderr, "Expect value after '%s'.", argv[i]);
-      }
-    } 
-    else if (*argv[i] == '-')
-    {
-      fprintf(stderr, "Unknown program option: '%s'.", argv[i]);
-    }
-  }
-}
 
 static char* read_file(const char* path) 
 {
@@ -59,6 +38,49 @@ static char* read_file(const char* path)
   return buffer;
 }
 
+void set_program_options(int argc, const char* argv[])
+{
+  for (int i = 1; i < argc; i++) 
+  {
+    if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
+    {
+      if (i+1 < argc)
+      {
+        set_tag_option(argv[i+1]);
+      }
+      else 
+      {
+        fprintf(stderr, "Expect value after '%s'.", argv[i]);
+      }
+    } 
+    else if (*argv[i] == '-')
+    {
+      fprintf(stderr, "Unknown program option: '%s'.", argv[i]);
+    }
+  }
+}
+
+static int run_all_files(int argc, const char* argv[])
+{
+  int result = CUKE_SUCCESS;
+  for (int i = 1; i < argc; i++) 
+  {
+    if (*argv[i] == '-')
+    {
+      i++;
+      continue;
+    }
+    char* source = read_file(argv[i]);
+    if (run_cuke(source, argv[i]) == CUKE_FAILED)
+    {
+      result = CUKE_FAILED;
+    }
+    free(source);
+  }
+  return result;
+}
+
+
 int run_cuke(const char* source, const char* path) 
 {
   interpret_result result = interpret(source, path);
@@ -77,19 +99,7 @@ void open_cucumber()
 int run_cuke_from_argv(int argc, const char* argv[])
 {
   set_program_options(argc, argv);
-  
-  if (argc >= 2)
-  {
-    char* source = read_file(argv[1]);
-    int result = run_cuke(source, argv[1]);
-    free(source);
-    return result;
-  }
-  else 
-  {
-    fprintf(stderr, "Invalid argc/argv\n");
-    return CUKE_FAILED;
-  }
+  return run_all_files(argc, argv);
 }
 void close_cucumber()
 {

@@ -79,26 +79,9 @@ static void runtime_error(const char* format, ...)
   obj_function* func = frame->function;
   size_t instruction = frame->ip - func->chunk.code - 1;
   fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);  
-
-  // for (int i = g_vm.frame_count - 1 ; i >= 0 ; i--)
-  // {
-  //   call_frame* frame = &g_vm.frames[i];
-  //   obj_function* func = frame->function;
-  //   size_t instruction = frame->ip - func->chunk.code - 1;
-  //   fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);
-  //   if (func->name == NULL)
-  //   {
-  //     fprintf(stderr, "script\n");
-  //   } 
-  //   else 
-  //   {
-  //     fprintf(stderr, "%s()\n", func->name->chars);
-  //   }
-  // }
-  // reset_stack();
 }
 
-static void init_results(results* result)
+static void init_results(result_t* result)
 {
   result->failed = 0;
   result->passed = 0;
@@ -172,7 +155,7 @@ static int get_test_result()
   }
 }
 
-static void print_results(const char* type, results* result)
+static void print_results(const char* type, result_t* result)
 {
   const int count = result->failed + result->passed +
                    result->skipped + result->undefined; 
