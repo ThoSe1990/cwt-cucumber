@@ -31,47 +31,47 @@ private:
   std::size_t m_side;
 };
 
-AFTER_T("@tag1 or @tag2")
+AFTER_T(after_t, "@tag1 or @tag2")
 {
   std::cout << "hook after  @tag1 or @tag2 " << std::endl;
 }
-AFTER()
+AFTER(after)
 {
   std::cout << "hook after for all!!!!! " << std::endl;
 }
 
-BEFORE_T("@tag1")
+BEFORE_T(before_t, "@tag1")
 {
   std::cout << "hook BEFORE  @tag1 " << std::endl;
 }
-BEFORE()
+BEFORE(before)
 {
   std::cout << "hook BEFORE for all!!!!! " << std::endl;
 }
 
-BEFORE_STEP()
+BEFORE_STEP(before_step)
 {
   std::cout << "hook BEFORE_STEP" << std::endl;
 }
-AFTER_STEP()
+AFTER_STEP(before_step)
 {
   std::cout << "hook AFTER_STEP" << std::endl;
 }
 
 
 
-STEP("A cube with {int} side length")
+STEP(cube_init, "A cube with {int} side length")
 {
   const std::size_t side = CUKE_ARG(1);
   cuke::context<cube>().set_side(side);
 }
 
-STEP("The side area is {int}")
+STEP(cube_side_area, "The side area is {int}")
 {
   const std::size_t area = CUKE_ARG(1);
   cuke::assert_equal(area, cuke::context<cube>().square_area());  
 }
-STEP("The cube volume is {int}")
+STEP(cube_volume, "The cube volume is {int}")
 {
   const std::size_t volume = CUKE_ARG(1);
   cuke::assert_equal(volume, cuke::context<cube>().volume());  

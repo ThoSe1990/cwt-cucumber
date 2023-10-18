@@ -9,6 +9,7 @@ extern "C" {
 }
 
 #include "cucumber_context.hpp"
+#include "cucumber_asserts.hpp"
 
 namespace cuke::details
 {
@@ -36,9 +37,7 @@ namespace cuke::details
     } \
     void name(int arg_count, cuke_value* args)
 
-#define STEP(step) INTERNAL_STEP(step, CONCAT(__cuke_step_,__LINE__))
-#define STEP_NAME(name, step) INTERNAL_STEP(step, name)
-
+#define STEP(name, step) INTERNAL_STEP(step, CONCAT(__cuke_step_,name))
 
 #define INTERNAL_HOOK(hook, name, tag_expression) \
     void name(int arg_count, cuke_value* args); \
@@ -51,14 +50,13 @@ namespace cuke::details
     } \
     void name(int arg_count, cuke_value* args)
 
-// #define BEFORE() INTERNAL_HOOK("before", __cuke_hook_before)
-// TODO is __LINE__ so good here? 
-#define BEFORE() INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),"")
-#define BEFORE_T(tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),tag_expression)
-#define AFTER() INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),"")
-#define AFTER_T(tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),tag_expression)
-#define BEFORE_STEP() INTERNAL_HOOK("before_step", CONCAT(__cuke_hook_before_step,__LINE__),"")
-#define AFTER_STEP() INTERNAL_HOOK("after_step", CONCAT(__cuke_hook_after_step,__LINE__),"")
+
+#define BEFORE(name) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),"")
+#define BEFORE_T(name,tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),tag_expression)
+#define AFTER(name) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),"")
+#define AFTER_T(name, tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),tag_expression)
+#define BEFORE_STEP(name) INTERNAL_HOOK("before_step", CONCAT(__cuke_before_step,name),"")
+#define AFTER_STEP(name) INTERNAL_HOOK("after_step", CONCAT(__cuke_after_step,name),"")
 
 
 namespace cuke::details
