@@ -97,7 +97,7 @@ static bool is_at_placeholder()
   return *g_defined.current == '{';
 }
 
-static placeholder_type read_placeholder()
+static placeholder_type get_placeholder()
 {
   g_defined.current++;
   g_defined.start = g_defined.current;
@@ -230,7 +230,57 @@ static bool is_at_end(char c)
   return c == '\0';
 }
 
-static bool read_variable(value_array* args, variable_type type)
+static bool string_from_stack(value_array* args)
+{
+  if (args == NULL) { return true; }
+  
+  cuke_value value = pop();
+  if (IS_STRING(value))
+  {
+    write_value_array(args, value);
+    return true;
+  }
+  else 
+  {
+    error(g_feature.start, "Expect a string value.");
+    return false;
+  }
+}
+static bool integer_from_stack(value_array* args)
+{
+  if (args == NULL) { return true; }
+  
+  cuke_value value = pop();
+  if (IS_INT(value))
+  {
+    write_value_array(args, value);
+    return true;
+  }
+  else 
+  {
+    error(g_feature.start, "Expect an integer value.");
+    return false;
+  }
+}
+
+static bool double_from_stack(value_array* args)
+{
+  if (args == NULL) { return true; }
+  
+  cuke_value value = pop();
+  if (IS_DOUBLE(value))
+  {
+    write_value_array(args, value);
+    return true;
+  }
+  else 
+  {
+    error(g_feature.start, "Expect a floating point value.");
+    return false;
+  }
+}
+
+static bool read_variable()
 {
   g_feature.current++;
   g_feature.start = g_feature.current;
@@ -244,52 +294,6 @@ static bool read_variable(value_array* args, variable_type type)
     }
     g_feature.current++;
   }
-
-  // TODO refactor: 
-  if (args)
-  {
-    cuke_value value = pop();
-    switch (type)
-    {
-      case STRING_TYPE:
-      {
-        if (IS_STRING(value))
-        {
-          write_value_array(args, value);
-        }
-        else 
-        {
-          // TODO error
-          return false;
-        }
-      }
-      break; case DOUBLE_TYPE:
-      {
-        if (IS_DOUBLE(value))
-        {
-          write_value_array(args, value);
-        }
-        else 
-        {
-          // TODO error
-          return false;
-        }
-      }
-      break; case INTEGER_TYPE:
-      {
-        if (IS_INT(value))
-        {
-          write_value_array(args, value);
-        }
-        else 
-        {
-          // TODO error
-          return false;
-        }
-      }
-    }
-  }
-
   g_feature.current++;
   return true;
 }
@@ -297,7 +301,6 @@ static bool read_variable(value_array* args, variable_type type)
 static void read_doc_string(value_array* args)
 {
   skip_quotes_and_breaks();
-
   const char* start = g_feature.current;
   const char* end;
   while(!tripple_quotes())
@@ -308,22 +311,16 @@ static void read_doc_string(value_array* args)
       end = g_feature.current;
     }
   }
-
   skip_quotes_and_breaks();
   if (args)
   {
     cuke_value value = OBJ_VAL(copy_string(start, end - start));
     write_value_array(args, value);
   }
-  return ;
 }
 
-static bool read_string(value_array* args)
+static bool parse_string_value(value_array* args)
 {
-  if (is_variable())
-  {
-    return read_variable(args, STRING_TYPE);
-  }
   if (*g_feature.current != '"') 
   {
     error(g_feature.start, "Expect '\"' for string value.\n");
@@ -341,24 +338,33 @@ static bool read_string(value_array* args)
     }
     g_feature.current++;
   }
+  g_feature.current++;
 
   if (args)
   {
-    cuke_value value = OBJ_VAL(copy_string(g_feature.start, g_feature.current - g_feature.start));
+    cuke_value value = OBJ_VAL(copy_string(g_feature.start, g_feature.current - g_feature.start - 1));
     write_value_array(args, value);
-  }
+  }  
 
-  g_feature.current++;
   return true;
 }
 
-static bool read_integer(value_array* args)
+
+static bool ph_string(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args, INTEGER_TYPE);
+    return read_variable() && string_from_stack(args);
   }
+  else
+  { 
+    return parse_string_value(args);
+  }
+}
 
+
+static bool parse_integer_value(value_array* args)
+{
   bool negative = is_negative();
 
   g_feature.start = g_feature.current;
@@ -370,7 +376,7 @@ static bool read_integer(value_array* args)
     error(g_feature.start, "Expect only digits in an integer value.\n");
     return false;
   }
-  
+
   if (args)
   {
     push_long(args, negative);
@@ -379,13 +385,20 @@ static bool read_integer(value_array* args)
   return true;
 }
 
-static bool read_double(value_array* args)
+static bool ph_integer(value_array* args)
 {
   if (is_variable())
   {
-    return read_variable(args, DOUBLE_TYPE);
+    return read_variable() && integer_from_stack(args);
   }
+  else
+  {
+    return parse_integer_value(args);
+  }
+}
 
+static bool parse_double_value(value_array* args)
+{
   bool negative = is_negative();
   g_feature.start = g_feature.current;
 
@@ -410,6 +423,19 @@ static bool read_double(value_array* args)
   return true;
 }
 
+
+static bool ph_double(value_array* args)
+{
+  if (is_variable())
+  {
+    return read_variable() && double_from_stack(args);
+  }
+  else
+  {
+    return parse_double_value(args);
+  }
+}
+
 static void doc_string(value_array* args)
 {
   if (tripple_quotes())
@@ -418,6 +444,22 @@ static void doc_string(value_array* args)
   }
 }
 
+static bool valid_placeholder(value_array* args)
+{
+  switch (get_placeholder()) 
+  {
+    case PH_STRING: return ph_string(args);
+    break; case PH_BYTE: return ph_integer(args);
+    break; case PH_SHORT: return ph_integer(args);
+    break; case PH_INT: return ph_integer(args);
+    break; case PH_LONG: return ph_integer(args);
+    break; case PH_DOUBLE: return ph_double(args);
+    break; case PH_FLOAT: return ph_double(args);
+    break; default: error(g_feature.start, "Invalid placeholder"); return false;
+  }
+}
+
+
 bool parse_step(const char* defined, const char* feature, value_array* args)
 {
   init_step_scanner(defined, feature);
@@ -425,20 +467,10 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
 
   for (;;)
   {
-    if (is_at_placeholder())
+    if (is_at_placeholder() 
+     && !valid_placeholder(args))
     {
-      placeholder_type ph = read_placeholder();
-      switch (ph) 
-      {
-        case PH_STRING: if (read_string(args) == false) return false;
-        break; case PH_BYTE: if (read_integer(args) == false) return false;
-        break; case PH_SHORT: if (read_integer(args) == false) return false;
-        break; case PH_INT: if (read_integer(args) == false) return false;
-        break; case PH_LONG: if (read_integer(args) == false) return false;
-        break; case PH_DOUBLE: if (read_double(args) == false) return false;
-        break; case PH_FLOAT: if (read_double(args) == false) return false;
-        break; default: error(g_feature.start, "Invalid placeholder"); return false;
-      }
+      return false;
     }
     
     if (is_at_end(*g_feature.current))
@@ -456,7 +488,8 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
     {
       break; 
     }
-    if (*g_defined.current != *g_feature.current) {
+    if (*g_defined.current != *g_feature.current) 
+    {
       return false;
     }
     advance();

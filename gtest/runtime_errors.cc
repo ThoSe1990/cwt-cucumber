@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "cwt/cucumber.hpp"
+extern "C" {
+    #include "cwt/cucumber.h"   
+}
 
 class runtime_error : public ::testing::Test 
 {

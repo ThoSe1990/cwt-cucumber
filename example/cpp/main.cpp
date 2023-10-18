@@ -31,20 +31,20 @@ private:
   std::size_t m_side;
 };
 
-AFTER("@tag1 or @tag2")
+AFTER_T("@tag1 or @tag2")
 {
   std::cout << "hook after  @tag1 or @tag2 " << std::endl;
 }
-AFTER("")
+AFTER()
 {
   std::cout << "hook after for all!!!!! " << std::endl;
 }
 
-BEFORE("@tag1")
+BEFORE_T("@tag1")
 {
   std::cout << "hook BEFORE  @tag1 " << std::endl;
 }
-BEFORE("")
+BEFORE()
 {
   std::cout << "hook BEFORE for all!!!!! " << std::endl;
 }

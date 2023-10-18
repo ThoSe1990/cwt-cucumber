@@ -12,14 +12,14 @@ extern "C" {
 
 namespace cuke::details
 {
-  std::vector<std::pair<const char*, cuke_step_t>> steps;
+  static std::vector<std::pair<const char*, cuke_step_t>> steps;
   struct hook
   {
     const char* name;
     const char* tag_expression;
     cuke_step_t function;
   };
-  std::vector<hook> hooks;
+  static std::vector<hook> hooks;
 } // namespace cuke::details
 
 #define CONCAT_INTERNAL(a, b) a ## b
@@ -53,8 +53,10 @@ namespace cuke::details
 
 // #define BEFORE() INTERNAL_HOOK("before", __cuke_hook_before)
 // TODO is __LINE__ so good here? 
-#define BEFORE(tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),tag_expression)
-#define AFTER(tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),tag_expression)
+#define BEFORE() INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),"")
+#define BEFORE_T(tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_hook_before,__LINE__),tag_expression)
+#define AFTER() INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),"")
+#define AFTER_T(tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_hook_after,__LINE__),tag_expression)
 #define BEFORE_STEP() INTERNAL_HOOK("before_step", CONCAT(__cuke_hook_before_step,__LINE__),"")
 #define AFTER_STEP() INTERNAL_HOOK("after_step", CONCAT(__cuke_hook_after_step,__LINE__),"")
 
@@ -96,7 +98,7 @@ namespace cuke::details
     }
   };
   
-  cuke_conversion get_arg(int n, cuke_value* args) 
+  inline cuke_conversion get_arg(int n, cuke_value* args) 
   { 
       return cuke_conversion{n, args}; 
   }
@@ -106,7 +108,12 @@ namespace cuke::details
   {
       static long long get_arg(int n, cuke_value* arg) 
       {
+        if (arg->type == VAL_LONG)
+        {
           return cuke_to_long(arg);
+        }
+        // TODO error 
+        return 0;
       }
   };
 
@@ -160,7 +167,7 @@ namespace cuke::details
   {
       static float get_arg(int n, cuke_value* arg)
       {
-          return cuke_to_float(arg);
+        return cuke_to_float(arg);
       }
   };
 
