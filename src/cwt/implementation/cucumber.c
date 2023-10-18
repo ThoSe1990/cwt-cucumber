@@ -5,7 +5,41 @@
 #include "../cucumber.h"
 #include "vm.h"
 #include "compiler.h"
+#include "prints.h"
 
+static void print_results(const char* type, result_t* result)
+{
+  const int count = result->failed + result->passed +
+                   result->skipped + result->undefined; 
+
+  printf("%d %s (", count, type);
+
+  bool print_coma = false;
+  if (result->failed > 0)
+  {
+    print_red("%d failed", result->failed);
+    print_coma = true;
+  }
+  if (result->undefined > 0)
+  {
+    if (print_coma) printf(", ");
+    print_yellow("%d undefined", result->undefined);
+    print_coma = true;
+  }
+  if (result->skipped > 0)
+  {
+    if (print_coma) printf(", ");
+    print_blue("%d skipped", result->skipped);
+    print_coma = true;
+  }
+  if (result->passed > 0)
+  {
+    if (print_coma) printf(", ");
+    print_green("%d passed", result->passed);
+    print_coma = true;
+  }
+  printf(")\n");
+}
 
 static char* read_file(const char* path) 
 {
@@ -77,6 +111,10 @@ static int run_all_files(int argc, const char* argv[])
     }
     free(source);
   }
+  
+  print_results("Scenarios", get_scenario_result());
+  print_results("Steps", get_step_result());
+
   return result;
 }
 

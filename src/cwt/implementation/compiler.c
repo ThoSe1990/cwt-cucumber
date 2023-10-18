@@ -719,7 +719,6 @@ static void feature()
   define_variable(make_constant(OBJ_VAL(copy_string(func->name->chars, strlen(func->name->chars)))));
 
   emit_bytes(OP_CALL, 0);
-  emit_byte(OP_OVERALL_RESULTS);
 }
 
 

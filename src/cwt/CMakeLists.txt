@@ -12,6 +12,7 @@ add_library(${target} STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/table.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/vm.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/step_matcher.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/prints.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/tag_scanner.c
 )

@@ -10,60 +10,24 @@
 #include "vm.h"
 #include "compiler.h"
 #include "step_matcher.h"
+#include "prints.h"
 #include "../cucumber.h"
 
 vm g_vm;
+
+result_t* get_step_result()
+{
+  return &g_vm.step_results;
+}
+result_t* get_scenario_result()
+{
+  return &g_vm.scenario_results;
+}
 
 static void reset_stack()
 {
   g_vm.stack_top = g_vm.stack;
   g_vm.frame_count = 0;
-}
-
-static void print_red(const char* format, ...)
-{
-  va_list args;
-  va_start(args, format);
-  printf("\x1b[31m");
-  vprintf(format, args);
-  printf("\x1b[0m");
-  va_end(args);
-}
-static void print_yellow(const char* format, ...)
-{
-  va_list args;
-  va_start(args, format);
-  printf("\x1b[33m");
-  vprintf(format, args);
-  printf("\x1b[0m");
-  va_end(args);
-}
-static void print_blue(const char* format, ...)
-{
-  va_list args;
-  va_start(args, format);
-  printf("\x1b[34m");
-  vprintf(format, args);
-  printf("\x1b[0m");
-  va_end(args);
-}
-static void print_green(const char* format, ...)
-{
-  va_list args;
-  va_start(args, format);
-  printf("\x1b[32m");
-  vprintf(format, args);
-  printf("\x1b[0m");
-  va_end(args);
-}
-static void print_black(const char* format, ...)
-{
-  va_list args;
-  va_start(args, format);
-  printf("\x1b[30m");
-  vprintf(format, args);
-  printf("\x1b[0m");
-  va_end(args);
 }
 
 // TODO no need for recursively printing the call stack!
@@ -153,40 +117,6 @@ static int get_test_result()
   {
     return CUKE_SUCCESS;
   }
-}
-
-static void print_results(const char* type, result_t* result)
-{
-  const int count = result->failed + result->passed +
-                   result->skipped + result->undefined; 
-
-  printf("%d %s (", count, type);
-
-  bool print_coma = false;
-  if (result->failed > 0)
-  {
-    print_red("%d failed", result->failed);
-    print_coma = true;
-  }
-  if (result->undefined > 0)
-  {
-    if (print_coma) printf(", ");
-    print_yellow("%d undefined", result->undefined);
-    print_coma = true;
-  }
-  if (result->skipped > 0)
-  {
-    if (print_coma) printf(", ");
-    print_blue("%d skipped", result->skipped);
-    print_coma = true;
-  }
-  if (result->passed > 0)
-  {
-    if (print_coma) printf(", ");
-    print_green("%d passed", result->passed);
-    print_coma = true;
-  }
-  printf(")\n");
 }
 
 void print_step_result(obj_string* step)
@@ -461,11 +391,6 @@ static interpret_result run()
         }
         g_vm.scenario_results.last = PASSED;
         g_vm.step_results.last = PASSED;
-      }
-      break; case OP_OVERALL_RESULTS:
-      {
-        print_results("Scenarios", &g_vm.scenario_results);
-        print_results("Steps", &g_vm.step_results);
       }
       break; case OP_RETURN: 
       {

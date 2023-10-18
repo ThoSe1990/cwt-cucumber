@@ -61,5 +61,7 @@ cuke_value pop();
 void define_step(const char* name, cuke_step_t func);
 void define_hook(const char* name, cuke_step_t func, const char* tag_expression);
 
+result_t* get_step_result();
+result_t* get_scenario_result();
 
 #endif 

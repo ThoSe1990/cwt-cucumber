@@ -88,8 +88,6 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_CALL_STEP", c, offset);
   case OP_SCENARIO_RESULT:
     return simple_instruction("OP_SCENARIO_RESULT", offset);
-  case OP_OVERALL_RESULTS:
-    return simple_instruction("OP_OVERALL_RESULTS", offset);
   case OP_RETURN:
     return simple_instruction("OP_RETURN", offset);
   default:
