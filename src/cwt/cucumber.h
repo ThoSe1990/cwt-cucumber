@@ -16,7 +16,18 @@ void close_cucumber();
 typedef void (*cuke_step_t)(int arg_count, cuke_value* args);
 
 void cuke_step(const char* name, cuke_step_t func);
-void cuke_hook(const char* name, cuke_step_t func, const char* tag_expression);
+void cuke_hook(const char*, cuke_step_t func, const char* tag_expression);
+
+void cuke_before_step(cuke_step_t func);
+void cuke_after_step(cuke_step_t func);
+
+void cuke_before(cuke_step_t func);
+void cuke_after(cuke_step_t func);
+
+void cuke_before_t(cuke_step_t func, const char* tag_expression);
+void cuke_after_t(cuke_step_t func, const char* tag_expression);
+
+
 
 char cuke_to_byte(cuke_value* value);
 short cuke_to_short(cuke_value* value);

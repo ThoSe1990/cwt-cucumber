@@ -153,6 +153,33 @@ void cuke_hook(const char* name, cuke_step_t func, const char* tag_expression)
   define_hook(name, func, tag_expression);
 }
 
+void cuke_before_step(cuke_step_t func)
+{
+  cuke_hook("before_step", func, "");
+}
+void cuke_after_step(cuke_step_t func)
+{
+  cuke_hook("after_step", func, "");
+}
+
+void cuke_before(cuke_step_t func)
+{
+  cuke_hook("before", func, "");
+}
+void cuke_after(cuke_step_t func)
+{
+  cuke_hook("after", func, "");
+}
+
+void cuke_before_t(cuke_step_t func, const char* tag_expression)
+{
+  cuke_hook("before", func, tag_expression);
+}
+void cuke_after_t(cuke_step_t func, const char* tag_expression)
+{
+  cuke_hook("after", func, tag_expression);
+}
+
 
 
 char cuke_to_byte(cuke_value* value)
