@@ -66,8 +66,6 @@ int disassemble_instruction(chunk* c, int offset)
     return constant_instruction("OP_TAG", c, offset);
   case OP_GET_VARIABLE:
     return constant_instruction("OP_GET_VARIABLE", c, offset);
-  case OP_PRINT_VARIABLE:
-    return constant_instruction("OP_PRINT_VARIABLE", c, offset);
   case OP_SET_VARIABLE:
     return constant_instruction("OP_SET_VARIABLE", c, offset);
   case OP_DEFINE_VARIABLE:

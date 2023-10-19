@@ -299,25 +299,6 @@ static interpret_result run()
           push(value);
         }
       }
-      break; case OP_PRINT_VARIABLE:
-      {
-        obj_string* name = READ_STRING();
-        cuke_value value; 
-        if (!table_get(&g_vm.variables, name, &value))
-        {
-          runtime_error("Undefined variable '%s'.", name->chars);
-          return INTERPRET_RUNTIME_ERROR;
-        }
-        else 
-        {
-          // TODO this is not so nice .. 
-          print_black("%s=", name->chars);
-          start_black();
-          print_value(value);
-          end_black();
-          printf("  ");
-        }
-      }
       break; case OP_SET_VARIABLE:
       {
         obj_string* name = READ_STRING();

@@ -6,11 +6,11 @@ class cube
 public:
   cube()
   {
-    std::cout << "creating a new cube - cool\n";
+    // std::cout << "creating a new cube - cool\n";
   }
   ~cube()
   {
-    std::cout << "destroying my cube - sad\n";
+    // std::cout << "destroying my cube - sad\n";
   }
   void set_side(std::size_t side)
   {
@@ -33,29 +33,29 @@ private:
 
 AFTER_T(after_t, "@tag1 or @tag2")
 {
-  std::cout << "hook after  @tag1 or @tag2 " << std::endl;
+  // std::cout << "hook after  @tag1 or @tag2 " << std::endl;
 }
 AFTER(after)
 {
-  std::cout << "hook after for all!!!!! " << std::endl;
+  // std::cout << "hook after for all!!!!! " << std::endl;
 }
 
 BEFORE_T(before_t, "@tag1")
 {
-  std::cout << "hook BEFORE  @tag1 " << std::endl;
+  // std::cout << "hook BEFORE  @tag1 " << std::endl;
 }
 BEFORE(before)
 {
-  std::cout << "hook BEFORE for all!!!!! " << std::endl;
+  // std::cout << "hook BEFORE for all!!!!! " << std::endl;
 }
 
 BEFORE_STEP(before_step)
 {
-  std::cout << "hook BEFORE_STEP" << std::endl;
+  // std::cout << "hook BEFORE_STEP" << std::endl;
 }
 AFTER_STEP(before_step)
 {
-  std::cout << "hook AFTER_STEP" << std::endl;
+  // std::cout << "hook AFTER_STEP" << std::endl;
 }
 
 

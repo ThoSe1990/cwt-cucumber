@@ -127,6 +127,10 @@ static void consume(token_type type, const char* msg)
   error_at_current(msg);
 }
 
+static int get_length(token* begin, token* end)
+{
+  return end->start - begin->start + end->length;
+}
 
 static uint8_t make_constant(cuke_value value)
 {
@@ -386,17 +390,15 @@ static void feature_description()
 
 static void name(bool print_name) 
 {
-  const char* begin = parser.previous.start;
-  const int line = parser.previous.line;
+  token begin = parser.previous;
   while(!check(TOKEN_LINEBREAK))
   {
     advance();
     if (check(TOKEN_EOF)) break;
   }
-  const char* end = parser.previous.start + parser.previous.length;
   if (print_name)
   {
-    emit_print_line(copy_string(begin , end-begin));
+    emit_print_line(copy_string(begin.start , get_length(&begin, &parser.previous)));
     emit_location(parser.previous.line);
     emit_byte(OP_PRINT_LINEBREAK);
   }
@@ -451,16 +453,6 @@ static void emit_table_value()
     }
     break; default: error_at_current("Expect a number or string value in table.\n");
   }
-}
-
-static void print_variables(const char* prefix_str, value_array* vars)
-{
-  emit_print_line(copy_string(prefix_str, strlen(prefix_str)));
-  for (int i = 0; i < vars->count ; i++)
-  { 
-    emit_bytes(OP_PRINT_VARIABLE, make_constant(OBJ_VAL(copy_string(AS_STRING(vars->values[i])->chars,AS_STRING(vars->values[i])->length))));
-  }  
-  emit_byte(OP_PRINT_LINEBREAK);
 }
 
 static void examples_body(value_array* vars)
@@ -539,9 +531,10 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
   value_array vars;
   init_value_array(&vars);
 
-
   // read all given variables in the header
+  token header_begin = parser.current;
   examples_header(&vars);
+  int header_length = get_length(&header_begin, &parser.previous);
 
   // publish all variables:
   for (int i = 0; i < vars.count ; i++)
@@ -553,9 +546,16 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
   // now read the body, we need the given ordering from the variables:
   while (!check(TOKEN_SCENARIO) && !check(TOKEN_SCENARIO_OUTLINE) && !check(TOKEN_EOF) && !check(TOKEN_EXAMPLES) && !check(TOKEN_TAG))
   {
+    token body_begin = parser.current;
     examples_body(&vars); 
+    int body_length = get_length(&body_begin, &parser.current);
     create_scenario_call(background, steps, tags);
-    print_variables("          with: ", &vars);
+    emit_print_line(copy_string("With Examples:", 14));
+    emit_location(parser.previous.line);
+    emit_byte(OP_PRINT_LINEBREAK);
+    emit_print_line(copy_string(header_begin.start, header_length));
+    emit_print_line(copy_string(body_begin.start, body_length));
+    emit_byte(OP_PRINT_LINEBREAK);
     while(match(TOKEN_LINEBREAK)){};
   }
 
