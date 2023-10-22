@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-  #include "cwt/cucumber.h"   
+  #include "cwt/cucumber.h"  
 }
 
 class runtime_tags : public ::testing::Test 
@@ -17,6 +17,7 @@ protected:
 
   void TearDown() override 
   {
+    reset_tags();
     close_cucumber();
   }
   

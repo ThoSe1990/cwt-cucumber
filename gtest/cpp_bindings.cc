@@ -1,33 +1,33 @@
-// #include <gtest/gtest.h>
-// #include <memory>
+#include <gtest/gtest.h>
+#include <memory>
 
-// #include "cwt/cucumber.hpp"
+#include "cwt/cucumber.hpp"
 
-// class cpp_bindings : public ::testing::Test 
-// {
-// protected:
-//   void SetUp() override
-//   {
-//     m_cuke = std::make_unique<cuke::tests>();
+class cpp_bindings : public ::testing::Test 
+{
+protected:
+  void SetUp() override
+  {
+    m_cuke = std::make_unique<cuke::tests>();
 
-//   }
+  }
 
-//   void TearDown() override 
-//   {
-//     m_cuke.reset();
-//   }
+  void TearDown() override 
+  {
+    m_cuke.reset();
+  }
 
-//   int run_tests(int argc, const char* argv[])
-//   {
-//     return m_cuke->run(argc, argv);
-//   }
+  int run_tests(int argc, const char* argv[])
+  {
+    return m_cuke->run(argc, argv);
+  }
 
-// private:
-//     std::unique_ptr<cuke::tests> m_cuke; 
-// };
+private:
+    std::unique_ptr<cuke::tests> m_cuke; 
+};
 
 
-// TEST_F(cpp_bindings, init)
-// {
+TEST_F(cpp_bindings, init)
+{
   
-// }
+}

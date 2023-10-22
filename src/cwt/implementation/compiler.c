@@ -786,6 +786,11 @@ void set_tag_option(const char* expression)
     tag_rpn_stack.rpn_stack);
 }
 
+void reset_rpn_stack()
+{
+  tag_rpn_stack.size = 0;
+}
+
 obj_function* compile(const char* source, const char* filename)
 {
   init_scanner(source, filename);

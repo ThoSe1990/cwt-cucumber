@@ -6,6 +6,7 @@
 #include "vm.h"
 
 void set_tag_option(const char* expression);
+void reset_rpn_stack();
 
 obj_function* compile(const char* source, const char* filename);
 

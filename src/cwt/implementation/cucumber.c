@@ -94,6 +94,11 @@ void set_program_options(int argc, const char* argv[])
   }
 }
 
+void reset_tags()
+{
+  reset_rpn_stack();
+}
+
 static int run_all_files(int argc, const char* argv[])
 {
   int result = CUKE_SUCCESS;
