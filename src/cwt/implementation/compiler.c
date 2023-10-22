@@ -319,16 +319,32 @@ static void process_step()
 
   emit_hook(copy_string("before_step", 11), NULL);
 
+  // TODO args have to be in reversed order on the stack
+  // to avoid this rather unnessecary array i can parse 
+  // the steps from right to left this means i can just
+  // use OP_GET_VARIABLE instead write_value_array vvv
+  value_array args;
+  init_value_array(&args);
+
   uint8_t arg_count = 0;
   while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
   {
-    advance();
     if (check(TOKEN_VAR))
     {
       arg_count++;
-      emit_bytes(OP_GET_VARIABLE, make_constant(variable_name()));
+      // here ..... 
+      write_value_array(&args, variable_name());
     }
+    advance();
   }
+
+  for (int i = args.count-1 ; i >= 0 ; i--)
+  {
+    emit_bytes(OP_GET_VARIABLE, make_constant(args.values[i]));
+  }
+
+  free_value_array(&args);
+
   if (match(TOKEN_DOC_STRING))
   {
     emit_doc_string();
@@ -539,8 +555,7 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
   // publish all variables:
   for (int i = 0; i < vars.count ; i++)
   {
-    uint8_t global = make_constant(vars.values[i]);
-    emit_bytes(OP_DEFINE_VARIABLE, global);
+    emit_bytes(OP_DEFINE_VARIABLE, make_constant(vars.values[i]));
   }
 
   // now read the body, we need the given ordering from the variables:

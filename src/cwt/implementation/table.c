@@ -24,6 +24,28 @@ void free_table(table* t)
   init_table(t);
 }
 
+static bool is_same(obj_string* s1, obj_string* s2)
+{
+  if (s1->length != s2->length)
+  {
+    return false;
+  }
+  return memcmp(s1->chars, s2->chars, s1->length) == 0;
+}
+
+static entry* has_step(entry* entries, int len, obj_string* step)
+{
+  for (int i = 0 ; i < len ; i++)
+  {
+    if (is_same(entries[i].key, step))
+    {
+      return &entries[i];
+    }
+  }
+  return NULL; 
+}
+
+
 static entry* find_step(entry* entries, int len, obj_string* step)
 {
   for (int i = 0 ; i < len ; i++)
@@ -194,7 +216,7 @@ bool table_set_step(table* t, obj_string* key, cuke_value v, bool check_if_exist
     adjust_step_capacity(t, capacity);
   }
 
-  if (check_if_exists && find_step(t->entries, t->count, key))
+  if (check_if_exists && has_step(t->entries, t->count, key))
   {
     fprintf(stderr, "Can not add step '%s' because it already exists", key->chars);
     return false;
