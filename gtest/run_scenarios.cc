@@ -9,7 +9,9 @@ class run_scenarios : public ::testing::Test
 protected:
   void SetUp() override
   {
+    m_background_called = false;
     open_cucumber();
+    cuke_step("background step", background);
     cuke_step("{int} and {int} are equal", test_is_equal);
     cuke_step("{int} is greater than {int}", test_is_greater);
   }
@@ -30,7 +32,13 @@ protected:
     int n2 = cuke_to_int(&args[1]);
     cuke_assert(n1 > n2);
   }
+  static void background(int arg_count, cuke_value* args)
+  {
+    m_background_called = true;
+  }
+  static bool m_background_called;
 };
+bool run_scenarios::m_background_called;
 
 TEST_F(run_scenarios, simple_scenario_1)
 {
@@ -122,4 +130,35 @@ const char* script = R"*(
 )*";
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
+
+
+TEST_F(run_scenarios, background_called)
+{
+const char* script = R"*(
+  Feature: some feature 
+  
+  Background:
+    * background step
+
+    Scenario: some scenario
+      * 5 and 5 are equal
+      And 10 and 10 are equal
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+  EXPECT_TRUE(m_background_called);
+}
+TEST_F(run_scenarios, background_not_called)
+{
+const char* script = R"*(
+  Feature: some feature 
+
+    Scenario: some scenario
+      * 5 and 5 are equal
+      And 10 and 10 are equal
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+  EXPECT_FALSE(m_background_called);
 }

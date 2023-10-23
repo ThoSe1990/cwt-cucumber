@@ -13,7 +13,6 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/step_args.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/cpp_bindings.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/cpp_scenario_context.cc
     )
