@@ -309,6 +309,38 @@ static cuke_value variable_name()
   return OBJ_VAL(copy_string(&parser.current.start[1] , length_wo_angle_brackets));
 }
 
+static void emit_reversed(value_array* vars)
+{
+  for (int i = vars->count-1 ; i >= 0 ; i--)
+  {
+    emit_bytes(OP_GET_VARIABLE, make_constant(vars->values[i]));
+  }
+}
+static void process_variables()
+{
+
+  // TODO args have to be in reversed order on the stack
+  // to avoid this rather unnessecary array i can parse 
+  // the steps from right to left this means i can just
+  // use OP_GET_VARIABLE instead write_value_array vvv
+  value_array vars;
+  init_value_array(&vars);
+
+  while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
+  {
+    if (check(TOKEN_VAR))
+    {
+      // here ..... 
+      write_value_array(&vars, variable_name());
+    }
+    advance();
+  }
+
+  emit_reversed(&vars);
+
+  free_value_array(&vars);
+}
+
 static void process_step()
 {
   const char* step_name = parser.current.start;
@@ -319,31 +351,7 @@ static void process_step()
 
   emit_hook(copy_string("before_step", 11), NULL);
 
-  // TODO args have to be in reversed order on the stack
-  // to avoid this rather unnessecary array i can parse 
-  // the steps from right to left this means i can just
-  // use OP_GET_VARIABLE instead write_value_array vvv
-  value_array args;
-  init_value_array(&args);
-
-  uint8_t arg_count = 0;
-  while(!match(TOKEN_LINEBREAK) && !match(TOKEN_EOF))
-  {
-    if (check(TOKEN_VAR))
-    {
-      arg_count++;
-      // here ..... 
-      write_value_array(&args, variable_name());
-    }
-    advance();
-  }
-
-  for (int i = args.count-1 ; i >= 0 ; i--)
-  {
-    emit_bytes(OP_GET_VARIABLE, make_constant(args.values[i]));
-  }
-
-  free_value_array(&args);
+  process_variables();
 
   if (match(TOKEN_DOC_STRING))
   {
