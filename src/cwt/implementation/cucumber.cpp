@@ -26,6 +26,7 @@ namespace cuke
   int runner::run(int argc, const char* argv[])
   {
     get_feature_files(argc, argv);
+    cuke_options(argc, argv);
     return internal_run();
   }
 

@@ -191,9 +191,20 @@ static int step_name_length(const char* str)
   return str-begin;
 }
 
+static void emit_step_result(const char* step_name, int length)
+{
+  if (!options.silent)
+  {
+    emit_bytes(OP_PRINT_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
+  }
+}
+
 static void emit_print_line(obj_string* value)
 {
-  emit_bytes(OP_PRINT_LINE, make_constant(OBJ_VAL(value)));
+  if (!options.silent)
+  {
+    emit_bytes(OP_PRINT_LINE, make_constant(OBJ_VAL(value)));
+  }
 }
 
 static void emit_long()
@@ -246,14 +257,25 @@ static void emit_hook(obj_string* name, value_array* tags)
   }
 }
 
+static void emit_linebreak()
+{
+  if (!options.silent)
+  {
+    emit_byte(OP_PRINT_LINEBREAK);
+  }
+}
+
 static void emit_location(int line)
 {
-  char buffer[512];
-  sprintf(buffer, "%s:%d", filename(), line);
-  emit_bytes(OP_PRINT_BLACK, make_constant(
-      OBJ_VAL(copy_string(
-        buffer, strlen(buffer)
-      ))));
+  if (!options.silent)
+  {
+    char buffer[512];
+    sprintf(buffer, "%s:%d", filename(), line);
+    emit_bytes(OP_PRINT_BLACK, make_constant(
+        OBJ_VAL(copy_string(
+          buffer, strlen(buffer)
+        ))));
+  }
 }
 
 static void init_compiler(cuke_compiler_t* compiler, function_type_t type)
@@ -368,13 +390,10 @@ static void process_step()
   emit_hook(copy_string("after_step", 10), NULL);
 
   patch_jump(after_step);
-  if (!options.silent)
-  {
-    emit_bytes(OP_PRINT_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
-  }
+  emit_step_result(step_name, length);
   emit_byte(OP_SET_STEP_RESULT);
   emit_location(line);
-  emit_byte(OP_PRINT_LINEBREAK);
+  emit_linebreak();
 }
 
 static void examples_description()
@@ -432,7 +451,7 @@ static void name(bool print_name)
   {
     emit_print_line(copy_string(begin.start , get_length(&begin, &parser.previous)));
     emit_location(parser.previous.line);
-    emit_byte(OP_PRINT_LINEBREAK);
+    emit_linebreak();
   }
 }
 
@@ -532,7 +551,7 @@ static void scenario(obj_function* background, value_array* tags)
 
   obj_function* func = end_compiler();
   create_scenario_call(background, func, tags);
-  emit_byte(OP_PRINT_LINEBREAK); 
+  emit_linebreak();
 }
 
 static bool no_tags_given() 
@@ -584,10 +603,10 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
     create_scenario_call(background, steps, tags);
     emit_print_line(copy_string("With Examples:", 14));
     emit_location(parser.previous.line);
-    emit_byte(OP_PRINT_LINEBREAK);
+    emit_linebreak();
     emit_print_line(copy_string(header_begin.start, header_length));
     emit_print_line(copy_string(body_begin.start, body_length));
-    emit_byte(OP_PRINT_LINEBREAK);
+    emit_linebreak();
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -781,7 +800,7 @@ static void feature()
   init_compiler(&compiler, TYPE_FUNCTION);
 
   name(true);
-  emit_byte(OP_PRINT_LINEBREAK);
+  emit_linebreak();
   advance();
 
   feature_description();
