@@ -5,7 +5,7 @@
 #include <vector>
 
 extern "C" {
-  #include "cwt/cucumber.h"
+  #include "cucumber.h"
 }
 
 #include "cucumber_context.hpp"

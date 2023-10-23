@@ -1,9 +1,8 @@
 
 
 extern "C" {
-  #include "cwt/cucumber.h"
+  #include "cucumber.h"
 }
-
 
 namespace cuke 
 {

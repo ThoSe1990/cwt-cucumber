@@ -2,6 +2,7 @@
 
 extern "C" {
   #include "cwt/cucumber.h"  
+  #include "cwt/implementation/program_options.h"
 }
 
 class runtime_tags : public ::testing::Test 

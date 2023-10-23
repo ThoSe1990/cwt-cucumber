@@ -77,8 +77,3 @@ STEP(cube_volume, "The cube volume is {int}")
   cuke::assert_equal(volume, cuke::context<cube>().volume());  
 }
 
-int main(int argc, const char* argv[])
-{
-  cuke::tests c; 
-  return c.run(argc, argv);
-}

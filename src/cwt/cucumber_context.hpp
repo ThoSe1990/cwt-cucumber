@@ -7,7 +7,7 @@
 #include <unordered_map>
 
 extern "C" {
-  #include "cwt/cucumber_value.h"
+  #include "cucumber_value.h"
 }
 
 namespace cuke {
