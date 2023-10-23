@@ -30,14 +30,14 @@ typedef struct
 {
   int count;
   int capacity;
-  uint8_t* code;
+  uint16_t* code;
   int* lines;
   value_array constants;
 } chunk;
 
 void init_chunk(chunk* c);
 void free_chunk(chunk* c);
-void write_chunk(chunk* c, uint8_t byte, int line);
+void write_chunk(chunk* c, uint16_t byte, int line);
 int add_constant(chunk* c, cuke_value value);
 
 #endif

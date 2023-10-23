@@ -272,7 +272,7 @@ static interpret_result run()
     printf("\n");
     disassemble_instruction(&frame->function->chunk, (int)(frame->ip - frame->function->chunk.code));
   #endif 
-    uint8_t instruction; 
+    uint16_t instruction; 
     switch (instruction = READ_BYTE()) 
     {
       case OP_CONSTANT:

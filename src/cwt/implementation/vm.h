@@ -7,11 +7,11 @@
 #include "value.h"
 
 #define FRAMES_MAX 64
-#define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
+#define STACK_MAX (FRAMES_MAX)
 
 typedef struct {
   obj_function* function;
-  uint8_t* ip;
+  uint16_t* ip;
   cuke_value* slots;
 } call_frame;
 

@@ -137,27 +137,27 @@ static int get_length(token* begin, token* end)
   return end->start - begin->start + end->length;
 }
 
-static uint8_t make_constant(cuke_value value)
+static uint16_t make_constant(cuke_value value)
 {
   int constant = add_constant(current_chunk(), value);
-  if (constant > UINT8_MAX)
+  if (constant > UINT16_MAX)
   {
     error("Too many constants in one chunk");
     return 0;
   }
-  return (uint8_t)constant;
+  return (uint16_t)constant;
 }
-static void emit_byte(uint8_t byte)
+static void emit_byte(uint16_t byte)
 {
   write_chunk(current_chunk(), byte, parser.previous.line);
 }
 
-static void emit_bytes(uint8_t byte1, uint8_t byte2)
+static void emit_bytes(uint16_t byte1, uint16_t byte2)
 {
   emit_byte(byte1);
   emit_byte(byte2);
 }
-static void emit_bytes_at(uint8_t byte1, uint8_t byte2, int line)
+static void emit_bytes_at(uint16_t byte1, uint16_t byte2, int line)
 {
   write_chunk(current_chunk(), byte1, line);
   write_chunk(current_chunk(), byte2, line);
@@ -166,7 +166,7 @@ static void emit_constant(cuke_value value)
 {
   emit_bytes(OP_CONSTANT, make_constant(value));
 }
-static int emit_jump(uint8_t instruction)
+static int emit_jump(uint16_t instruction)
 {
   emit_byte(instruction);
   emit_byte(0xff);
@@ -293,7 +293,7 @@ static obj_function* end_compiler()
 
 
 
-static void define_variable(uint8_t global)
+static void define_variable(uint16_t global)
 {
   emit_bytes(OP_DEFINE_VARIABLE, global);
 }

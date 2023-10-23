@@ -11,19 +11,19 @@ void init_chunk(chunk* c)
 
 void free_chunk(chunk* c)
 {
-  FREE_ARRAY(uint8_t, c->code, c->capacity);
+  FREE_ARRAY(uint16_t, c->code, c->capacity);
   FREE_ARRAY(int, c->lines, c->capacity);
   free_value_array(&c->constants);
   init_chunk(c);
 }
 
-void write_chunk(chunk* c, uint8_t byte, int line)
+void write_chunk(chunk* c, uint16_t byte, int line)
 {
   if (c->capacity < c->count + 1)
   {
     int old_cap = c->capacity;
     c->capacity = GROW_CAPACITY(old_cap);
-    c->code = GROW_ARRAY(uint8_t, c->code, old_cap, c->capacity);
+    c->code = GROW_ARRAY(uint16_t, c->code, old_cap, c->capacity);
     c->lines = GROW_ARRAY(int, c->lines, old_cap, c->capacity);
   }
 

@@ -5,7 +5,7 @@
 
 static int constant_instruction(const char* name, chunk* c, int offset)
 {
-  uint8_t constant = c->code[offset+1];
+  uint16_t constant = c->code[offset+1];
   printf("%-16s %4d '", name, constant);
   print_value(c->constants.values[constant]);
   printf("'\n");
@@ -26,7 +26,7 @@ static int simple_instruction(const char* name, int offset)
 
 static int byte_instruction(const char* name, chunk* c, int offset)
 {
-  uint8_t slot = c->code[offset+1];
+  uint16_t slot = c->code[offset+1];
   printf("%-16s %4d\n", name, slot);
   return offset + 2;
 }
@@ -54,7 +54,7 @@ int disassemble_instruction(chunk* c, int offset)
     printf("%4d ", c->lines[offset]);
   }
 
-  uint8_t instruction = c->code[offset];
+  uint16_t instruction = c->code[offset];
   switch (instruction)
   {
   case OP_CONSTANT:
