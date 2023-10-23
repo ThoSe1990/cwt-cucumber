@@ -16,24 +16,29 @@ typedef struct
   token current;
   token previous; 
   bool had_error;
-} cuke_parser;
+} cuke_parser_t;
 
 
 typedef enum 
 {
   TYPE_FUNCTION,
   TYPE_SCRIPT
-} function_type;
+} function_type_t;
 
-typedef struct cuke_compiler 
+typedef struct 
 {
-  struct cuke_compiler* enclosing;
-  obj_function* function;
-  function_type type;
-} cuke_compiler;
+  bool silent;
+} compiler_options_t;
 
-cuke_parser parser; 
-cuke_compiler* current = NULL;
+typedef struct cuke_compiler_t 
+{
+  struct cuke_compiler_t* enclosing;
+  obj_function* function;
+  function_type_t type;
+} cuke_compiler_t;
+
+cuke_parser_t parser; 
+cuke_compiler_t* current = NULL;
 
 typedef struct 
 {
@@ -251,7 +256,7 @@ static void emit_location(int line)
       ))));
 }
 
-static void init_compiler(cuke_compiler* compiler, function_type type)
+static void init_compiler(cuke_compiler_t* compiler, function_type_t type)
 {
   compiler->enclosing = current;
   compiler->function = NULL;
@@ -358,7 +363,6 @@ static void process_step()
     emit_doc_string();
   }
 
-  
   emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
   
   emit_hook(copy_string("after_step", 10), NULL);
@@ -513,7 +517,7 @@ static void create_scenario_call(obj_function* background, obj_function* scenari
 
 static void scenario(obj_function* background, value_array* tags)
 {
-  cuke_compiler compiler;
+  cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
   name(true);
@@ -653,7 +657,7 @@ static void start_examples(obj_function* background, obj_function* steps)
 
 static void scenario_outline(obj_function* background)
 {
-  cuke_compiler compiler;
+  cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
   name(true);
@@ -745,7 +749,7 @@ static obj_function* get_background()
 {
   if (match(TOKEN_BACKGROUND))
   {
-    cuke_compiler compiler;
+    cuke_compiler_t compiler;
     init_compiler(&compiler, TYPE_FUNCTION);
 
     name(false);
@@ -768,7 +772,7 @@ static void feature()
   skip_linebreaks();
   consume(TOKEN_FEATURE, "Expect FeatureLine.");
 
-  cuke_compiler compiler;
+  cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
   name(true);
@@ -802,7 +806,7 @@ void reset_rpn_stack()
 obj_function* compile(const char* source, const char* filename)
 {
   init_scanner(source, filename);
-  cuke_compiler compiler; 
+  cuke_compiler_t compiler; 
   init_compiler(&compiler, TYPE_SCRIPT);
 
   parser.had_error = false;
