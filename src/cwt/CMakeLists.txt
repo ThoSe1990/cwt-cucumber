@@ -20,7 +20,9 @@ add_library(${target} STATIC
 
 
 add_library(${target}-cpp STATIC 
-  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/main.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/implementation/cuke_tests.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/implementation/main.cpp
 )
 target_link_libraries(${target}-cpp ${target})
 

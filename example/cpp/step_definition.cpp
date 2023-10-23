@@ -76,4 +76,3 @@ STEP(cube_volume, "The cube volume is {int}")
   const std::size_t volume = CUKE_ARG(1);
   cuke::assert_equal(volume, cuke::context<cube>().volume());  
 }
-

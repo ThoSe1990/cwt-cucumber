@@ -1,26 +1,29 @@
 #pragma once 
 
-#include <string_view>
-#include <iostream>
 #include <vector>
+#include <iostream>
+#include <filesystem>
+#include <string_view>
 
 extern "C" {
   #include "cucumber.h"
 }
 
+#include "cuke_tests.hpp"
 #include "cucumber_context.hpp"
 #include "cucumber_asserts.hpp"
 
 namespace cuke::details
 {
-  static std::vector<std::pair<const char*, cuke_step_t>> steps;
+
   struct hook
   {
     const char* name;
     const char* tag_expression;
     cuke_step_t function;
   };
-  static std::vector<hook> hooks;
+  std::vector<std::pair<const char*, cuke_step_t>>& steps();
+  std::vector<hook>& hooks();
 } // namespace cuke::details
 
 #define CONCAT_INTERNAL(a, b) a ## b
@@ -31,7 +34,7 @@ namespace cuke::details
     namespace { \
         struct CONCAT(name, _t) { \
             CONCAT(name, _t)() { \
-             cuke::details::steps.push_back({step_definition,name}); \
+             cuke::details::steps().push_back({step_definition,name}); \
             } \
         } CONCAT(g_,name); \
     } \
@@ -44,7 +47,7 @@ namespace cuke::details
     namespace { \
         struct CONCAT(name, _t) { \
             CONCAT(name, _t)() { \
-             cuke::details::hooks.push_back({hook,tag_expression,name}); \
+             cuke::details::hooks().push_back({hook,tag_expression,name}); \
             } \
         } CONCAT(g_,name); \
     } \
@@ -233,33 +236,3 @@ namespace cuke::details
 
 #define CUKE_ARG(i) cuke::details::get_arg(args, i, arg_count, __FILE__, __LINE__)  
 
-
-namespace cuke
-{
-  class tests 
-  {
-    public:
-      tests() 
-      {
-        open_cucumber();
-        for (const auto& pair : details::steps) 
-        {
-          cuke_step(pair.first, pair.second);
-        }
-        for (const details::hook& h : details::hooks)
-        {
-          cuke_hook(h.name, h.function, h.tag_expression);
-        }
-        cuke_hook("reset_context", details::reset_scenario_context, "");
-      }
-      ~tests() 
-      {
-        close_cucumber();
-      }
-
-      int run(int argc, const char* argv[])
-      {
-        return run_cuke_from_argv(argc, argv);
-      }
-  };
-} // namespace cuke

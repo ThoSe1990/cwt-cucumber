@@ -42,7 +42,7 @@ static void print_results(const char* type, result_t* result)
   printf(")\n");
 }
 
-static char* read_file(const char* path) 
+char* read_file(const char* path) 
 {
   FILE* file = fopen(path, "rb");
   if (file == NULL) 
@@ -97,10 +97,14 @@ static int run_all_files(int argc, const char* argv[])
     free(source);
   }
   
-  print_results("Scenarios", get_scenario_result());
-  print_results("Steps", get_step_result());
+  print_final_result();
 
   return result;
+}
+
+void open_cucumber()
+{
+  init_vm();
 }
 
 
@@ -113,17 +117,23 @@ int run_cuke(const char* source, const char* path)
   return CUKE_SUCCESS;
 }
 
-
-void open_cucumber()
-{
-  init_vm();
-}
-
-int run_cuke_from_argv(int argc, const char* argv[])
+void cuke_options(int argc, const char* argv[])
 {
   program_options(argc, argv);
+}
+
+int run_cuke_argc_argv(int argc, const char* argv[])
+{
   return run_all_files(argc, argv);
 }
+
+void print_final_result()
+{
+  printf("\n\n");
+  print_results("Scenarios", get_scenario_result());
+  print_results("Steps", get_step_result());
+}
+
 void close_cucumber()
 {
   free_vm();

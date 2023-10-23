@@ -41,7 +41,7 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
 
 [ ] print file location to results
 [ ] scenario outline -> variables are printed into the steps -> steps look similar in different examples
-[ ] return value from run_cuke_from_argv -> return 0 if all tests pass from main
+[ ] return value from run_cuke_argc_argv -> return 0 if all tests pass from main
 [ ] syntax error after examples table -> endless loop!
 [ ] uint8_t => uint16_t (or 32?)
 [x] print results (colored + overall results)

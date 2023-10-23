@@ -23,7 +23,7 @@ int main(int argc, const char* argv[])
   cuke_step("this passes", step_pass);
   cuke_step("this fails", step_fail);
 
-  run_cuke_from_argv(argc, argv);
+  run_cuke_argc_argv(argc, argv);
   
   close_cucumber();
 

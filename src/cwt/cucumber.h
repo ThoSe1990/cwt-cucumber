@@ -6,12 +6,18 @@
 #define CUKE_SUCCESS 0
 #define CUKE_FAILED 1
 
+char* read_file(const char* path);
+
 void open_cucumber();
-void reset_tags();
-int run_cuke_from_argv(int argc, const char* argv[]);
-int run_cuke(const char* source, const char* path);
 void close_cucumber();
 
+void cuke_options(int argc, const char* argv[]);
+void reset_tags();
+
+int run_cuke(const char* source, const char* path);
+int run_cuke_argc_argv(int argc, const char* argv[]);
+
+void print_final_result();
 
 typedef void (*cuke_step_t)(int arg_count, cuke_value* args);
 
