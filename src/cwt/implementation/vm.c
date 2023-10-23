@@ -118,37 +118,39 @@ static int get_test_result()
   }
 }
 
-void print_step_result(obj_string* step)
+void set_step_result()
 {
-  call_frame* frame = &g_vm.frames[g_vm.frame_count - 1];
-  obj_function* func = frame->function;
-  
   switch (g_vm.step_results.last)
   {
     case PASSED: 
     {
       g_vm.step_results.passed++;
-      print_green("[   PASSED    ] %s", step->chars);
     }
     break; case FAILED: 
     {
       g_vm.scenario_results.last = FAILED;
       g_vm.step_results.failed++;
-      print_red("[   FAILED    ] %s", step->chars);
     }
     break; case SKIPPED: 
     {
       g_vm.scenario_results.last = SKIPPED;
       g_vm.step_results.skipped++;
-      print_blue("[   SKIPPED   ] %s", step->chars);
     }
     break; case UNDEFINED: 
     {
       g_vm.scenario_results.last = g_vm.scenario_results.last == FAILED ? FAILED : UNDEFINED;
       g_vm.step_results.undefined++;
-      print_yellow("[  UNDEFINED  ] %s", step->chars);
     }
-    break; default: ;// shouldn't happen ... 
+  }  
+}
+void print_step_result(obj_string* step)
+{
+  switch (g_vm.step_results.last)
+  {
+    case PASSED: print_green("[   PASSED    ] %s", step->chars);
+    break; case FAILED: print_red("[   FAILED    ] %s", step->chars);
+    break; case SKIPPED: print_blue("[   SKIPPED   ] %s", step->chars);
+    break; case UNDEFINED: print_yellow("[  UNDEFINED  ] %s", step->chars);
   }  
 }
 
@@ -331,30 +333,22 @@ static interpret_result run()
       break; case OP_CALL_STEP:
       {
         obj_string* step_in_feature = READ_STRING();
-  
         obj_string step_definition;
         cuke_value value;      
-        if (table_get_step(&g_vm.steps, step_in_feature, &value, &step_definition))
+        value_array args;
+        init_value_array(&args); 
+        if (table_get_step(&g_vm.steps, step_in_feature, &value, &step_definition)
+          && parse_step(step_definition.chars, step_in_feature->chars, &args))
         {
-          value_array args;
-          init_value_array(&args); 
-          if (parse_step(step_definition.chars, step_in_feature->chars, &args))
-          {
-            cuke_step_t native = AS_NATIVE(value);
-            native(args.count, args.values);
-          }
-          else 
-          {
-            g_vm.step_results.last = UNDEFINED;
-            g_vm.scenario_results.last = FAILED;            
-          }
-          free_value_array(&args);
+          cuke_step_t native = AS_NATIVE(value);
+          native(args.count, args.values);
         } 
         else 
         {
           g_vm.step_results.last = UNDEFINED;
           g_vm.scenario_results.last = FAILED;
         }
+        free_value_array(&args);
       }
       break; case OP_CALL:
       {
@@ -374,10 +368,14 @@ static interpret_result run()
       {
         printf("\n");
       }
-      break; case OP_STEP_RESULT:
+      break; case OP_PRINT_STEP_RESULT:
       {
         obj_string* step = READ_STRING();
         print_step_result(step);
+      }
+      break; case OP_SET_STEP_RESULT:
+      {
+        set_step_result();
       }
       break; case OP_PRINT_BLACK:
       {

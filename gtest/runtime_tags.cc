@@ -54,7 +54,7 @@ const char* script = R"*(
   argv[0] = "some program";
   argv[1] = "-t";
   argv[2] = "@pass";
-  set_program_options(argc, argv);
+  program_options(argc, argv);
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
 
@@ -76,7 +76,7 @@ const char* script = R"*(
   argv[0] = "some program";
   argv[1] = "-t";
   argv[2] = "@fail";
-  set_program_options(argc, argv);
+  program_options(argc, argv);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -108,7 +108,7 @@ const char* script = R"*(
   argv[0] = "some program";
   argv[1] = "-t";
   argv[2] = "@fail";
-  set_program_options(argc, argv);
+  program_options(argc, argv);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -140,7 +140,7 @@ const char* script = R"*(
   argv[0] = "some program";
   argv[1] = "-t";
   argv[2] = "@pass";
-  set_program_options(argc, argv);
+  program_options(argc, argv);
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }

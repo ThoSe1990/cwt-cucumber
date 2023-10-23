@@ -7,7 +7,7 @@
 #define CUKE_FAILED 1
 
 void open_cucumber();
-void set_program_options(int argc, const char* argv[]);
+void program_options(int argc, const char* argv[]);
 void reset_tags();
 int run_cuke_from_argv(int argc, const char* argv[]);
 int run_cuke(const char* source, const char* path);

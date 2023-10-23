@@ -6,6 +6,7 @@
 #include "vm.h"
 #include "compiler.h"
 #include "prints.h"
+#include "program_options.h"
 
 static void print_results(const char* type, result_t* result)
 {
@@ -72,27 +73,6 @@ static char* read_file(const char* path)
   return buffer;
 }
 
-void set_program_options(int argc, const char* argv[])
-{
-  for (int i = 1; i < argc; i++) 
-  {
-    if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
-    {
-      if (i+1 < argc)
-      {
-        set_tag_option(argv[i+1]);
-      }
-      else 
-      {
-        fprintf(stderr, "Expect value after '%s'.", argv[i]);
-      }
-    } 
-    else if (*argv[i] == '-')
-    {
-      fprintf(stderr, "Unknown program option: '%s'.", argv[i]);
-    }
-  }
-}
 
 void reset_tags()
 {
@@ -141,7 +121,7 @@ void open_cucumber()
 
 int run_cuke_from_argv(int argc, const char* argv[])
 {
-  set_program_options(argc, argv);
+  program_options(argc, argv);
   return run_all_files(argc, argv);
 }
 void close_cucumber()

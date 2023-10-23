@@ -25,11 +25,6 @@ typedef enum
   TYPE_SCRIPT
 } function_type_t;
 
-typedef struct 
-{
-  bool silent;
-} compiler_options_t;
-
 typedef struct cuke_compiler_t 
 {
   struct cuke_compiler_t* enclosing;
@@ -46,7 +41,12 @@ typedef struct
   unsigned int size; 
 } tag_rpn_stack_t;
 
-tag_rpn_stack_t tag_rpn_stack;
+typedef struct 
+{
+  tag_rpn_stack_t tags;
+  bool silent;
+} compiler_options_t;
+compiler_options_t options = {.silent = false};
 
 static chunk* current_chunk()
 {
@@ -368,7 +368,11 @@ static void process_step()
   emit_hook(copy_string("after_step", 10), NULL);
 
   patch_jump(after_step);
-  emit_bytes(OP_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
+  if (!options.silent)
+  {
+    emit_bytes(OP_PRINT_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
+  }
+  emit_byte(OP_SET_STEP_RESULT);
   emit_location(line);
   emit_byte(OP_PRINT_LINEBREAK);
 }
@@ -532,7 +536,7 @@ static void scenario(obj_function* background, value_array* tags)
 
 static bool no_tags_given() 
 {
-  return tag_rpn_stack.size == 0;
+  return options.tags.size == 0;
 }
 static void read_tags(value_array* tags)
 {
@@ -612,7 +616,7 @@ static void tagged_examples(obj_function* background, obj_function* steps)
   init_value_array(&tags); 
   read_tags(&tags);
   if (no_tags_given() 
-    || evaluate_tags(tag_rpn_stack.rpn_stack, tag_rpn_stack.size, tags.values, tags.count))
+    || evaluate_tags(options.tags.rpn_stack, options.tags.size, tags.values, tags.count))
   {
     if (match(TOKEN_EXAMPLES))
     {
@@ -699,7 +703,7 @@ static void tagged_scenario(obj_function* background)
   consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
   
   if (no_tags_given() 
-    || evaluate_tags(tag_rpn_stack.rpn_stack, tag_rpn_stack.size, tags.values, tags.count))
+    || evaluate_tags(options.tags.rpn_stack, options.tags.size, tags.values, tags.count))
   {
     scenario(background, &tags);
   }
@@ -790,17 +794,21 @@ static void feature()
   emit_bytes(OP_CALL, 0);
 }
 
+void set_silent()
+{
+  options.silent = true;
+}
 
 void set_tag_option(const char* expression)
 {
-  tag_rpn_stack.size = compile_tag_expression(
+  options.tags.size = compile_tag_expression(
     expression, 
-    tag_rpn_stack.rpn_stack);
+    options.tags.rpn_stack);
 }
 
 void reset_rpn_stack()
 {
-  tag_rpn_stack.size = 0;
+  options.tags.size = 0;
 }
 
 obj_function* compile(const char* source, const char* filename)

@@ -15,6 +15,7 @@ add_library(${target} STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/prints.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/tag_scanner.c
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/program_options.c
 )
 
 if (STACK_TRACE)
