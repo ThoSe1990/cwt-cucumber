@@ -1,7 +1,7 @@
 
 set(target cucumber)
 
-add_library(${target} STATIC
+set(cucumber-src 
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/chunk.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/memory.c
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/debug.c
@@ -18,15 +18,22 @@ add_library(${target} STATIC
   ${CMAKE_CURRENT_SOURCE_DIR}/implementation/program_options.c
 )
 
+add_library(${target} STATIC ${cucumber-src})
+
+add_library(${target}-cpp-nomain STATIC 
+  ${cucumber-src}
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.cpp
+)
 
 add_library(${target}-cpp STATIC 
-${CMAKE_CURRENT_SOURCE_DIR}/implementation/cuke_tests.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/implementation/main.cpp
+  ${cucumber-src}
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/cucumber.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/implementation/main.cpp
 )
-target_link_libraries(${target}-cpp ${target})
 
 
 if (STACK_TRACE)
   target_compile_definitions(${target} PUBLIC STACK_TRACE)
+  target_compile_definitions(${target}-cpp PUBLIC STACK_TRACE)
+  target_compile_definitions(${target}-cpp-nomain PUBLIC STACK_TRACE)
 endif()

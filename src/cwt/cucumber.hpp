@@ -9,9 +9,31 @@ extern "C" {
   #include "cucumber.h"
 }
 
-#include "cuke_tests.hpp"
 #include "cucumber_context.hpp"
 #include "cucumber_asserts.hpp"
+#include "cucumber_error.hpp"
+
+namespace cuke
+{
+  namespace fs = std::filesystem;
+
+  class runner 
+  {
+    public:
+      runner();
+      ~runner();
+      int run(int argc, const char* argv[]);
+
+    private:
+      void find_feature_in_dir(const fs::path& dir);
+      void get_feature_files(int argc, const char* argv[]);
+      int internal_run();
+
+    private:
+      std::vector<fs::path> m_feature_files;      
+  };
+
+} // namespace cuke
 
 namespace cuke::details
 {
@@ -87,15 +109,6 @@ namespace cuke::details
 
   template<typename T>
   static constexpr bool has_cuke_conversion_v = has_cuke_conversion_function<cuke_conversion_impl<T>>::value;
-
-  static void print_error() {}
-
-  template <typename T, typename... Args>
-  static void print_error(const T& t, const Args&... args) 
-  {
-      std::cerr << "\x1B[31m" << t << "\x1B[0m";
-      print_error(args...);
-  }
 
   struct cuke_conversion 
   {

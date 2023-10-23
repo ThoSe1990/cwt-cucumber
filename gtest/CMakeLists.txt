@@ -17,6 +17,6 @@ if(GTest_FOUND)
         ${CMAKE_CURRENT_SOURCE_DIR}/cpp_scenario_context.cc
     )
     target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/src/cwt/implementation)
-    target_link_libraries(${target} cucumber-cpp GTest::gtest_main)
+    target_link_libraries(${target} cucumber-cpp-nomain GTest::gtest_main)
 
 endif()

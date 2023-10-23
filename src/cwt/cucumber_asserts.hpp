@@ -1,14 +1,30 @@
-
+#include <type_traits>
 
 extern "C" {
   #include "cucumber.h"
 }
+#include "cucumber_error.hpp"
 
 namespace cuke 
 {
-  template<typename T>
-  inline void assert_equal(T t1, T t2)
+  template <typename T, typename U, typename = std::void_t<>>
+  struct is_comparable : std::false_type {};
+
+  template <typename T, typename U>
+  struct is_comparable<T, U, std::void_t<decltype(std::declval<T>() == std::declval<U>())>> : std::true_type {};
+
+
+  template <typename T, typename U>
+  void assert_equal(const T& rhs, const U& lhs) 
   {
-    cuke_assert(t1 == t2);
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(rhs == lhs);
+    }
+    else 
+    {
+      cuke_assert(false);
+      details::print_error("Can not compare given types");
+    }
   }
 } // namespace cuke 

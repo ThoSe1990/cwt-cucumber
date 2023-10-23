@@ -7,7 +7,7 @@ class cpp_scenario_context : public ::testing::Test
 protected:
   void SetUp() override
   {
-    m_cuke = std::make_unique<cuke::tests>();
+    m_cuke = std::make_unique<cuke::runner>();
   }
 
   void TearDown() override 
@@ -21,7 +21,7 @@ protected:
   }
 
 private:
-    std::unique_ptr<cuke::tests> m_cuke; 
+    std::unique_ptr<cuke::runner> m_cuke; 
 };
 
 

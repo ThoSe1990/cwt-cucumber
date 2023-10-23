@@ -532,6 +532,7 @@ static void scenario(obj_function* background, value_array* tags)
 
   obj_function* func = end_compiler();
   create_scenario_call(background, func, tags);
+  emit_byte(OP_PRINT_LINEBREAK); 
 }
 
 static bool no_tags_given() 

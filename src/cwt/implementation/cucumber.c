@@ -129,7 +129,7 @@ int run_cuke_argc_argv(int argc, const char* argv[])
 
 void print_final_result()
 {
-  printf("\n\n");
+  printf("\n");
   print_results("Scenarios", get_scenario_result());
   print_results("Steps", get_step_result());
 }
