@@ -3,6 +3,6 @@
 
 int main(int argc, const char* argv[])
 {
-  cuke::runner c; 
-  return c.run(argc, argv);
+  cuke::details::init(); 
+  return cuke::details::run(argc, argv);
 }

@@ -52,3 +52,8 @@ TEST(step_matcher, beginning_spaces)
   EXPECT_TRUE(parse_step("{string} a step", "   \"hello world\" a step ", NULL));
   EXPECT_TRUE(parse_step("   {string} a step", "\"hello world\" a step ", NULL));
 }
+TEST(step_matcher, three_ints)
+{
+  EXPECT_TRUE(parse_step("A box with {int} x {int} x {int}", "A box with 2 x 2 x 2", NULL));
+  
+}

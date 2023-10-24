@@ -379,12 +379,6 @@ token scan_token()
   
   char c = advance();
 
-  token_type current = identifier();
-  if (current != NO_TOKEN) 
-  {
-    return make_token(current);
-  }
-
   if (is_digit(c)) 
   {
     return number();
@@ -425,6 +419,12 @@ token scan_token()
       scanner.line++;
       return make_token(TOKEN_LINEBREAK);
     }
+  }
+
+  token_type current = identifier();
+  if (current != NO_TOKEN) 
+  {
+    return make_token(current);
   }
 
   return text(); 

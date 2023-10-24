@@ -63,8 +63,19 @@ namespace cuke {
       template<typename T>
       T& get() 
       {
+        std::cout << "T& get() " << std::endl;
         if (m_data.count(get_type_id<T>()) == 0) {
           m_data[get_type_id<T>()] = T{};
+        }
+        return m_data[get_type_id<T>()].template get<T>();
+      }
+
+      template<typename T, typename... Args>
+      T& get(Args&&... args) 
+      {
+        std::cout << "T& get(Args&&... args) " << std::endl;
+        if (m_data.count(get_type_id<T>()) == 0) {
+          m_data[get_type_id<T>()] = T{std::forward<Args>(args)...};
         }
         return m_data[get_type_id<T>()].template get<T>();
       }
@@ -95,5 +106,10 @@ namespace cuke {
   inline T& context()
   {
     return details::get_context().get<T>();
+  }
+  template<typename T, typename... Args>
+  inline T& context(Args&&... args)
+  {
+    return details::get_context().get<T>(std::forward<Args>(args)...);
   }
 } // namespace cuke 

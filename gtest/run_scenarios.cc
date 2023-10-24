@@ -51,6 +51,28 @@ const char* script = R"*(
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
+TEST_F(run_scenarios, simple_scenario_without_whitespaces_1)
+{
+const char* script = R"*(
+Feature: some feature 
+with some description 
+  Scenario: some scenario
+    Then 5 and 5 are equal
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
+TEST_F(run_scenarios, simple_scenario_without_whitespaces_2)
+{
+const char* script = R"*(
+Feature: some feature 
+with some description 
+Scenario: some scenario
+Then 5 and 5 are equal
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
 TEST_F(run_scenarios, simple_scenario_2)
 {
 const char* script = R"*(

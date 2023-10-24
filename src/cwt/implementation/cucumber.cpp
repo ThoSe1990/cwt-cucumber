@@ -1,26 +1,26 @@
 #include "../cucumber.hpp"
 
-namespace cuke
+namespace cuke::details
 {
   namespace fs = std::filesystem;
-
-  runner::runner() 
-  {
-    open_cucumber();
-    for (const auto& pair : details::steps()) 
-    {
-        cuke_step(pair.first, pair.second);
-    }
-    for (const details::hook& h : details::hooks())
-    {
-        cuke_hook(h.name, h.function, h.tag_expression);
-    }
-    cuke_hook("reset_context", details::reset_scenario_context, "");
-  }
 
   runner::~runner() 
   {
     close_cucumber();
+  }
+
+  void runner::init()
+  {
+    open_cucumber();
+    for (const auto& pair : steps()) 
+    {
+        cuke_step(pair.first, pair.second);
+    }
+    for (const hook& h : hooks())
+    {
+        cuke_hook(h.name, h.function, h.tag_expression);
+    }
+    cuke_hook("reset_context", reset_scenario_context, "");
   }
 
   int runner::run(int argc, const char* argv[])
@@ -79,12 +79,7 @@ namespace cuke
     print_final_result();
     return result;
   }
-} // namespace cuke
-
-
-
-namespace cuke::details
-{
+  
   std::vector<std::pair<const char*, cuke_step_t>>& steps()
   {
     static std::vector<std::pair<const char*, cuke_step_t>> s;
@@ -95,5 +90,20 @@ namespace cuke::details
   {
     static std::vector<hook> h;
     return h;
+  }
+
+  runner& get_runner()
+  {
+    static runner r;
+    return r;
+  }
+
+  void init()
+  {
+    get_runner().init();
+  }
+  int run(int argc, const char* argv[])
+  {
+    return get_runner().run(argc, argv);
   }
 } // namespace cuke::details

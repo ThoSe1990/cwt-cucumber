@@ -13,15 +13,16 @@ extern "C" {
 #include "cucumber_asserts.hpp"
 #include "cucumber_error.hpp"
 
-namespace cuke
+namespace cuke::details
 {
   namespace fs = std::filesystem;
 
   class runner 
   {
     public:
-      runner();
+      runner() = default;
       ~runner();
+      void init();
       int run(int argc, const char* argv[]);
 
     private:
@@ -33,20 +34,20 @@ namespace cuke
       std::vector<fs::path> m_feature_files;      
   };
 
-} // namespace cuke
-
-namespace cuke::details
-{
-
   struct hook
   {
     const char* name;
     const char* tag_expression;
     cuke_step_t function;
   };
+
   std::vector<std::pair<const char*, cuke_step_t>>& steps();
   std::vector<hook>& hooks();
+  runner& get_runner();
+  void init();
+  int run(int argc, const char* argv[]);
 } // namespace cuke::details
+
 
 #define CONCAT_INTERNAL(a, b) a ## b
 #define CONCAT(a, b) CONCAT_INTERNAL(a, b)
@@ -148,6 +149,20 @@ namespace cuke::details
   };
 
   template <>
+  struct cuke_conversion_impl<unsigned long long> 
+  {
+      static unsigned long long get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return static_cast<unsigned long long>(cuke_to_long(arg));
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+
+  template <>
   struct cuke_conversion_impl<std::size_t> 
   {
       static std::size_t get_arg(cuke_value* arg, const std::string& file, int line) 
@@ -176,6 +191,20 @@ namespace cuke::details
   };
 
   template <>
+  struct cuke_conversion_impl<unsigned int> 
+  {
+      static unsigned int get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return static_cast<unsigned int>(cuke_to_int(arg));
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+
+  template <>
   struct cuke_conversion_impl<char> 
   {
       static char get_arg(cuke_value* arg, const std::string& file, int line) 
@@ -183,6 +212,19 @@ namespace cuke::details
         if (arg->type == VAL_LONG)
         {
           return cuke_to_byte(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+  template <>
+  struct cuke_conversion_impl<unsigned char> 
+  {
+      static unsigned char get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return static_cast<unsigned char>(cuke_to_byte(arg));
         }
         print_error(file, ':', line, ": Value is not an integer type.");
         throw std::bad_cast();
@@ -197,6 +239,20 @@ namespace cuke::details
         if (arg->type == VAL_LONG)
         {
           return cuke_to_short(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+
+  template <>
+  struct cuke_conversion_impl<unsigned short> 
+  {
+      static unsigned short get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return static_cast<unsigned short>(cuke_to_short(arg));
         }
         print_error(file, ':', line, ": Value is not an integer type.");
         throw std::bad_cast();
