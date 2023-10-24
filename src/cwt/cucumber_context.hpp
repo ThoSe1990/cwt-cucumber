@@ -63,7 +63,6 @@ namespace cuke {
       template<typename T>
       T& get() 
       {
-        std::cout << "T& get() " << std::endl;
         if (m_data.count(get_type_id<T>()) == 0) {
           m_data[get_type_id<T>()] = T{};
         }
@@ -73,7 +72,6 @@ namespace cuke {
       template<typename T, typename... Args>
       T& get(Args&&... args) 
       {
-        std::cout << "T& get(Args&&... args) " << std::endl;
         if (m_data.count(get_type_id<T>()) == 0) {
           m_data[get_type_id<T>()] = T{std::forward<Args>(args)...};
         }

@@ -1,7 +1,8 @@
 
 
-Feature: My Fancy Cube Feature
+Feature: My First Feature File
+  Just for demonstration
 
-  Scenario: hel
-    Given hi 
-    Then hi 
+  Scenario: My Fancy Box
+    Given A box with 2 x 2 x 2
+    Then The volume is 8

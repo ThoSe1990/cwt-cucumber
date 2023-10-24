@@ -26,10 +26,10 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
   [x] Doc Strings  
   [x] hooks: before, after, before scenario, after scenario 
   [x] background
-  [ ] background/examples description
-  [ ] undefined scenarios (proper error handling)
+  [x] background/examples description
+  [x] undefined scenarios (proper error handling)
 
-[ ] compiler copmpile(): quick n dirty tags which "simulate" argv
+[x] compiler copmpile(): quick n dirty tags which "simulate" argv
 [x] after tag with hook works for now but:
   [x] call all hooks (all after, all begin accordingly)
   [x] implement hooks for begin
@@ -39,11 +39,11 @@ scenario / scenarou outline step with beginning variable does not work! alwaays 
 
 [x] adjust capacity (tables) for steps crashes with >8 steps
 
-[ ] print file location to results
-[ ] scenario outline -> variables are printed into the steps -> steps look similar in different examples
-[ ] return value from run_cuke_argc_argv -> return 0 if all tests pass from main
+[x] print file location to results
+[x] scenario outline -> variables are printed into the steps -> steps look similar in different examples
+[x] return value from run_cuke_argc_argv -> return 0 if all tests pass from main
 [ ] syntax error after examples table -> endless loop!
-[ ] uint16_t => uint16_t (or 32?)
+[x] uint16_t => uint16_t (or 32?)
 [x] print results (colored + overall results)
 [x] error handling invalid indices on get arg
 [x] optional arg, eg. doc strings? 
@@ -61,9 +61,10 @@ Missing Syntax Tokens
   
 [x] Concept for C++ bindings  
 [x] Scenario Scope / Context  
-[ ] Program Options (argc, argv from main)  
-[ ] Running all files from dir  
+[x] Program Options (argc, argv from main)  
+[x] Running all files from dir  
 [ ] Running single step  
+[ ] Display failed scenarios + their files:line
 [ ] Tests, tests, tests, ...   
 [ ] cleanup cleanup cleanup
   
