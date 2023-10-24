@@ -44,8 +44,8 @@ typedef struct {
   result_t step_results;
   struct 
   {
-  obj_string* name;
-  obj_string* location;
+    obj_string* name;
+    obj_string* location;
   } current_scenario;
   failed_scenarios_t failed_scenarios;
   cuke_value stack[STACK_MAX];

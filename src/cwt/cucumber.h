@@ -44,6 +44,6 @@ double cuke_to_double(cuke_value* value);
 const char* cuke_to_string(cuke_value* value);
 
 
-void cuke_assert(bool assertion);
+void cuke_assert(bool assertion, const char* error_msg, ...);
 
 #endif

@@ -24,13 +24,13 @@ protected:
   {
     int n1 = cuke_to_int(&args[0]);
     int n2 = cuke_to_int(&args[1]);
-    cuke_assert(n1 == n2);
+    cuke_assert(n1 == n2, "n1 is not equal n2");
   }
   static void test_is_greater(int arg_count, cuke_value* args)
   {
     int n1 = cuke_to_int(&args[0]);
     int n2 = cuke_to_int(&args[1]);
-    cuke_assert(n1 > n2);
+    cuke_assert(n1 > n2, "n1 is not greater n2");
   }
   static void background(int arg_count, cuke_value* args)
   {

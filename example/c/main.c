@@ -4,11 +4,11 @@
 
 static void step_pass(int arg_count, cuke_value* args)
 {
-  cuke_assert(true);
+  cuke_assert(true, "this is true");
 }
 static void step_fail(int arg_count, cuke_value* args)
 {
-  cuke_assert(false);
+  cuke_assert(false, "this is false");
 }
 static void step_test(int arg_count, cuke_value* args)
 {

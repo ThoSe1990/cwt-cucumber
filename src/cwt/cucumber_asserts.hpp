@@ -19,12 +19,11 @@ namespace cuke
   {
     if constexpr (is_comparable<T, U>::value)
     {
-      cuke_assert(rhs == lhs);
+      cuke_assert(rhs == lhs, "Expect values to be equal: %d and %d", rhs, lhs);
     }
     else 
     {
-      cuke_assert(false);
-      details::print_error("Can not compare given types");
+      cuke_assert(false, "Expect values to be compareable.");
     }
   }
 } // namespace cuke 

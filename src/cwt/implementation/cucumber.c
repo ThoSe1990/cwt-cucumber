@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "../cucumber.h"
 #include "vm.h"
@@ -222,11 +223,18 @@ const char* cuke_to_string(cuke_value* value)
   return AS_STRING(*value)->chars;
 }
 
-void cuke_assert(bool assertion)
+void cuke_assert(bool assertion, const char* error_msg, ...)
 {
   if (!assertion) 
   {
     g_vm.scenario_results.last = FAILED;
     g_vm.step_results.last = FAILED;
+    // TODO dry 
+    va_list args;
+    va_start(args, error_msg);
+    printf("\x1b[31m");
+    vprintf(error_msg, args);
+    printf("\x1b[0m\n");
+    va_end(args);
   }
 }

@@ -24,7 +24,7 @@ protected:
   
   static void test_step_fail(int arg_count, cuke_value* args)
   {
-    cuke_assert(false);
+    cuke_assert(false, "");
   } 
   static void test_step_pass(int arg_count, cuke_value* args)
   {
@@ -34,7 +34,7 @@ protected:
   {
     int n1 = cuke_to_int(&args[0]);
     int n2 = cuke_to_int(&args[1]);
-    cuke_assert(n1 == n2);
+    cuke_assert(n1 == n2, "");
   }
 };
 
