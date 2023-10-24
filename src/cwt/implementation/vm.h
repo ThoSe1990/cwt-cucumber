@@ -30,12 +30,24 @@ typedef struct {
   unsigned int undefined;
 } result_t;
 
+typedef struct
+{
+  value_array name;
+  value_array location;
+} failed_scenarios_t;
+
 
 typedef struct {
   call_frame frames[FRAMES_MAX];
   int frame_count;
   result_t scenario_results;
   result_t step_results;
+  struct 
+  {
+  obj_string* name;
+  obj_string* location;
+  } current_scenario;
+  failed_scenarios_t failed_scenarios;
   cuke_value stack[STACK_MAX];
   cuke_value* stack_top;
   table hooks;
@@ -63,5 +75,6 @@ void define_hook(const char* name, cuke_step_t func, const char* tag_expression)
 
 result_t* get_step_result();
 result_t* get_scenario_result();
+failed_scenarios_t* get_failed_scenarios();
 
 #endif 

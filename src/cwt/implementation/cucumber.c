@@ -8,6 +8,19 @@
 #include "prints.h"
 #include "program_options.h"
 
+static void print_failed_scenarios()
+{
+  printf("Failed Scenarios:\n");
+  failed_scenarios_t* failed = get_failed_scenarios();
+  for (int i = 0 ; i < failed->name.count ; i++)
+  {
+    print_red("  %s", 
+      AS_CSTRING(failed->name.values[i]));
+    print_black("\t%s\n",  
+      AS_CSTRING(failed->location.values[i]));
+  }  
+}
+
 static void print_results(const char* type, result_t* result)
 {
   const int count = result->failed + result->passed +
@@ -129,6 +142,7 @@ int run_cuke_argc_argv(int argc, const char* argv[])
 
 void print_final_result()
 {
+  print_failed_scenarios();
   printf("\n");
   print_results("Scenarios", get_scenario_result());
   print_results("Steps", get_step_result());

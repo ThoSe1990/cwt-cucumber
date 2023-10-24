@@ -207,6 +207,48 @@ static void emit_print_line(obj_string* value)
   }
 }
 
+static void emit_linebreak()
+{
+  if (!options.silent)
+  {
+    emit_byte(OP_PRINT_LINEBREAK);
+  }
+}
+
+static void create_location(char* buffer, int line)
+{
+  sprintf(buffer, "%s:%d", filename(), line);
+}
+
+
+static void emit_location(int line)
+{
+  if (!options.silent)
+  {
+    char buffer[512];
+    create_location(buffer, line);
+    emit_bytes(OP_PRINT_BLACK, make_constant(
+        OBJ_VAL(copy_string(
+          buffer, strlen(buffer)
+        ))));
+  }
+}
+
+
+static void emit_scenario_begin(obj_string* value)
+{
+  emit_print_line(value);
+  emit_location(parser.previous.line);
+  emit_linebreak();
+  char buffer[512];
+  create_location(buffer, parser.previous.line);
+  emit_byte(OP_SET_SCENARIO); 
+  emit_byte(make_constant(OBJ_VAL(value)));
+  emit_byte(make_constant(OBJ_VAL(copy_string(
+    buffer, strlen(buffer)))));
+
+}
+
 static void emit_long()
 {
   long long long_value = strtoll(parser.current.start, NULL, 10);
@@ -257,26 +299,6 @@ static void emit_hook(obj_string* name, value_array* tags)
   }
 }
 
-static void emit_linebreak()
-{
-  if (!options.silent)
-  {
-    emit_byte(OP_PRINT_LINEBREAK);
-  }
-}
-
-static void emit_location(int line)
-{
-  if (!options.silent)
-  {
-    char buffer[512];
-    sprintf(buffer, "%s:%d", filename(), line);
-    emit_bytes(OP_PRINT_BLACK, make_constant(
-        OBJ_VAL(copy_string(
-          buffer, strlen(buffer)
-        ))));
-  }
-}
 
 static void init_compiler(cuke_compiler_t* compiler, function_type_t type)
 {
@@ -289,7 +311,7 @@ static void init_compiler(cuke_compiler_t* compiler, function_type_t type)
   if (type != TYPE_SCRIPT)
   {
     char buffer[512];
-    sprintf(buffer, "%s:%d", filename(), parser.previous.line);
+    create_location(buffer, parser.previous.line);
     current->function->name = copy_string(buffer, strlen(buffer));
   }
 }
@@ -455,6 +477,17 @@ static void name(bool print_name)
   }
 }
 
+static void begin_scenario() 
+{
+  token begin = parser.previous;
+  while(!check(TOKEN_LINEBREAK))
+  {
+    advance();
+    if (check(TOKEN_EOF)) break;
+  }
+  emit_scenario_begin(copy_string(begin.start , get_length(&begin, &parser.previous)));
+}
+
 
 static void step() 
 {
@@ -543,7 +576,8 @@ static void scenario(obj_function* background, value_array* tags)
   cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  name(true);
+  // name(true);
+  begin_scenario();
   scenario_description();
   
   match(TOKEN_STEP);
@@ -684,7 +718,8 @@ static void scenario_outline(obj_function* background)
   cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  name(true);
+  // name(true);
+  begin_scenario();
   scenario_description();
   
   match(TOKEN_STEP);

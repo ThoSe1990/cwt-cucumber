@@ -24,6 +24,11 @@ result_t* get_scenario_result()
   return &g_vm.scenario_results;
 }
 
+failed_scenarios_t* get_failed_scenarios()
+{
+  return &g_vm.failed_scenarios;
+}
+
 static void reset_stack()
 {
   g_vm.stack_top = g_vm.stack;
@@ -83,6 +88,8 @@ void init_vm()
   init_table(&g_vm.hooks);
   init_results(&g_vm.scenario_results);
   init_results(&g_vm.step_results);
+  init_value_array(&g_vm.failed_scenarios.name);
+  init_value_array(&g_vm.failed_scenarios.location);
 }
 void free_vm()
 {
@@ -90,6 +97,8 @@ void free_vm()
   free_table(&g_vm.strings);
   free_table(&g_vm.steps);
   free_table(&g_vm.hooks);
+  free_value_array(&g_vm.failed_scenarios.name);
+  free_value_array(&g_vm.failed_scenarios.location);
   free_objects();
 }
 
@@ -118,6 +127,16 @@ static int get_test_result()
   }
 }
 
+void set_failed_scenario()
+{
+  if (g_vm.scenario_results.last == PASSED)
+  {
+    return ; 
+  }
+  write_value_array(&g_vm.failed_scenarios.name, OBJ_VAL(g_vm.current_scenario.name));
+  write_value_array(&g_vm.failed_scenarios.location, OBJ_VAL(g_vm.current_scenario.location));
+}
+
 void set_step_result()
 {
   switch (g_vm.step_results.last)
@@ -141,7 +160,7 @@ void set_step_result()
       g_vm.scenario_results.last = g_vm.scenario_results.last == FAILED ? FAILED : UNDEFINED;
       g_vm.step_results.undefined++;
     }
-  }  
+  }
 }
 void print_step_result(obj_string* step)
 {
@@ -364,6 +383,11 @@ static interpret_result run()
         obj_string* name = READ_STRING();
         printf("  %s", name->chars);
       }
+      break; case OP_SET_SCENARIO:
+      {
+        g_vm.current_scenario.name = READ_STRING();
+        g_vm.current_scenario.location = READ_STRING();
+      }
       break; case OP_PRINT_LINEBREAK:
       {
         printf("\n");
@@ -390,8 +414,8 @@ static interpret_result run()
           break; case FAILED: g_vm.scenario_results.failed++;
           break; case SKIPPED: g_vm.scenario_results.skipped++;
           break; case UNDEFINED: g_vm.scenario_results.undefined++;
-          break; default: ;// shouldn't happen ... 
         }
+        set_failed_scenario();
         g_vm.scenario_results.last = PASSED;
         g_vm.step_results.last = PASSED;
       }
