@@ -24,9 +24,9 @@ void program_options(int argc, const char* argv[])
     {
 
     }
-    else if (strcmp(argv[i], "--silent") == 0 || strcmp(argv[i], "-s") == 0) 
+    else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) 
     {
-        set_silent();
+        set_quiet();
     }
     else if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
     {

@@ -44,9 +44,9 @@ typedef struct
 typedef struct 
 {
   tag_rpn_stack_t tags;
-  bool silent;
+  bool quiet;
 } compiler_options_t;
-compiler_options_t options = {.silent = false};
+compiler_options_t options = {.quiet = false};
 
 static chunk* current_chunk()
 {
@@ -193,7 +193,7 @@ static int step_name_length(const char* str)
 
 static void emit_step_result(const char* step_name, int length)
 {
-  if (!options.silent)
+  if (!options.quiet)
   {
     emit_bytes(OP_PRINT_STEP_RESULT, make_constant(OBJ_VAL(copy_string(step_name, length))));
   }
@@ -201,7 +201,7 @@ static void emit_step_result(const char* step_name, int length)
 
 static void emit_print_line(obj_string* value)
 {
-  if (!options.silent)
+  if (!options.quiet)
   {
     emit_bytes(OP_PRINT_LINE, make_constant(OBJ_VAL(value)));
   }
@@ -209,7 +209,7 @@ static void emit_print_line(obj_string* value)
 
 static void emit_linebreak()
 {
-  if (!options.silent)
+  if (!options.quiet)
   {
     emit_byte(OP_PRINT_LINEBREAK);
   }
@@ -223,7 +223,7 @@ static void create_location(char* buffer, int line)
 
 static void emit_location(int line)
 {
-  if (!options.silent)
+  if (!options.quiet)
   {
     char buffer[512];
     create_location(buffer, line);
@@ -849,9 +849,9 @@ static void feature()
   emit_bytes(OP_CALL, 0);
 }
 
-void set_silent()
+void set_quiet()
 {
-  options.silent = true;
+  options.quiet = true;
 }
 
 void set_tag_option(const char* expression)

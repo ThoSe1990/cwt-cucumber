@@ -153,6 +153,25 @@ const char* script = R"*(
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
+TEST_F(run_scenarios, simple_scenario_outline_unknown_variable)
+{
+const char* script = R"*(
+  Feature: some feature 
+  with some description 
+    Scenario Outline: some scenario
+      * <doesnt_exist> and <var2> are equal
+    
+    Examples: some name here 
+    and a very nice 
+    multiline description
+    before the table
+    | var1 | var2 | var3 |
+    | 1    |  1   | 3    |
+    | 2    |   2  | 3    |
+)*";
+
+  EXPECT_NE(CUKE_SUCCESS, run_cuke(script, ""));
+}
 
 
 TEST_F(run_scenarios, background_called)
