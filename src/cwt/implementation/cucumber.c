@@ -104,6 +104,11 @@ static int run_all_files(int argc, const char* argv[])
       continue;
     }
     char* source = read_file(argv[i]);
+
+    int single_scenarios[MAX_SCENARIOS];
+    int single_scenarios_count = get_scenario_lines(argc, &argv[i], single_scenarios);
+    set_scenarios_by_line(single_scenarios, single_scenarios_count);
+
     if (run_cuke(source, argv[i]) == CUKE_FAILED)
     {
       result = CUKE_FAILED;
@@ -119,6 +124,7 @@ static int run_all_files(int argc, const char* argv[])
 void open_cucumber()
 {
   init_vm();
+  init_compiler_options();
 }
 
 
@@ -129,6 +135,11 @@ int run_cuke(const char* source, const char* path)
   if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }
   if (result == INTERPRET_RUNTIME_ERROR) { return CUKE_FAILED; } 
   return CUKE_SUCCESS;
+}
+
+void cuke_single_scenarios(int count, const char* args, int out[MAX_SCENARIOS])
+{
+
 }
 
 void cuke_options(int argc, const char* argv[])

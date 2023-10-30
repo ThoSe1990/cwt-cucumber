@@ -45,8 +45,12 @@ typedef struct
 {
   tag_rpn_stack_t tags;
   bool quiet;
+  struct {
+    int* line;
+    int count;
+  } scenarios;
 } compiler_options_t;
-compiler_options_t options = {.quiet = false};
+compiler_options_t options;
 
 static chunk* current_chunk()
 {
@@ -576,7 +580,6 @@ static void scenario(obj_function* background, value_array* tags)
   cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  // name(true);
   begin_scenario();
   scenario_description();
   
@@ -592,6 +595,44 @@ static bool no_tags_given()
 {
   return options.tags.size == 0;
 }
+static bool tags_given() 
+{
+  return options.tags.size != 0;
+}
+
+static bool run_scenario_from_line(int line)
+{
+  if (options.scenarios.count == 0)
+  {
+    return true;
+  }
+  else 
+  {
+    for (int i = 0 ; i < options.scenarios.count ; i++)
+    {
+      if (line == options.scenarios.line[i])
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+static bool compile_scenario(value_array* tags)
+{
+   if (no_tags_given()) 
+  {
+    return run_scenario_from_line(parser.current.line);
+  }
+  else
+  {
+    return run_scenario_from_line(parser.current.line) 
+      && tags
+      && evaluate_tags(options.tags.rpn_stack, options.tags.size, tags->values, tags->count); 
+  }
+}
+
 static void read_tags(value_array* tags)
 {
   while (!match(TOKEN_LINEBREAK) && !parser.had_error)
@@ -634,13 +675,16 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
     token body_begin = parser.current;
     examples_body(&vars); 
     int body_length = get_length(&body_begin, &parser.current);
-    create_scenario_call(background, steps, tags);
-    emit_print_line(copy_string("With Examples:", 14));
-    emit_location(parser.previous.line);
-    emit_linebreak();
-    emit_print_line(copy_string(header_begin.start, header_length));
-    emit_print_line(copy_string(body_begin.start, body_length));
-    emit_linebreak();
+    if (run_scenario_from_line(body_begin.line))
+    {
+      create_scenario_call(background, steps, tags);
+      emit_print_line(copy_string("With Examples:", 14));
+      emit_location(parser.previous.line);
+      emit_linebreak();
+      emit_print_line(copy_string(header_begin.start, header_length));
+      emit_print_line(copy_string(body_begin.start, body_length));
+      emit_linebreak();
+    }
     while(match(TOKEN_LINEBREAK)){};
   }
 
@@ -718,7 +762,6 @@ static void scenario_outline(obj_function* background)
   cuke_compiler_t compiler;
   init_compiler(&compiler, TYPE_FUNCTION);
 
-  // name(true);
   begin_scenario();
   scenario_description();
   
@@ -756,9 +799,7 @@ static void tagged_scenario(obj_function* background)
   read_tags(&tags);
 
   consume(TOKEN_SCENARIO, "Expect Scenario after Tags.");
-  
-  if (no_tags_given() 
-    || evaluate_tags(options.tags.rpn_stack, options.tags.size, tags.values, tags.count))
+  if (compile_scenario(&tags))
   {
     scenario(background, &tags);
   }
@@ -783,7 +824,7 @@ static void parse_all_scenarios(obj_function* background)
     }
     else if (match(TOKEN_SCENARIO))
     {
-      if (no_tags_given())
+      if (compile_scenario(NULL))
       {
         scenario(background, NULL);
       }
@@ -849,9 +890,29 @@ static void feature()
   emit_bytes(OP_CALL, 0);
 }
 
+
+void init_compiler_options()
+{
+  options.quiet = false;
+
+  options.tags.size = 0;
+
+  options.scenarios.count = 0;
+  options.scenarios.line = NULL;
+}
 void set_quiet()
 {
   options.quiet = true;
+}
+void set_scenarios_by_line(int* lines, int count)
+{
+  options.scenarios.line = lines;
+  options.scenarios.count = count;
+}
+
+void reset_scenarios_by_line()
+{
+  set_scenarios_by_line(NULL, 0);
 }
 
 void set_tag_option(const char* expression)

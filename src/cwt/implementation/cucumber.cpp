@@ -69,6 +69,7 @@ namespace cuke::details
     int result = CUKE_SUCCESS;
     for (const auto& file : m_feature_files)
     {
+      // TODO -l option!
       char* source = read_file(file.c_str());
       if (run_cuke(source, file.c_str()) == CUKE_FAILED)
       {
