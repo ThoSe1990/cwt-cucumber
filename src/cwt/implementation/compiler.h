@@ -8,8 +8,8 @@
 void init_compiler_options();
 
 void set_tag_option(const char* expression);
-void set_scenarios_by_line(int* lines, int count);
-void reset_scenarios_by_line();
+void only_compile_lines(int* lines, int count);
+void compile_all();
 void set_quiet();
 void reset_rpn_stack();
 

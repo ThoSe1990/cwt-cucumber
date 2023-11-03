@@ -20,7 +20,7 @@ protected:
   void TearDown() override 
   {
     reset_tags();
-    reset_scenarios_by_line();
+    compile_all();
     close_cucumber();
   }
   
@@ -60,9 +60,10 @@ const char* script = R"*(
   argv[1] = "-l";
   argv[2] = "4"; 
 
-  int single_scenarios[MAX_SCENARIOS];
-  int single_scenarios_count = get_scenario_lines(argc, &argv[1], single_scenarios);
-  set_scenarios_by_line(single_scenarios, single_scenarios_count);
+  int lines[MAX_LINES];
+  int count = 0;
+  option_lines(argc, &argv[1], lines, &count);
+  only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -92,9 +93,10 @@ const char* script = R"*(
   argv[3] = "-l";
   argv[4] = "10"; 
 
-  int single_scenarios[MAX_SCENARIOS];
-  int single_scenarios_count = get_scenario_lines(argc, &argv[1], single_scenarios);
-  set_scenarios_by_line(single_scenarios, single_scenarios_count);
+  int lines[MAX_LINES];
+  int count = 0;
+  option_lines(argc, &argv[1], lines, &count);
+  only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
@@ -119,9 +121,10 @@ const char* script = R"*(
   argv[1] = "-l";
   argv[2] = "9"; 
 
-  int single_scenarios[MAX_SCENARIOS];
-  int single_scenarios_count = get_scenario_lines(argc, &argv[1], single_scenarios);
-  set_scenarios_by_line(single_scenarios, single_scenarios_count);
+  int lines[MAX_LINES];
+  int count = 0;
+  option_lines(argc, &argv[1], lines, &count);
+  only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -150,9 +153,10 @@ const char* script = R"*(
   argv[4] = "11"; 
 
 
-  int single_scenarios[MAX_SCENARIOS];
-  int single_scenarios_count = get_scenario_lines(argc, &argv[1], single_scenarios);
-  set_scenarios_by_line(single_scenarios, single_scenarios_count);
+  int lines[MAX_LINES];
+  int count = 0;
+  option_lines(argc, &argv[1], lines, &count);
+  only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -184,9 +188,10 @@ const char* script = R"*(
   argv[3] = "-l";
   argv[4] = "14"; 
 
-  int single_scenarios[MAX_SCENARIOS];
-  int single_scenarios_count = get_scenario_lines(argc, &argv[1], single_scenarios);
-  set_scenarios_by_line(single_scenarios, single_scenarios_count);
+  int lines[MAX_LINES];
+  int count = 0;
+  option_lines(argc, &argv[1], lines, &count);
+  only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }

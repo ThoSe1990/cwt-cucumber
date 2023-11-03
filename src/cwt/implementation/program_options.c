@@ -17,17 +17,18 @@ static void tags(int index, int argc, const char* argv[])
     }
 }
 
-int get_scenario_lines(int argc, const char* args[], int out[MAX_SCENARIOS])
+void option_lines(int argc, const char* current_argv[], int out[MAX_LINES], int* count)
 {
   int i = 0;
   while (i < argc)
   {
-    if ((strcmp(args[i], "--line") == 0 || strcmp(args[i], "-l") == 0) 
+    if ((strcmp(current_argv[i], "--line") == 0 || strcmp(current_argv[i], "-l") == 0) 
       && i+1 < argc)
     {
       int out_idx = i;
       i++;
-      out[out_idx] = atoi(args[i]);
+      out[out_idx] = atoi(current_argv[i]);
+      *count = i;
     }
     else 
     {
@@ -35,10 +36,9 @@ int get_scenario_lines(int argc, const char* args[], int out[MAX_SCENARIOS])
     }
     i++;
   }
-  return i;
 }
 
-void program_options(int argc, const char* argv[])
+void global_options(int argc, const char* argv[])
 {
   for (int i = 1; i < argc; i++) 
   {

@@ -904,15 +904,15 @@ void set_quiet()
 {
   options.quiet = true;
 }
-void set_scenarios_by_line(int* lines, int count)
+void only_compile_lines(int* lines, int count)
 {
   options.scenarios.line = lines;
   options.scenarios.count = count;
 }
 
-void reset_scenarios_by_line()
+void compile_all()
 {
-  set_scenarios_by_line(NULL, 0);
+  only_compile_lines(NULL, 0);
 }
 
 void set_tag_option(const char* expression)
