@@ -268,7 +268,7 @@ static bool double_from_stack(value_array* args)
   if (args == NULL) { return true; }
   
   cuke_value value = pop();
-  if (IS_DOUBLE(value))
+  if (IS_DOUBLE(value) || IS_INT(value))
   {
     write_value_array(args, value);
     return true;

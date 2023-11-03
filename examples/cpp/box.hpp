@@ -23,11 +23,11 @@ class box
     {
       return m_depth * m_width;
     }
-    void set_weight(unsigned int weight)
+    void set_weight(double weight)
     {
       m_weight = weight;
     }
-    unsigned int weight()
+    double weight()
     {
       return m_weight;
     }
@@ -36,5 +36,5 @@ class box
     unsigned int m_width;
     unsigned int m_height;
     unsigned int m_depth;
-    unsigned int m_weight;
+    double m_weight;
 };

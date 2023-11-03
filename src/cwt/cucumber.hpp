@@ -284,7 +284,7 @@ namespace cuke::details
   {
       static float get_arg(cuke_value* arg, const std::string& file, int line)
       {
-        if (arg->type == VAL_DOUBLE)
+        if (arg->type == VAL_DOUBLE || arg->type == VAL_LONG)
         {
           return cuke_to_float(arg);
         }
@@ -298,7 +298,7 @@ namespace cuke::details
   {
       static double get_arg(cuke_value* arg, const std::string& file, int line)
       {
-        if (arg->type == VAL_DOUBLE)
+        if (arg->type == VAL_DOUBLE || arg->type == VAL_LONG)
         {
           return cuke_to_double(arg);
         }

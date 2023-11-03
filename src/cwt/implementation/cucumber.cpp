@@ -100,6 +100,7 @@ namespace cuke::details
     int result = CUKE_SUCCESS;
     for (const auto& feature : m_features)
     {
+      std::puts("\n");
       char* source = read_file(feature.file.c_str());
       if (feature.lines.size())
       {
