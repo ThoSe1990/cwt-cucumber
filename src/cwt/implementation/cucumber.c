@@ -141,11 +141,6 @@ int run_cuke(const char* source, const char* path)
   return CUKE_SUCCESS;
 }
 
-void cuke_single_scenarios(int count, const char* args, int out[MAX_LINES])
-{
-
-}
-
 void cuke_options(int argc, const char* argv[])
 {
   global_options(argc, argv);
@@ -242,8 +237,8 @@ void cuke_assert(bool assertion, const char* error_msg, ...)
 {
   if (!assertion) 
   {
-    g_vm.scenario_results.last = FAILED;
-    g_vm.step_results.last = FAILED;
+    g_vm.scenario_results.current = FAILED;
+    g_vm.step_results.current = FAILED;
     // TODO dry 
     va_list args;
     va_start(args, error_msg);

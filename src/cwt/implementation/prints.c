@@ -13,7 +13,14 @@ void end_black()
 {
   printf("\x1b[0m");
 }
-
+void start_red_on_stderr()
+{
+  fprintf(stderr, "\x1b[31m");
+}
+void end_red_on_stderr()
+{
+  fprintf(stderr, "\x1b[0m");
+}
 void print_red(const char* format, ...)
 {
   va_list args;

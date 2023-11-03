@@ -36,17 +36,19 @@ static void reset_stack()
 }
 
 static void runtime_error(const char* format, ...)
-{
+{  
+  start_red_on_stderr();
+  call_frame* frame = &g_vm.frames[g_vm.frame_count - 1];
+  obj_function* func = frame->function;
+  size_t instruction = frame->ip - func->chunk.code - 1;
+  fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]-1);  
+  
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
   va_end(args);
   fputs("\n", stderr);
-
-  call_frame* frame = &g_vm.frames[g_vm.frame_count - 1];
-  obj_function* func = frame->function;
-  size_t instruction = frame->ip - func->chunk.code - 1;
-  fprintf(stderr, "[line %d] in ", func->chunk.lines[instruction]);  
+  end_red_on_stderr();
 }
 
 static void init_results(result_t* result)
@@ -55,7 +57,7 @@ static void init_results(result_t* result)
   result->passed = 0;
   result->skipped = 0;
   result->undefined = 0;
-  result->last = PASSED;
+  result->current = PASSED;
 }
 
 void define_step(const char* name, cuke_step_t func)
@@ -129,7 +131,7 @@ static int get_test_result()
 
 void set_failed_scenario()
 {
-  if (g_vm.scenario_results.last == PASSED)
+  if (g_vm.scenario_results.current == PASSED)
   {
     return ; 
   }
@@ -139,7 +141,7 @@ void set_failed_scenario()
 
 void set_step_result()
 {
-  switch (g_vm.step_results.last)
+  switch (g_vm.step_results.current)
   {
     case PASSED: 
     {
@@ -147,24 +149,24 @@ void set_step_result()
     }
     break; case FAILED: 
     {
-      g_vm.scenario_results.last = FAILED;
+      g_vm.scenario_results.current = FAILED;
       g_vm.step_results.failed++;
     }
     break; case SKIPPED: 
     {
-      g_vm.scenario_results.last = SKIPPED;
+      g_vm.scenario_results.current = SKIPPED;
       g_vm.step_results.skipped++;
     }
     break; case UNDEFINED: 
     {
-      g_vm.scenario_results.last = g_vm.scenario_results.last == FAILED ? FAILED : UNDEFINED;
+      g_vm.scenario_results.current = g_vm.scenario_results.current == FAILED ? FAILED : UNDEFINED;
       g_vm.step_results.undefined++;
     }
   }
 }
 void print_step_result(obj_string* step)
 {
-  switch (g_vm.step_results.last)
+  switch (g_vm.step_results.current)
   {
     case PASSED: print_green("[   PASSED    ] %s", step->chars);
     break; case FAILED: print_red("[   FAILED    ] %s", step->chars);
@@ -313,7 +315,7 @@ static interpret_result run()
         if (!table_get(&g_vm.variables, name, &value))
         {
           runtime_error("Undefined variable '%s'.", name->chars);
-          return INTERPRET_RUNTIME_ERROR;
+          g_vm.step_results.current = FAILED;
         }
         else 
         {
@@ -334,9 +336,9 @@ static interpret_result run()
       break; case OP_JUMP_IF_FAILED:
       {
         uint16_t offset = READ_SHORT();
-        if (g_vm.step_results.last != PASSED)
+        if (g_vm.step_results.current != PASSED)
         {
-          g_vm.step_results.last = SKIPPED;
+          g_vm.step_results.current = SKIPPED;
           frame->ip += offset;
         }
       }
@@ -364,8 +366,8 @@ static interpret_result run()
         } 
         else 
         {
-          g_vm.step_results.last = UNDEFINED;
-          g_vm.scenario_results.last = FAILED;
+          g_vm.step_results.current = UNDEFINED;
+          g_vm.scenario_results.current = FAILED;
         }
         free_value_array(&args);
       }
@@ -408,7 +410,7 @@ static interpret_result run()
       }
       break; case OP_SCENARIO_RESULT:
       {
-        switch (g_vm.scenario_results.last)
+        switch (g_vm.scenario_results.current)
         {
           case PASSED: g_vm.scenario_results.passed++;
           break; case FAILED: g_vm.scenario_results.failed++;
@@ -416,8 +418,8 @@ static interpret_result run()
           break; case UNDEFINED: g_vm.scenario_results.undefined++;
         }
         set_failed_scenario();
-        g_vm.scenario_results.last = PASSED;
-        g_vm.step_results.last = PASSED;
+        g_vm.scenario_results.current = PASSED;
+        g_vm.step_results.current = PASSED;
       }
       break; case OP_RETURN: 
       {

@@ -19,7 +19,7 @@ namespace cuke
   {
     if constexpr (is_comparable<T, U>::value)
     {
-      cuke_assert(rhs == lhs, "Expect values to be equal: %d and %d", rhs, lhs);
+      cuke_assert(rhs == lhs, "Expect value in following step to be %d but it is %d:", rhs, lhs);
     }
     else 
     {

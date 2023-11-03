@@ -8,6 +8,7 @@ void print_green(const char* format, ...);
 void print_black(const char* format, ...);
 void start_black();
 void end_black();
-
+void start_red_on_stderr();
+void end_red_on_stderr();
 
 #endif

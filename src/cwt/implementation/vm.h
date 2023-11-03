@@ -23,7 +23,7 @@ typedef enum {
 } result_type;
 
 typedef struct {
-  result_type last;
+  result_type current;
   unsigned int passed;
   unsigned int failed; 
   unsigned int skipped;
