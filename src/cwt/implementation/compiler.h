@@ -8,7 +8,7 @@
 void init_compiler_options();
 
 void set_tag_option(const char* expression);
-void only_compile_lines(int* lines, int count);
+void only_compile_lines(const int* lines, int count);
 void compile_all();
 void set_quiet();
 void reset_rpn_stack();

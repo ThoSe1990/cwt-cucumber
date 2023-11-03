@@ -17,17 +17,17 @@ static void tags(int index, int argc, const char* argv[])
     }
 }
 
-void option_lines(int argc, const char* current_argv[], int out[MAX_LINES], int* count)
+void option_lines(int argc, const char* current_argv[], int current_idx, int out[MAX_LINES], int* count)
 {
-  int i = 0;
+  int i = current_idx + 1;
+  int out_idx = 0;
   while (i < argc)
   {
     if ((strcmp(current_argv[i], "--line") == 0 || strcmp(current_argv[i], "-l") == 0) 
       && i+1 < argc)
     {
-      int out_idx = i;
       i++;
-      out[out_idx] = atoi(current_argv[i]);
+      out[out_idx++] = atoi(current_argv[i]);
       *count = i;
     }
     else 
@@ -48,12 +48,16 @@ void global_options(int argc, const char* argv[])
     }
     else if (strcmp(argv[i], "--quiet") == 0 || strcmp(argv[i], "-q") == 0) 
     {
-        set_quiet();
+      set_quiet();
     }
     else if (strcmp(argv[i], "--tags") == 0 || strcmp(argv[i], "-t") == 0) 
     {
-        tags(i, argc, argv);
+      tags(i, argc, argv);
     } 
+    else if (strcmp(argv[i], "--lines") == 0 || strcmp(argv[i], "-l") == 0) 
+    {
+
+    }
     else if (*argv[i] == '-')
     {
       fprintf(stderr, "Unknown program option: '%s'.", argv[i]);

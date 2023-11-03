@@ -46,7 +46,7 @@ typedef struct
   tag_rpn_stack_t tags;
   bool quiet;
   struct {
-    int* line;
+    const int* line;
     int count;
   } scenarios;
 } compiler_options_t;
@@ -904,7 +904,7 @@ void set_quiet()
 {
   options.quiet = true;
 }
-void only_compile_lines(int* lines, int count)
+void only_compile_lines(const int* lines, int count)
 {
   options.scenarios.line = lines;
   options.scenarios.count = count;

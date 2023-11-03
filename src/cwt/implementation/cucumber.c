@@ -11,8 +11,11 @@
 
 static void print_failed_scenarios()
 {
-  printf("Failed Scenarios:\n");
   failed_scenarios_t* failed = get_failed_scenarios();
+  if (failed->name.count > 0)
+  {
+    printf("Failed Scenarios:\n");
+  }
   for (int i = 0 ; i < failed->name.count ; i++)
   {
     print_red("  %s", 
@@ -107,7 +110,7 @@ static int run_all_files(int argc, const char* argv[])
 
     int lines[MAX_LINES];
     int count = 0;
-    option_lines(argc, &argv[i], lines, &count);
+    option_lines(argc, argv, i, lines, &count);
     only_compile_lines(lines, count);
 
     if (run_cuke(source, argv[i]) == CUKE_FAILED)

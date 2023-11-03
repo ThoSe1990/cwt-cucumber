@@ -62,7 +62,7 @@ const char* script = R"*(
 
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, &argv[1], lines, &count);
+  option_lines(argc, argv, 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -95,7 +95,7 @@ const char* script = R"*(
 
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, &argv[1], lines, &count);
+  option_lines(argc, argv, 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
@@ -123,7 +123,7 @@ const char* script = R"*(
 
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, &argv[1], lines, &count);
+  option_lines(argc, argv, 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -155,7 +155,7 @@ const char* script = R"*(
 
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, &argv[1], lines, &count);
+  option_lines(argc, argv, 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -190,7 +190,7 @@ const char* script = R"*(
 
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, &argv[1], lines, &count);
+  option_lines(argc, argv, 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));

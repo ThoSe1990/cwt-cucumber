@@ -1,7 +1,38 @@
 #include "../cucumber.hpp"
 
+extern "C" {
+  #include "program_options.h"
+  #include "compiler.h"
+}
+
+
 namespace cuke::details
 {
+  std::vector<int> no_lines_option() 
+  {
+    return {};
+  }
+
+  std::vector<int> get_lines_option(int argc, const char* argv[], int current_idx)
+  {
+    int lines[MAX_LINES];
+    int count = 0;
+    option_lines(argc, argv, current_idx, lines, &count);
+
+    if (count)
+    {
+      std::vector<int> result(lines, lines+count);
+      return result;
+    }
+    else 
+    {
+      return no_lines_option();
+    }
+    // return count
+    //   ? std::vector<int>(lines, lines + count)
+    //   : no_lines_option();
+  }
+
   namespace fs = std::filesystem;
 
   runner::~runner() 
@@ -40,7 +71,7 @@ namespace cuke::details
       } 
       else if (entry.path().extension() == ".feature") 
       {
-        m_feature_files.push_back(entry.path());
+        m_features.push_back({entry.path(), no_lines_option()});
       }
     }
   }
@@ -58,7 +89,7 @@ namespace cuke::details
         } 
         else if (path.extension() == ".feature") 
         {
-          m_feature_files.push_back(path);
+          m_features.push_back({path, get_lines_option(argc, argv, i)});
         }
       }
     }
@@ -67,11 +98,14 @@ namespace cuke::details
   int runner::internal_run()
   {
     int result = CUKE_SUCCESS;
-    for (const auto& file : m_feature_files)
+    for (const auto& feature : m_features)
     {
-      // TODO -l option!
-      char* source = read_file(file.c_str());
-      if (run_cuke(source, file.c_str()) == CUKE_FAILED)
+      char* source = read_file(feature.file.c_str());
+      if (feature.lines.size())
+      {
+        only_compile_lines(feature.lines.data(), feature.lines.size());
+      }
+      if (run_cuke(source, feature.file.c_str()) == CUKE_FAILED)
       {
         result = CUKE_FAILED;
       } 

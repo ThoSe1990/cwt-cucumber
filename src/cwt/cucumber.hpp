@@ -17,6 +17,12 @@ namespace cuke::details
 {
   namespace fs = std::filesystem;
 
+  struct feature 
+  {
+    fs::path file;
+    std::vector<int> lines;
+  };
+  
   class runner 
   {
     public:
@@ -31,7 +37,7 @@ namespace cuke::details
       int internal_run();
 
     private:
-      std::vector<fs::path> m_feature_files;      
+      std::vector<feature> m_features;      
   };
 
   struct hook
