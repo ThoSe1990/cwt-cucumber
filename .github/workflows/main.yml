@@ -26,13 +26,13 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install build-essential -y
           sudo apt install python3-pip -y
-          pip3 install cmake 
+          sudo pip3 install cmake 
           sudo pip3 install conan
-          conan profile detect
-          conan install . -of ./build --build missing 
-          cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
-          cmake --build ./build
-          ./build/bin/unittests
+          sudo conan profile detect
+          sudo conan install . -of ./build --build missing 
+          sudo cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+          sudo cmake --build ./build -j12
+          sudo ./build/bin/unittests
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: unittests
