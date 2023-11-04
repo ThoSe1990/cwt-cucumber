@@ -70,6 +70,10 @@ namespace cuke::details
     void name(int arg_count, cuke_value* args)
 
 #define STEP(name, step) INTERNAL_STEP(step, CONCAT(__cuke_step_,name))
+#define GIVEN(name, step) STEP(name, step)
+#define WHEN(name, step) STEP(name, step)
+#define THEN(name, step) STEP(name, step)
+
 
 #define INTERNAL_HOOK(hook, name, tag_expression) \
     void name(int arg_count, cuke_value* args); \

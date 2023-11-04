@@ -1,81 +1,60 @@
 # Coding With Thomas: Cucumber
 
-This is a Cucumber interpreter and engine to run cucumber tests in C/C++. 
+This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. A more detailed documentation for the C and C++ API will follow. 
 
 ## Disclaimer
-This is my personal fun and educational project. I have read Crafting Interpreters by Robert Nystrom and I wanted a meaningful real world example to apply the principles. I really love the idea of Cucumber and use it a lot in my projects. Therefore I decided to create a Cucumber interpreter just for the fun of it. 
-
-
-## Implementation Status 
-
-Current Status of what comes to my mind: ([x] = done)
+This is my personal fun and educational project. I read Crafting Interpreters by Robert Nystrom and wanted a meaningful real-world example to apply the principles. I really like Cucumber and use it a lot in my projects. So I decided to start this project for my own Cucumber interpreter and of course just for fun.
   
-scenario / scenarou outline step with beginning variable does not work! alwaays undefined..
+And, I'm currently on a sabbatical timeout from work and travel through Central America. If you open issues, please note that I'm haven really limited time to work on this project. In April 2024 I'm back home and have more time for this. 
 
-[ ] Cucumber Language Feauters   
-  [ ] langauge tag  
-  [ ] Other languages  
-  [x] Comments  
-  [x] Feature  
-  [x] Scenario  
-  [x] Scenario Outline  
-  [x] Examples  
-  [x] Steps  
-  [ ] Rules  
-  [x] Tags   
-  [x] Doc Strings  
-  [x] hooks: before, after, before scenario, after scenario 
-  [x] background
-  [x] background/examples description
-  [x] undefined scenarios (proper error handling)
+## Using CWT-Cucumber
 
-[x] compiler copmpile(): quick n dirty tags which "simulate" argv
-[x] after tag with hook works for now but:
-  [x] call all hooks (all after, all begin accordingly)
-  [x] implement hooks for begin
-  [x] implment step hooks too (no tags needed)
-  [x] implement tags for scenario outline before example.
+I'm using a simple `box` to demonstrate the behavior. Currently all implemented Cucumber featuers are compatible to C and C++ without third party libraries. My main goal was to implement the interpreter itself in C and then create some C++ bindings for easy access to it (similar to lua).
 
+## C++ API 
 
-[x] adjust capacity (tables) for steps crashes with >8 steps
+The C++ API compiles its own `main`, which means we only need to implement the step definitions. There is also a `cucumber-no-main` target if you need your own main.
 
-[x] print file location to results
-[x] scenario outline -> variables are printed into the steps -> steps look similar in different examples
-[x] return value from run_cuke_argc_argv -> return 0 if all tests pass from main
-[ ] syntax error after examples table -> endless loop!
-[x] uint16_t => uint16_t (or 32?)
-[x] print results (colored + overall results)
-[x] error handling invalid indices on get arg
-[x] optional arg, eg. doc strings? 
-[x] currently all variables are captured, skip constants in steps? 
-[x] Scenario Outline after Scenario Outline does not work
+So lets have some easy steps (the box class should be self-explanatory):
 
-Missing Syntax Tokens  
-  [x] -  signed values  
-  [x] @  tags    
-  [x] <>  variables  
-  [ ] #language:   
-  
-  
-[x] Mising English Keywords: And, But, *  
-  
-[x] Concept for C++ bindings  
-[x] Scenario Scope / Context  
-[x] Program Options (argc, argv from main)  
-[x] Running all files from dir  
-[ ] Running single step  
-[ ] Display failed scenarios + their files:line
-[ ] Tests, tests, tests, ...   
-[ ] cleanup cleanup cleanup
-  
-[x] Steps: trim  
-[ ] Steps: Missing Cucumber Expressions:   
-  [x] int   
-  [x] string   
-  [x] float   
-  [ ] word  
-  [ ] anonymous  
-  [x] double  
-  [x] byte  
-  [x] short  
-  [x] long  
+```cpp 
+GIVEN(box_init, "A box with {int} x {int} x {int}")
+{
+  const unsigned int w = CUKE_ARG(1);
+  const unsigned int l = CUKE_ARG(2);
+  const unsigned int h = CUKE_ARG(3);
+
+  cuke::context<box>(w,l,h);
+}
+
+WHEN(box_open, "I open the box")
+{
+  cuke::context<box>().open(); 
+}
+
+THEN(box_is_open, "The box is open")
+{
+  cuke::is_true(cuke::context<box>().is_open());
+}
+```
+
+And now we can run the first feature file: 
+```gherkin
+Feature: My First Feature File
+  Just for demonstration
+
+  Scenario: An arbitrary box
+    Given A box with 2 x 2 x 2
+    When I open the box
+    Then The box is open 
+```
+
+## Whats Missing
+
+So what is missing? By now I can think of is:
+- Comprehensive documentation (I'm working on that)
+- Languages (currently only english keywords are implemented)
+- Rules
+- Reports (json, ...) 
+- Refactore, cleanups ... 
+- ...
