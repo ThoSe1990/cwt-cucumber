@@ -30,7 +30,7 @@ jobs:
           sudo pip3 install conan
           conan profile detect
           conan install . -of ./build --build missing 
-          cmake -S . -B ./build 
+          cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           cmake --build ./build
           ./build/bin/unittests
       # - uses: actions/upload-artifact@v3
