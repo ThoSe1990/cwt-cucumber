@@ -15,15 +15,77 @@ namespace cuke
 
 
   template <typename T, typename U>
-  void assert_equal(const T& rhs, const U& lhs) 
+  inline void equal(const T& lhs, const U& rhs) 
   {
     if constexpr (is_comparable<T, U>::value)
     {
-      cuke_assert(rhs == lhs, "Expect value in following step to be %s but it is %s:", std::to_string(rhs).c_str(), std::to_string(lhs).c_str());
+      cuke_assert(lhs == rhs, "Value %s is not equal to %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
     }
     else 
     {
       cuke_assert(false, "Expect values to be compareable.");
     }
+  }
+
+  template <typename T, typename U>
+  inline void greater(const T& lhs, const U& rhs) 
+  {
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(lhs > rhs, "Value %s is not greater than %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
+    }
+    else 
+    {
+      cuke_assert(false, "Expect values to be compareable.");
+    }
+  }
+  
+  template <typename T, typename U>
+  inline void greater_or_equal(const T& lhs, const U& rhs) 
+  {
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(lhs >= rhs, "Value %s is not greater or equal than %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
+    }
+    else 
+    {
+      cuke_assert(false, "Expect values to be compareable.");
+    }
+  }
+  
+
+  template <typename T, typename U>
+  inline void less(const T& lhs, const U& rhs) 
+  {
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(lhs < rhs, "Value %s is not less than %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
+    }
+    else 
+    {
+      cuke_assert(false, "Expect values to be compareable.");
+    }
+  }
+  
+  template <typename T, typename U>
+  inline void less_or_equal(const T& lhs, const U& rhs) 
+  {
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(lhs <= rhs, "Value %s is not less or equal than %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
+    }
+    else 
+    {
+      cuke_assert(false, "Expect values to be compareable.");
+    }
+  }
+
+  inline void is_true(bool condition)
+  {
+    cuke_assert(condition, "Expected given condition true, but its false:");
+  }
+  inline void is_false(bool condition)
+  {
+    cuke_assert(!condition, "Expected given condition true, but its false:");
   }
 } // namespace cuke 

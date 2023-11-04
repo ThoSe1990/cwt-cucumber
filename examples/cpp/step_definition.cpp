@@ -18,28 +18,30 @@ STEP(box_water, "Put {double} liter water into the box")
   cuke::context<box>().set_weight(water);
 }
 
+
+
 STEP(box_volume, "The volume is {int}")
 {
   const unsigned int volume = CUKE_ARG(1);
-  cuke::assert_equal(volume, cuke::context<box>().volume());  
+  cuke::equal(volume, cuke::context<box>().volume());  
 }
 STEP(box_weight, "The weight is {double} kg")
 {
   const double weight = CUKE_ARG(1);
-  cuke::assert_equal(weight, cuke::context<box>().weight());  
+  cuke::equal(weight, cuke::context<box>().weight());  
 }
 STEP(box_front, "The front area is {int}")
 {
   const unsigned int front = CUKE_ARG(1);
-  cuke::assert_equal(front, cuke::context<box>().front());
+  cuke::equal(front, cuke::context<box>().front());
 }
 STEP(box_top, "The top area is {int}")
 {
   const unsigned int top = CUKE_ARG(1);
-  cuke::assert_equal(top, cuke::context<box>().top());
+  cuke::equal(top, cuke::context<box>().top());
 }
 STEP(box_side, "The side area is {int}")
 {
   const unsigned int side = CUKE_ARG(1);
-  cuke::assert_equal(side, cuke::context<box>().side());
+  cuke::equal(side, cuke::context<box>().side());
 }

@@ -1,0 +1,9 @@
+#pragma once
+
+#include <string_view>
+
+namespace paths
+{
+  static constexpr std::string_view simple_scenarios{"${FEATURES_ROOT}/simple_scenarios.feature"};
+  static constexpr std::string_view a_million_steps{"${FEATURES_ROOT}/a_million_steps.feature"};
+} // namespace paths

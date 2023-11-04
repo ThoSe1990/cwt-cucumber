@@ -4,6 +4,9 @@ find_package(GTest)
 
 if(GTest_FOUND)
     
+    set(FEATURES_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/cpp_test_features")
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp.template ${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp)
+
     add_executable(${target} 
         ${CMAKE_CURRENT_SOURCE_DIR}/compile_errors.cc
         ${CMAKE_CURRENT_SOURCE_DIR}/runtime_errors.cc
