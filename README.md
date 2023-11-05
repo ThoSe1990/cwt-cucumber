@@ -12,7 +12,7 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
 The C++ API compiles its own `main`, which means you only need to implement the step definitions. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
 
 ### Implementing Steps - First Example
-Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
+Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) <a href="https://those1990.github.io/cwt-cucumber/" target="_blank">GitHub Pages</a>.
 
 ```cpp 
 #include "cwt/cucumber.hpp"
