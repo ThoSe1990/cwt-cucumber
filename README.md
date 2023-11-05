@@ -1,6 +1,8 @@
 # Coding With Thomas: Cucumber
 
-This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++. More detailed documentation for the C++ API and how to use it in C will follow (I'm currently working on it).
+This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
+  
+Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
 
 ## Disclaimer
 This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seemed like a good project.
@@ -10,7 +12,7 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
 The C++ API compiles its own `main`, which means you only need to implement the step definitions. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
 
 ### Implementing Steps - First Example
-Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) can be found [in the docs](...) or briefly below.
+Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
 
 ```cpp 
 #include "cwt/cucumber.hpp"
