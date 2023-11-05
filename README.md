@@ -7,10 +7,9 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
   
 
 ## CWT Cucumber for C++
-The C++ API compiles its own `main`, which means you only need to implement the step definitions. There is also a `cucumber-no-main` target if you need your own main. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
+The C++ API compiles its own `main`, which means you only need to implement the step definitions. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
 
 ### Implementing Steps - First Example
-
 Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) can be found [in the docs](...) or briefly below.
 
 ```cpp 
@@ -257,7 +256,11 @@ Note: You can use multiple hooks if you want to separate code. But then you must
 
 ### Tagged Hooks
 
-You can add tags (or a tag condition) to your hooks. If a hook has tags, then the hook will only be executed if the tag condition is true. Same rules/syntax is used as with `-t`/`--tags`.
+You can add tags (or a tag condition) to your hooks (similar to `-t`/`--tags`). Use  
+- `BEFORE_T(name, "tags come here")` for a hook before a scenrio
+- `AFTER_T(name, "tags come here")` for a hook after a scenario
+  
+For example if we want to execute a hook only when it has the tags `@small_boxes` and `@open` we'd do this:
 
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
@@ -271,7 +274,7 @@ BEFORE_T(open_small_boxes, "@small_boxes and @open")
 }
 ```
 
-And with this tagged hook, this scenario passes without calling the step to open the box:
+Which means all scenarios with theses tags contain an opened box by default and this passes:
 
 ```gherkin
 # ./examples/features/tags.feature
@@ -315,6 +318,20 @@ In the C++ implementation you can execute all feature files from a directory. Pa
 
 ```
 $ ./build/bin/box ./examples/features
+```
+
+### Use Your Own Main
+There is also a `cucumber-no-main` target if you need your own main and implement more to you program. To execute the cucumber test you have to call the `init()` and `run()` method. The standard main looks like this:
+
+```cpp
+// ./src/cwt/implementation/main.cpp
+#include "cwt/cucumber.hpp"
+
+int main(int argc, const char* argv[])
+{
+  cuke::details::init(); 
+  return cuke::details::run(argc, argv);
+}
 ```
 
 ## Whats Missing
