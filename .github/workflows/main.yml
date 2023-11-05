@@ -63,8 +63,7 @@ jobs:
           mkdir pages
           cd docs
           mkdir _build
-          make html
-          mv ./_build/html ../pages
+          make html -e BUILDDIR="../pages"
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
