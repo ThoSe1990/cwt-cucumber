@@ -6,6 +6,21 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import os
+import re
+import yaml
+
+cmake_file_path = "./../CMakeLists.txt"
+pattern = r'project\(cwt-cucumber VERSION (\d+\.\d+\.\d+)\)'
+with open(cmake_file_path, 'r') as file:
+    content = file.read()
+match = re.search(pattern, content)
+
+version = match.group(1) if match else "0.0.0"
+release = version
+
+
+
 project = 'CWT-Cucumber'
 copyright = '2023, Thomas Sedlmair'
 author = 'Thomas Sedlmair'
@@ -30,3 +45,10 @@ breathe_projects = {
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_show_sourcelink = False
+html_theme_options = {
+    'display_version': True,
+}
+
+
+

@@ -10,10 +10,11 @@ Welcome to CWT-Cucumber's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-Hello world: 
-
-.. doxygendefine:: STEP
-  :project: cwt-cucumber
+   chapters/00_intro
+   chapters/01_getting_started
+   chapters/02_cpp_api
+   chapters/03_c_api 
+   
 
 Indices and tables
 ==================
