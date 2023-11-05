@@ -172,7 +172,7 @@ Feature: Tags
     Then The volume is 504000
 ```
 
-Now you can control the execution with `-t` or `--tags` with a bool condition inside the quotes and the corresponding tags:
+Now you can control the execution with `-t` or `--tags` with a tag expression (bool condition) inside the quotes and the corresponding tags:
 
 ```
 $ ./build/bin/box ./examples/features/tags.feature -t "@small_boxes or @big_boxes"
@@ -258,7 +258,7 @@ Note: You can use multiple hooks if you want to separate code. But then you must
 
 ### Tagged Hooks
 
-You can add tags (or a tag condition) to your hooks (similar to `-t`/`--tags`). Use  
+You can add a tag expression to your hooks (similar to `-t`/`--tags`). Use  
 - `BEFORE_T(name, "tags come here")` for a hook before a scenrio
 - `AFTER_T(name, "tags come here")` for a hook after a scenario
   
@@ -267,7 +267,7 @@ For example if we want to execute a hook only when it has the tags `@small_boxes
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
 
-// a function name and a bool condition for the tags
+// a function name and tag expression (same for AFTER_T):
 BEFORE_T(open_small_boxes, "@small_boxes and @open")
 {
   // we create a box with some default values
