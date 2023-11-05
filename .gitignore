@@ -1,6 +1,7 @@
 .vscode
 build/
 build*/
+docs/_build/
 gtest/paths.hpp
 CMakeUserPresets.json
 *.sh

@@ -37,3 +37,43 @@ jobs:
       #   with:
       #     name: unittests
       #     path: ./build/bin/unittests
+
+
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: build
+        run: |
+          sudo apt-get update
+          sudo apt-get install git -y
+          sudo apt install python3-pip -y
+          sudo apt install locales
+          sudo locale-gen en_US.UTF-8
+          sudo apt-get install doxygen -y
+          sudo apt-get install graphviz -y
+          sudo apt install npm -y
+          sudo pip3 install sphinx
+          sudo pip3 install sphinx_rtd_theme
+          sudo pip3 install breathe
+          sudo pip3 install linuxdoc
+          mkdir pages
+          cd docs
+          mkdir _build
+          make html
+          mv ./_build/html ../pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Upload entire repository
+          path: './pages'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
