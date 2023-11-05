@@ -42,13 +42,9 @@ int box_volume()
 {
   return s_width * s_height * s_depth;
 }
-#include <stdio.h>
 void box_open()
 {
-  printf("opening the box\n");
   s_is_open = true;
-    printf("box is really: %i\n", s_is_open);
-
 }
 void box_close()
 {

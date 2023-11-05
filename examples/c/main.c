@@ -16,7 +16,7 @@ int main(int argc, const char* argv[])
 
   cuke_then("The box is open", step_is_open);
   cuke_then("The box is closed", step_is_closed);
-  cuke_then("The volume is {int}", step_volume);
+  cuke_then("The volume is {long}", step_volume);
   cuke_then("The weight is {double} kg", step_weight);
   cuke_then("The front area is {int}", step_front);
   cuke_then("The side area is {int}", step_side);

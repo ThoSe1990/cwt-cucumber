@@ -35,6 +35,12 @@ THEN(box_is_open, "The box is open")
 {
   cuke::is_true(cuke::context<box>().is_open());
 }
+
+THEN(box_volume, "The volume is {long}")
+{
+  const std::size_t volume = CUKE_ARG(1);
+  cuke::equal(volume, cuke::context<box>().volume());  
+}
 ```
 
 And with this first feature file:
@@ -49,6 +55,7 @@ Feature: My First Feature File
     Given A box with 2 x 2 x 2
     When I open the box
     Then The box is open 
+    And The volume is 8 
 ```
 
 Build the examples with CMake: 
@@ -179,6 +186,46 @@ So for instance this would be a valid statement: `"(@small_boxes and @big_boxes)
 
 If you don't pass `-t` or `--tags` to the program options, all Scenarios are executed.
 
+### Scenario Outline
+In a scenario outline you can define variables and run a scenario with different values:
+
+```gherkin 
+# ./examples/features/scenario_outline.feature
+
+Feature: Scenario Outline 
+
+  Scenario Outline: A lot of boxes 
+    Given A box with <width> x <height> x <depth>
+    Then The volume is <volume>
+
+    Examples:
+      | width | height | depth | volume |
+      | 1     | 1      | 1     | 1      |
+      | 1     | 2      | 3     | 6      |
+      | 2     | 2      | 4     | 16     |
+```
+
+This Scenario is now executed three times, with each row of values. 
+  
+You can also add tags to examples. Begin a new table with the tag, followed by `Examples:` in the next line:
+
+```gherkin
+# ... 
+  @mid_sized_boxes
+  Examples:
+    | width | height | depth | volume |
+    | 10    | 5      | 10    | 500    |
+    | 20    | 2      | 9     | 360    |
+  
+  @big_boxes
+  Examples:
+    | width | height | depth | volume  |
+    | 200   | 99     | 150   | 2970000 |
+    | 120   | 55     | 30    | 198000  |
+```
+
+The program option `-t` / `--tags` works exactly as before. Pass tags to execute the tags, without tags all examples/scenarios are executed. 
+
 ### Hooks 
 
 ### Background
@@ -189,9 +236,8 @@ So what is missing? By now I can think of is:
 - Comprehensive documentation (I'm working on that)
 - `-h` / `--help` option 
 - Languages (currently only english keywords are implemented)
-- Rules
+- Rules 
 - Reports (json, ...) 
-- Refactore, cleanups ... 
 - ...
 
 

@@ -7,3 +7,4 @@ Feature: My First Feature File
     Given A box with 2 x 2 x 2
     When I open the box
     Then The box is open 
+    And The volume is 8 

@@ -33,9 +33,9 @@ THEN(box_is_closed, "The box is closed")
 {
   cuke::is_false(cuke::context<box>().is_open());
 }
-THEN(box_volume, "The volume is {int}")
+THEN(box_volume, "The volume is {long}")
 {
-  const unsigned int volume = CUKE_ARG(1);
+  const std::size_t volume = CUKE_ARG(1);
   cuke::equal(volume, cuke::context<box>().volume());  
 }
 THEN(box_weight, "The weight is {double} kg")

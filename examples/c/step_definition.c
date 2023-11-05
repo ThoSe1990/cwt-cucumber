@@ -55,8 +55,8 @@ void step_top(int arg_count, cuke_value* args)
 }
 void step_volume(int arg_count, cuke_value* args)
 {
-  const int volume = box_volume();
-  const int expected = cuke_to_int(&args[0]);
+  const long volume = box_volume();
+  const long expected = cuke_to_long(&args[0]);
   cuke_assert(volume == expected, "box volume is not %d", expected);
 }
 void step_weight(int arg_count, cuke_value* args)
