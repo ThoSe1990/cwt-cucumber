@@ -54,7 +54,7 @@ void global_options(int argc, const char* argv[])
     {
       tags(i, argc, argv);
     } 
-    else if (strcmp(argv[i], "--lines") == 0 || strcmp(argv[i], "-l") == 0) 
+    else if (strcmp(argv[i], "--line") == 0 || strcmp(argv[i], "-l") == 0) 
     {
 
     }

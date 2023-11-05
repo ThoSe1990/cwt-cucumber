@@ -58,3 +58,25 @@ THEN(box_side, "The side area is {int}")
   const unsigned int side = CUKE_ARG(1);
   cuke::equal(side, cuke::context<box>().side());
 }
+
+BEFORE()
+{
+  // std::puts("this runs before every scenario");
+}
+AFTER()
+{
+  // std::puts("this runs after every scenario");
+}
+BEFORE_STEP()
+{
+  // std::puts("this runs before every step");
+}
+AFTER_STEP()
+{
+  // std::puts("this runs after every step");
+}
+
+BEFORE_T(open_small_boxes, "@small_boxes and @open")
+{
+  cuke::context<box>(1u,1u,1u).open();
+}

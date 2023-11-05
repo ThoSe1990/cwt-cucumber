@@ -210,7 +210,9 @@ This Scenario is now executed three times, with each row of values.
 You can also add tags to examples. Begin a new table with the tag, followed by `Examples:` in the next line:
 
 ```gherkin
+# ./examples/features/scenario_outline.feature
 # ... 
+  
   @mid_sized_boxes
   Examples:
     | width | height | depth | volume |
@@ -228,12 +230,98 @@ The program option `-t` / `--tags` works exactly as before. Pass tags to execute
 
 ### Hooks 
 
+Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines (remove the comments to see the prints):
+
+```cpp
+// ./examples/cpp/step_definition.cpp: 
+
+BEFORE()
+{
+  std::puts("this runs before every scenario");
+}
+AFTER()
+{
+  std::puts("this runs after every scenario");
+}
+BEFORE_STEP()
+{
+  std::puts("this runs before every step");
+}
+AFTER_STEP()
+{
+  std::puts("this runs after every step");
+}
+```
+
+Note: You can use multiple hooks if you want to separate code. But then you must pass a function name to the hook, such as `BEFORE(some_function_name) { ... }`.
+
+### Tagged Hooks
+
+You can add tags (or a tag condition) to your hooks. If a hook has tags, then the hook will only be executed if the tag condition is true. Same rules/syntax is used as with `-t`/`--tags`.
+
+```cpp
+// ./examples/cpp/step_definition.cpp: 
+
+// a function name and a bool condition for the tags
+BEFORE_T(open_small_boxes, "@small_boxes and @open")
+{
+  // we create a box with some default values
+  // and then we call immediately open()
+  cuke::context<box>(1u,1u,1u).open();
+}
+```
+
+And with this tagged hook, this scenario passes without calling the step to open the box:
+
+```gherkin
+# ./examples/features/tags.feature
+# ... 
+
+  @small_boxes @open
+  Scenario: An opened box
+    Then The box is open 
+```
+
 ### Background
+
+A background is a set of steps (or a single step) which are the first steps of every `Scenario` in a `Feature`. After the feature definition add `Background`:
+
+```gherkin
+# ./examples/features/background.feature
+
+Feature: We want default open boxes!
+
+  Background: create an opened the box!
+    Given A box with 2 x 2 x 2
+    When I open the box
+
+  Scenario: An opened box
+    Then The box is open 
+```
+
+### Single Scenarios 
+
+If you want to execute only single Scenarios, use the `-l` or `--lines` program option after the feature filepath. Run multiple feature files and append one or more lines: 
+
+```
+$ ./build/bin/box ./examples/features/box.feature -l 6
+$ ./build/bin/box ./examples/features/box.feature -l 6 -l 18
+$ ./build/bin/box ./examples/features/box.feature -l 6 -l 18 ./examples/features/scenario_outline.feature -l 12
+```
+
+### Executing All Files From A Directory
+
+In the C++ implementation you can execute all feature files from a directory. Pass the directory as program option and all feature files in there are executed:
+
+```
+$ ./build/bin/box ./examples/features
+```
 
 ## Whats Missing
 
 So what is missing? By now I can think of is:
 - Comprehensive documentation (I'm working on that)
+- Conan recipe (after first version tag)
 - `-h` / `--help` option 
 - Languages (currently only english keywords are implemented)
 - Rules 

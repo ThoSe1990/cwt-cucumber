@@ -16,3 +16,9 @@ Feature: Tags
   Scenario: An arbitrary box
     Given A box with 90 x 80 x 70
     Then The volume is 504000
+
+  @small_boxes @open
+  Scenario: An opened box
+    Then The box is open 
+
+  

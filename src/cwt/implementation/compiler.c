@@ -446,6 +446,24 @@ static void scenario_description()
   // TODO print description to report or so
 }
 
+static void background_description()
+{
+  const char* begin = parser.current.start;
+  const int line = parser.current.line;
+  for (;;)
+  {
+    if (check(TOKEN_SCENARIO) 
+      || check(TOKEN_STEP)
+      || check(TOKEN_SCENARIO_OUTLINE)
+      || check(TOKEN_TAG)
+      || check(TOKEN_EOF))
+    {
+      break;
+    }
+    advance();
+  }
+}
+
 static void feature_description()
 {
   const char* begin = parser.current.start;
@@ -852,10 +870,8 @@ static obj_function* get_background()
     cuke_compiler_t compiler;
     init_compiler(&compiler, TYPE_FUNCTION);
 
-    name(false);
-
-    // TODO :
-    // description
+    name(true);
+    background_description();
     skip_linebreaks();
     match(TOKEN_STEP);
     step();
