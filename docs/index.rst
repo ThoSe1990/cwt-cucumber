@@ -10,7 +10,10 @@ Welcome to CWT-Cucumber's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+Hello world: 
 
+.. doxygendefine:: STEP
+  :project: cwt-cucumber
 
 Indices and tables
 ==================

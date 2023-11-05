@@ -69,6 +69,13 @@ namespace cuke::details
     } \
     void name(int arg_count, cuke_value* args)
 
+/**
+ * @def STEP(name, step)
+ * @brief Creates a cucumber step 
+ *
+ * @param name A unique function name, this function name has no technical impact
+ * @param step The step definition string which is used by feature files later
+ */
 #define STEP(name, step) INTERNAL_STEP(step, CONCAT(__cuke_step_,name))
 #define GIVEN(name, step) STEP(name, step)
 #define WHEN(name, step) STEP(name, step)
