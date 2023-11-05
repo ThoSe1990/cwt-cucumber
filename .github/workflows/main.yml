@@ -63,8 +63,9 @@ jobs:
           mkdir pages
           cd docs
           mkdir _build
+          doxygen Doxyfile
           make html
-          sudo mv ./_build/html/* ../pages/
+          mv ./_build/html/* ../pages/
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
