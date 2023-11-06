@@ -16,12 +16,7 @@ jobs:
     #   displayName: Extend PATH
     # C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts\conan.exe --version
     - script: |
-        echo "Adding Python Scripts directory to PATH"
-        $pythonScriptsDir = (Get-Command py).Source
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
-        $env:Path += ";$pythonScriptsDir"
-        [System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
-        echo "Python Scripts directory added to PATH"
+        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
       displayName: 'Add Python Scripts directory to PATH'
     - script: conan.exe --version  # Now you can use Conan
       displayName: 'Verify Conan installation'
