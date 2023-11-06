@@ -3,20 +3,25 @@ trigger:
 
 
 jobs:
-  job: Windows Build
-  pool:
-    vmImage: 'windows-latest'
-
-  steps:
-  - script: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-    displayName: 'Install CMake'
-  - script: python3.exe --version
-    displayName: check python3
-  - script: python.exe --version
-    displayName: check python
-  - script: py.exe --version
-    displayName: check pz
-  - script: |
-      cmake -S . -B ./build
-      cmake --build ./build
-    displayName: 'CMake Build'
+  - job: Windows Build
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+    - script: | 
+        choco install -y python3
+        py.exe -m pip install cmake
+        py.exe -m pip install conan
+        conan.exe --version
+      displayName: Install tools 
+    # - script: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+    #   displayName: 'Install CMake'
+    # - script: python3.exe --version
+    #   displayName: check python3
+    # - script: python.exe --version
+    #   displayName: check python
+    # - script: py.exe --version
+    #   displayName: check pz
+    - script: |
+        cmake -S . -B ./build
+        cmake --build ./build
+      displayName: 'CMake Build'
