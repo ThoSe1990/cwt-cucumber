@@ -15,19 +15,17 @@ jobs:
     # - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts'  # Replace with the actual path to Conan installation
     #   displayName: Extend PATH
     # C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts\conan.exe --version
-   
     - script: |
         set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
         conan.exe --version  # Now you can use Conan
         conan.exe profile detect
-        conan.exe profile show
         powershell -Command "(gc C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=17' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default"
         powershell -Command "(gc C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default"
-        conan.exe profile show
-      displayName: 'Verify Conan installation'
-    - script: cmake --version  # Now you can use Conan
-      displayName: 'Verify CMake installation'
+      displayName: 'Init Conan'
     - script: |
-        cmake -S . -B ./build
-        cmake --build ./build -j6
-      displayName: 'CMake Build'
+        conan install . -of build --build missing
+        cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
+        cmake --build ./build --config Release -j6
+        .\build\bin\Release\unittests.exe
+        .\build\bin\Release\box.exe .\examples\features\
+      displayName: 'Win Release Build'
