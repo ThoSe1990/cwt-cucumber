@@ -20,16 +20,16 @@ protected:
   {
     for (int i = 0 ; i < m_args.count ; i++)
     {
-      if (IS_OBJ(m_args.values[i]))
-      {
-        obj* object = AS_OBJ(m_args.values[i]);
-        while (object != NULL)
-        {
-          obj* next = object->next;
-          free_object(object);
-          object = next;
-        }
-      }
+      // if (IS_OBJ(m_args.values[i]))
+      // {
+      //   obj* object = AS_OBJ(m_args.values[i]);
+      //   while (object != NULL)
+      //   {
+      //     obj* next = object->next;
+      //     free_object(object);
+      //     object = next;
+      //   }
+      // }
       // obj_string* str = AS_STRING(m_args.values[i]);
       // if (IS_S)
       // std::cout << m_args.values[i].type << std::endl;
@@ -110,6 +110,7 @@ TEST_F(step_args, get_values_5)
   EXPECT_TRUE(parse_step("step with {string}", "step with \"a string value\"", &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "a string value");
+  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_6)
@@ -119,6 +120,7 @@ TEST_F(step_args, get_values_6)
   EXPECT_EQ(cuke_to_byte(&m_args.values[0]), 1);
   EXPECT_EQ(cuke_to_short(&m_args.values[1]), 2);
   EXPECT_STREQ(cuke_to_string(&m_args.values[2]), "three");
+  free(AS_CSTRING(m_args.values[2]));
   EXPECT_EQ(cuke_to_int(&m_args.values[3]), 4);
 }
 
@@ -133,6 +135,7 @@ any docstring
   EXPECT_TRUE(parse_step("a docstring", step, &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "any docstring");
+  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_8)
@@ -143,8 +146,9 @@ R"*(some value 123
 any docstring
 """
 )*";
-  // EXPECT_TRUE(parse_step("some value {int}", step, &m_args));
-  // ASSERT_EQ(m_args.count, 2);
-  // EXPECT_EQ(cuke_to_int(&m_args.values[0]), 123);
-  // EXPECT_STREQ(cuke_to_string(&m_args.values[1]), "any docstring");
+  EXPECT_TRUE(parse_step("some value {int}", step, &m_args));
+  ASSERT_EQ(m_args.count, 2);
+  EXPECT_EQ(cuke_to_int(&m_args.values[0]), 123);
+  EXPECT_STREQ(cuke_to_string(&m_args.values[1]), "any docstring");
+  free(AS_CSTRING(m_args.values[1]));
 }
