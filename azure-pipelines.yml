@@ -11,6 +11,8 @@ jobs:
         choco install -y python3
         py.exe -m pip install cmake
         py.exe -m pip install conan
+        C:\hostedtoolcache\windows\Python\3.12.0\x64\Lib\site-packages\conan --version
+        conan --version 
       displayName: Install CMake, Conan
     - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Lib\site-packages'  # Replace with the actual path to Conan installation
       displayName: Extend PATH 
