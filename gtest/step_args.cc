@@ -23,8 +23,12 @@ protected:
       if (IS_OBJ(m_args.values[i]))
       {
         obj* object = AS_OBJ(m_args.values[i]);
-        
-        
+        while (object != NULL)
+        {
+          obj* next = object->next;
+          free_object(object);
+          object = next;
+        }
       }
       // obj_string* str = AS_STRING(m_args.values[i]);
       // if (IS_S)
