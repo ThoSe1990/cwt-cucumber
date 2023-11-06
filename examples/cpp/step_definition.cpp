@@ -11,6 +11,12 @@ GIVEN(box_init, "A box with {int} x {int} x {int}")
   cuke::context<box>(w,l,h);
 }
 
+GIVEN(str, "a string {string}")
+{
+  std::string s = CUKE_ARG(1);
+  std::cout << s << std::endl;
+}
+
 WHEN(box_open, "I open the box")
 {
   cuke::context<box>().open(); 

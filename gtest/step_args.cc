@@ -44,16 +44,6 @@ protected:
     free_value_array(&m_args);
   }
 
-  void free_string(obj* object)
-  {
-    if (object->type == OBJ_STRING)
-    {
-      obj_string* str = (obj_string*)object;
-      FREE_ARRAY(char, str->chars, str->length+1);
-      FREE(obj_string, object);
-    }
-  }
-
   value_array m_args;
 };
 
@@ -116,7 +106,6 @@ TEST_F(step_args, get_values_5)
   EXPECT_TRUE(parse_step("step with {string}", "step with \"a string value\"", &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "a string value");
-  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_6)
