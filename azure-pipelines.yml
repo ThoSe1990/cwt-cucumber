@@ -16,6 +16,8 @@ jobs:
       displayName: 'Add Conan to PATH'
     - script: conan --version  # Now you can use Conan
       displayName: 'Verify Conan installation'
+    - script: cmake --version  # Now you can use Conan
+      displayName: 'Verify CMake installation'
     # - script: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
     #   displayName: 'Install CMake'
     # - script: python3.exe --version
@@ -26,5 +28,5 @@ jobs:
     #   displayName: check pz
     - script: |
         cmake -S . -B ./build
-        cmake --build ./build
+        cmake --build ./build -j6
       displayName: 'CMake Build'
