@@ -4,23 +4,22 @@ name: CI
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" , "dev"]
+    branches: [ "main" , "dev", "docs"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+
+  build-debug:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: build
+      - name: build-debug
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
@@ -29,11 +28,48 @@ jobs:
           sudo pip3 install cmake 
           sudo pip3 install conan
           sudo conan profile detect
+          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
           sudo conan install . -of ./build --build missing 
-          sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+          sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           sudo cmake --build ./build -j12
-          sudo ./build/bin/unittests
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: unittests
-      #     path: ./build/bin/unittests
+          ./build/bin/unittests
+
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pages: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: build
+        run: |
+          sudo apt-get update
+          sudo apt-get install git -y
+          sudo apt install python3-pip -y
+          sudo apt install locales
+          sudo locale-gen en_US.UTF-8
+          sudo apt-get install doxygen -y
+          sudo apt-get install graphviz -y
+          sudo apt install npm -y
+          sudo pip3 install sphinx
+          sudo pip3 install sphinx_rtd_theme
+          sudo pip3 install breathe
+          sudo pip3 install linuxdoc
+          mkdir pages
+          cd docs
+          mkdir _build
+          doxygen Doxyfile
+          make html
+          mv ./_build/html/* ../pages/
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          # Upload entire repository
+          path: './pages'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

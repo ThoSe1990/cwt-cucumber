@@ -69,10 +69,6 @@ namespace cuke::details
     } \
     void name(int arg_count, cuke_value* args)
 
-#define STEP(name, step) INTERNAL_STEP(step, CONCAT(__cuke_step_,name))
-#define GIVEN(name, step) STEP(name, step)
-#define WHEN(name, step) STEP(name, step)
-#define THEN(name, step) STEP(name, step)
 
 
 #define INTERNAL_HOOK(hook, name, tag_expression) \
@@ -85,14 +81,6 @@ namespace cuke::details
         } CONCAT(g_,name); \
     } \
     void name(int arg_count, cuke_value* args)
-
-
-#define BEFORE(name) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),"")
-#define BEFORE_T(name,tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),tag_expression)
-#define AFTER(name) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),"")
-#define AFTER_T(name, tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),tag_expression)
-#define BEFORE_STEP(name) INTERNAL_HOOK("before_step", CONCAT(__cuke_before_step,name),"")
-#define AFTER_STEP(name) INTERNAL_HOOK("after_step", CONCAT(__cuke_after_step,name),"")
 
 
 namespace cuke::details
@@ -159,6 +147,20 @@ namespace cuke::details
   };
 
   template <>
+  struct cuke_conversion_impl<long> 
+  {
+      static long get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return cuke_to_long(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+
+  template <>
   struct cuke_conversion_impl<unsigned long long> 
   {
       static unsigned long long get_arg(cuke_value* arg, const std::string& file, int line) 
@@ -173,13 +175,13 @@ namespace cuke::details
   };
 
   template <>
-  struct cuke_conversion_impl<std::size_t> 
+  struct cuke_conversion_impl<unsigned long> 
   {
-      static std::size_t get_arg(cuke_value* arg, const std::string& file, int line) 
+      static unsigned long get_arg(cuke_value* arg, const std::string& file, int line) 
       {
         if (arg->type == VAL_LONG)
         {
-          return static_cast<std::size_t>(cuke_to_long(arg));
+          return static_cast<unsigned long>(cuke_to_long(arg));
         }
         print_error(file, ':', line, ": Value is not an integer type.");
         throw std::bad_cast();
@@ -313,5 +315,92 @@ namespace cuke::details
 } // namespace cuke::details
 
 
-#define CUKE_ARG(i) cuke::details::get_arg(args, i, arg_count, __FILE__, __LINE__)  
+/**
+ * @def STEP(name, step)
+ * @brief Creates a Cucumber step, which is then available in your feature files
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ * @param step The step definition string which is used by feature files later
+ */
+#define STEP(name, step) INTERNAL_STEP(step, CONCAT(__cuke_step_,name))
+
+/**
+ * @def GIVEN(name, step)
+ * @brief An alias to STEP(name,step) to increase readability of your code
+ */
+#define GIVEN(name, step) STEP(name, step)
+
+/**
+ * @def WHEN(name, step)
+ * @brief An alias to STEP(name,step) to increase readability of your code
+ */
+#define WHEN(name, step) STEP(name, step)
+
+/**
+ * @def THEN(name, step)
+ * @brief An alias to STEP(name,step) to increase readability of your code
+ */
+#define THEN(name, step) STEP(name, step)
+
+
+
+/**
+ * @def BEFORE(name)
+ * @brief Creates a hook which is executed before every Scenario
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ */
+#define BEFORE(name) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),"")
+/**
+ * @def BEFORE_T(name, tag_expression)
+ * @brief Creates a hook with a tag expression, which can run before a tagged scenario
+ * 
+ * Before running a tagged scenario, the tag expression is evaluated. If it evaluates to true, the hook is executed.
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ * @param tag_expression A tag expression (bool condition), like ``"@tag1 and @tag2"``
+ */
+#define BEFORE_T(name,tag_expression) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),tag_expression)
+/**
+ * @def AFTER(name)
+ * @brief Creates a hook which is executed after every scenario
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ */
+#define AFTER(name) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),"")
+/**
+ * @def AFTER_T(name, tag_expression)
+ * @brief Creates a hook with a tag expression, which can run after a tagged scenario
+ * 
+ * After running a tagged scenario, the tag expression is evaluated. If it evaluates to true, the hook is executed.
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ * @param tag_expression A tag expression (bool condition), like ``"@tag1 and @tag2"``
+ */
+#define AFTER_T(name, tag_expression) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),tag_expression)
+/**
+ * @def BEFORE_STEP(name)
+ * @brief Creates a hook which is executed before every step
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ */
+#define BEFORE_STEP(name) INTERNAL_HOOK("before_step", CONCAT(__cuke_before_step,name),"")
+/**
+ * @def AFTER_STEP(name)
+ * @brief Creates a hook which is executed after every step
+ * 
+ * @param name A unique function name, this function name has no technical impact
+ */
+#define AFTER_STEP(name) INTERNAL_HOOK("after_step", CONCAT(__cuke_after_step,name),"")
+
+/**
+ * @def CUKE_ARG(index)
+ * @brief Access variables from a step in the step body. ``CUKE_ARG`` starts at index 1 on the first value from the left side.
+ * 
+ * C++ auto type deduction does not work here. The underlying function is overloaded by return type.
+ * 
+ * @param index Variable index to access 
+ * @return The value from the index in the given step
+ */
+#define CUKE_ARG(index) cuke::details::get_arg(args, index, arg_count, __FILE__, __LINE__)  
 

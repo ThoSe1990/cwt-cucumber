@@ -59,19 +59,19 @@ THEN(box_side, "The side area is {int}")
   cuke::equal(side, cuke::context<box>().side());
 }
 
-BEFORE()
+BEFORE(before)
 {
   // std::puts("this runs before every scenario");
 }
-AFTER()
+AFTER(after)
 {
   // std::puts("this runs after every scenario");
 }
-BEFORE_STEP()
+BEFORE_STEP(before_step)
 {
   // std::puts("this runs before every step");
 }
-AFTER_STEP()
+AFTER_STEP(after_step)
 {
   // std::puts("this runs after every step");
 }

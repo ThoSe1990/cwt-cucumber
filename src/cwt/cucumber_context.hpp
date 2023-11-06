@@ -100,11 +100,32 @@ namespace cuke {
     }
   } // namespace details
   
+  /**
+   * @brief Creates and returns a object of the given type to the scenario context.
+   * After a scenario all objects are destroyed in the scenario context. 
+   * If the object does not exist in this context, the default constructor is called and the object created.
+   * 
+   * @tparam T The object to create or access
+   * 
+   * @return A reference to the object of type T
+  */
   template<typename T>
   inline T& context()
   {
     return details::get_context().get<T>();
   }
+  /**
+   * @brief Creates and returns a object of the given type to the scenario context.
+   * After a scenario all objects are destroyed in the scenario context. 
+   * If the object does not exist in this context, the arguments are forwarded to the dedicated constructor. 
+   * 
+   * **The arguments are ignored when the object is already in this context.**
+   * 
+   * @tparam T The object to create or access
+   * @tparam Args Variadic template parameter to forward all arguments to the dedicated constructor
+   * 
+   * @return A reference to the object of type T
+  */
   template<typename T, typename... Args>
   inline T& context(Args&&... args)
   {

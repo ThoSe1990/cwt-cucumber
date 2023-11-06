@@ -465,51 +465,52 @@ typedef struct
 
 static node_t* new_node(bool data) 
 {
-    node_t* node = (node_t*) malloc(sizeof(node_t));
-    node->data = data;
-    node->next = NULL;
-    return node;
+  node_t* node = (node_t*) malloc(sizeof(node_t));
+  node->data = data;
+  node->next = NULL;
+  return node;
 }
 
 static void init_stack(rpn_stack_t* stack) 
 {
-    stack->size = 0;
-    stack->top = NULL;
+  stack->size = 0;
+  stack->top = NULL;
 }
 
 static bool is_empty(rpn_stack_t* stack) 
 {
-    return stack->top == NULL;
+  return stack->top == NULL;
 }
 
 static void push_to_stack(rpn_stack_t* stack, bool data) 
 {
-    node_t* node = new_node(data);
-    node->next = stack->top;
-    stack->top = node;
-    stack->size++;
+  node_t* node = new_node(data);
+  node->next = stack->top;
+  stack->top = node;
+  stack->size++;
 }
 
 static bool pop_from_stack(rpn_stack_t* stack) 
 {
-    if (is_empty(stack)) {
-        return false;
-    }
+  if (is_empty(stack)) 
+  {
+    return false;
+  }
 
-    node_t* temp = stack->top;
-    bool data = temp->data;
-    stack->top = temp->next;
-    stack->size--;
-    free(temp);
-    return data;
+  node_t* temp = stack->top;
+  bool data = temp->data;
+  stack->top = temp->next;
+  stack->size--;
+  free(temp);
+  return data;
 }
 
 static void clear_stack(rpn_stack_t* stack)
 {
-    while (!is_empty(stack))
-    {
-        pop_from_stack(stack);
-    }
+  while (!is_empty(stack))
+  {
+    pop_from_stack(stack);
+  }
 }
 
 static bool is_same(obj_string* s1, obj_string* s2)
@@ -573,7 +574,6 @@ bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, cuke_value* tags, int ta
         }
         break; default : ;// can not happen ... 
       }
-
     }
   }
   return pop_from_stack(&stack);

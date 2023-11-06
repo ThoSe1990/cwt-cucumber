@@ -19,6 +19,7 @@
   (type*)reallocate(pointer, sizeof(type) * (old_count), sizeof(type) * (new_count));
 
 void* reallocate (void* pointer, size_t old_size, size_t new_size);
+void free_object(obj* object);
 void free_objects();
 
 #endif 

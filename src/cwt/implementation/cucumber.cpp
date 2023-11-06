@@ -100,13 +100,13 @@ namespace cuke::details
     int result = CUKE_SUCCESS;
     for (const auto& feature : m_features)
     {
-      std::puts("\n");
-      char* source = read_file(feature.file.c_str());
+      std::puts("");
+      char* source = read_file(feature.file.string().c_str());
       if (feature.lines.size())
       {
         only_compile_lines(feature.lines.data(), feature.lines.size());
       }
-      if (run_cuke(source, feature.file.c_str()) == CUKE_FAILED)
+      if (run_cuke(source, feature.file.string().c_str()) == CUKE_FAILED)
       {
         result = CUKE_FAILED;
       } 

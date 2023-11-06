@@ -3,6 +3,8 @@
 extern "C" {
   #include "value.h"
   #include "step_matcher.h"
+  #include "memory.h"
+  #include "vm.h"
   #include "cwt/cucumber.h"
 }
 
@@ -12,12 +14,14 @@ class step_args : public ::testing::Test
 protected:
   void SetUp() override
   {
+    init_vm();
     init_value_array(&m_args); 
   }
 
   void TearDown() override 
   {
     free_value_array(&m_args);
+    free_vm();
   }
 
   value_array m_args;

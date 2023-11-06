@@ -1,6 +1,12 @@
+[![CI](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml) [![Build Status](https://dev.azure.com/thomassedlmair/cwt-cucumber/_apis/build/status%2FThoSe1990.cwt-cucumber?branchName=main)](https://dev.azure.com/thomassedlmair/cwt-cucumber/_build/latest?definitionId=14&branchName=main)
+
+
+
 # Coding With Thomas: Cucumber
 
-This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++. More detailed documentation for the C++ API and how to use it in C will follow (I'm currently working on it).
+This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
+  
+Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
 
 ## Disclaimer
 This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seemed like a good project.
@@ -10,7 +16,7 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
 The C++ API compiles its own `main`, which means you only need to implement the step definitions. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
 
 ### Implementing Steps - First Example
-Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) can be found [in the docs](...) or briefly below.
+Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) <a href="https://those1990.github.io/cwt-cucumber/" target="_blank">GitHub Pages</a>.
 
 ```cpp 
 #include "cwt/cucumber.hpp"
@@ -170,7 +176,7 @@ Feature: Tags
     Then The volume is 504000
 ```
 
-Now you can control the execution with `-t` or `--tags` with a bool condition inside the quotes and the corresponding tags:
+Now you can control the execution with `-t` or `--tags` with a tag expression (bool condition) inside the quotes and the corresponding tags:
 
 ```
 $ ./build/bin/box ./examples/features/tags.feature -t "@small_boxes or @big_boxes"
@@ -229,34 +235,33 @@ The program option `-t` / `--tags` works exactly as before. Pass tags to execute
 
 ### Hooks 
 
-Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines (remove the comments to see the prints):
+Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines and give the hook a unique function name (remove the comments to see the prints):
 
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
 
-BEFORE()
+BEFORE(before)
 {
   std::puts("this runs before every scenario");
 }
-AFTER()
+AFTER(after)
 {
   std::puts("this runs after every scenario");
 }
-BEFORE_STEP()
+BEFORE_STEP(before_step)
 {
   std::puts("this runs before every step");
 }
-AFTER_STEP()
+AFTER_STEP(after_step)
 {
   std::puts("this runs after every step");
 }
 ```
 
-Note: You can use multiple hooks if you want to separate code. But then you must pass a function name to the hook, such as `BEFORE(some_function_name) { ... }`.
 
 ### Tagged Hooks
 
-You can add tags (or a tag condition) to your hooks (similar to `-t`/`--tags`). Use  
+You can add a tag expression to your hooks (similar to `-t`/`--tags`). Use  
 - `BEFORE_T(name, "tags come here")` for a hook before a scenrio
 - `AFTER_T(name, "tags come here")` for a hook after a scenario
   
@@ -265,7 +270,7 @@ For example if we want to execute a hook only when it has the tags `@small_boxes
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
 
-// a function name and a bool condition for the tags
+// a function name and tag expression (same for AFTER_T):
 BEFORE_T(open_small_boxes, "@small_boxes and @open")
 {
   // we create a box with some default values

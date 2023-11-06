@@ -46,17 +46,11 @@ private:
 
 TEST_F(cpp_bindings, run_tests)
 {
-  int argc = 2;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = paths::simple_scenarios.data();
-  EXPECT_EQ(CUKE_FAILED, run_tests(argc, argv));
+  std::vector<const char*> args = {"some program", paths::simple_scenarios.data()};
+  EXPECT_EQ(CUKE_FAILED, run_tests(args.size(), args.data()));
 }
 TEST_F(cpp_bindings, run_a_million_tests)
 {
-  int argc = 2;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = paths::a_million_steps.data();
-  EXPECT_EQ(CUKE_SUCCESS, run_tests(argc, argv));
+  std::vector<const char*> args = {"some program", paths::a_million_steps.data()};
+  EXPECT_EQ(CUKE_SUCCESS, run_tests(args.size(), args.data()));
 }

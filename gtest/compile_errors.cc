@@ -5,7 +5,22 @@ extern "C" {
   #include "vm.h"
 }
 
-TEST(syntax_errors, unexpected_identifier_1)
+
+class compile_errors : public ::testing::Test 
+{
+protected:
+  void SetUp() override
+  {
+    init_vm();
+  }
+
+  void TearDown() override 
+  {
+    free_vm();
+  }
+};
+
+TEST_F(compile_errors, unexpected_identifier_1)
 {
   testing::internal::CaptureStderr(); 
 
@@ -18,7 +33,7 @@ const char* script = R"*(
   EXPECT_STREQ("[line 2] Error at 'this_is_wrong!': Expect FeatureLine.\n", error_print.c_str());
 }
 
-TEST(syntax_errors, unexpected_identifier_2)
+TEST_F(compile_errors, unexpected_identifier_2)
 {
   testing::internal::CaptureStderr(); 
 
@@ -34,7 +49,7 @@ const char* script = R"*(
   EXPECT_STREQ("[line 5] Error at 'this_is_wrong!': Expect StepLine or Scenario.\n", error_print.c_str());
 }
 
-TEST(syntax_errors, missing_quote)
+TEST_F(compile_errors, missing_quote)
 {
   testing::internal::CaptureStderr(); 
 
@@ -49,7 +64,7 @@ const char* script = R"*(
   EXPECT_STREQ("[line 4] Error: Unexpected linebreak in string value.\n", error_print.c_str());
 }
 
-TEST(syntax_errors, missing_angle_bracket)
+TEST_F(compile_errors, missing_angle_bracket)
 {
   testing::internal::CaptureStderr(); 
 
