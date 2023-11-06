@@ -4,6 +4,7 @@ extern "C" {
   #include "value.h"
   #include "step_matcher.h"
   #include "memory.h"
+  #include "vm.h"
   #include "cwt/cucumber.h"
 }
 
@@ -13,39 +14,14 @@ class step_args : public ::testing::Test
 protected:
   void SetUp() override
   {
+    init_vm();
     init_value_array(&m_args); 
   }
 
   void TearDown() override 
   {
-    for (int i = 0 ; i < m_args.count ; i++)
-    {
-      // if (IS_OBJ(m_args.values[i]))
-      // {
-      //   obj* object = AS_OBJ(m_args.values[i]);
-      //   while (object != NULL)
-      //   {
-      //     obj* next = object->next;
-      //     free_object(object);
-      //     object = next;
-      //   }
-      // }
-      // obj_string* str = AS_STRING(m_args.values[i]);
-      // if (IS_S)
-      // std::cout << m_args.values[i].type << std::endl;
-      // free(str);
-      // if (object)
-      //   free_object(object);
-      // obj_string* str = (obj_string*)object;
-      // if (str)
-      //   std::cout << "   still there: " << str->chars << std::endl;
-      // if (str->chars)
-      // {
-      // FREE(obj_string, object);
-      //   FREE_ARRAY(char, str->chars, str->length+1);
-      // }
-    }
-    // free_value_array(&m_args);
+    free_value_array(&m_args);
+    free_vm();
   }
 
   value_array m_args;
@@ -110,7 +86,6 @@ TEST_F(step_args, get_values_5)
   EXPECT_TRUE(parse_step("step with {string}", "step with \"a string value\"", &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "a string value");
-  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_6)
@@ -120,7 +95,6 @@ TEST_F(step_args, get_values_6)
   EXPECT_EQ(cuke_to_byte(&m_args.values[0]), 1);
   EXPECT_EQ(cuke_to_short(&m_args.values[1]), 2);
   EXPECT_STREQ(cuke_to_string(&m_args.values[2]), "three");
-  free(AS_CSTRING(m_args.values[2]));
   EXPECT_EQ(cuke_to_int(&m_args.values[3]), 4);
 }
 
@@ -135,7 +109,6 @@ any docstring
   EXPECT_TRUE(parse_step("a docstring", step, &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "any docstring");
-  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_8)
@@ -150,5 +123,4 @@ any docstring
   ASSERT_EQ(m_args.count, 2);
   EXPECT_EQ(cuke_to_int(&m_args.values[0]), 123);
   EXPECT_STREQ(cuke_to_string(&m_args.values[1]), "any docstring");
-  free(AS_CSTRING(m_args.values[1]));
 }
