@@ -45,7 +45,7 @@ protected:
       //   FREE_ARRAY(char, str->chars, str->length+1);
       // }
     }
-    free_value_array(&m_args);
+    // free_value_array(&m_args);
   }
 
   value_array m_args;
