@@ -236,12 +236,14 @@ public:
 
   void add_tags(std::string_view first) 
   {
-    write_c_string(&m_given_tags, first.data(), first.length());
+    write_value_array(&m_given_tags, OBJ_VAL(copy_string(first.data(), first.length())));
+    // write_c_string(&m_given_tags, first.data(), first.length());
   }
   template <typename... Args>
   void add_tags(std::string_view first, Args... rest) 
   {
-    write_c_string(&m_given_tags, first.data(), first.length());
+    write_value_array(&m_given_tags, OBJ_VAL(copy_string(first.data(), first.length())));
+    // write_c_string(&m_given_tags, first.data(), first.length());
     add_tags(rest...); 
   }
   void test_compile_tag_condition(std::string_view str)
