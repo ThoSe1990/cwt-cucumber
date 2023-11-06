@@ -1,3 +1,5 @@
+[![Build Status](https://dev.azure.com/thomassedlmair/cwt-cucumber/_apis/build/status%2FThoSe1990.cwt-cucumber?branchName=main)](https://dev.azure.com/thomassedlmair/cwt-cucumber/_build/latest?definitionId=14&branchName=main)
+
 # Coding With Thomas: Cucumber
 
 This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
