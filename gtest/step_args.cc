@@ -116,7 +116,7 @@ TEST_F(step_args, get_values_5)
   EXPECT_TRUE(parse_step("step with {string}", "step with \"a string value\"", &m_args));
   ASSERT_EQ(m_args.count, 1);
   EXPECT_STREQ(cuke_to_string(&m_args.values[0]), "a string value");
-  free_string(AS_OBJ(m_args.values[0]));
+  free(AS_CSTRING(m_args.values[0]));
 }
 
 TEST_F(step_args, get_values_6)
