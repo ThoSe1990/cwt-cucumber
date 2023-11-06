@@ -17,8 +17,9 @@ Welcome to CWT-Cucumber! This is the documentation for my C/C++ Cucumber interpr
 
    chapters/00_intro
    chapters/01_getting_started
-   chapters/02_cpp_api
-   chapters/03_c_api 
+   chapters/02_cpp
+   chapters/03_c 
+   chapters/04_api 
    
 
 Indices and tables
