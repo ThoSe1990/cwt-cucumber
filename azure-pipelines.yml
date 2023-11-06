@@ -15,10 +15,10 @@ jobs:
     # - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts'  # Replace with the actual path to Conan installation
     #   displayName: Extend PATH
     # C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts\conan.exe --version
+   
     - script: |
-        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
-      displayName: 'Add Python Scripts directory to PATH'
-    - script: conan.exe --version  # Now you can use Conan
+        setx \M PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
+        conan.exe --version  # Now you can use Conan
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
       displayName: 'Verify CMake installation'
