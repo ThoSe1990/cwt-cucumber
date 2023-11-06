@@ -15,6 +15,7 @@ GIVEN(str, "a string {string}")
 {
   std::string s = CUKE_ARG(1);
   std::cout << s << std::endl;
+  int* a = (int*)malloc(4);
 }
 
 WHEN(box_open, "I open the box")
