@@ -21,9 +21,8 @@ jobs:
         conan.exe --version  # Now you can use Conan
         conan.exe profile detect
         conan.exe profile show
-        (Get-Content C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=17' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default
-        (Get-Content C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default
-
+        (Get-Content C:\Users\VssAdministrator\.conan2\profiles\default) | ForEach-Object { $_ -replace "compiler.cppstd=14", "compiler.cppstd=17" } | Set-Content C:\Users\VssAdministrator\.conan2\profiles\default
+        (Get-Content C:\Users\VssAdministrator\.conan2\profiles\default) | ForEach-Object { $_ -replace "compiler.runtime=dynamic", "compiler.runtime=static" } | Set-Content C:\Users\VssAdministrator\.conan2\profiles\default
         conan.exe profile show
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
