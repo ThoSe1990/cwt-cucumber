@@ -23,7 +23,7 @@ protected:
       if (IS_OBJ(m_args.values[i]))
       {
         obj* object = AS_OBJ(m_args.values[i]);
-        free_object(object);
+        if (object) free_object(object);
       }
       // obj_string* str = AS_STRING(m_args.values[i]);
       // if (IS_S)
