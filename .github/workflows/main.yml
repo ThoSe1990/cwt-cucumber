@@ -53,7 +53,7 @@ jobs:
           sudo pip3 install cmake 
           sudo pip3 install conan
           sudo conan profile detect
-          sudo sed -i -e 's/Release/Debug/g' ~/.conan/profiles/default
+          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
           sudo conan install . -of ./build --build missing 
           sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           sudo cmake --build ./build -j12
