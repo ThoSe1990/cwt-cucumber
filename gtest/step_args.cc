@@ -20,7 +20,25 @@ protected:
   {
     for (int i = 0 ; i < m_args.count ; i++)
     {
-      free_object(AS_OBJ(m_args.values[i]));
+      if (IS_OBJ(m_args.values[i]))
+      {
+        obj* object = AS_OBJ(m_args.values[i]);
+        free_object(object);
+      }
+      // obj_string* str = AS_STRING(m_args.values[i]);
+      // if (IS_S)
+      // std::cout << m_args.values[i].type << std::endl;
+      // free(str);
+      // if (object)
+      //   free_object(object);
+      // obj_string* str = (obj_string*)object;
+      // if (str)
+      //   std::cout << "   still there: " << str->chars << std::endl;
+      // if (str->chars)
+      // {
+      // FREE(obj_string, object);
+      //   FREE_ARRAY(char, str->chars, str->length+1);
+      // }
     }
     free_value_array(&m_args);
   }
