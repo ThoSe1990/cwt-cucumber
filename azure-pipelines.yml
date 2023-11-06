@@ -3,7 +3,7 @@ trigger:
 
 
 jobs:
-  - job: Windows Build
+  - job: WindowsBuild
     pool:
       vmImage: 'windows-latest'
     steps:
