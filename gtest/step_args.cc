@@ -29,7 +29,8 @@ protected:
           obj_string* str = (obj_string*)object;
           if (str->chars)
             FREE_ARRAY(char, str->chars, str->length+1);
-          FREE(obj_string, object);
+          if (object)
+            FREE(obj_string, object);
         }
       }
       // obj_string* str = AS_STRING(m_args.values[i]);
