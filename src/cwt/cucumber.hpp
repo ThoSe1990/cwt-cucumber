@@ -348,7 +348,7 @@ namespace cuke::details
  * @def BEFORE(name)
  * @brief Creates a hook which is executed before every Scenario
  * 
- * @param name Optional name: If you want to separate code and implement this hook multiple times, give each one a unique function name
+ * @param name A unique function name, this function name has no technical impact
  */
 #define BEFORE(name) INTERNAL_HOOK("before", CONCAT(__cuke_before,name),"")
 /**
@@ -365,7 +365,7 @@ namespace cuke::details
  * @def AFTER(name)
  * @brief Creates a hook which is executed after every scenario
  * 
- * @param name Optional name: If you want to separate code and implement this hook multiple times, give each one a unique function name
+ * @param name A unique function name, this function name has no technical impact
  */
 #define AFTER(name) INTERNAL_HOOK("after", CONCAT(__cuke_after,name),"")
 /**
@@ -382,14 +382,14 @@ namespace cuke::details
  * @def BEFORE_STEP(name)
  * @brief Creates a hook which is executed before every step
  * 
- * @param name Optional name: If you want to separate code and implement this hook multiple times, give each one a unique function name
+ * @param name A unique function name, this function name has no technical impact
  */
 #define BEFORE_STEP(name) INTERNAL_HOOK("before_step", CONCAT(__cuke_before_step,name),"")
 /**
  * @def AFTER_STEP(name)
  * @brief Creates a hook which is executed after every step
  * 
- * @param name Optional name: If you want to separate code and implement this hook multiple times, give each one a unique function name
+ * @param name A unique function name, this function name has no technical impact
  */
 #define AFTER_STEP(name) INTERNAL_HOOK("after_step", CONCAT(__cuke_after_step,name),"")
 

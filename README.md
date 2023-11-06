@@ -233,30 +233,29 @@ The program option `-t` / `--tags` works exactly as before. Pass tags to execute
 
 ### Hooks 
 
-Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines (remove the comments to see the prints):
+Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines and give the hook a unique function name (remove the comments to see the prints):
 
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
 
-BEFORE()
+BEFORE(before)
 {
   std::puts("this runs before every scenario");
 }
-AFTER()
+AFTER(after)
 {
   std::puts("this runs after every scenario");
 }
-BEFORE_STEP()
+BEFORE_STEP(before_step)
 {
   std::puts("this runs before every step");
 }
-AFTER_STEP()
+AFTER_STEP(after_step)
 {
   std::puts("this runs after every step");
 }
 ```
 
-Note: You can use multiple hooks if you want to separate code. But then you must pass a function name to the hook, such as `BEFORE(some_function_name) { ... }`.
 
 ### Tagged Hooks
 

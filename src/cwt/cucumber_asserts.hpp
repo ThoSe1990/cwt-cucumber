@@ -1,3 +1,4 @@
+#include <string>
 #include <type_traits>
 
 extern "C" {
