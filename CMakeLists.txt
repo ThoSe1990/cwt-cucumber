@@ -24,8 +24,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-g -O0 -fno-omit-frame-pointer -fsanitize=address,leak)
-    link_libraries(-fsanitize=address,leak)
+        message(STATUS "Adding sanitizers")
+        add_compile_options(-g -O0 -fno-omit-frame-pointer -fsanitize=address,leak)
+        link_libraries(-fsanitize=address,leak)
     endif()
 endif()
 

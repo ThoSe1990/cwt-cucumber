@@ -38,6 +38,26 @@ jobs:
       #     name: unittests
       #     path: ./build/bin/unittests
 
+  build-debug:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+      - name: build-debug
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install build-essential -y
+          sudo apt install python3-pip -y
+          sudo pip3 install cmake 
+          sudo pip3 install conan
+          sudo conan profile detect
+          sudo sed -i -e 's/Release/Debug/g' ~/.conan/profiles/default
+          sudo conan install . -of ./build --build missing 
+          sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+          sudo cmake --build ./build -j12
+          sudo ./build/bin/box ./examples/features/first_example.feature
 
   docs:
     runs-on: ubuntu-latest
