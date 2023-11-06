@@ -586,9 +586,9 @@ bool evaluate_tags(cuke_value* rpn_stack, int rpn_size, cuke_value* tags, int ta
       }
     }
   }
-  bool result = pop_from_stack(&stack);
-  free_stack(&stack);
-  return result;
-  // return pop_from_stack(&stack);
+  // bool result = pop_from_stack(&stack);
+  // free_stack(&stack);
+  // return result;
+  return pop_from_stack(&stack);
 }
 

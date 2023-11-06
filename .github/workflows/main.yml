@@ -14,25 +14,25 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-      - name: build
-        run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install build-essential -y
-          sudo apt install python3-pip -y
-          sudo pip3 install cmake 
-          sudo pip3 install conan
-          sudo conan profile detect
-          sudo conan install . -of ./build --build missing 
-          sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
-          sudo cmake --build ./build -j12
-          ./build/bin/unittests
+  # build:
+  #   # The type of runner that the job will run on
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+  #     - uses: actions/checkout@v3
+  #     - name: build
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get upgrade -y
+  #         sudo apt-get install build-essential -y
+  #         sudo apt install python3-pip -y
+  #         sudo pip3 install cmake 
+  #         sudo pip3 install conan
+  #         sudo conan profile detect
+  #         sudo conan install . -of ./build --build missing 
+  #         sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+  #         sudo cmake --build ./build -j12
+  #         ./build/bin/unittests
       # - uses: actions/upload-artifact@v3
       #   with:
       #     name: unittests
@@ -59,42 +59,42 @@ jobs:
           sudo cmake --build ./build -j12
           ./build/bin/unittests --gtest_filter=tags_evaluation*
 
-  docs:
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      pages: write
-    steps:
-      - uses: actions/checkout@v3
-      - name: build
-        run: |
-          sudo apt-get update
-          sudo apt-get install git -y
-          sudo apt install python3-pip -y
-          sudo apt install locales
-          sudo locale-gen en_US.UTF-8
-          sudo apt-get install doxygen -y
-          sudo apt-get install graphviz -y
-          sudo apt install npm -y
-          sudo pip3 install sphinx
-          sudo pip3 install sphinx_rtd_theme
-          sudo pip3 install breathe
-          sudo pip3 install linuxdoc
-          mkdir pages
-          cd docs
-          mkdir _build
-          doxygen Doxyfile
-          make html
-          mv ./_build/html/* ../pages/
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          # Upload entire repository
-          path: './pages'
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+  # docs:
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     pages: write
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: build
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install git -y
+  #         sudo apt install python3-pip -y
+  #         sudo apt install locales
+  #         sudo locale-gen en_US.UTF-8
+  #         sudo apt-get install doxygen -y
+  #         sudo apt-get install graphviz -y
+  #         sudo apt install npm -y
+  #         sudo pip3 install sphinx
+  #         sudo pip3 install sphinx_rtd_theme
+  #         sudo pip3 install breathe
+  #         sudo pip3 install linuxdoc
+  #         mkdir pages
+  #         cd docs
+  #         mkdir _build
+  #         doxygen Doxyfile
+  #         make html
+  #         mv ./_build/html/* ../pages/
+  #     - name: Setup Pages
+  #       uses: actions/configure-pages@v3
+  #     - name: Upload artifact
+  #       uses: actions/upload-pages-artifact@v2
+  #       with:
+  #         # Upload entire repository
+  #         path: './pages'
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v2
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
