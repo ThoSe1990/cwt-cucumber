@@ -12,9 +12,7 @@ jobs:
         py.exe -m pip install cmake
         py.exe -m pip install conan
       displayName: Install tools 
-    - script: echo '##vso[task.prependpath]C:\Users\%username%\.local\bin'  # Adjust the path to where Conan is installed
-      displayName: 'Add Conan to PATH'
-    - script: conan.exe --version  # Now you can use Conan
+    - script: py.exe -m pip show conan  # Now you can use Conan
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
       displayName: 'Verify CMake installation'
