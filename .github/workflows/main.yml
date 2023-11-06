@@ -57,7 +57,7 @@ jobs:
           sudo conan install . -of ./build --build missing 
           sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           sudo cmake --build ./build -j12
-          ./build/bin/unittests --gtest_filter=tags_evaluation*
+          ./build/bin/unittests --gtest_filter=syntax_errors*
 
   # docs:
   #   runs-on: ubuntu-latest
