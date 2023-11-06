@@ -14,7 +14,7 @@ jobs:
       displayName: Install tools 
     - script: echo '##vso[task.prependpath]C:\Users\%username%\.local\bin'  # Adjust the path to where Conan is installed
       displayName: 'Add Conan to PATH'
-    - script: conan --version  # Now you can use Conan
+    - script: conan.exe --version  # Now you can use Conan
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
       displayName: 'Verify CMake installation'
