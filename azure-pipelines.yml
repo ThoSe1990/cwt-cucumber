@@ -19,6 +19,8 @@ jobs:
     - script: |
         set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
         conan.exe --version  # Now you can use Conan
+        conan.exe profile detect
+        conan.exe profile show
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
       displayName: 'Verify CMake installation'
