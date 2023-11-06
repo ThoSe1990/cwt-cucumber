@@ -147,6 +147,20 @@ namespace cuke::details
   };
 
   template <>
+  struct cuke_conversion_impl<long> 
+  {
+      static long get_arg(cuke_value* arg, const std::string& file, int line) 
+      {
+        if (arg->type == VAL_LONG)
+        {
+          return cuke_to_long(arg);
+        }
+        print_error(file, ':', line, ": Value is not an integer type.");
+        throw std::bad_cast();
+      }
+  };
+
+  template <>
   struct cuke_conversion_impl<unsigned long long> 
   {
       static unsigned long long get_arg(cuke_value* arg, const std::string& file, int line) 
@@ -161,13 +175,13 @@ namespace cuke::details
   };
 
   template <>
-  struct cuke_conversion_impl<std::size_t> 
+  struct cuke_conversion_impl<unsigned long> 
   {
-      static std::size_t get_arg(cuke_value* arg, const std::string& file, int line) 
+      static unsigned long get_arg(cuke_value* arg, const std::string& file, int line) 
       {
         if (arg->type == VAL_LONG)
         {
-          return static_cast<std::size_t>(cuke_to_long(arg));
+          return static_cast<unsigned long>(cuke_to_long(arg));
         }
         print_error(file, ':', line, ": Value is not an integer type.");
         throw std::bad_cast();
