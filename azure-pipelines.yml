@@ -1,17 +1,22 @@
 trigger:
 - '*'
 
-pool:
-  vmImage: 'windows-latest'
 
-steps:
-- script: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
-  displayName: 'Install CMake'
+jobs:
+  job: Windows Build
+  pool:
+    vmImage: 'windows-latest'
 
-- script: cmake --version
-  displayName: 'Verify CMake installation'
-
-- script: |
-    cmake -S . -B ./build
-    cmake --build ./build
-  displayName: 'CMake Build'
+  steps:
+  - script: choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+    displayName: 'Install CMake'
+  - script: python3.exe --version
+    displayName: check python3
+  - script: python.exe --version
+    displayName: check python
+  - script: py.exe --version
+    displayName: check pz
+  - script: |
+      cmake -S . -B ./build
+      cmake --build ./build
+    displayName: 'CMake Build'
