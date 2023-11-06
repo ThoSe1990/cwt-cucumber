@@ -12,9 +12,7 @@ jobs:
         py.exe -m pip install cmake
         py.exe -m pip install conan
       displayName: Install CMake, Conan
-    # - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts'  # Replace with the actual path to Conan installation
-    #   displayName: Extend PATH
-    # C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts\conan.exe --version
+      # for now it does its job ... i know the  hardcoded paths are ugly... 
     - script: |
         set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts
         conan.exe --version  # Now you can use Conan

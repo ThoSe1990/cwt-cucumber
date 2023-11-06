@@ -54,15 +54,11 @@ const char* script = R"*(
     Scenario: some scenario
       Given this passes
 )*";
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-l";
-  argv[2] = "4"; 
 
+  std::vector<const char*> args = {"some program", "-l", "4"};
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, argv, 0, lines, &count);
+  option_lines(args.size(), args.data(), 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -82,20 +78,12 @@ const char* script = R"*(
       Given this fails
     Scenario: some scenario
       Given this passes
-
-
 )*";
-  int argc = 5;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-l";
-  argv[2] = "6"; 
-  argv[3] = "-l";
-  argv[4] = "10"; 
 
+  std::vector<const char*> args = {"some program", "-l", "6", "-l", "10"};
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, argv, 0, lines, &count);
+  option_lines(args.size(), args.data(), 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
@@ -115,15 +103,10 @@ const char* script = R"*(
     | 9    | 1    |
     | 1    | 1    |
 )*";
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-l";
-  argv[2] = "9"; 
-
+  std::vector<const char*> args = {"some program", "-l", "9"};
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, argv, 0, lines, &count);
+  option_lines(args.size(), args.data(), 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -144,18 +127,11 @@ const char* script = R"*(
     | 9    | 1    |
     | 1    | 1    |
 )*";
-  int argc = 5;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-l";
-  argv[2] = "10"; 
-  argv[3] = "-l";
-  argv[4] = "11"; 
 
-
+  std::vector<const char*> args = {"some program", "-l", "10", "-l", "11"};
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, argv, 0, lines, &count);
+  option_lines(args.size(), args.data(), 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
@@ -180,17 +156,10 @@ const char* script = R"*(
     | 9    | 1    |
     | 1    | 1    |
 )*";
-  int argc = 5;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-l";
-  argv[2] = "10";
-  argv[3] = "-l";
-  argv[4] = "14"; 
-
+  std::vector<const char*> args = {"some program", "-l", "10", "-l", "14"};
   int lines[MAX_LINES];
   int count = 0;
-  option_lines(argc, argv, 0, lines, &count);
+  option_lines(args.size(), args.data(), 0, lines, &count);
   only_compile_lines(lines, count);
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));

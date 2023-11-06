@@ -50,12 +50,9 @@ const char* script = R"*(
     Scenario: some scenario
       Given this passes
 )*";
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-t";
-  argv[2] = "@pass";
-  global_options(argc, argv);
+
+  std::vector<const char*> args = {"some program", "-t", "@pass"};
+  global_options(args.size(), args.data());
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
 
@@ -72,12 +69,8 @@ const char* script = R"*(
       Given this passes
 )*";
 
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-t";
-  argv[2] = "@fail";
-  global_options(argc, argv);
+  std::vector<const char*> args = {"some program", "-t", "@fail"};
+  global_options(args.size(), args.data());
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -103,13 +96,8 @@ const char* script = R"*(
     | 3  | 4  |
 )*";
 
-
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-t";
-  argv[2] = "@fail";
-  global_options(argc, argv);
+  std::vector<const char*> args = {"some program", "-t", "@fail"};
+  global_options(args.size(), args.data());
 
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
@@ -136,12 +124,9 @@ const char* script = R"*(
 )*";
 
 
-  int argc = 3;
-  const char* argv[argc];
-  argv[0] = "some program";
-  argv[1] = "-t";
-  argv[2] = "@pass";
-  global_options(argc, argv);
+
+  std::vector<const char*> args = {"some program", "-t", "@pass"};
+  global_options(args.size(), args.data());
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
 }
