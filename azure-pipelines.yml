@@ -12,9 +12,17 @@ jobs:
         py.exe -m pip install cmake
         py.exe -m pip install conan
       displayName: Install CMake, Conan
-    - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts'  # Replace with the actual path to Conan installation
-      displayName: Extend PATH 
-    - script: C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts\conan.exe --version  # Now you can use Conan
+    # - script: echo '##vso[task.prependpath]C:\hostedtoolcache\windows\Python\3.12.0\x64\Scripts'  # Replace with the actual path to Conan installation
+    #   displayName: Extend PATH
+    - script: |
+        echo "Adding Python Scripts directory to PATH"
+        $pythonScriptsDir = Get-Command py | ForEach-Object { $_.Source }
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+        $env:Path += ";$pythonScriptsDir"
+        [System.Environment]::SetEnvironmentVariable("Path", $env:Path, [System.EnvironmentVariableTarget]::Machine)
+        echo "Python Scripts directory added to PATH"
+      displayName: 'Add Python Scripts directory to PATH'
+    - script: conan.exe --version  # Now you can use Conan
       displayName: 'Verify Conan installation'
     - script: cmake --version  # Now you can use Conan
       displayName: 'Verify CMake installation'
