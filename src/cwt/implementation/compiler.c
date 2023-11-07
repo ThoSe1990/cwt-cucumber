@@ -246,10 +246,12 @@ static void emit_scenario_begin(obj_string* value)
   emit_linebreak();
   char buffer[512];
   create_location(buffer, parser.previous.line);
-  emit_byte(OP_SET_SCENARIO); 
-  emit_byte(make_constant(OBJ_VAL(value)));
+  emit_byte(OP_CONSTANT);
   emit_byte(make_constant(OBJ_VAL(copy_string(
     buffer, strlen(buffer)))));
+  emit_byte(OP_CONSTANT);
+  emit_byte(make_constant(OBJ_VAL(value)));
+  emit_byte(OP_INIT_SCENARIO); 
 
 }
 

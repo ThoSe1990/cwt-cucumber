@@ -9,17 +9,15 @@ Coding with Thomas: Cucumber - A C/C++ Cucumber Interpreter
 Welcome to CWT-Cucumber! This is the documentation for my C/C++ Cucumber interpreter. Here you can find all information about this project, my motivation, how to use it in your projects and the source code / API documentation.
 
 .. note::
-   This is a fun and educational project for me. After reading "Crafting Interpreters" by Robert Nystrom, I was looking for a good example that was not too complex.
+   This is a fun and educational project for me. I am not getting paid for this and I am doing this on my own time, so if there are any problems it will depend on how busy I am to fix them. But I'll always answer as soon as I can.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    chapters/00_intro
-   chapters/01_getting_started
-   chapters/02_cpp
-   chapters/03_c 
-   chapters/04_api 
+   chapters/01_cwt_cucumber
+   chapters/10_api 
    
 
 Indices and tables
