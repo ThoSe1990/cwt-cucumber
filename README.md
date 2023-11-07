@@ -1,13 +1,13 @@
 [![CI](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml) [![Build Status](https://dev.azure.com/thomassedlmair/cwt-cucumber/_apis/build/status%2FThoSe1990.cwt-cucumber?branchName=main)](https://dev.azure.com/thomassedlmair/cwt-cucumber/_build/latest?definitionId=14&branchName=main)
 
 
-
+Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
+  
+I put a conan recipe to create the conan package in <a href="https://github.com/ThoSe1990/cwt-cucumber-conan" target=_blank>another GitHub repository</a>.
+ 
 # Coding With Thomas: Cucumber
-
 This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
   
-Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
-
 ## Disclaimer
 This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seemed like a good project.
   
@@ -235,7 +235,7 @@ The program option `-t` / `--tags` works exactly as before. Pass tags to execute
 
 ### Hooks 
 
-Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines and give the hook a unique function name (remove the comments to see the prints):
+Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines and give the hook a unique function name (in the current examples I commented the prints, uncomment them if you want to see):
 
 ```cpp
 // ./examples/cpp/step_definition.cpp: 
@@ -309,7 +309,7 @@ Feature: We want default open boxes!
 
 ### Single Scenarios 
 
-If you want to execute only single Scenarios, use the `-l` or `--lines` program option after the feature filepath. Run multiple feature files and append one or more lines: 
+If you want to execute only single Scenarios, use the `-l` or `--line` program option after the feature filepath. Run multiple feature files and append one or more lines: 
 
 ```
 $ ./build/bin/box ./examples/features/box.feature -l 6
@@ -350,6 +350,7 @@ So what is missing? By now I can think of is:
 - Reports (json, ...) 
 - ...
 
+If you have anything or in case I missed something, just reach out to me in any form. 
 
 ## And Finally ... 
-... I'm currently on a sabbatical timeout from work and travel through Central America. If you open issues, find bugs or have anything for this project, please be patient. I have limited resources and time during traveling and in March/April 2024 I'm back home in my usual work environment.
+... This is a fun and educational project for me. I am not getting paid for this and I am doing this on my own time, so if there are any problems it will depend on how busy I am to fix them. But I'll always answer as soon as I can.

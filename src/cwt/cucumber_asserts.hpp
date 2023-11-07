@@ -38,6 +38,28 @@ namespace cuke
   }
 
   /**
+   * @brief Compares the given values not to be equal. If not, the current step and scenario are set to Failed.
+   * 
+   * The given types must be comparable. If they are not comparable (like string and integer), the current step and the scenario are set to failed.
+   * 
+   * @param lhs Left hand side parameter
+   * @param rhs Right hand side parameter
+   * 
+  */
+  template <typename T, typename U>
+  inline void not_equal(const T& lhs, const U& rhs) 
+  {
+    if constexpr (is_comparable<T, U>::value)
+    {
+      cuke_assert(lhs != rhs, "Value %s is not equal to %s in following step:", std::to_string(lhs).c_str(), std::to_string(rhs).c_str());
+    }
+    else 
+    {
+      cuke_assert(false, "Expect values to be compareable.");
+    }
+  }
+
+  /**
    * @brief Compares whether the first value (left) is greater than the second value (right). If not, the current step and scenario are set to Failed.
    * 
    * The given types must be comparable. If they are not comparable (like string and integer), the current step and the scenario are set to failed.

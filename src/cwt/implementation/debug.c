@@ -78,8 +78,8 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_SET_STEP_RESULT", offset);
   case OP_JUMP_IF_FAILED:
     return jump_instruction("OP_JUMP_IF_FAILED", 1, c, offset);
-  case OP_SET_SCENARIO:
-    return constant_instruction("OP_SET_SCENARIO", c, offset);
+  case OP_INIT_SCENARIO:
+    return simple_instruction("OP_INIT_SCENARIO", offset);
   case OP_PRINT_LINE:
     return constant_instruction("OP_PRINT_LINE", c, offset);
   case OP_NIL:

@@ -385,10 +385,10 @@ static interpret_result run()
         obj_string* name = READ_STRING();
         printf("  %s", name->chars);
       }
-      break; case OP_SET_SCENARIO:
+      break; case OP_INIT_SCENARIO:
       {
-        g_vm.current_scenario.name = READ_STRING();
-        g_vm.current_scenario.location = READ_STRING();
+        g_vm.current_scenario.name = AS_STRING(pop());
+        g_vm.current_scenario.location = AS_STRING(pop());
       }
       break; case OP_PRINT_LINEBREAK:
       {
