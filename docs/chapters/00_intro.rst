@@ -150,35 +150,38 @@ Now we go into the function body of the feature, which means we are now in the c
 .. code-block::
 
   == ./examples/features/first_example.feature:3 ==
-  # I added print operations, to later enable/disable them during the compilation:
-  0000    3 OP_PRINT_LINE       0 'Feature: My First Feature File'
-  0002    | OP_PRINT_BLACK      1 './examples/features/first_example.feature:3'
-  0004    | OP_PRINT_LINEBREAK
-  0005    | OP_PRINT_LINEBREAK
+  # I added print operations, to later enable/disable them during the compilation.
+  # we push the string to print and access it in the each following print operation
+  0000    3 OP_CONSTANT         0 'Feature: My First Feature File'
+  0002    | OP_PRINT_LINE       0
+  0004    | OP_CONSTANT         1 './examples/features/first_example.feature:3'
+  0006    | OP_PRINT_LINE       1
+  0008    | OP_PRINT_LINEBREAK
+  0009    | OP_PRINT_LINEBREAK
   
   # an internal hook to reset the scenario context
   # you find a detailed explanation for the context and hooks in this documentation too
   # and after we get the hook, we call it 
-  0006   10 OP_CONSTANT         2 'reset_context'
-  0008    | OP_HOOK             0
+  0010   10 OP_CONSTANT         2 'reset_context'
+  0012    | OP_HOOK             0
   
   # same happens with the hook before 
-  0010    | OP_CONSTANT         3 'before'
-  0012    | OP_HOOK             0
+  0014    | OP_CONSTANT         3 'before'
+  0016    | OP_HOOK             0
 
   # now there is the actual scenario at line 6, it get pushed to the stack
   # and we'll call it. 
-  0014    | OP_CONSTANT         4 '<fn ./examples/features/first_example.feature:6>'
-  0016    | OP_CALL             0
+  0018    | OP_CONSTANT         4 '<fn ./examples/features/first_example.feature:6>'
+  0020    | OP_CALL             0
 
   # after a scenario call there is another hook which might get called:
-  0018    | OP_CONSTANT         5 'after'
-  0020    | OP_HOOK             0
+  0022    | OP_CONSTANT         5 'after'
+  0024    | OP_HOOK             0
 
   # we evaluate the scenario result in the vm and we're done 
-  0022    | OP_SCENARIO_RESULT
-  0023    | OP_PRINT_LINEBREAK
-  0024    | OP_RETURN
+  0026    | OP_SCENARIO_RESULT
+  0027    | OP_PRINT_LINEBREAK
+  0028    | OP_RETURN
 
 
 And now the chunk for the scenario, which is getting bigger again:
@@ -188,77 +191,83 @@ And now the chunk for the scenario, which is getting bigger again:
   # we're in line 6 now, inside the body of the scenario 
   == ./examples/features/first_example.feature:6 ==
   # we begin with prints
-  0000    6 OP_PRINT_LINE       0 'Scenario: An arbitrary box'
-  0002    | OP_PRINT_BLACK      1 './examples/features/first_example.feature:6'
-  0004    | OP_PRINT_LINEBREAK
+  0000    6 OP_CONSTANT         0 'Scenario: An arbitrary box'
+  0002    | OP_PRINT_LINE       0
+  0004    | OP_CONSTANT         1 './examples/features/first_example.feature:6'
+  0006    | OP_PRINT_LINE       1
+  0008    | OP_PRINT_LINEBREAK
 
   # the function name (= its location) and the given name to the stack 
   # and initialize it
   # this is necessary because if it fails we need this later
-  0005    | OP_CONSTANT         2 './examples/features/first_example.feature:6'
-  0007    | OP_CONSTANT         3 'Scenario: An arbitrary box'
-  0009    | OP_INIT_SCENARIO
+  0009    | OP_CONSTANT         2 './examples/features/first_example.feature:6'
+  0011    | OP_CONSTANT         3 'Scenario: An arbitrary box'
+  0013    | OP_INIT_SCENARIO
 
   # now we have a jump operation before every step 
   # because if a step fails, we want to skip the following steps 
   # (for the first step this does not make to much sense, I know)
   # and then we have another hook which can be there, the call to the step 
   # and another hook after the step 
-  0010    7 OP_JUMP_IF_FAILED   10 -> 23
-  0013    | OP_CONSTANT         4 'before_step'
-  0015    | OP_HOOK             0
-  0017    8 OP_CALL_STEP        5 'A box with 2 x 2 x 2'
-  0019    | OP_CONSTANT         6 'after_step'
-  0021    | OP_HOOK             0
+  0014    7 OP_JUMP_IF_FAILED   14 -> 27
+  0017    | OP_CONSTANT         4 'before_step'
+  0019    | OP_HOOK             0
+  0021    8 OP_CALL_STEP        5 'A box with 2 x 2 x 2'
+  0023    | OP_CONSTANT         6 'after_step'
+  0025    | OP_HOOK             0
 
   # now we executed the step and set the step result 
-  0023    | OP_PRINT_STEP_RESULT    7 'A box with 2 x 2 x 2'
-  0025    | OP_SET_STEP_RESULT
-  0026    | OP_PRINT_BLACK      8 './examples/features/first_example.feature:7'
-  0028    | OP_PRINT_LINEBREAK
+  0027    | OP_PRINT_STEP_RESULT    7 'A box with 2 x 2 x 2'
+  0029    | OP_SET_STEP_RESULT
+  0030    | OP_CONSTANT         8 './examples/features/first_example.feature:7'
+  0032    | OP_PRINT_LINE       1
+  0034    | OP_PRINT_LINEBREAK
 
   # and this continues now for all steps: 
   # if the previous step failed we skip to 42, else we stay and execute the hooks and the step:
-  0029    | OP_JUMP_IF_FAILED   29 -> 42
-  0032    | OP_CONSTANT         9 'before_step'
-  0034    | OP_HOOK             0
-  0036    9 OP_CALL_STEP       10 'I open the box'
-  0038    | OP_CONSTANT        11 'after_step'
+  0035    | OP_JUMP_IF_FAILED   35 -> 48
+  0038    | OP_CONSTANT         9 'before_step'
   0040    | OP_HOOK             0
+  0042    9 OP_CALL_STEP       10 'I open the box'
+  0044    | OP_CONSTANT        11 'after_step'
+  0046    | OP_HOOK             0
 
   # if we skip, we end up here: setting its result as skipped
-  0042    | OP_PRINT_STEP_RESULT   12 'I open the box'
-  0044    | OP_SET_STEP_RESULT
-  0045    | OP_PRINT_BLACK     13 './examples/features/first_example.feature:8'
-  0047    | OP_PRINT_LINEBREAK
-  0048    | OP_JUMP_IF_FAILED   48 -> 61
-  0051    | OP_CONSTANT        14 'before_step'
-  0053    | OP_HOOK             0
-  0055   10 OP_CALL_STEP       15 'The box is open '
-  0057    | OP_CONSTANT        16 'after_step'
-  0059    | OP_HOOK             0
+  0048    | OP_PRINT_STEP_RESULT   12 'I open the box'
+  0050    | OP_SET_STEP_RESULT
+  0051    | OP_CONSTANT        13 './examples/features/first_example.feature:8'
+  0053    | OP_PRINT_LINE       1
+  0055    | OP_PRINT_LINEBREAK
+  0056    | OP_JUMP_IF_FAILED   56 -> 69
+  0059    | OP_CONSTANT        14 'before_step'
+  0061    | OP_HOOK             0
+  0063   10 OP_CALL_STEP       15 'The box is open '
+  0065    | OP_CONSTANT        16 'after_step'
+  0067    | OP_HOOK             0
 
   # if we skip, we end up here: setting its result as skipped
-  0061    | OP_PRINT_STEP_RESULT   17 'The box is open '
-  0063    | OP_SET_STEP_RESULT
-  0064    | OP_PRINT_BLACK     18 './examples/features/first_example.feature:9'
-  0066    | OP_PRINT_LINEBREAK
-  0067    | OP_JUMP_IF_FAILED   67 -> 80
-  0070    | OP_CONSTANT        19 'before_step'
-  0072    | OP_HOOK             0
-  0074    | OP_CALL_STEP       20 'The volume is 8 '
-  0076    | OP_CONSTANT        21 'after_step'
-  0078    | OP_HOOK             0
+  0069    | OP_PRINT_STEP_RESULT   17 'The box is open '
+  0071    | OP_SET_STEP_RESULT
+  0072    | OP_CONSTANT        18 './examples/features/first_example.feature:9'
+  0074    | OP_PRINT_LINE       1
+  0076    | OP_PRINT_LINEBREAK
+  0077    | OP_JUMP_IF_FAILED   77 -> 90
+  0080    | OP_CONSTANT        19 'before_step'
+  0082    | OP_HOOK             0
+  0084    | OP_CALL_STEP       20 'The volume is 8 '
+  0086    | OP_CONSTANT        21 'after_step'
+  0088    | OP_HOOK             0
 
   # if we skip, we end up here: setting its result as skipped
-  0080    | OP_PRINT_STEP_RESULT   22 'The volume is 8 '
-  0082    | OP_SET_STEP_RESULT
-  0083    | OP_PRINT_BLACK     23 './examples/features/first_example.feature:10'
-  0085    | OP_PRINT_LINEBREAK
+  0090    | OP_PRINT_STEP_RESULT   22 'The volume is 8 '
+  0092    | OP_SET_STEP_RESULT
+  0093    | OP_CONSTANT        23 './examples/features/first_example.feature:10'
+  0095    | OP_PRINT_LINE       1
+  0097    | OP_PRINT_LINEBREAK
   
   # and there we are, scenario done, up to 4 steps executed (or skipped)
   # and we return from the scenario
-  0086    | OP_RETURN
+  0098    | OP_RETURN
 
 And this is essentially what happens under the hood when you run this cucumber interpreter. The feature file is compiled into this chunk and executed in its vm. The final output from the user perspective (without the stack trace) looks like this:
 

@@ -203,15 +203,24 @@ static void emit_step_result(const char* step_name, int length)
   }
 }
 
-static void emit_print_line(obj_string* value)
+static void emit_print(obj_string* value, print_color color)
 {
   if (!options.quiet)
   {
-    emit_bytes(OP_PRINT_LINE, make_constant(OBJ_VAL(value)));
+    emit_bytes(OP_CONSTANT, make_constant(OBJ_VAL(value)));
+    emit_bytes(OP_PRINT_LINE, (uint16_t)color);
   }
 }
 
-static void emit_linebreak()
+static void emit_print_tab()
+{
+  if (!options.quiet)
+  {
+    emit_byte(OP_PRINT_SPACES);
+  }
+}
+
+static void emit_print_linebreak()
 {
   if (!options.quiet)
   {
@@ -229,21 +238,19 @@ static void emit_location(int line)
 {
   if (!options.quiet)
   {
+    emit_print_tab();
     char buffer[512];
     create_location(buffer, line);
-    emit_bytes(OP_PRINT_BLACK, make_constant(
-        OBJ_VAL(copy_string(
-          buffer, strlen(buffer)
-        ))));
+    emit_print(copy_string(buffer, strlen(buffer)), PRINT_BLACK);
   }
 }
 
 
 static void emit_scenario_begin(obj_string* value)
 {
-  emit_print_line(value);
+  emit_print(value, PRINT_WHITE);
   emit_location(parser.previous.line);
-  emit_linebreak();
+  emit_print_linebreak();
   char buffer[512];
   create_location(buffer, parser.previous.line);
   emit_byte(OP_CONSTANT);
@@ -421,7 +428,7 @@ static void process_step()
   emit_step_result(step_name, length);
   emit_byte(OP_SET_STEP_RESULT);
   emit_location(line);
-  emit_linebreak();
+  emit_print_linebreak();
 }
 
 static void examples_description()
@@ -495,9 +502,9 @@ static void name(bool print_name)
   }
   if (print_name)
   {
-    emit_print_line(copy_string(begin.start , get_length(&begin, &parser.previous)));
+    emit_print(copy_string(begin.start , get_length(&begin, &parser.previous)), PRINT_WHITE);
     emit_location(parser.previous.line);
-    emit_linebreak();
+    emit_print_linebreak();
   }
 }
 
@@ -577,7 +584,7 @@ static void examples_body(value_array* vars)
 
 
 
-static void create_scenario_call(obj_function* background, obj_function* scenario_func, value_array* tags)
+static void emit_scenario(obj_function* background, obj_function* scenario_func, value_array* tags)
 {
   emit_hook(copy_string("reset_context", 13), NULL);
   emit_hook(copy_string("before", 6), tags);
@@ -607,8 +614,8 @@ static void scenario(obj_function* background, value_array* tags)
   step();
 
   obj_function* func = end_compiler();
-  create_scenario_call(background, func, tags);
-  emit_linebreak();
+  emit_scenario(background, func, tags);
+  emit_print_linebreak();
 }
 
 static bool no_tags_given() 
@@ -697,13 +704,13 @@ static void parse_examples(obj_function* background, obj_function* steps, value_
     int body_length = get_length(&body_begin, &parser.current);
     if (run_scenario_from_line(body_begin.line))
     {
-      create_scenario_call(background, steps, tags);
-      emit_print_line(copy_string("With Examples:", 14));
+      emit_scenario(background, steps, tags);
+      emit_print(copy_string("With Examples:", 14), PRINT_WHITE);
       emit_location(parser.previous.line);
-      emit_linebreak();
-      emit_print_line(copy_string(header_begin.start, header_length));
-      emit_print_line(copy_string(body_begin.start, body_length));
-      emit_linebreak();
+      emit_print_linebreak();
+      emit_print(copy_string(header_begin.start, header_length), PRINT_WHITE);
+      emit_print(copy_string(body_begin.start, body_length), PRINT_WHITE);
+      emit_print_linebreak();
     }
     while(match(TOKEN_LINEBREAK)){};
   }
@@ -894,7 +901,7 @@ static void feature()
   init_compiler(&compiler, TYPE_FUNCTION);
 
   name(true);
-  emit_linebreak();
+  emit_print_linebreak();
   advance();
 
   feature_description();

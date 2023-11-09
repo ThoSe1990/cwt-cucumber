@@ -5,6 +5,12 @@
 #include "object.h"
 #include "vm.h"
 
+typedef enum 
+{
+  PRINT_WHITE = 0,
+  PRINT_BLACK
+} print_color;
+
 void init_compiler_options();
 
 void set_tag_option(const char* expression);

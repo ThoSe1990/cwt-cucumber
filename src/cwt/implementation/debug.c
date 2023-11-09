@@ -60,7 +60,6 @@ int disassemble_instruction(chunk* c, int offset)
   case OP_CONSTANT:
     return constant_instruction("OP_CONSTANT", c, offset);
   case OP_HOOK:
-    // return constant_instruction("OP_HOOK", c, offset);
     return byte_instruction("OP_HOOK", c, offset);
   case OP_TAG:
     return constant_instruction("OP_TAG", c, offset);
@@ -74,6 +73,8 @@ int disassemble_instruction(chunk* c, int offset)
     return simple_instruction("OP_POP", offset);
   case OP_PRINT_LINEBREAK:
     return simple_instruction("OP_PRINT_LINEBREAK", offset);
+  case OP_PRINT_SPACES:
+    return simple_instruction("OP_PRINT_SPACES", offset);
   case OP_SET_STEP_RESULT:
     return simple_instruction("OP_SET_STEP_RESULT", offset);
   case OP_JUMP_IF_FAILED:
@@ -81,7 +82,8 @@ int disassemble_instruction(chunk* c, int offset)
   case OP_INIT_SCENARIO:
     return simple_instruction("OP_INIT_SCENARIO", offset);
   case OP_PRINT_LINE:
-    return constant_instruction("OP_PRINT_LINE", c, offset);
+    return byte_instruction("OP_PRINT_LINE", c, offset);
+    // return constant_instruction("OP_PRINT_LINE", c, offset);
   case OP_NIL:
     return simple_instruction("OP_NIL", offset);
   case OP_PRINT_STEP_RESULT:

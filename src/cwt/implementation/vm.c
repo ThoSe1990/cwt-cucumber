@@ -175,6 +175,15 @@ void print_step_result(obj_string* step)
   }  
 }
 
+static void print_line(const char* str, print_color color)
+{
+  switch(color)
+  {
+    case PRINT_WHITE: print_white(str);
+    break; case PRINT_BLACK: print_black(str);
+  }
+}
+
 static void replace(int position, cuke_value value)
 {
   g_vm.stack[position] = value;
@@ -382,8 +391,9 @@ static interpret_result run()
       } 
       break; case OP_PRINT_LINE: 
       { 
-        obj_string* name = READ_STRING();
-        printf("  %s", name->chars);
+        print_color color = READ_BYTE();
+        obj_string* str = AS_STRING(pop());
+        print_line(str->chars, color);
       }
       break; case OP_INIT_SCENARIO:
       {
@@ -393,6 +403,10 @@ static interpret_result run()
       break; case OP_PRINT_LINEBREAK:
       {
         printf("\n");
+      }
+      break; case OP_PRINT_SPACES:
+      {
+        printf("  ");
       }
       break; case OP_PRINT_STEP_RESULT:
       {

@@ -66,3 +66,11 @@ void print_black(const char* format, ...)
   printf("\x1b[0m");
   va_end(args);
 }
+
+void print_white(const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  vprintf(format, args);
+  va_end(args);
+}
