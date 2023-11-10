@@ -3,7 +3,7 @@
 
 Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
   
-I put a conan recipe to create the conan package in <a href="https://github.com/ThoSe1990/cwt-cucumber-conan" target=_blank>another GitHub repository</a>.
+I put a conan recipe to create the conan package in <a href="https://github.com/ThoSe1990/cwt-cucumber-conan" target=_blank>another GitHub repository</a>. To demonstrate how to integrate cwt-cucumber into your projects, there are the same examples from this repository.
  
 # Coding With Thomas: Cucumber
 This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
