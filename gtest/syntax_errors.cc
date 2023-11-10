@@ -4,7 +4,7 @@ extern "C" {
     #include "cwt/cucumber.h"   
 }
 
-class runtime_error : public ::testing::Test 
+class syntax_errors : public ::testing::Test 
 {
 protected:
   void SetUp() override
@@ -25,7 +25,7 @@ protected:
   } 
 };
 
-TEST_F(runtime_error, unknown_step)
+TEST_F(syntax_errors, unknown_step)
 {
 
 const char* script = R"*(
@@ -39,7 +39,7 @@ const char* script = R"*(
 }
 
 
-TEST_F(runtime_error, invalid_table_1)
+TEST_F(syntax_errors, invalid_table_1)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -52,11 +52,11 @@ const char* script = R"*(
       | 1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }
 
 
-TEST_F(runtime_error, invalid_table_2)
+TEST_F(syntax_errors, invalid_table_2)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -69,12 +69,12 @@ const char* script = R"*(
       1 | 2 | 3 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }
 
 
 
-TEST_F(runtime_error, invalid_tag_1)
+TEST_F(syntax_errors, invalid_tag_1)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -88,10 +88,10 @@ const char* script = R"*(
       | 1 | 
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }
 
-TEST_F(runtime_error, invalid_tag_2)
+TEST_F(syntax_errors, invalid_tag_2)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -107,12 +107,12 @@ const char* script = R"*(
     
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }
 
 
 // TODO probably in vm when NIL values are overwritten 
-TEST_F(runtime_error, wrong_types)
+TEST_F(syntax_errors, wrong_types)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -129,7 +129,7 @@ const char* script = R"*(
   EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
 }
 
-TEST_F(runtime_error, examples_after_scenario)
+TEST_F(syntax_errors, examples_after_scenario)
 {
 const char* script = R"*(
   Feature: some feature ... 
@@ -143,11 +143,11 @@ const char* script = R"*(
       | 2 |
 )*";
 
-  EXPECT_EQ(CUKE_FAILED, run_cuke(script, ""));
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }
 
 
-TEST_F(runtime_error, undefined_variable)
+TEST_F(syntax_errors, undefined_variable)
 {
 const char* script = R"*(
   Feature: some feature ... 

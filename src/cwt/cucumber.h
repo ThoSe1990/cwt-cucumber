@@ -3,8 +3,14 @@
 
 #include "cucumber_value.h"
 
-#define CUKE_SUCCESS 0
-#define CUKE_FAILED 1
+typedef enum 
+{
+  CUKE_SUCCESS = 0,
+  CUKE_FAILED,
+  CUKE_COMPILE_ERROR,
+  CUKE_RUNTIME_ERROR,
+} cuke_result;
+
 
 char* read_file(const char* path);
 
@@ -14,8 +20,8 @@ void close_cucumber();
 void cuke_options(int argc, const char* argv[]);
 void reset_tags();
 
-int run_cuke(const char* source, const char* path);
-int run_cuke_argc_argv(int argc, const char* argv[]);
+cuke_result run_cuke(const char* source, const char* path);
+cuke_result run_cuke_argc_argv(int argc, const char* argv[]);
 
 void print_final_result();
 

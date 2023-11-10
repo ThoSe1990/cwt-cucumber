@@ -29,12 +29,12 @@ namespace cuke::details
       runner() = default;
       ~runner();
       void init();
-      int run(int argc, const char* argv[]);
+      cuke_result run(int argc, const char* argv[]);
 
     private:
       void find_feature_in_dir(const fs::path& dir);
       void get_feature_files(int argc, const char* argv[]);
-      int internal_run();
+      cuke_result internal_run();
 
     private:
       std::vector<feature> m_features;      

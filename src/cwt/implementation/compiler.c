@@ -418,9 +418,12 @@ static void process_step()
   if (match(TOKEN_DOC_STRING))
   {
     emit_doc_string();
+    emit_bytes(OP_CALL_STEP_WITH_DOC_STRING, make_constant(OBJ_VAL(copy_string(step_name , length))));
   }
-
-  emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  else
+  {
+    emit_bytes(OP_CALL_STEP, make_constant(OBJ_VAL(copy_string(step_name , length))));
+  }
   
   emit_hook(copy_string("after_step", 10), NULL);
 

@@ -11,7 +11,6 @@
 #include "compiler.h"
 #include "step_matcher.h"
 #include "prints.h"
-#include "../cucumber.h"
 
 vm g_vm;
 
@@ -280,7 +279,7 @@ static void concatenate()
   push(OBJ_VAL(result));
 }
 
-static interpret_result run() 
+static cuke_result run() 
 {
   call_frame* frame = &g_vm.frames[g_vm.frame_count-1];
 #define READ_BYTE() (*frame->ip++)
@@ -338,7 +337,7 @@ static interpret_result run()
         {
           table_delete(&g_vm.variables, name);
           runtime_error("Undefined variable '%s'.", name->chars);
-          return INTERPRET_RUNTIME_ERROR;
+          return CUKE_RUNTIME_ERROR;
         }
         pop();
       }
@@ -360,6 +359,8 @@ static interpret_result run()
         g_vm.stack_top -= tag_count+1;
         frame = &g_vm.frames[g_vm.frame_count-1];
       }
+      // TODO refactor OP_CALL_STEP and OP_CALL_STEP_WITH_DOCSTRING
+      // --> DRY!
       break; case OP_CALL_STEP:
       {
         obj_string* step_in_feature = READ_STRING();
@@ -380,12 +381,34 @@ static interpret_result run()
         }
         free_value_array(&args);
       }
+      break; case OP_CALL_STEP_WITH_DOC_STRING:
+      {
+        obj_string* step_in_feature = READ_STRING();
+        obj_string step_definition;
+        cuke_value value;      
+        value_array args;
+        init_value_array(&args); 
+        if (table_get_step(&g_vm.steps, step_in_feature, &value, &step_definition)
+          && parse_step(step_definition.chars, step_in_feature->chars, &args))
+        {
+          cuke_value doc_str = pop();
+          write_value_array(&args, doc_str);
+          cuke_step_t native = AS_NATIVE(value);
+          native(args.count, args.values);
+        } 
+        else 
+        {
+          g_vm.step_results.current = UNDEFINED;
+          g_vm.scenario_results.current = FAILED;
+        }
+        free_value_array(&args);
+      }
       break; case OP_CALL:
       {
         int arg_count = READ_BYTE();
         if (!call_value(peek(arg_count), arg_count)) 
         {
-          return INTERPRET_RUNTIME_ERROR;
+          return CUKE_RUNTIME_ERROR;
         }
         frame = &g_vm.frames[g_vm.frame_count-1];
       } 
@@ -458,12 +481,12 @@ static interpret_result run()
 #undef READ_STRING
 }
 
-interpret_result interpret(const char* source, const char* filename)
+cuke_result interpret(const char* source, const char* filename)
 {
   obj_function* func = compile(source, filename);
   if (func == NULL) 
   {
-    return INTERPRET_COMPILE_ERROR;
+    return CUKE_COMPILE_ERROR;
   }
 
   push(OBJ_VAL(func));

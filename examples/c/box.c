@@ -6,6 +6,8 @@ static int s_height;
 static int s_depth;
 static double s_weight;
 static bool s_is_open;
+static const char* s_name;
+static const char* s_description;
 
 void box_init(int w, int h, int d)
 {
@@ -54,4 +56,22 @@ void box_close()
 bool box_is_open()
 {
   return s_is_open;
+}
+
+void set_name(const char* name)
+{
+  s_name = name;
+}
+const char* name()
+{
+  return s_name;
+}
+
+void set_description(const char* description)
+{
+  s_description = description;
+}
+const char* description()
+{
+  return s_description;
 }

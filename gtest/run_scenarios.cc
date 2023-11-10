@@ -14,6 +14,7 @@ protected:
     cuke_step("background step", background);
     cuke_step("{int} and {int} are equal", test_is_equal);
     cuke_step("{int} is greater than {int}", test_is_greater);
+    cuke_step("a doc string", doc_string);
   }
 
   void TearDown() override 
@@ -25,6 +26,19 @@ protected:
     int n1 = cuke_to_int(&args[0]);
     int n2 = cuke_to_int(&args[1]);
     cuke_assert(n1 == n2, "n1 is not equal n2");
+  }
+  static void doc_string(int arg_count, cuke_value* args)
+  {
+    if (arg_count > 0)
+    {
+      std::string str = cuke_to_string(&args[0]);
+      cuke_assert(str.length() > 0, "no string found!");
+      std::cout << "Doc String found:\n" << str << '\n';
+    }
+    else 
+    {
+      cuke_assert(false, "no string found!");
+    }
   }
   static void test_is_greater(int arg_count, cuke_value* args)
   {
@@ -202,4 +216,49 @@ const char* script = R"*(
 
   EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
   EXPECT_FALSE(m_background_called);
+}
+TEST_F(run_scenarios, doc_string_1)
+{
+const char* script = R"*(
+  Feature: some feature 
+
+    Scenario: some scenario
+      * a doc string
+"""
+this is a multi line 
+doc string!
+"""
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
+TEST_F(run_scenarios, doc_string_2)
+{
+const char* script = R"*(
+  Feature: some feature 
+
+    Scenario: some scenario
+      * a doc string
+      """
+      this is a multi line 
+      doc string!
+      """
+)*";
+
+  EXPECT_EQ(CUKE_SUCCESS, run_cuke(script, ""));
+}
+TEST_F(run_scenarios, doc_string_3_unterminated)
+{
+const char* script = R"*(
+  Feature: some feature 
+
+    Scenario: some scenario
+      * a doc string
+      """
+      this is a multi line 
+      doc string!
+      ""
+)*";
+
+  EXPECT_EQ(CUKE_COMPILE_ERROR, run_cuke(script, ""));
 }

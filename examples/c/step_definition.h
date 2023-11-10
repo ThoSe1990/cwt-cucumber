@@ -19,4 +19,8 @@ void step_top(int arg_count, cuke_value* args);
 void step_volume(int arg_count, cuke_value* args);
 void step_weight(int arg_count, cuke_value* args);
 
+void step_print_box(int arg_count, cuke_value* args);
+void step_set_name(int arg_count, cuke_value* args);
+void step_set_description(int arg_count, cuke_value* args);
+
 #endif
