@@ -96,9 +96,9 @@ void reset_tags()
   reset_rpn_stack();
 }
 
-static int run_all_files(int argc, const char* argv[])
+static cuke_result run_all_files(int argc, const char* argv[])
 {
-  int result = CUKE_SUCCESS;
+  cuke_result result = CUKE_SUCCESS;
   for (int i = 1; i < argc; i++) 
   {
     if (*argv[i] == '-')
@@ -113,11 +113,16 @@ static int run_all_files(int argc, const char* argv[])
     option_lines(argc, argv, i, lines, &count);
     only_compile_lines(lines, count);
 
-    if (run_cuke(source, argv[i]) == CUKE_FAILED)
-    {
-      result = CUKE_FAILED;
-    }
+    cuke_result current = run_cuke(source, argv[i]);
+    
     free(source);
+    switch(current)
+    {
+      case CUKE_SUCCESS : ;
+      break; case CUKE_FAILED : result = CUKE_FAILED;
+      break; case CUKE_COMPILE_ERROR : return CUKE_COMPILE_ERROR;
+      break; case CUKE_RUNTIME_ERROR : return CUKE_RUNTIME_ERROR;
+    }
   }
   
   print_final_result();
@@ -132,13 +137,9 @@ void open_cucumber()
 }
 
 
-int run_cuke(const char* source, const char* path) 
+cuke_result run_cuke(const char* source, const char* path) 
 {
-  interpret_result result = interpret(source, path);
-  
-  if (result == INTERPRET_COMPILE_ERROR) { return CUKE_FAILED; }
-  if (result == INTERPRET_RUNTIME_ERROR) { return CUKE_FAILED; } 
-  return CUKE_SUCCESS;
+  return interpret(source, path);
 }
 
 void cuke_options(int argc, const char* argv[])
@@ -146,7 +147,7 @@ void cuke_options(int argc, const char* argv[])
   global_options(argc, argv);
 }
 
-int run_cuke_argc_argv(int argc, const char* argv[])
+cuke_result run_cuke_argc_argv(int argc, const char* argv[])
 {
   return run_all_files(argc, argv);
 }

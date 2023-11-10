@@ -8,6 +8,12 @@ void box_init(int w, int h, int d);
 void set_box_weight(double weight);
 double box_weight();
 
+void set_name(const char* name);
+const char* name();
+
+void set_description(const char* description);
+const char* description();
+
 int box_front();
 int box_side();
 int box_top();

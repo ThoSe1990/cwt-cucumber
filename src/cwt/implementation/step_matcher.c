@@ -298,27 +298,6 @@ static bool read_variable()
   return true;
 }
 
-static void read_doc_string(value_array* args)
-{
-  skip_quotes_and_breaks();
-  const char* start = g_feature.current;
-  const char* end;
-  while(!tripple_quotes())
-  {
-    g_feature.current++;
-    if (*g_feature.current == '\n')
-    {
-      end = g_feature.current;
-    }
-  }
-  skip_quotes_and_breaks();
-  if (args)
-  {
-    cuke_value value = OBJ_VAL(copy_string(start, end - start));
-    write_value_array(args, value);
-  }
-}
-
 static bool parse_string_value(value_array* args)
 {
   if (*g_feature.current != '"') 
@@ -373,7 +352,7 @@ static bool parse_integer_value(value_array* args)
 
   if (!is_space_or_break(*g_feature.current))
   {
-    error(g_feature.start, "Expect only digits in an integer value.\n");
+    // error(g_feature.start, "Expect only digits in an integer value.\n");
     return false;
   }
 
@@ -436,14 +415,6 @@ static bool ph_double(value_array* args)
   }
 }
 
-static void doc_string(value_array* args)
-{
-  if (tripple_quotes())
-  {
-    read_doc_string(args);
-  }
-}
-
 static bool valid_placeholder(value_array* args)
 {
   switch (get_placeholder()) 
@@ -481,7 +452,6 @@ bool parse_step(const char* defined, const char* feature, value_array* args)
     if (is_at_end(*g_defined.current))
     {
       trim_right();
-      doc_string(args);
     }
     
     if (*g_defined.current == '\0' && *g_feature.current == '\0') 

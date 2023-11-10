@@ -1,3 +1,4 @@
+#include <stdio.h>
 
 #include "step_definition.h"
 #include "box.h"
@@ -63,4 +64,20 @@ void step_weight(int arg_count, cuke_value* args)
 {
   const double expected = cuke_to_double(&args[0]);
   cuke_assert(box_weight() == expected, "box weight is not %d", expected);
+}
+
+void step_print_box(int arg_count, cuke_value* args)
+{
+  printf("%s\n", name());
+  printf("%s\n", description());
+}
+void step_set_name(int arg_count, cuke_value* args)
+{
+  const char* name = cuke_to_string(&args[0]);
+  set_name(name);
+}
+void step_set_description(int arg_count, cuke_value* args)
+{
+  const char* descr = cuke_to_string(&args[0]);
+  set_description(descr);
 }

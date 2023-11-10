@@ -54,7 +54,7 @@ namespace cuke::details
     cuke_hook("reset_context", reset_scenario_context, "");
   }
 
-  int runner::run(int argc, const char* argv[])
+  cuke_result runner::run(int argc, const char* argv[])
   {
     get_feature_files(argc, argv);
     cuke_options(argc, argv);
@@ -95,9 +95,9 @@ namespace cuke::details
     }
   }
 
-  int runner::internal_run()
+  cuke_result runner::internal_run()
   {
-    int result = CUKE_SUCCESS;
+    cuke_result result = CUKE_SUCCESS;
     for (const auto& feature : m_features)
     {
       std::puts("");
@@ -106,11 +106,15 @@ namespace cuke::details
       {
         only_compile_lines(feature.lines.data(), feature.lines.size());
       }
-      if (run_cuke(source, feature.file.string().c_str()) == CUKE_FAILED)
-      {
-        result = CUKE_FAILED;
-      } 
+      cuke_result current = run_cuke(source, feature.file.string().c_str());
       free(source);
+      switch(current)
+      {
+        case CUKE_SUCCESS : ;
+        break; case CUKE_FAILED : result = CUKE_FAILED;
+        break; case CUKE_COMPILE_ERROR : return CUKE_COMPILE_ERROR;
+        break; case CUKE_RUNTIME_ERROR : return CUKE_RUNTIME_ERROR;
+      }
     }
     print_final_result();
     return result;

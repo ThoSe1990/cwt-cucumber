@@ -61,6 +61,20 @@ static char peek_next()
   }
 }
 
+static bool tripple_quotes()
+{
+  if (*scanner.current == '"'
+    && scanner.current[1] == '"'
+    && scanner.current[2] == '"')
+  {
+    return true;
+  }
+  else 
+  {
+    return false;
+  }
+}
+
 static token make_explicit_token(token_type type, const char* start, int length)
 {
   token t; 
@@ -311,7 +325,7 @@ static token doc_string()
 {
   const char* start = scanner.current;
   const char* end;
-  while (peek() != '"' && peek_next() != '"' && !is_at_end())
+  while (!tripple_quotes())
   {
     if (peek() == '\n')
     {
@@ -320,6 +334,11 @@ static token doc_string()
       scanner.line++;
     }
     advance();
+    
+    if (is_at_end()) 
+    {
+      return error_token("Unterminated doc string.");
+    }
   }
 
   skip_whitespace();
@@ -328,10 +347,6 @@ static token doc_string()
   advance();
   skip_whitespace_and_linebreaks();
   
-  if (is_at_end()) 
-  {
-    return error_token("Unterminated doc string.");
-  }
   return make_explicit_token(TOKEN_DOC_STRING, start, end-start);
 }
 
@@ -397,7 +412,6 @@ token scan_token()
         advance();
         advance();
         advance();
-        skip_whitespace_and_linebreaks();
         return doc_string();
       }
       else 

@@ -59,6 +59,24 @@ THEN(box_side, "The side area is {int}")
   cuke::equal(side, cuke::context<box>().side());
 }
 
+
+
+WHEN(box_set_description, "The box's description is")
+{
+  const std::string description = CUKE_ARG(1);
+  cuke::context<box>().set_description(description);
+}
+WHEN(box_set_name, "The box's name is {string}")
+{
+  const std::string name = CUKE_ARG(1);
+  cuke::context<box>().set_name(name);
+}
+
+THEN(box_print, "I print the box's name and description")
+{
+  std::cout << cuke::context<box>().name() << '\n' << cuke::context<box>().description() << '\n';
+}
+
 BEFORE(before)
 {
   // std::puts("this runs before every scenario");
