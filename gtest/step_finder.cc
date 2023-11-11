@@ -55,5 +55,8 @@ TEST(step_matcher, beginning_spaces)
 TEST(step_matcher, three_ints)
 {
   EXPECT_TRUE(parse_step("A box with {int} x {int} x {int}", "A box with 2 x 2 x 2", NULL));
-  
+}
+TEST(step_matcher, chinese_letters)
+{
+  EXPECT_TRUE(parse_step("一个盒子有 {int} x {int} x {int}", "一个盒子有 2 x 2 x 2", NULL));
 }

@@ -28,9 +28,6 @@ namespace cuke::details
     {
       return no_lines_option();
     }
-    // return count
-    //   ? std::vector<int>(lines, lines + count)
-    //   : no_lines_option();
   }
 
   namespace fs = std::filesystem;
