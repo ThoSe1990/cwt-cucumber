@@ -4,8 +4,6 @@
 CWT-Cucumber
 ============
 
-.. note:: 
-  I recommend using Conan for dependency management. I have a conan recipe in  `another GitHub repository <https://github.com/ThoSe1990/cwt-cucumber-conan>`_ to create the conan package. This will do the job for now (I will add instructions, once I'm done with the recipe). Later I can push it to conancenter, when this project is really in use.
 
 The `./examples` directory contains various examples that have been created during the life of this project. All examples are compatible with C and C++ (17 or higher):
 

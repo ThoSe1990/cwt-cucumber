@@ -17,6 +17,7 @@ Welcome to CWT-Cucumber! This is the documentation for my C/C++ Cucumber interpr
 
    chapters/00_intro
    chapters/01_cwt_cucumber
+   chapters/02_conan
    chapters/10_api 
    
 
