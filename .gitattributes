@@ -1,3 +1,12 @@
-* linguist-detectable=true
+*.c linguist-detectable=true
+*.h linguist-detectable=true
+*.cpp linguist-detectable=true
+*.hpp linguist-detectable=true
+*.cc linguist-detectable=true
+*.feature linguist-detectable=false
+
 *.c linguist-language=C
+*.h linguist-language=C
 *.cpp linguist-language=C++
+*.hpp linguist-language=C++
+*.cc linguist-language=C++
