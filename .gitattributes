@@ -1,0 +1,3 @@
+* linguist-detectable=true
+*.c linguist-language=C
+*.cpp linguist-language=C++
