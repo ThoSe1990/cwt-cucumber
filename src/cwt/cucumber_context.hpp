@@ -16,36 +16,45 @@ namespace cuke {
     class context_type
     {
     public:
-        context_type() = default; 
+      template<typename T>
+      void emplace()
+      {
+        m_value.reset();
+        m_value = std::make_unique<c_model<T>>();
+      } 
+      template<typename T, typename... Args>
+      void emplace(Args&&... args)
+      {
+        m_value.reset();
+        m_value = std::make_unique<c_model<T>>(std::forward<Args>(args)...);
+      } 
 
-        template<typename T> 
-        context_type(T&& value) 
-        {
-          m_value = std::make_unique<c_model<T>>(std::forward<T>(value));
-        }
-
-        template<typename T> 
-        T& get() 
-        {
-          return static_cast<c_model<T>*>(m_value.get())->m_value;
-        }
+      template<typename T> 
+      T& get() 
+      {
+        return static_cast<c_model<T>*>(m_value.get())->m_value;
+      }
 
     private:   
-        struct c_concept 
-        {
-            virtual ~c_concept() {}
-        };
+      struct c_concept 
+      {
+          virtual ~c_concept() {}
+      };
 
-        template<typename T>
-        struct c_model : public c_concept 
-        {
-            c_model(T&& value) 
-              : m_value(std::forward<T>(value)) {};
-            T m_value;
-        };
+      template<typename T>
+      struct c_model : public c_concept 
+      {
+        c_model() = default;
+        
+        template<typename... Args>
+        c_model(Args&&... args)
+          : m_value(std::forward<Args>(args)...) {};
+
+        T m_value;
+      };
 
     private:
-        std::unique_ptr<c_concept> m_value;
+      std::unique_ptr<c_concept> m_value;
     };
 
 } // namespace details 
@@ -62,8 +71,11 @@ namespace cuke {
       template<typename T>
       T& get() 
       {
-        if (m_data.count(get_type_id<T>()) == 0) {
-          m_data[get_type_id<T>()] = T{};
+        if (m_data.count(get_type_id<T>()) == 0) 
+        {
+          details::context_type ct;
+          ct.template emplace<T>();
+          m_data.emplace(std::make_pair(get_type_id<T>(), std::move(ct)));
         }
         return m_data[get_type_id<T>()].template get<T>();
       }
@@ -71,8 +83,11 @@ namespace cuke {
       template<typename T, typename... Args>
       T& get(Args&&... args) 
       {
-        if (m_data.count(get_type_id<T>()) == 0) {
-          m_data[get_type_id<T>()] = T{std::forward<Args>(args)...};
+        if (m_data.count(get_type_id<T>()) == 0) 
+        {
+          details::context_type ct;
+          ct.template emplace<T>(std::forward<Args>(args)...);
+          m_data.emplace(std::make_pair(get_type_id<T>(), std::move(ct)));
         }
         return m_data[get_type_id<T>()].template get<T>();
       }
