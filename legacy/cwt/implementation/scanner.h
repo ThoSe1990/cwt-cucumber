@@ -3,9 +3,9 @@
 
 typedef enum 
 {
+  TOKEN_TRIPPLE_QUOTES,
   TOKEN_VERTICAL,
   TOKEN_MINUS,
-  TOKEN_TRIPPLE_QUOTES,
   
   TOKEN_LANGUAGE, 
   TOKEN_FEATURE, 
@@ -27,7 +27,7 @@ typedef enum
   TOKEN_LINEBREAK, 
 
   TOKEN_ERROR, TOKEN_EOF, 
-  NO_TOKEN, CHECK_NEXT
+  NO_TOKEN
 } token_type;
 
 typedef struct {
