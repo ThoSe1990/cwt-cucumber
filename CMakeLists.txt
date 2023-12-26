@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 option(STACK_TRACE "Prints the compiled feature file stack and it's execution: ON/OFF" OFF)
 
