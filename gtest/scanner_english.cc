@@ -14,7 +14,8 @@ TEST(english_keywords, scenario)
 }
 TEST(english_keywords, scenario_outline)
 {
-  EXPECT_EQ(scanner("Scenario Outline:").scan_token().type, token_type::scenario_outline);
+  EXPECT_EQ(scanner("Scenario Outline:").scan_token().type,
+            token_type::scenario_outline);
 }
 TEST(english_keywords, background)
 {

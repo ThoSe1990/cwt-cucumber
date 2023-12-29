@@ -1,5 +1,5 @@
 #include "scanner.hpp"
-
+#include "identifiers/german.hpp"
 namespace cwt::details
 {
 
@@ -44,7 +44,7 @@ void scanner::find_language()
             skip_whitespaces();
             const std::size_t start = m_pos;
             while (is_alpha(peek())) advance();
-            language(m_source.substr(start, m_pos - start));
+            set_language(m_source.substr(start, m_pos - start));
           }
           else
           {
@@ -59,12 +59,12 @@ void scanner::find_language()
     }
   }
 }
-country_code scanner::langauge() const noexcept { return m_language; }
-void scanner::language(std::string_view country)
+
+void scanner::set_language(std::string_view country)
 {
   if (country == "de")
   {
-    m_language = country_code::de;
+    m_identifiers = std::make_unique<german>();
   }
 }
 
@@ -281,7 +281,6 @@ token scanner::doc_string()
 
 token scanner::word()
 {
-  
   while (!is_at_end() && !end_of_line())
   {
     if (peek() == ' ' || peek() == '|')
@@ -291,7 +290,6 @@ token scanner::word()
     advance();
   }
   return make_token(token_type::word);
-
 }
 
 token scanner::scan_token()
@@ -354,6 +352,13 @@ token scanner::scan_token()
       return make_token(token_type::linebreak);
     }
   }
+
+  token_type identifier = m_identifiers->get_token(m_source.substr(m_pos - 1));
+  if (identifier != token_type::none)
+  {
+    return make_token(identifier);
+  }
+
   return word();
 }
 

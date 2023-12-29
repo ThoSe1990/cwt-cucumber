@@ -25,35 +25,6 @@ TEST(scanner, tag)
 {
   EXPECT_EQ(scanner("@my_tag").scan_token().type, token_type::tag);
 }
-TEST(scanner, language_1)
-{
-  EXPECT_EQ(scanner("#language: de").langauge(), country_code::de);
-}
-TEST(scanner, language_2)
-{
-  EXPECT_EQ(scanner("#language:   de").langauge(), country_code::de);
-}
-TEST(scanner, language_3)
-{
-  EXPECT_EQ(scanner("#  language:   de").langauge(), country_code::de);
-}
-TEST(scanner, language_4)
-{
-  const char* script = R"*(
-  # some unnecessary comment
-  # and this will remain english!
-  # and more ... language:  de
-)*";
-  EXPECT_EQ(scanner(script).langauge(), country_code::en);
-}
-TEST(scanner, language_5)
-{
-  const char* script = R"*(
-  # some unnecessary comment
-  # language:  de
-)*";
-  EXPECT_EQ(scanner(script).langauge(), country_code::de);
-}
 TEST(scanner, variable)
 {
   EXPECT_EQ(scanner("<some variable>").scan_token().type, token_type::variable);
@@ -156,7 +127,7 @@ TEST(scanner, verticals_and_text)
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
   EXPECT_EQ(s.scan_token().type, token_type::long_value);
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
-  EXPECT_EQ(s.scan_token().type, token_type::string_value );
+  EXPECT_EQ(s.scan_token().type, token_type::string_value);
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
   EXPECT_EQ(s.scan_token().type, token_type::double_value);
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
