@@ -9,4 +9,3 @@ TEST(chunk, init_obj)
   chunk c;
   EXPECT_EQ(c.size(), 0);
 }
-

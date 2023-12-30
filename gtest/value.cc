@@ -55,3 +55,24 @@ TEST(value, string_view_value)
   EXPECT_EQ(v.as<std::string_view>(), "hello value");
 }
 
+TEST(value, emplace_value)
+{
+  value v;
+  v.emplace_or_replace(123);
+  EXPECT_EQ(v.type(), value_type::integral);
+  EXPECT_EQ(v.as<int>(), 123);
+}
+TEST(value, replace_value_1)
+{
+  value v{123};
+  v.emplace_or_replace(999);
+  EXPECT_EQ(v.type(), value_type::integral);
+  EXPECT_EQ(v.as<int>(), 999);
+}
+TEST(value, replace_value_2)
+{
+  value v{123};
+  v.emplace_or_replace(std::string{"other value"});
+  EXPECT_EQ(v.type(), value_type::string);
+  EXPECT_EQ(v.as<std::string>(), std::string{"other value"});
+}

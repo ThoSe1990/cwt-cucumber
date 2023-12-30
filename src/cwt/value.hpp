@@ -61,7 +61,7 @@ class value
   {
   }
 
-  template<typename T> 
+  template <typename T>
   const T& as() const
   {
     if (m_type == value_trait<T>::tag)
@@ -71,11 +71,15 @@ class value
     throw std::runtime_error("cwt::value: Invalid value type");
   }
 
-
-  value_type type() const noexcept
+  template <typename T>
+  void emplace_or_replace(T&& value)
   {
-    return m_type;
+    m_value.reset();
+    m_value = std::make_unique<value_model<T>>(std::forward<T>(value));
+    m_type = value_trait<T>::tag;
   }
+
+  value_type type() const noexcept { return m_type; }
 
  private:
   struct value_concept
