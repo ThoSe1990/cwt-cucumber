@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <iostream>
+#include <stdexcept>
 #include <type_traits>
 
 namespace cwt::details
@@ -62,16 +62,15 @@ class value
   }
 
   template<typename T> 
-  T as() const noexcept
+  const T& as() const
   {
     if (m_type == value_trait<T>::tag)
     {
-      // std::cout << "value is: " << *m_value << std::endl;
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
-    std::cerr << "cwt::value: Invalid value type\n";
-    return T{};
+    throw std::runtime_error("cwt::value: Invalid value type");
   }
+
 
   value_type type() const noexcept
   {

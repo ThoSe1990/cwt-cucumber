@@ -16,6 +16,11 @@ TEST(value, bool_value)
   EXPECT_EQ(v.type(), value_type::boolean);
   EXPECT_EQ(v.as<bool>(), true);
 }
+TEST(value, invalid_access)
+{
+  value v{true};
+  EXPECT_THROW(v.as<int>(), std::runtime_error);
+}
 TEST(value, int_value)
 {
   value v{123ul};
