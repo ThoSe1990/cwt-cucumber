@@ -18,7 +18,7 @@ TEST(value, bool_value)
 }
 TEST(value, int_value)
 {
-  value v{123};
+  value v{123ul};
   EXPECT_EQ(v.type(), value_type::integral);
   EXPECT_EQ(v.as<int>(), 123);
   EXPECT_EQ(v.as<unsigned int>(), 123);

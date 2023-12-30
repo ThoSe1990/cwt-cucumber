@@ -55,9 +55,9 @@ class value
   value() = default;
 
   template <typename T>
-  value(const T& value)
+  value(T&& value)
       : m_type(value_trait<T>::tag),
-        m_value(std::make_unique<value_model<T>>(std::move(value)))
+        m_value(std::make_unique<value_model<T>>(std::forward<T>(value)))
   {
   }
 
@@ -66,6 +66,7 @@ class value
   {
     if (m_type == value_trait<T>::tag)
     {
+      // std::cout << "value is: " << *m_value << std::endl;
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
     std::cerr << "cwt::value: Invalid value type\n";
@@ -88,7 +89,7 @@ class value
   {
     value_model() = default;
     template <typename Arg>
-    value_model(const Arg& arg) : m_value{arg}
+    value_model(Arg&& arg) : m_value{std::forward<Arg>(arg)}
     {
     }
 
