@@ -4,15 +4,26 @@
 
 using namespace cwt::details;
 
-TEST(scanner, init_obj) { cwt::details::scanner scanner("some script"); }
+TEST(scanner, init_obj) { scanner s("some script"); }
 
-TEST(scanner, scan_vertical)
+TEST(token, token_1)
 {
-  token t = scanner("|").scan_token();
-  EXPECT_EQ(t.type, token_type::vertical);
-  EXPECT_EQ(t.value.size(), 1);
-  EXPECT_STREQ(t.value.data(), "|");
+  token t = scanner("<some variable>").scan_token();
+  EXPECT_EQ(t.type, token_type::variable);
+  EXPECT_EQ(t.line, 1);
+  EXPECT_EQ(t.value.size(), std::string("<some variable>").size());
+  EXPECT_STREQ(t.value.data(), "<some variable>");
 }
+TEST(token, token_2)
+{
+  token t = scanner("\"\"\"\nhello doc string\n   \"\"\"").scan_token();
+  EXPECT_EQ(t.type, token_type::doc_string);
+  EXPECT_EQ(t.line, 2);
+  EXPECT_EQ(t.value.size(), std::string_view("hello doc string").size());
+  EXPECT_EQ(t.value, std::string_view("hello doc string"));
+}
+
+TEST(scanner, scan_vertical) { token t = scanner("|").scan_token(); }
 TEST(scanner, scan_minus)
 {
   EXPECT_EQ(scanner("-").scan_token().type, token_type::minus);

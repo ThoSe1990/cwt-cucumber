@@ -274,8 +274,6 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
-  // skip_whitespace_and_linebreaks();
-
   return make_token(token_type::doc_string, start, end);
 }
 
