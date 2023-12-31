@@ -61,6 +61,8 @@ class value
   {
   }
 
+  ~value() = default;
+
   template <typename T>
   const T& as() const
   {
@@ -104,6 +106,6 @@ class value
   std::unique_ptr<value_concept> m_value;
 };
 
-using value_array = std::vector<details::value>;
+using value_array = std::vector<value>;
 
 }  // namespace cwt::details
