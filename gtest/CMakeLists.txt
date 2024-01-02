@@ -6,6 +6,7 @@ if(GTest_FOUND)
 
   add_executable(${target} 
     ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cc

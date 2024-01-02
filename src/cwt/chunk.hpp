@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "value.hpp"
-
 namespace cwt::details
 {
 
@@ -31,16 +30,26 @@ enum class op_code
   func_return
 };
 
+
 class chunk
 {
  public:
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] std::size_t constants_count() const noexcept;
-  void push_byte(op_code byte, std::size_t line);
-  void push_byte(uint32_t byte, std::size_t line);
-  void add_constant(value&& v);
+  [[nodiscard]] const value& constant(const std::size_t index) const;
 
-  class iterator
+  void push_byte(op_code byte, const std::size_t line);
+  void push_byte(uint32_t byte, const std::size_t line);
+  
+  template<typename Arg>
+  void push_constant(const std::size_t line, Arg&& arg)
+  {
+    push_byte(op_code::constant, line);
+    m_constants.emplace_back(std::forward<Arg>(arg));
+  }
+  
+
+  class const_iterator
   {
    public:
     using iterator_category = std::forward_iterator_tag;
@@ -49,20 +58,19 @@ class chunk
     using pointer = const uint32_t*;
     using reference = const uint32_t&;
 
-    explicit iterator(std::vector<uint32_t>::const_iterator it) : m_current(it) {}
+    explicit const_iterator(std::vector<uint32_t>::const_iterator it) : m_current(it) {}
     const uint32_t& operator*() const;
-    iterator& operator++();
-    bool operator==(const iterator& rhs) const;
-    bool operator!=(const iterator& rhs) const;
+    const_iterator& operator++();
+    bool operator==(const const_iterator& rhs) const;
+    bool operator!=(const const_iterator& rhs) const;
 
    private:
     std::vector<uint32_t>::const_iterator m_current;
   };
 
-  iterator begin() const;
-  iterator end() const;
+  const_iterator cbegin() const;
+  const_iterator cend() const;
 
- private:
  private:
   std::size_t m_size;
   std::vector<uint32_t> m_code;

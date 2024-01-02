@@ -3,8 +3,10 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <iostream>
 #include <stdexcept>
 #include <type_traits>
+
 
 namespace cwt::details
 {
@@ -15,6 +17,8 @@ enum class value_type
   floating,
   boolean,
   string,
+  function,
+  native,
   nil
 };
 
@@ -38,15 +42,23 @@ struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T>>>
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, std::string>>>
+struct value_trait<T, std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_convertible_v<T, std::string_view>>>
 {
   static constexpr value_type tag = value_type::string;
 };
 
+class function;
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, std::string_view>>>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
 {
-  static constexpr value_type tag = value_type::string;
+  static constexpr value_type tag = value_type::function;
+};
+
+class native;
+template <typename T>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, native>>>
+{
+  static constexpr value_type tag = value_type::native;
 };
 
 class value
@@ -66,18 +78,22 @@ class value
   template <typename T>
   const T& as() const
   {
-    if (m_type == value_trait<T>::tag)
+    if (m_type == value_trait<T>::tag) [[likely]]
     {
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
-    throw std::runtime_error("cwt::value: Invalid value type");
+    else [[unlikely]]
+    {
+      throw std::runtime_error("cwt::value: Invalid value type");
+    }
   }
 
   template <typename T>
   void emplace_or_replace(T&& value)
   {
-    m_value.reset();
-    m_value = std::make_unique<value_model<T>>(std::forward<T>(value));
+    auto new_value = std::make_unique<value_model<T>>(std::forward<T>(value));
+    std::unique_ptr<value_concept> tmp(std::move(new_value));
+    m_value.swap(tmp);
     m_type = value_trait<T>::tag;
   }
 
