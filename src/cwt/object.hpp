@@ -1,14 +1,20 @@
-#include <string>
+#pragma once 
 
-#include "chunk.hpp"
+#include <string>
+#include <memory>
+#include <vector> 
 
 namespace cwt::details
 {
 
+class chunk; 
+class value;
+using value_array = std::vector<value>;
+
 struct function
 {
   const std::size_t arity;
-  chunk chunk;
+  std::shared_ptr<chunk> chunk_data;
   const std::string name;
 };
 

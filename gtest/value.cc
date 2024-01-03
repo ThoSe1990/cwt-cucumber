@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../src/cwt/value.hpp"
-#include "../src/cwt/object.hpp"
+#include "../src/cwt/chunk.hpp"
 
 using namespace cwt::details;
 
@@ -57,10 +57,21 @@ TEST(value, string_view_value)
 }
 TEST(value, function_value)
 {
-  function test_function{0, chunk{}, "some name"};
-  value v{test_function};
+  value v(function{0, std::make_shared<chunk>(), "some name"});
   EXPECT_EQ(v.type(), value_type::function);
   EXPECT_EQ(v.as<function>().name, "some name");
+}
+TEST(value, native_value)
+{
+  auto test_func = [](const value_array& arr){
+    ASSERT_EQ(arr.size(), 1);
+    EXPECT_EQ(arr.at(0).as<int>(), 99);
+  };
+  value v(native{test_func});
+  value_array arr; 
+  arr.emplace_back(99);
+  v.as<native>().func(arr);
+  EXPECT_EQ(v.type(), value_type::native);
 }
 
 TEST(value, emplace_value)

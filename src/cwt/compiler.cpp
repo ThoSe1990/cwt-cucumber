@@ -1,5 +1,5 @@
 #include "compiler.hpp"
-
+#include "chunk.hpp"
 namespace cwt::details
 {
 

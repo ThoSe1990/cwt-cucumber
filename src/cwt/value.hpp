@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include "object.hpp"
 
 namespace cwt::details
 {
@@ -49,14 +50,12 @@ struct value_trait<T,
   static constexpr value_type tag = value_type::string;
 };
 
-class function;
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
 {
   static constexpr value_type tag = value_type::function;
 };
 
-class native;
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, native>>>
 {
@@ -67,14 +66,21 @@ class value
 {
  public:
   value() = default;
-
+  value(function&& func)
+      : m_type(value_type::function),
+        m_value(std::make_unique<value_model<function>>(std::move(func)))
+  {
+  }
+  value(native&& func)
+      : m_type(value_type::native),
+        m_value(std::make_unique<value_model<native>>(std::move(func)))
+  {
+  }
   template <typename T>
   value(T&& value)
       : m_type(value_trait<T>::tag),
         m_value(std::make_unique<value_model<T>>(std::forward<T>(value)))
   {
-    std::cout << "type: " << static_cast<int>(m_type) << std::endl;
-    std::cout << "type: " << typeid(T).name() << std::endl;
   }
 
   ~value() = default;
