@@ -7,7 +7,7 @@ namespace cwt::details
 class function
 {
  public:
-  const chunk& get_chunk() { return m_chunk; }
+  const chunk& get_chunk() const { return m_chunk; }
 
  private:
   std::size_t m_arity;

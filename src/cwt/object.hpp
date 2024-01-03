@@ -8,7 +8,7 @@ namespace cwt::details
 struct function
 {
   const std::size_t arity;
-  chunk func_chunk;
+  chunk chunk;
   const std::string name;
 };
 

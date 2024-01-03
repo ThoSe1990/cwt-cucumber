@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../src/cwt/value.hpp"
+#include "../src/cwt/object.hpp"
 
 using namespace cwt::details;
 
@@ -53,6 +54,13 @@ TEST(value, string_view_value)
   value v{std::string_view{"hello value"}};
   EXPECT_EQ(v.type(), value_type::string);
   EXPECT_EQ(v.as<std::string_view>(), "hello value");
+}
+TEST(value, function_value)
+{
+  function test_function{0, chunk{}, "some name"};
+  value v{test_function};
+  EXPECT_EQ(v.type(), value_type::function);
+  EXPECT_EQ(v.as<function>().name, "some name");
 }
 
 TEST(value, emplace_value)

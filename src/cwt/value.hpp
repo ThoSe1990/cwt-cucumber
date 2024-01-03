@@ -42,7 +42,9 @@ struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T>>>
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_convertible_v<T, std::string> || std::is_convertible_v<T, std::string_view>>>
+struct value_trait<T,
+                   std::enable_if_t<std::is_convertible_v<T, std::string> ||
+                                    std::is_convertible_v<T, std::string_view>>>
 {
   static constexpr value_type tag = value_type::string;
 };
@@ -71,6 +73,8 @@ class value
       : m_type(value_trait<T>::tag),
         m_value(std::make_unique<value_model<T>>(std::forward<T>(value)))
   {
+    std::cout << "type: " << static_cast<int>(m_type) << std::endl;
+    std::cout << "type: " << typeid(T).name() << std::endl;
   }
 
   ~value() = default;
@@ -91,9 +95,9 @@ class value
   template <typename T>
   void emplace_or_replace(T&& value)
   {
-    auto new_value = std::make_unique<value_model<T>>(std::forward<T>(value));
-    std::unique_ptr<value_concept> tmp(std::move(new_value));
-    m_value.swap(tmp);
+    std::unique_ptr<value_concept> new_value =
+        std::make_unique<value_model<T>>(std::forward<T>(value));
+    m_value.swap(new_value);
     m_type = value_trait<T>::tag;
   }
 
