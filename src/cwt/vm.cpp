@@ -9,14 +9,25 @@ void vm::run(std::string_view script)
 {
   compiler c(script);
   function feature = c.compile();
-
-  for (auto it = feature.chunk_data->cbegin(); it != feature.chunk_data->cend();
-       ++it)
+  auto it = feature.chunk_data->cbegin();
+  for (;;)
   {
-    std::cout << static_cast<unsigned int>(*it) << std::endl;
-    std::cout << feature.name << std::endl;
-    std::cout << feature.chunk_data->constants_count() << std::endl;
-    std::cout << static_cast<int>(feature.chunk_data->constant(0).type()) << std::endl;
+    switch (it.next_as_instruction())
+    {
+      case op_code::constant:
+      {
+        std::cout << "constant !!!" << std::endl;
+        m_stack.push(feature.chunk_data->constant(it.next()));
+        std::cout << "stack type: " << static_cast<int>(m_stack.top().type())
+                  << std::endl;
+      }
+      break;
+      default:
+      {
+        std::cout << "defgault!" << std::endl;
+      }
+    }
+    if (it == feature.chunk_data->cend()) return;
   }
 }
 

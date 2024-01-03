@@ -50,7 +50,6 @@ class chunk
     push_byte(m_constants.size(), line);
     m_constants.emplace_back(std::forward<Arg>(arg));
   }
-
   class const_iterator
   {
    public:
@@ -65,6 +64,8 @@ class chunk
     {
     }
     const uint32_t& operator*() const;
+    uint32_t next();
+    op_code next_as_instruction();
     const_iterator& operator++();
     bool operator==(const const_iterator& rhs) const;
     bool operator!=(const const_iterator& rhs) const;
