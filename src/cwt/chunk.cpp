@@ -13,7 +13,10 @@ std::size_t chunk::constants_count() const noexcept
 {
   return m_constants.size();
 }
-
+const uint32_t& chunk::back() const noexcept
+{
+  return m_code.back();
+}
 value& chunk::constant(const std::size_t index)
 {
   if (index < m_constants.size()) [[likely]]
@@ -24,6 +27,11 @@ value& chunk::constant(const std::size_t index)
   {
     throw std::out_of_range("Chunk: Constants out of range");
   }
+}
+
+value& chunk::constants_back() noexcept
+{
+  return m_constants.back();
 }
 
 void chunk::push_byte(op_code byte, const std::size_t line)

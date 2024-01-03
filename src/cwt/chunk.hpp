@@ -30,24 +30,27 @@ enum class op_code
   func_return
 };
 
-
 class chunk
 {
  public:
   [[nodiscard]] std::size_t size() const noexcept;
+  [[nodiscard]] const uint32_t& back() const noexcept;
+
   [[nodiscard]] std::size_t constants_count() const noexcept;
   [[nodiscard]] value& constant(const std::size_t index);
+  [[nodiscard]] value& constants_back() noexcept;
 
   void push_byte(op_code byte, const std::size_t line);
   void push_byte(uint32_t byte, const std::size_t line);
-  
-  template<typename Arg>
-  void push_constant(const std::size_t line, Arg&& arg)
+
+  template <typename Arg>
+  void emplace_constant(const std::size_t line, Arg&& arg)
   {
     push_byte(op_code::constant, line);
+    push_byte(m_constants.size(), line);
     m_constants.emplace_back(std::forward<Arg>(arg));
   }
-  
+
   class const_iterator
   {
    public:
@@ -57,7 +60,10 @@ class chunk
     using pointer = const uint32_t*;
     using reference = const uint32_t&;
 
-    explicit const_iterator(std::vector<uint32_t>::const_iterator it) : m_current(it) {}
+    explicit const_iterator(std::vector<uint32_t>::const_iterator it)
+        : m_current(it)
+    {
+    }
     const uint32_t& operator*() const;
     const_iterator& operator++();
     bool operator==(const const_iterator& rhs) const;

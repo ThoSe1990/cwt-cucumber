@@ -20,7 +20,7 @@ TEST(compiler, feature_only)
 {
   compiler c("Feature:");
   function func = c.compile();
-  EXPECT_EQ(func.chunk_data->size(), 1);
+  EXPECT_EQ(func.chunk_data->size(), 2);
   EXPECT_EQ(func.chunk_data->constants_count(), 1);
-  EXPECT_EQ(func.chunk_data->constant(0).type(), value_type::function);
+  EXPECT_EQ(func.chunk_data->constants_back().type(), value_type::function);
 }

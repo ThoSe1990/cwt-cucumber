@@ -4,6 +4,7 @@
 namespace cwt::details
 {
 
+
 compiler::compiler(std::string_view source) : m_scanner(source)
 {
 
@@ -18,6 +19,20 @@ function compiler::compile()
   feature();
 
   return main; 
+}
+
+function compiler::start_function(const std::string_view name)
+{
+  m_enclosing = m_current;
+  function new_function{name.data(), std::make_shared<chunk>()};
+  m_current = new_function.chunk_data;
+  return new_function;
+}
+void compiler::end_function(function&& func)
+{
+  m_current->push_byte(op_code::func_return, m_parser.previous.line);
+  m_current = m_enclosing;
+  m_current->emplace_constant(m_parser.previous.line, std::move(func));
 }
 
 void compiler::consume(token_type type, std::string_view msg)
@@ -51,13 +66,9 @@ void compiler::feature()
 {
   consume(token_type::feature, "Expect FeatureLine");
 
-  m_enclosing = m_current;
-
-  // function{"line:xxx TODO", std::make_shared<chunk>()};
+  function feature_func = start_function("feature");
   
-  m_current = std::make_shared<chunk>();
-
-  m_enclosing->push_constant(m_parser.previous.line, function{"line:xxx TODO", m_current});
+  end_function(std::move(feature_func));
 }
 
 }  // namespace cwt::details

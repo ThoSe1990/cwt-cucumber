@@ -6,8 +6,6 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include <iostream>
-
 namespace cwt::details
 {
 

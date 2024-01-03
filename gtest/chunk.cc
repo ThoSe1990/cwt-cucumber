@@ -61,22 +61,22 @@ TEST(chunk, constant_access_out_of_range)
 TEST(chunk, add_constant_integer)
 {
   chunk c;
-  c.push_constant(0, 123);
-  EXPECT_EQ(c.size(), 1);
+  c.emplace_constant(0, 123);
+  EXPECT_EQ(c.size(), 2);
   EXPECT_EQ(c.constants_count(), 1);
-  EXPECT_EQ(c.constant(0).as<unsigned int>(), 123);
+  EXPECT_EQ(c.constant(c.back()).as<unsigned int>(), 123);
 }
 
 TEST(chunk, add_constant_string)
 {
   chunk c;
-  c.push_constant(0, std::string("hello world"));
+  c.emplace_constant(0, std::string("hello world"));
   EXPECT_EQ(c.constant(0).as<std::string>(), std::string("hello world"));
 }
 
 TEST(chunk, add_constant_string_view)
 {
   chunk c;
-  c.push_constant(0, std::string_view("hello world"));
+  c.emplace_constant(0, std::string_view("hello world"));
   EXPECT_EQ(c.constant(0).as<std::string_view>(), std::string_view("hello world"));
 }
