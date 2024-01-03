@@ -3,11 +3,10 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <iostream>
 #include <stdexcept>
 #include <type_traits>
 
-#include "object.hpp"
+#include <iostream>
 
 namespace cwt::details
 {
@@ -21,6 +20,24 @@ enum class value_type
   function,
   native,
   nil
+};
+
+
+class chunk; 
+class value;
+using value_array = std::vector<value>;
+
+struct function
+{
+  const std::string name;
+  std::shared_ptr<chunk> chunk_data;
+};
+
+using cuke_step = void (*)(const value_array&);
+
+struct native
+{
+  cuke_step func;
 };
 
 template <typename T, typename = void>

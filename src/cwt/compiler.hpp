@@ -1,5 +1,10 @@
+#pragma once
+
+#include <memory>
+
+#include "scanner.hpp"
 #include "token.hpp"
-#include "object.hpp"
+#include "value.hpp"
 
 namespace cwt::details
 {
@@ -8,19 +13,26 @@ struct parser
 {
   token current;
   token previous;
-  bool error;
+  bool error{false};
 };
 
 
 class compiler
 {
  public:
-  [[nodiscard]] function compile(std::string_view source);
+  compiler(std::string_view source);
+  [[nodiscard]] function compile();
 
  private:
+  void consume(token_type type, std::string_view msg);
+  void advance();
+  void feature(); 
+
  private:
-  // parser m_parser;
-  // function m_function;
+  scanner m_scanner;
+  parser m_parser{};
+  std::shared_ptr<chunk> m_current;
+  std::shared_ptr<chunk> m_enclosing;
 };
 
 }  // namespace cwt::details

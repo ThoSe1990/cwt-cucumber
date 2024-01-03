@@ -57,7 +57,7 @@ TEST(value, string_view_value)
 }
 TEST(value, function_value)
 {
-  value v(function{0, std::make_shared<chunk>(), "some name"});
+  value v(function{"some name", std::make_shared<chunk>()});
   EXPECT_EQ(v.type(), value_type::function);
   EXPECT_EQ(v.as<function>().name, "some name");
 }

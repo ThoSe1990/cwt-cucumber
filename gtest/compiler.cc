@@ -7,16 +7,20 @@ using namespace cwt::details;
 
 TEST(compiler, init_object)
 {
-  compiler c; 
+  compiler c(""); 
 }
 
+TEST(compiler, function_name)
+{
+  compiler c("");
+  function func = c.compile();
+  EXPECT_EQ(func.name, std::string{"feature"});
+}
 TEST(compiler, feature_only)
 {
-const char* script = R"*(
-  Feature: some feature
-)*";
-  compiler c;
-  function func = c.compile(script);
-  EXPECT_EQ(func.name, std::string{"<script>"});
-  EXPECT_EQ(func.chunk_data->size(), 4);
+  compiler c("Feature:");
+  function func = c.compile();
+  EXPECT_EQ(func.chunk_data->size(), 1);
+  EXPECT_EQ(func.chunk_data->constants_count(), 1);
+  EXPECT_EQ(func.chunk_data->constant(0).type(), value_type::function);
 }
