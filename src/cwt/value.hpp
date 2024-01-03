@@ -6,9 +6,6 @@
 #include <stdexcept>
 #include <type_traits>
 
-// TODO Remove:
-#include <iostream>
-
 namespace cwt::details
 {
 
@@ -96,7 +93,6 @@ class value
 
   value(const value& other) : m_type(other.type())
   {
-    std::cout << "copy called!" << std::endl;
     switch (other.type())
     {
       case value_type::integral:

@@ -104,7 +104,7 @@ TEST(value, copy_integer)
   EXPECT_EQ(v2.as<int>(), 123);
   EXPECT_EQ(v2.type(), value_type::integral);
 }
-TEST(value, copy_double) 
+TEST(value, copy_double)
 {
   value v1{2.2};
   value v2(v1);
@@ -112,7 +112,7 @@ TEST(value, copy_double)
   EXPECT_EQ(v2.as<double>(), 2.2);
   EXPECT_EQ(v2.type(), value_type::floating);
 }
-TEST(value, copy_boolean) 
+TEST(value, copy_boolean)
 {
   value v1{true};
   value v2(v1);
@@ -120,15 +120,15 @@ TEST(value, copy_boolean)
   EXPECT_EQ(v2.as<bool>(), true);
   EXPECT_EQ(v2.type(), value_type::boolean);
 }
-TEST(value, copy_string) 
+TEST(value, copy_string)
 {
-    value v1{std::string("hello copy")};
+  value v1{std::string("hello copy")};
   value v2(v1);
   EXPECT_EQ(v2.as<std::string>(), v1.as<std::string>());
   EXPECT_EQ(v2.as<std::string>(), std::string("hello copy"));
   EXPECT_EQ(v2.type(), value_type::string);
 }
-TEST(value, copy_function) 
+TEST(value, copy_function)
 {
   value v1(function{"some name", std::make_shared<chunk>()});
   v1.as<function>().chunk_data->emplace_constant(0, std::string{"some value"});
@@ -138,19 +138,18 @@ TEST(value, copy_function)
   EXPECT_EQ(v2.type(), v1.type());
   EXPECT_EQ(v2.as<function>().chunk_data->size(), 4);
   EXPECT_EQ(v2.as<function>().chunk_data->constants_count(), 2);
-  EXPECT_EQ(v2.as<function>().chunk_data->constant(0).as<std::string>(), std::string("some value"));
+  EXPECT_EQ(v2.as<function>().chunk_data->constant(0).as<std::string>(),
+            std::string("some value"));
   EXPECT_EQ(v2.as<function>().chunk_data->constant(1).as<int>(), 123);
 }
-TEST(value, copy_native) 
+TEST(value, copy_native)
 {
   value_array arr;
   auto test_func = [](const value_array& arr)
-  {
-    throw std::runtime_error("only in this test...");
-  };
+  { throw std::runtime_error("only in this test..."); };
   value v1(native{test_func});
   value v2(v1);
-  
+
   EXPECT_EQ(v2.type(), value_type::native);
   EXPECT_EQ(v2.type(), v1.type());
   EXPECT_THROW(v1.as<native>().func(arr), std::runtime_error);

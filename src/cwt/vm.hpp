@@ -12,8 +12,8 @@ class vm
 {
  public:
   void run(std::string_view script);
+
  private:
-  
  private:
   std::stack<value> m_stack;
 };
