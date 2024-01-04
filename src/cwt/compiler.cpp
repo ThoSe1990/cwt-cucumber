@@ -4,28 +4,24 @@
 namespace cwt::details
 {
 
+compiler::compiler(std::string_view source) : m_scanner(source) {}
 
-compiler::compiler(std::string_view source) : m_scanner(source)
+function compiler::compile()
 {
-
-}
-
-function compiler::compile() 
-{ 
-  function main{"feature", std::make_shared<chunk>()};
-  m_current = main.chunk_data;
+  function main{"feature", std::make_unique<chunk>()};
+  m_current = main.chunk_data.get();
 
   advance();
   feature();
 
-  return main; 
+  return std::move(main);
 }
 
 function compiler::start_function(const std::string_view name)
 {
   m_enclosing = m_current;
-  function new_function{name.data(), std::make_shared<chunk>()};
-  m_current = new_function.chunk_data;
+  function new_function{name.data(), std::make_unique<chunk>()};
+  m_current = new_function.chunk_data.get();
   return new_function;
 }
 void compiler::end_function(function&& func)
@@ -40,7 +36,7 @@ void compiler::consume(token_type type, std::string_view msg)
   if (m_parser.current.type == type)
   {
     advance();
-    return ;
+    return;
   }
   else
   {
@@ -48,7 +44,7 @@ void compiler::consume(token_type type, std::string_view msg)
   }
 }
 
-void compiler::advance() 
+void compiler::advance()
 {
   m_parser.previous = m_parser.current;
   for (;;)
@@ -67,7 +63,7 @@ void compiler::feature()
   consume(token_type::feature, "Expect FeatureLine");
 
   function feature_func = start_function("feature");
-  
+
   end_function(std::move(feature_func));
 }
 

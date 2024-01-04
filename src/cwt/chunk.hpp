@@ -30,6 +30,7 @@ enum class op_code
   func_return
 };
 
+// TODO reserve chunks vectors by default ?
 class chunk
 {
  public:
@@ -42,6 +43,10 @@ class chunk
 
   void push_byte(op_code byte, const std::size_t line);
   void push_byte(uint32_t byte, const std::size_t line);
+
+  [[nodiscard]] op_code instruction(std::size_t index) const;
+  [[nodiscard]] uint32_t at(std::size_t index) const;
+  [[nodiscard]] uint32_t operator[](std::size_t index) const;
 
   template <typename Arg>
   void emplace_constant(const std::size_t line, Arg&& arg)
@@ -76,8 +81,6 @@ class chunk
 
   const_iterator cbegin() const;
   const_iterator cend() const;
-
-  [[nodiscard]] uint32_t& operator[](const std::size_t index);
 
  private:
   std::size_t m_size;

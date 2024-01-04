@@ -33,9 +33,9 @@ class compiler
 
  private:
   scanner m_scanner;
-  parser m_parser{};
-  std::shared_ptr<chunk> m_current;
-  std::shared_ptr<chunk> m_enclosing;
+  parser m_parser;
+  chunk* m_current;
+  chunk* m_enclosing;
 };
 
 }  // namespace cwt::details

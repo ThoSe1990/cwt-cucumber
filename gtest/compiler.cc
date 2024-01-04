@@ -16,11 +16,13 @@ TEST(compiler, function_name)
   function func = c.compile();
   EXPECT_EQ(func.name, std::string{"feature"});
 }
-TEST(compiler, feature_only)
+TEST(compiler, main_feature_function)
 {
   compiler c("Feature:");
   function func = c.compile();
   EXPECT_EQ(func.chunk_data->size(), 2);
+  EXPECT_EQ(func.chunk_data->instruction(0), op_code::constant);
+  EXPECT_EQ(func.chunk_data->at(1), 0);
   EXPECT_EQ(func.chunk_data->constants_count(), 1);
   EXPECT_EQ(func.chunk_data->constants_back().type(), value_type::function);
 }

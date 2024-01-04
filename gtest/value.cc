@@ -57,7 +57,7 @@ TEST(value, string_view_value)
 }
 TEST(value, function_value)
 {
-  value v(function{"some name", std::make_shared<chunk>()});
+  value v(function{"some name", std::make_unique<chunk>()});
   EXPECT_EQ(v.type(), value_type::function);
   EXPECT_EQ(v.as<function>().name, "some name");
 }
@@ -130,7 +130,7 @@ TEST(value, copy_string)
 }
 TEST(value, copy_function)
 {
-  value v1(function{"some name", std::make_shared<chunk>()});
+  value v1(function{"some name", std::make_unique<chunk>()});
   v1.as<function>().chunk_data->emplace_constant(0, std::string{"some value"});
   v1.as<function>().chunk_data->emplace_constant(0, 123);
   value v2(v1);

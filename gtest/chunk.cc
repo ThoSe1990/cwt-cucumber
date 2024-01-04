@@ -51,7 +51,7 @@ TEST(chunk, iterator_2)
 TEST(chunk, byte_access_out_of_range)
 {
   chunk c;
-  EXPECT_THROW({ auto& val = c[1]; }, std::out_of_range);
+  EXPECT_THROW({ auto val = c[1]; }, std::out_of_range);
 }
 TEST(chunk, constant_access_out_of_range)
 {

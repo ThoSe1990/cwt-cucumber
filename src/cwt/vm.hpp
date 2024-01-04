@@ -8,6 +8,13 @@
 namespace cwt::details
 {
 
+// struct call_frame
+// {
+//   function* func;
+//   chunk::const_iterator* ip;
+//   value_array* slots;
+// };
+
 class vm
 {
  public:
