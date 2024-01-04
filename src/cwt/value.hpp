@@ -153,6 +153,18 @@ class value
       throw std::runtime_error("cwt::value: Invalid value type");
     }
   }
+  template <typename T>
+  T copy_as() const
+  {
+    if (m_type == value_trait<T>::tag) [[likely]]
+    {
+      return static_cast<value_model<T>*>(m_value.get())->m_value;
+    }
+    else [[unlikely]]
+    {
+      throw std::runtime_error("cwt::value: Invalid value type");
+    }
+  }
 
   template <typename T>
   void emplace_or_replace(T&& value)

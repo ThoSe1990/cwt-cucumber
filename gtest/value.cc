@@ -128,6 +128,14 @@ TEST(value, copy_string)
   EXPECT_EQ(v2.as<std::string>(), std::string("hello copy"));
   EXPECT_EQ(v2.type(), value_type::string);
 }
+TEST(value, assign_string)
+{
+  value v1{std::string("hello copy")};
+  value v2 = v1;
+  EXPECT_EQ(v2.as<std::string>(), v1.as<std::string>());
+  EXPECT_EQ(v2.as<std::string>(), std::string("hello copy"));
+  EXPECT_EQ(v2.type(), value_type::string);
+}
 TEST(value, copy_function_object)
 {
   value v1(function{"some name", std::make_unique<chunk>()});

@@ -53,6 +53,13 @@ class chunk
   {
     emplace_constant(op_code::constant, line, std::forward<Arg>(arg));
   }
+  
+  void push_constant(std::size_t line, const value& v)
+  {
+    push_byte(op_code::constant, line);
+    push_byte(m_constants.size(), line);
+    m_constants.push_back(v);
+  }
   template <typename Arg>
   void emplace_constant(op_code code, std::size_t line, Arg&& arg)
   {

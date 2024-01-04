@@ -66,7 +66,7 @@ void compiler::feature()
   end_function();
   m_current->emplace_constant(m_parser.previous.line, std::move(feature_func));
   m_current->emplace_constant(op_code::define_var, m_parser.previous.line,
-                              m_current->constants_back().as<function>().name);
+                              std::string(m_current->constants_back().as<function>().name));
   m_current->push_byte(op_code::call, m_parser.previous.line);
   m_current->push_byte(0, m_parser.previous.line);
 }

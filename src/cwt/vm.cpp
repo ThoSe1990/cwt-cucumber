@@ -56,13 +56,16 @@ void vm::run()
       break;
       case op_code::define_var:
       {
-        std::cout << "define_var" << std::endl;
-        m_stack.push(frame.chunk_ptr->constant(it.next()).as<std::string>());
+        uint32_t next = it.next();
+        std::cout << "define_var : "<< static_cast<int>(frame.chunk_ptr->constant(next).type()) << std::endl;
+        std::cout << "define_var : "<< frame.chunk_ptr->constant(next).copy_as<std::string>() << std::endl;
+        m_stack.push(frame.chunk_ptr->constant(next).copy_as<std::string>());
       }
       break;
       case op_code::call:
       {
-        std::cout << "call stack top: " << static_cast<int>(m_stack.top().type()) << " size: " << m_stack.size() << std::endl;
+        std::cout << "call stack top: " << static_cast<int>(m_stack.top().type()) << " value: " << m_stack.top().as<std::string>().c_str() << std::endl;
+        
         it.next(); // this is arg count
       }
       break;
