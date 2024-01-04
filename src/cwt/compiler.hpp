@@ -25,7 +25,7 @@ class compiler
 
  private:
   [[nodiscard]] function start_function(const std::string_view name);
-  void end_function(function&& func);
+  void end_function();
   void advance();
   void consume(token_type type, std::string_view msg);
   

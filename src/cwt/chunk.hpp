@@ -49,12 +49,18 @@ class chunk
   [[nodiscard]] uint32_t operator[](std::size_t index) const;
 
   template <typename Arg>
-  void emplace_constant(const std::size_t line, Arg&& arg)
+  void emplace_constant(std::size_t line, Arg&& arg)
   {
-    push_byte(op_code::constant, line);
+    emplace_constant(op_code::constant, line, std::forward<Arg>(arg));
+  }
+  template <typename Arg>
+  void emplace_constant(op_code code, std::size_t line, Arg&& arg)
+  {
+    push_byte(code, line);
     push_byte(m_constants.size(), line);
     m_constants.emplace_back(std::forward<Arg>(arg));
   }
+
   class const_iterator
   {
    public:
@@ -83,7 +89,6 @@ class chunk
   const_iterator cend() const;
 
  private:
-  std::size_t m_size;
   std::vector<uint32_t> m_code;
   std::vector<std::size_t> m_lines;
   value_array m_constants;

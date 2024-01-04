@@ -11,5 +11,5 @@ TEST(vm, init_obj)
 TEST(vm, run_chunk)
 {
   vm test_vm;
-  test_vm.run("Feature:");
+  test_vm.interpret("Feature:");
 }

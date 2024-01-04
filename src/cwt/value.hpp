@@ -6,6 +6,9 @@
 #include <stdexcept>
 #include <type_traits>
 
+// TODO REMOVE
+#include <iostream>
+
 namespace cwt::details
 {
 
@@ -113,13 +116,13 @@ class value
         m_value =
             std::make_unique<value_model<std::string>>(other.as<std::string>());
         break;
-        // TODO: Function objects with a chunk are not allowed to create a copy!
-        // Error to indicate this misstake
-        // For function type the copy of value will be assigned to nil
-        // case value_type::function:
-        // m_value =
-        // std::make_unique<value_model<function>>(other.as<function>());
-        break;
+      case value_type::function:
+      {
+        const auto& func = other.as<function>();
+        m_value = std::make_unique<value_model<function>>(
+            function{func.name, std::make_unique<chunk>(*func.chunk_ptr)});
+      }
+      break;
       case value_type::native:
         m_value = std::make_unique<value_model<native>>(other.as<native>());
         break;
