@@ -128,19 +128,33 @@ TEST(value, copy_string)
   EXPECT_EQ(v2.as<std::string>(), std::string("hello copy"));
   EXPECT_EQ(v2.type(), value_type::string);
 }
-TEST(value, copy_function)
+TEST(value, copy_function_object)
 {
   value v1(function{"some name", std::make_unique<chunk>()});
-  v1.as<function>().chunk_data->emplace_constant(0, std::string{"some value"});
-  v1.as<function>().chunk_data->emplace_constant(0, 123);
+  v1.as<function>().chunk_ptr->emplace_constant(0, std::string{"some value"});
+  v1.as<function>().chunk_ptr->emplace_constant(0, 123);
   value v2(v1);
-  EXPECT_EQ(v2.type(), value_type::function);
-  EXPECT_EQ(v2.type(), v1.type());
-  EXPECT_EQ(v2.as<function>().chunk_data->size(), 4);
-  EXPECT_EQ(v2.as<function>().chunk_data->constants_count(), 2);
-  EXPECT_EQ(v2.as<function>().chunk_data->constant(0).as<std::string>(),
+  EXPECT_EQ(v2.type(), value_type::nil);
+  EXPECT_EQ(v1.as<function>().chunk_ptr->size(), 4);
+  EXPECT_EQ(v1.as<function>().chunk_ptr->constants_count(), 2);
+  EXPECT_EQ(v1.as<function>().chunk_ptr->constant(0).as<std::string>(),
             std::string("some value"));
-  EXPECT_EQ(v2.as<function>().chunk_data->constant(1).as<int>(), 123);
+  EXPECT_EQ(v1.as<function>().chunk_ptr->constant(1).as<int>(), 123);
+}
+TEST(value, move_function_object)
+{
+  value v1(function{"some name", std::make_unique<chunk>()});
+  v1.as<function>().chunk_ptr->emplace_constant(0, std::string{"some value"});
+  v1.as<function>().chunk_ptr->emplace_constant(0, 123);
+  value v2(std::move(v1));
+  
+  EXPECT_EQ(v1.type(), value_type::nil);
+  EXPECT_EQ(v2.type(), value_type::function);
+  EXPECT_EQ(v2.as<function>().chunk_ptr->size(), 4);
+  EXPECT_EQ(v2.as<function>().chunk_ptr->constants_count(), 2);
+  EXPECT_EQ(v2.as<function>().chunk_ptr->constant(0).as<std::string>(),
+            std::string("some value"));
+  EXPECT_EQ(v2.as<function>().chunk_ptr->constant(1).as<int>(), 123);
 }
 TEST(value, copy_native)
 {

@@ -27,7 +27,7 @@ using value_array = std::vector<value>;
 struct function
 {
   const std::string name;
-  std::shared_ptr<chunk> chunk_data;
+  std::unique_ptr<chunk> chunk_ptr;
 };
 
 using cuke_step = void (*)(const value_array&);
@@ -91,9 +91,14 @@ class value
   {
   }
 
-  value(const value& other) : m_type(other.type())
+  value(value&& other) : m_type(other.m_type), m_value(std::move(other.m_value))
   {
-    switch (other.type())
+    other.m_type = value_type::nil;
+  }
+
+  value(const value& other) : m_type(other.m_type)
+  {
+    switch (other.m_type)
     {
       case value_type::integral:
         m_value = std::make_unique<value_model<long>>(other.as<long>());
@@ -108,8 +113,12 @@ class value
         m_value =
             std::make_unique<value_model<std::string>>(other.as<std::string>());
         break;
-      case value_type::function:
-        m_value = std::make_unique<value_model<function>>(other.as<function>());
+        // TODO: Function objects with a chunk are not allowed to create a copy!
+        // Error to indicate this misstake
+        // For function type the copy of value will be assigned to nil
+        // case value_type::function:
+        // m_value =
+        // std::make_unique<value_model<function>>(other.as<function>());
         break;
       case value_type::native:
         m_value = std::make_unique<value_model<native>>(other.as<native>());
@@ -163,6 +172,7 @@ class value
   struct value_model : public value_concept
   {
     value_model() = default;
+
     template <typename Arg>
     value_model(Arg&& arg) : m_value{std::forward<Arg>(arg)}
     {

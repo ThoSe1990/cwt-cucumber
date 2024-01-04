@@ -5,11 +5,12 @@
 namespace cwt::details
 {
 
+
 void vm::run(std::string_view script)
 {
   compiler c(script);
   function feature = c.compile();
-  auto it = feature.chunk_data->cbegin();
+  auto it = feature.chunk_ptr->cbegin();
   for (;;)
   {
     switch (it.next_as_instruction())
@@ -17,7 +18,7 @@ void vm::run(std::string_view script)
       case op_code::constant:
       {
         std::cout << "constant !!!" << std::endl;
-        m_stack.push(feature.chunk_data->constant(it.next()));
+        m_stack.push(feature.chunk_ptr->constant(it.next()));
         std::cout << "stack type: " << static_cast<int>(m_stack.top().type())
                   << std::endl;
       }
@@ -27,7 +28,7 @@ void vm::run(std::string_view script)
         std::cout << "defgault!" << std::endl;
       }
     }
-    if (it == feature.chunk_data->cend()) return;
+    if (it == feature.chunk_ptr->cend()) return;
   }
 }
 

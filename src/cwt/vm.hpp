@@ -4,16 +4,16 @@
 #include <string_view>
 
 #include "value.hpp"
+#include "chunk.hpp"
 
 namespace cwt::details
 {
 
-// struct call_frame
-// {
-//   function* func;
-//   chunk::const_iterator* ip;
-//   value_array* slots;
-// };
+struct call_frame
+{
+  std::vector<chunk*> chunks;
+};
+
 
 class vm
 {
