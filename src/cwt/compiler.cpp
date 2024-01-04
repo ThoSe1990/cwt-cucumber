@@ -8,12 +8,12 @@ compiler::compiler(std::string_view source) : m_scanner(source) {}
 
 function compiler::compile()
 {
-  function main{"feature", std::make_unique<chunk>()};
-  m_current = main.chunk_data.get();
+  function main = start_function("feature");
 
   advance();
   feature();
 
+  m_current->push_byte(op_code::func_return, m_parser.previous.line);
   return std::move(main);
 }
 
@@ -22,7 +22,7 @@ function compiler::start_function(const std::string_view name)
   m_enclosing = m_current;
   function new_function{name.data(), std::make_unique<chunk>()};
   m_current = new_function.chunk_data.get();
-  return new_function;
+  return std::move(new_function);
 }
 void compiler::end_function(function&& func)
 {
