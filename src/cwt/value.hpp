@@ -6,9 +6,6 @@
 #include <stdexcept>
 #include <type_traits>
 
-// TODO REMOVE
-#include <iostream>
-
 namespace cwt::details
 {
 
@@ -137,6 +134,53 @@ class value
       : m_type(value_trait<T>::tag),
         m_value(std::make_unique<value_model<T>>(std::forward<T>(value)))
   {
+  }
+
+  template <typename T, typename = std::enable_if_t<
+                            !std::is_same_v<std::decay_t<T>, value>>>
+  value(const T& value)
+      : m_type(value_trait<T>::tag),
+        m_value(std::make_unique<value_model<T>>(value))
+  {
+  }
+
+  value& operator=(const value& other)
+  {
+    if (this != &other)
+    {
+      m_type = other.m_type;
+
+      switch (other.m_type)
+      {
+        case value_type::integral:
+          m_value = std::make_unique<value_model<long>>(other.as<long>());
+          break;
+        case value_type::floating:
+          m_value = std::make_unique<value_model<double>>(other.as<double>());
+          break;
+        case value_type::boolean:
+          m_value = std::make_unique<value_model<bool>>(other.as<bool>());
+          break;
+        case value_type::string:
+          m_value = std::make_unique<value_model<std::string>>(
+              other.as<std::string>());
+          break;
+        case value_type::function:
+        {
+          const auto& func = other.as<function>();
+          m_value = std::make_unique<value_model<function>>(
+              function{func.name, std::make_unique<chunk>(*func.chunk_ptr)});
+        }
+        break;
+        case value_type::native:
+          m_value = std::make_unique<value_model<native>>(other.as<native>());
+          break;
+        default:
+          m_type = value_type::nil;
+      }
+    }
+
+    return *this;
   }
 
   ~value() = default;

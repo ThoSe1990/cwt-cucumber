@@ -2,6 +2,7 @@
 
 #include <stack>
 #include <string_view>
+#include <unordered_map>
 
 #include "value.hpp"
 #include "chunk.hpp"
@@ -24,6 +25,7 @@ class vm
  private:
   std::stack<value> m_stack;
   std::vector<call_frame> m_frames;
+  std::unordered_map<std::string, value> m_globals;
 };
 
 }  // namespace cwt::details

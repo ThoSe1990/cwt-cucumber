@@ -4,6 +4,8 @@
 namespace cwt::details
 {
 
+std::string create_string(std::string_view sv) { return std::string(sv); }
+
 compiler::compiler(std::string_view source) : m_scanner(source) {}
 
 function compiler::compile()
@@ -20,7 +22,7 @@ function compiler::compile()
 function compiler::start_function(const std::string_view name)
 {
   m_enclosing = m_current;
-  function new_function{name.data(), std::make_unique<chunk>()};
+  function new_function{std::string(name), std::make_unique<chunk>()};
   m_current = new_function.chunk_ptr.get();
   return std::move(new_function);
 }
@@ -57,18 +59,32 @@ void compiler::advance()
   }
 }
 
+void compiler::emit_byte(uint32_t byte)
+{
+  m_current->push_byte(byte, m_parser.previous.line);
+}
+void compiler::emit_byte(op_code code)
+{
+  m_current->push_byte(code, m_parser.previous.line);
+}
+void compiler::emit_bytes(op_code code, uint32_t byte)
+{
+  m_current->push_byte(code, m_parser.previous.line);
+  m_current->push_byte(byte, m_parser.previous.line);
+}
+
 void compiler::feature()
 {
   consume(token_type::feature, "Expect FeatureLine");
 
-  function feature_func = start_function("feature");
+  const std::string name{"TODO Rename me"};
+  function func = start_function(name);
 
   end_function();
-  m_current->emplace_constant(m_parser.previous.line, std::move(feature_func));
-  m_current->emplace_constant(op_code::define_var, m_parser.previous.line,
-                              std::string(m_current->constants_back().as<function>().name));
-  m_current->push_byte(op_code::call, m_parser.previous.line);
-  m_current->push_byte(0, m_parser.previous.line);
+  emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));
+  emit_bytes(op_code::define_var, m_current->make_constant(name));
+  emit_bytes(op_code::get_var, m_current->last_constant());
+  emit_bytes(op_code::call, 0);
 }
 
 }  // namespace cwt::details

@@ -5,7 +5,7 @@
 #include "scanner.hpp"
 #include "token.hpp"
 #include "value.hpp"
-
+#include "chunk.hpp"
 namespace cwt::details
 {
 
@@ -16,7 +16,6 @@ struct parser
   bool error{false};
 };
 
-
 class compiler
 {
  public:
@@ -26,10 +25,22 @@ class compiler
  private:
   [[nodiscard]] function start_function(const std::string_view name);
   void end_function();
-  void advance();
   void consume(token_type type, std::string_view msg);
-  
-  void feature(); 
+  void advance();
+
+  void emit_byte(uint32_t byte);
+  void emit_byte(op_code code);
+  void emit_bytes(op_code code, uint32_t byte);
+  void emit_function(function&& func);
+
+  template <typename Arg>
+  void emit_constant(Arg&& arg)
+  {
+    emit_bytes(op_code::constant,
+               m_current->make_constant(std::forward<Arg>(arg)));
+  }
+
+  void feature();
 
  private:
   scanner m_scanner;

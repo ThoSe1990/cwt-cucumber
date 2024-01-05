@@ -13,6 +13,11 @@ std::size_t chunk::constants_count() const noexcept
 {
   return m_constants.size();
 }
+std::size_t chunk::last_constant() const noexcept
+{
+  return m_constants.size() - 1;
+}
+
 const uint32_t& chunk::back() const noexcept { return m_code.back(); }
 value& chunk::constant(const std::size_t index)
 {

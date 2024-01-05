@@ -31,12 +31,46 @@ void vm::run()
       case op_code::constant:
       {
         uint32_t next = it.next();
-        std::cout << "next is " << next;
-        std::cout << " constant " << static_cast<int>(frame.chunk_ptr->constant(next).type());
-        // m_stack.push(frame.chunk_ptr->constant(it.next()));
-        m_stack.push(std::move(frame.chunk_ptr->constant(next)));
-        std::cout << " stack type: " << static_cast<int>(m_stack.top().type())
+        std::cout << "op_code::constant: "
+                  << static_cast<int>(frame.chunk_ptr->constant(next).type())
                   << std::endl;
+        m_stack.push(std::move(frame.chunk_ptr->constant(next)));
+      }
+      break;
+      case op_code::define_var:
+      {
+        uint32_t next = it.next();
+        std::string name =
+            frame.chunk_ptr->constant(next).copy_as<std::string>();
+        m_globals[name] = m_stack.top();
+        m_stack.pop();
+
+        std::cout << "op_code::define_var globals: "
+                  << static_cast<int>(m_globals[name].type()) 
+                  << std::endl;
+      }
+      break;
+      case op_code::get_var:
+      {
+        uint32_t next = it.next();
+        std::string name =
+            frame.chunk_ptr->constant(next).copy_as<std::string>();
+        std::cout << "op_code::get_var globals: "
+                  << static_cast<int>(m_globals[name].type()) 
+                  << std::endl;
+        m_stack.push(m_globals[name]);
+      }
+      break;
+      case op_code::call:
+      {
+        std::cout << "op_code::call stack top: "
+                  << static_cast<int>(m_stack.top().type()) 
+                  << std::endl;
+
+        uint32_t argc = it.next();  // this is arg count
+        call(m_stack.top().as<function>());
+        frame = m_frames.back();
+        it = frame.chunk_ptr->cbegin();
       }
       break;
       case op_code::func_return:
@@ -52,21 +86,6 @@ void vm::run()
         {
           frame = m_frames.back();
         }
-      }
-      break;
-      case op_code::define_var:
-      {
-        uint32_t next = it.next();
-        std::cout << "define_var : "<< static_cast<int>(frame.chunk_ptr->constant(next).type()) << std::endl;
-        std::cout << "define_var : "<< frame.chunk_ptr->constant(next).copy_as<std::string>() << std::endl;
-        m_stack.push(frame.chunk_ptr->constant(next).copy_as<std::string>());
-      }
-      break;
-      case op_code::call:
-      {
-        std::cout << "call stack top: " << static_cast<int>(m_stack.top().type()) << " value: " << m_stack.top().as<std::string>().c_str() << std::endl;
-        
-        it.next(); // this is arg count
       }
       break;
       default:
