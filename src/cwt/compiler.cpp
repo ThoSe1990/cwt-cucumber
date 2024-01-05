@@ -80,6 +80,10 @@ void compiler::feature()
   const std::string name{"TODO Rename me"};
   function func = start_function(name);
 
+  emit_byte(op_code::print_line);
+  emit_byte(op_code::print_line);
+  emit_byte(op_code::print_line);
+
   end_function();
   emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));
   emit_bytes(op_code::define_var, m_current->make_constant(name));

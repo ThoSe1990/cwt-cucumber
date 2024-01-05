@@ -17,60 +17,62 @@ void vm::interpret(std::string_view source)
 
 void vm::call(const function& func)
 {
-  m_frames.emplace_back(call_frame{func.chunk_ptr.get()});
+  m_frames.push_back(
+      call_frame{func.chunk_ptr.get(), func.chunk_ptr->cbegin()});
 }
 
 void vm::run()
 {
-  call_frame frame = m_frames.back();
-  auto it = frame.chunk_ptr->cbegin();
+  call_frame* frame = &m_frames.back();
+  
   for (;;)
   {
-    switch (it.next_as_instruction())
+    switch (frame->it.next_as_instruction())
     {
       case op_code::constant:
       {
-        uint32_t next = it.next();
+        uint32_t next = frame->it.next();
         std::cout << "op_code::constant: "
-                  << static_cast<int>(frame.chunk_ptr->constant(next).type())
+                  << static_cast<int>(frame->chunk_ptr->constant(next).type())
                   << std::endl;
-        m_stack.push(std::move(frame.chunk_ptr->constant(next)));
+        m_stack.push(std::move(frame->chunk_ptr->constant(next)));
       }
       break;
       case op_code::define_var:
       {
-        uint32_t next = it.next();
+        uint32_t next = frame->it.next();
         std::string name =
-            frame.chunk_ptr->constant(next).copy_as<std::string>();
+            frame->chunk_ptr->constant(next).copy_as<std::string>();
         m_globals[name] = m_stack.top();
         m_stack.pop();
 
         std::cout << "op_code::define_var globals: "
-                  << static_cast<int>(m_globals[name].type()) 
-                  << std::endl;
+                  << static_cast<int>(m_globals[name].type()) << std::endl;
       }
       break;
       case op_code::get_var:
       {
-        uint32_t next = it.next();
+        uint32_t next = frame->it.next();
         std::string name =
-            frame.chunk_ptr->constant(next).copy_as<std::string>();
+            frame->chunk_ptr->constant(next).copy_as<std::string>();
         std::cout << "op_code::get_var globals: "
-                  << static_cast<int>(m_globals[name].type()) 
-                  << std::endl;
+                  << static_cast<int>(m_globals[name].type()) << std::endl;
         m_stack.push(m_globals[name]);
       }
       break;
       case op_code::call:
       {
         std::cout << "op_code::call stack top: "
-                  << static_cast<int>(m_stack.top().type()) 
-                  << std::endl;
+                  << static_cast<int>(m_stack.top().type()) << std::endl;
 
-        uint32_t argc = it.next();  // this is arg count
+        uint32_t argc = frame->it.next();  // this is arg count
         call(m_stack.top().as<function>());
-        frame = m_frames.back();
-        it = frame.chunk_ptr->cbegin();
+        frame = &m_frames.back();
+      }
+      break;
+      case op_code::print_line: 
+      {
+        std::cout << "here we print some stuff!!!" << std::endl;
       }
       break;
       case op_code::func_return:
@@ -80,11 +82,15 @@ void vm::run()
         if (m_frames.empty())
         {
           m_stack.pop();
+          std::cout << "we're done, stack size: " << m_stack.size() << std::endl;
+          std::cout << "with main feature function left: " << std::endl;
+          std::cout << "   stack top type: " <<  static_cast<int>(m_stack.top().type()) << std::endl;
+          std::cout << "   function.name: " << m_stack.top().as<function>().name << std::endl;
           return;
         }
         else
         {
-          frame = m_frames.back();
+          frame = &m_frames.back();
         }
       }
       break;
@@ -94,6 +100,7 @@ void vm::run()
       }
     }
   }
+
 }
 
 }  // namespace cwt::details

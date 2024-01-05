@@ -51,6 +51,7 @@ chunk::const_iterator chunk::cend() const
 {
   return chunk::const_iterator(m_code.cend());
 }
+
 op_code chunk::instruction(std::size_t index) const
 {
   return static_cast<op_code>(m_code[index]);

@@ -13,6 +13,7 @@ namespace cwt::details
 struct call_frame
 {
   chunk* chunk_ptr;
+  chunk::const_iterator it;
 };
 
 class vm
