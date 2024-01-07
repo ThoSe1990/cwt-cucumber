@@ -19,7 +19,7 @@ std::size_t chunk::last_constant() const noexcept
 }
 
 const uint32_t& chunk::back() const noexcept { return m_code.back(); }
-value& chunk::constant(const std::size_t index)
+const value& chunk::constant(std::size_t index) const
 {
   if (index < m_constants.size()) [[likely]]
   {
@@ -30,8 +30,20 @@ value& chunk::constant(const std::size_t index)
     throw std::out_of_range("Chunk: Constants out of range");
   }
 }
+const value& chunk::constants_back() const noexcept { return m_constants.back(); }
 
-value& chunk::constants_back() noexcept { return m_constants.back(); }
+[[nodiscard]] uint32_t chunk::lines(const std::size_t index) const
+{
+  if (index < m_lines.size()) [[likely]]
+  {
+    return m_lines[index];
+  }
+  else [[unlikely]]
+  {
+    throw std::out_of_range("Chunk: Lines access out of range");
+  }
+}
+
 
 void chunk::push_byte(op_code byte, const std::size_t line)
 {
@@ -70,6 +82,7 @@ uint32_t chunk::operator[](std::size_t index) const
 }
 
 const uint32_t& chunk::const_iterator::operator*() const { return *m_current; }
+uint32_t chunk::const_iterator::current() const { return *m_current; }
 uint32_t chunk::const_iterator::next()
 {
   uint32_t next = *m_current;

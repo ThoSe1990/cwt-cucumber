@@ -4,7 +4,7 @@ project(cwt-cucumber VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 
-option(STACK_TRACE "Prints the compiled feature file stack and it's execution: ON/OFF" OFF)
+option(PRINT_STACK "Prints the compiled feature file stack and it's execution: ON/OFF" OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)

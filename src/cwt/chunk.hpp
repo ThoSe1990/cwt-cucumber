@@ -22,7 +22,6 @@ enum class op_code
   init_scenario,
   scenario_result,
   jump_if_failed,
-  loop,
   call,
   call_step,
   call_step_with_doc_string,
@@ -39,8 +38,11 @@ class chunk
 
   [[nodiscard]] std::size_t constants_count() const noexcept;
   [[nodiscard]] std::size_t last_constant() const noexcept;
-  [[nodiscard]] value& constant(const std::size_t index);
-  [[nodiscard]] value& constants_back() noexcept;
+  [[nodiscard]] const value& constant(std::size_t index) const;
+  [[nodiscard]] const value& constants_back() const noexcept;
+
+
+  [[nodiscard]] uint32_t lines(const std::size_t index) const;
 
   void push_byte(op_code byte, const std::size_t line);
   void push_byte(uint32_t byte, const std::size_t line);
@@ -75,6 +77,7 @@ class chunk
     {
     }
     const uint32_t& operator*() const;
+    uint32_t current() const;
     uint32_t next();
     op_code next_as_instruction();
     const_iterator& operator++();

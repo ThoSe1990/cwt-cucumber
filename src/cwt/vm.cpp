@@ -1,7 +1,17 @@
 #include <iostream>
+
 #include "vm.hpp"
 #include "compiler.hpp"
 #include "chunk.hpp"
+
+
+// TODO Remove
+#define PRINT_STACK 1
+
+#ifdef PRINT_STACK
+#include "debug.hpp"
+#endif
+
 namespace cwt::details
 {
 
@@ -25,8 +35,28 @@ void vm::run()
 {
   call_frame* frame = &m_frames.back();
   
+#ifdef PRINT_STACK
+  disassemble_chunk(*frame->chunk_ptr, "main");
+  std::cout << "\n---\n\n";
+#endif
   for (;;)
   {
+// #ifdef PRINT_STACK
+  // for (const auto& v : m_stack)
+  // {
+  //   std::cout << "[ ";
+  //   print_value(v);
+  //   std::cout << " ]";
+  // }
+  // std::cout << '\n';
+  // disassemble_instruction(*frame->chunk_ptr, frame->it.current());
+// #endif
+
+
+// call / change disassemble_instruction with the actual instruction and not with index ... 
+// wont help to same behavior bc line is still missing then but i dont have an index here ... 
+// then change to vector from std::stack for random access 
+  std::cout << "current instruction: " << frame->it.current() << std::endl; 
     switch (frame->it.next_as_instruction())
     {
       case op_code::constant:
@@ -70,7 +100,7 @@ void vm::run()
         frame = &m_frames.back();
       }
       break;
-      case op_code::print_line: 
+      case op_code::print_line:
       {
         std::cout << "here we print some stuff!!!" << std::endl;
       }
@@ -100,7 +130,6 @@ void vm::run()
       }
     }
   }
-
 }
 
 }  // namespace cwt::details
