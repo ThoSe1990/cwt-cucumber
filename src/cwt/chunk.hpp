@@ -33,6 +33,11 @@ enum class op_code
 class chunk
 {
  public:
+  chunk() = default; 
+  chunk(const std::string& name);
+
+  [[nodiscard]] const std::string& name() const noexcept;
+
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] const uint32_t& back() const noexcept;
 
@@ -77,7 +82,6 @@ class chunk
     {
     }
     const uint32_t& operator*() const;
-    uint32_t current() const;
     uint32_t next();
     op_code next_as_instruction();
     const_iterator& operator++();
@@ -88,12 +92,14 @@ class chunk
     std::vector<uint32_t>::const_iterator m_current;
   };
 
+  std::size_t get_index(chunk::const_iterator iter) const;
   const_iterator cbegin() const;
   const_iterator cend() const;
 
  private:
   std::vector<uint32_t> m_code;
   std::vector<std::size_t> m_lines;
+  std::string m_name{""};
   value_array m_constants;
 };
 

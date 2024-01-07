@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stack>
+#include <deque>
 #include <string_view>
 #include <unordered_map>
 
@@ -26,7 +26,7 @@ class vm
   void call(const function& func);
 
  private:
-  std::stack<value> m_stack;
+  std::deque<value> m_stack;
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
 };

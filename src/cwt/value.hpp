@@ -23,12 +23,7 @@ enum class value_type
 class chunk;
 class value;
 using value_array = std::vector<value>;
-
-struct function
-{
-  const std::string name;
-  std::unique_ptr<chunk> chunk_ptr;
-};
+using function = std::unique_ptr<chunk>;
 
 using cuke_step = void (*)(const value_array&);
 
@@ -186,7 +181,7 @@ class value
         {
           const auto& func = other.as<function>();
           m_value = std::make_unique<value_model<function>>(
-              function{func.name, std::make_unique<chunk>(*func.chunk_ptr)});
+              std::make_unique<chunk>(*func));
         }
         break;
         case value_type::native:

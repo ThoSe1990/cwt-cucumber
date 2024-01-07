@@ -8,6 +8,8 @@
 namespace cwt::details
 {
 
+chunk::chunk(const std::string& name) : m_name(name) {}
+const std::string& chunk::name() const noexcept { return m_name; }
 std::size_t chunk::size() const noexcept { return m_code.size(); }
 std::size_t chunk::constants_count() const noexcept
 {
@@ -30,7 +32,10 @@ const value& chunk::constant(std::size_t index) const
     throw std::out_of_range("Chunk: Constants out of range");
   }
 }
-const value& chunk::constants_back() const noexcept { return m_constants.back(); }
+const value& chunk::constants_back() const noexcept
+{
+  return m_constants.back();
+}
 
 [[nodiscard]] uint32_t chunk::lines(const std::size_t index) const
 {
@@ -43,7 +48,6 @@ const value& chunk::constants_back() const noexcept { return m_constants.back();
     throw std::out_of_range("Chunk: Lines access out of range");
   }
 }
-
 
 void chunk::push_byte(op_code byte, const std::size_t line)
 {
@@ -81,8 +85,12 @@ uint32_t chunk::operator[](std::size_t index) const
   }
 }
 
+std::size_t chunk::get_index(chunk::const_iterator iter) const
+{
+  return std::distance(cbegin(), iter);
+}
+
 const uint32_t& chunk::const_iterator::operator*() const { return *m_current; }
-uint32_t chunk::const_iterator::current() const { return *m_current; }
 uint32_t chunk::const_iterator::next()
 {
   uint32_t next = *m_current;

@@ -21,12 +21,15 @@ class compiler
  public:
   compiler(std::string_view source);
   [[nodiscard]] function compile();
+  [[nodiscard]] bool no_error() const noexcept;
 
  private:
   [[nodiscard]] function start_function(const std::string_view name);
   void end_function();
   void consume(token_type type, std::string_view msg);
   void advance();
+
+  void error_at(const token& t, std::string_view msg) noexcept;
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);

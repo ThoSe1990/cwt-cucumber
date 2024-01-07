@@ -28,7 +28,7 @@ static void print_value(const value& v)
       std::cout << v.as<std::string>();
       break;
     case value_type::function:
-      std::cout << '<' << v.as<function>().name << '>';
+      std::cout << '<' << v.as<function>()->name() << '>';
       break;
     case value_type::native:
       std::cout << "native function";
@@ -56,7 +56,7 @@ static std::size_t byte_instruction(std::string_view name, const chunk& c,
 }
 static std::size_t simple_instruction(std::string_view name, std::size_t offset)
 {
-  std::cout << name << '\n';
+  std::cout << ' ' << name << '\n';
   return offset + 1;
 }
 static std::size_t jump_instruction(std::string_view name, int sign,
@@ -94,7 +94,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     case op_code::define_var:
       return constant_instruction("op_code::define_var", c, offset);
     case op_code::print_line:
-      return byte_instruction("op_code::print_line", c, offset);
+      return simple_instruction("op_code::print_line", offset);
     case op_code::print_linebreak:
       return simple_instruction("op_code::print_linebreak", offset);
     case op_code::print_double_spaces:

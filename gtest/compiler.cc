@@ -10,11 +10,12 @@ TEST(compiler, init_object)
   compiler c(""); 
 }
 
+// TODO 
 TEST(compiler, function_name)
 {
-  compiler c("");
+  compiler c("Feature:");
   function func = c.compile();
-  EXPECT_EQ(func.name, std::string{"feature"});
+  EXPECT_EQ(func->name(), std::string{"feature"});
 }
 TEST(compiler, main_feature_function)
 {
@@ -27,4 +28,16 @@ TEST(compiler, main_feature_function)
   // EXPECT_EQ(func.chunk_ptr->instruction(2), op_code::func_return);
   // EXPECT_EQ(func.chunk_ptr->constants_count(), 1);
   // EXPECT_EQ(func.chunk_ptr->constants_back().type(), value_type::function);
+}
+TEST(compiler, empty_script)
+{
+  compiler c("");
+  function func = c.compile();
+  EXPECT_FALSE(c.no_error());
+}
+TEST(compiler, invalid_begin)
+{
+  compiler c("asdfsadf");
+  function func = c.compile();
+  EXPECT_FALSE(c.no_error());
 }

@@ -1,6 +1,9 @@
 #include "compiler.hpp"
 #include "chunk.hpp"
 
+// TODO Remove define
+#define PRINT_STACK 1
+#include "debug.hpp"
 namespace cwt::details
 {
 
@@ -15,20 +18,51 @@ function compiler::compile()
   advance();
   feature();
 
-  main.chunk_ptr->push_byte(op_code::func_return, m_parser.previous.line);
+  end_function();
   return std::move(main);
+}
+[[nodiscard]] bool compiler::no_error() const noexcept
+{
+  return !m_parser.error;
+}
+
+void compiler::error_at(const token& t, std::string_view msg) noexcept
+{
+  std::cerr << "[line " << t.line << "] Error ";
+  if (t.type == token_type::eof)
+  {
+    std::cerr << "at end";
+  }
+  else if (t.type == token_type::error)
+  {
+    // nothing
+  }
+  else
+  {
+    std::cerr << " at '" << t.value << '\'';
+  }
+  std::cerr << ": " << msg << '\n';
+  m_parser.error = true;
 }
 
 function compiler::start_function(const std::string_view name)
 {
   m_enclosing = m_current;
-  function new_function{std::string(name), std::make_unique<chunk>()};
-  m_current = new_function.chunk_ptr.get();
+  function new_function{std::make_unique<chunk>(std::string(name))};
+  m_current = new_function.get();
   return std::move(new_function);
 }
 void compiler::end_function()
 {
   m_current->push_byte(op_code::func_return, m_parser.previous.line);
+
+#ifdef PRINT_STACK
+  if (no_error())
+  {
+    disassemble_chunk(*m_current, m_current->name());
+    std::cout << "\n";
+  }
+#endif
   m_current = m_enclosing;
 }
 
@@ -37,11 +71,10 @@ void compiler::consume(token_type type, std::string_view msg)
   if (m_parser.current.type == type)
   {
     advance();
-    return;
   }
   else
   {
-    // TODO error at current;
+    error_at(m_parser.current, msg);
   }
 }
 
@@ -55,7 +88,7 @@ void compiler::advance()
     {
       break;
     }
-    // TODO error at current;
+    error_at(m_parser.current, m_parser.current.value);
   }
 }
 
@@ -79,10 +112,6 @@ void compiler::feature()
 
   const std::string name{"TODO Rename me"};
   function func = start_function(name);
-
-  emit_byte(op_code::print_line);
-  emit_byte(op_code::print_line);
-  emit_byte(op_code::print_line);
 
   end_function();
   emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));
