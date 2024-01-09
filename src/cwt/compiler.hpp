@@ -20,11 +20,13 @@ class compiler
 {
  public:
   compiler(std::string_view source);
+  compiler(std::string_view source, std::string_view filename);
   [[nodiscard]] function compile();
+  [[nodiscard]] bool error() const noexcept;
   [[nodiscard]] bool no_error() const noexcept;
 
  private:
-  [[nodiscard]] function start_function(const std::string_view name);
+  [[nodiscard]] function start_function();
   void end_function();
   void consume(token_type type, std::string_view msg);
   void advance();
@@ -48,6 +50,7 @@ class compiler
  private:
   scanner m_scanner;
   parser m_parser;
+  std::string m_filename;
   chunk* m_current;
   chunk* m_enclosing;
 };

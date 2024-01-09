@@ -1,3 +1,5 @@
+#include <format>
+
 #include "compiler.hpp"
 #include "chunk.hpp"
 
@@ -9,21 +11,33 @@ namespace cwt::details
 
 std::string create_string(std::string_view sv) { return std::string(sv); }
 
-compiler::compiler(std::string_view source) : m_scanner(source) {}
+compiler::compiler(std::string_view source)
+    : m_scanner(source), m_filename(std::string(""))
+{
+}
+compiler::compiler(std::string_view source, std::string_view filename)
+    : m_scanner(source), m_filename(filename)
+{
+}
 
 function compiler::compile()
 {
-  function main = start_function("feature");
-
   advance();
+
+  function main = start_function();
+  
   feature();
 
   end_function();
   return std::move(main);
 }
+[[nodiscard]] bool compiler::error() const noexcept
+{
+  return m_parser.error;
+}
 [[nodiscard]] bool compiler::no_error() const noexcept
 {
-  return !m_parser.error;
+  return !error();
 }
 
 void compiler::error_at(const token& t, std::string_view msg) noexcept
@@ -45,10 +59,11 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
   m_parser.error = true;
 }
 
-function compiler::start_function(const std::string_view name)
+function compiler::start_function()
 {
   m_enclosing = m_current;
-  function new_function{std::make_unique<chunk>(std::string(name))};
+  function new_function{std::make_unique<chunk>(
+      std::format("{}:{}", m_filename, m_parser.current.line))};
   m_current = new_function.get();
   return std::move(new_function);
 }
@@ -110,8 +125,8 @@ void compiler::feature()
 {
   consume(token_type::feature, "Expect FeatureLine");
 
-  const std::string name{"TODO Rename me"};
-  function func = start_function(name);
+  function func = start_function();
+  const std::string name = func->name();
 
   end_function();
   emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));

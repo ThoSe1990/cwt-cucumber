@@ -49,7 +49,7 @@ void vm::run()
                             frame->chunk_ptr->get_index(frame->it));
 #endif
 
-    switch (frame->it.next_as_instruction())
+    switch (to_code(frame->it.next()))
     {
       case op_code::constant:
       {

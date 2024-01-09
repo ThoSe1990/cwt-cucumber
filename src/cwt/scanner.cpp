@@ -1,5 +1,6 @@
 #include "scanner.hpp"
 #include "identifiers/german.hpp"
+
 namespace cwt::details
 {
 

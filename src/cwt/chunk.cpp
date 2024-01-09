@@ -68,10 +68,10 @@ chunk::const_iterator chunk::cend() const
   return chunk::const_iterator(m_code.cend());
 }
 
-op_code chunk::instruction(std::size_t index) const
-{
-  return static_cast<op_code>(m_code[index]);
-}
+// op_code chunk::instruction(std::size_t index) const
+// {
+//   return static_cast<op_code>(m_code[index]);
+// }
 uint32_t chunk::at(std::size_t index) const { return m_code[index]; }
 uint32_t chunk::operator[](std::size_t index) const
 {
@@ -96,10 +96,6 @@ uint32_t chunk::const_iterator::next()
   uint32_t next = *m_current;
   ++m_current;
   return next;
-}
-op_code chunk::const_iterator::next_as_instruction()
-{
-  return static_cast<op_code>(next());
 }
 chunk::const_iterator& chunk::const_iterator::operator++()
 {

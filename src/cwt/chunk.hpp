@@ -6,7 +6,7 @@
 namespace cwt::details
 {
 
-enum class op_code
+enum class op_code : uint32_t
 {
   constant,
   tag,
@@ -29,11 +29,26 @@ enum class op_code
   func_return
 };
 
+inline constexpr uint32_t to_uint(op_code code) { return static_cast<uint32_t>(code); }
+inline constexpr op_code to_code(uint32_t val)
+{
+  if (val >= to_uint(op_code::constant) && val <= to_uint(op_code::func_return))
+      [[likely]]
+  {
+    return static_cast<op_code>(val);
+  }
+  else [[unlikely]]
+  {
+    throw std::out_of_range(
+        "inline op_code to_code(uint32_t val): value out of range");
+  }
+}
+
 // TODO reserve chunks vectors by default ?
 class chunk
 {
  public:
-  chunk() = default; 
+  chunk() = default;
   chunk(const std::string& name);
 
   [[nodiscard]] const std::string& name() const noexcept;
@@ -46,13 +61,11 @@ class chunk
   [[nodiscard]] const value& constant(std::size_t index) const;
   [[nodiscard]] const value& constants_back() const noexcept;
 
-
   [[nodiscard]] uint32_t lines(const std::size_t index) const;
 
   void push_byte(op_code byte, const std::size_t line);
   void push_byte(uint32_t byte, const std::size_t line);
 
-  [[nodiscard]] op_code instruction(std::size_t index) const;
   [[nodiscard]] uint32_t at(std::size_t index) const;
   [[nodiscard]] uint32_t operator[](std::size_t index) const;
 
