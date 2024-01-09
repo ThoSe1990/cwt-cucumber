@@ -25,8 +25,11 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt install gcc-12
           sudo apt-get install build-essential -y
+          sudo apt-get remove gcc-11
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+          sudo update-alternatives --config gcc
           gcc -v
-          gcc-12 -v
+
           # sudo apt install python3-pip -y
           # sudo pip3 install cmake 
           # sudo pip3 install conan

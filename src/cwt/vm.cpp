@@ -81,7 +81,12 @@ void vm::run()
         frame = &m_frames.back();
       }
       break;
-      case op_code::print_line:
+      case op_code::print:
+      {
+        // std::cout << "here we print some stuff!!!" << std::endl;
+      }
+      break;
+      case op_code::println:
       {
         // std::cout << "here we print some stuff!!!" << std::endl;
       }
