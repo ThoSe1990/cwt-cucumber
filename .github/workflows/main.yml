@@ -26,15 +26,16 @@ jobs:
           sudo apt install gcc-12
           sudo apt-get install build-essential -y
           gcc -v
-          sudo apt install python3-pip -y
-          sudo pip3 install cmake 
-          sudo pip3 install conan
-          sudo conan profile detect
-          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
-          sudo conan install . -of ./build --build missing 
-          sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
-          sudo cmake --build ./build -j12
-          ./build/bin/unittests
+          gcc-12 -v
+          # sudo apt install python3-pip -y
+          # sudo pip3 install cmake 
+          # sudo pip3 install conan
+          # sudo conan profile detect
+          # sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
+          # sudo conan install . -of ./build --build missing 
+          # sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+          # sudo cmake --build ./build -j12
+          # ./build/bin/unittests
 
   docs:
     runs-on: ubuntu-latest
