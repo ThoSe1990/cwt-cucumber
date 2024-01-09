@@ -24,21 +24,15 @@ function compiler::compile()
 {
   advance();
 
-  function main = start_function();
-  
+  function main = start_function("script");
+
   feature();
 
   end_function();
   return std::move(main);
 }
-[[nodiscard]] bool compiler::error() const noexcept
-{
-  return m_parser.error;
-}
-[[nodiscard]] bool compiler::no_error() const noexcept
-{
-  return !error();
-}
+[[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
+[[nodiscard]] bool compiler::no_error() const noexcept { return !error(); }
 
 void compiler::error_at(const token& t, std::string_view msg) noexcept
 {
@@ -59,13 +53,17 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
   m_parser.error = true;
 }
 
-function compiler::start_function()
+function compiler::start_function(const std::string& name)
 {
   m_enclosing = m_current;
-  function new_function{std::make_unique<chunk>(
-      std::format("{}:{}", m_filename, m_parser.current.line))};
+  function new_function{std::make_unique<chunk>(name)};
   m_current = new_function.get();
   return std::move(new_function);
+}
+function compiler::start_function()
+{
+  return std::move(
+      start_function(std::format("{}:{}", m_filename, m_parser.current.line)));
 }
 void compiler::end_function()
 {
