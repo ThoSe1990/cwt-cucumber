@@ -66,3 +66,16 @@ TEST(compiler, feature_chunk)
   EXPECT_EQ(feature->size(), 1);
   EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
 }
+
+TEST(compiler, scenario_chunk)
+{
+const char* script = R"*(
+Feature: a feature
+Scenario: a scenario
+)*";
+  compiler c(script);
+  function func_chunk = c.compile();
+  const function& feature = func_chunk->constant(0).as<function>();
+  EXPECT_EQ(feature->size(), 1);
+  EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
+}
