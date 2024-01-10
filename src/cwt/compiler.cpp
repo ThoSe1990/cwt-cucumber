@@ -67,7 +67,7 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
 void compiler::start_function(const std::string& name)
 {
   auto tmp =
-      std::make_unique<compile_unit>(function{std::make_unique<chunk>(name)});
+      std::make_unique<compile_unit>(function{std::make_unique<chunk>(name)}, nullptr);
   m_current.swap(tmp);
   m_current->enclosing.swap(tmp);
 }
