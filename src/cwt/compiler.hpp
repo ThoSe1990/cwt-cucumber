@@ -18,8 +18,8 @@ struct parser
 
 struct compile_unit
 {
-  function func;
-  std::unique_ptr<compile_unit> enclosing;
+  std::unique_ptr<chunk> current;
+  std::unique_ptr<chunk> enclosing;
 };
 
 class compiler
@@ -33,7 +33,7 @@ class compiler
 
  private:
   void start_function(const std::string& name);
-  std::unique_ptr<compile_unit> end_function();
+  std::unique_ptr<chunk> end_function();
 
   void consume(token_type type, std::string_view msg);
   template <typename... Args>
@@ -70,7 +70,7 @@ class compiler
   void emit_constant(Arg&& arg)
   {
     emit_bytes(op_code::constant,
-               m_current->func->make_constant(std::forward<Arg>(arg)));
+               m_current.current->make_constant(std::forward<Arg>(arg)));
   }
 
   void feature();
@@ -80,7 +80,7 @@ class compiler
   parser m_parser;
   std::string m_filename;
 
-  std::unique_ptr<compile_unit> m_current;
+  compile_unit m_current;
 };
 
 }  // namespace cwt::details

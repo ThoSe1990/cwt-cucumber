@@ -39,8 +39,7 @@ function compiler::compile()
   advance();
   feature();
 
-  auto result = end_function();
-  return std::move(result->func);
+  return end_function();
 }
 [[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
 [[nodiscard]] bool compiler::no_error() const noexcept { return !error(); }
@@ -67,25 +66,26 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
 void compiler::start_function(const std::string& name)
 {
   auto tmp =
-      std::make_unique<compile_unit>(function{std::make_unique<chunk>(name)}, nullptr);
-  m_current.swap(tmp);
-  m_current->enclosing.swap(tmp);
+      std::make_unique<chunk>(name);
+  m_current.current.swap(tmp);
+  m_current.enclosing.swap(tmp);
 }
 
-std::unique_ptr<compile_unit> compiler::end_function()
+std::unique_ptr<chunk> compiler::end_function()
 {
-  m_current->func->push_byte(op_code::func_return, m_parser.previous.line);
+  m_current.current->push_byte(op_code::func_return, m_parser.previous.line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(*m_current->func, m_current->func->name());
+    disassemble_chunk(*m_current.current.get(), m_current.current->name());
     std::cout << "\n";
   }
 #endif
-  std::unique_ptr<compile_unit> tmp;
-  m_current->enclosing.swap(tmp);
-  m_current.swap(tmp);
-  return std::move(tmp);
+  auto tmp =
+      std::unique_ptr<chunk>();
+  m_current.enclosing.swap(tmp);
+  m_current.current.swap(tmp);
+  return tmp;
 }
 
 bool compiler::check(token_type type) { return m_parser.current.type == type; }
@@ -129,16 +129,16 @@ void compiler::advance()
 
 void compiler::emit_byte(uint32_t byte)
 {
-  m_current->func->push_byte(byte, m_parser.previous.line);
+  m_current.current->push_byte(byte, m_parser.previous.line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_current->func->push_byte(code, m_parser.previous.line);
+  m_current.current->push_byte(code, m_parser.previous.line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_current->func->push_byte(code, m_parser.previous.line);
-  m_current->func->push_byte(byte, m_parser.previous.line);
+  m_current.current->push_byte(code, m_parser.previous.line);
+  m_current.current->push_byte(byte, m_parser.previous.line);
 }
 
 void compiler::skip_linebreaks()
@@ -204,15 +204,13 @@ void compiler::feature()
   //               token_type::tag, token_type::background, token_type::eof);
 
   // scenario();
-
-  std::unique_ptr<compile_unit> last = end_function();
-  const std::string name = last->func->name();
-
+  std::unique_ptr<chunk> last = end_function();
+  
   emit_bytes(op_code::constant,
-             m_current->func->make_constant(std::move(last->func)));
+             m_current.current->make_constant(std::move(last)));
   emit_bytes(op_code::define_var,
-             m_current->func->make_constant(name));
-  emit_bytes(op_code::get_var, m_current->func->last_constant());
+             m_current.current->make_constant(m_current.current->constants_back().as<function>()->name()));
+  emit_bytes(op_code::get_var, m_current.current->last_constant());
   emit_bytes(op_code::call, 0);
 }
 
