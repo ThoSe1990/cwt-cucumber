@@ -28,7 +28,7 @@ static void print_value(const value& v)
       std::cout << v.as<std::string>();
       break;
     case value_type::function:
-      std::cout << '<' << v.as<function>().name << '>';
+      std::cout << '<' << v.as<function>()->name() << '>';
       break;
     case value_type::native:
       std::cout << "native function";

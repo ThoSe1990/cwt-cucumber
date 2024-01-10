@@ -70,7 +70,7 @@ class compiler
   void emit_constant(Arg&& arg)
   {
     emit_bytes(op_code::constant,
-               m_current->func.chunk_ptr->make_constant(std::forward<Arg>(arg)));
+               m_current->func->make_constant(std::forward<Arg>(arg)));
   }
 
   void feature();

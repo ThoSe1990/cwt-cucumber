@@ -29,7 +29,7 @@ void vm::interpret(std::string_view source)
 
 void vm::call(const function& func)
 {
-  m_frames.push_back(call_frame{func.chunk_ptr.get(), func.chunk_ptr->cbegin()});
+  m_frames.push_back(call_frame{func.get(), func->cbegin()});
 }
 
 void vm::run()

@@ -26,8 +26,6 @@ static constexpr std::string create_string(const token& begin, const token& end)
 compiler::compiler(std::string_view source)
     : m_scanner(source), m_filename(std::string(""))
 {
-  // m_current = std::make_unique<compile_unit>(
-  //     function{std::string("script"), std::make_unique<chunk>()});
 }
 compiler::compiler(std::string_view source, std::string_view filename)
     : m_scanner(source), m_filename(filename)
@@ -69,18 +67,18 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
 void compiler::start_function(const std::string& name)
 {
   auto tmp =
-      std::make_unique<compile_unit>(function{name, std::make_unique<chunk>()});
+      std::make_unique<compile_unit>(function{std::make_unique<chunk>(name)});
   m_current.swap(tmp);
   m_current->enclosing.swap(tmp);
 }
 
 std::unique_ptr<compile_unit> compiler::end_function()
 {
-  m_current->func.chunk_ptr->push_byte(op_code::func_return, m_parser.previous.line);
+  m_current->func->push_byte(op_code::func_return, m_parser.previous.line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(*m_current->func.chunk_ptr, m_current->func.name);
+    disassemble_chunk(*m_current->func, m_current->func->name());
     std::cout << "\n";
   }
 #endif
@@ -131,16 +129,16 @@ void compiler::advance()
 
 void compiler::emit_byte(uint32_t byte)
 {
-  m_current->func.chunk_ptr->push_byte(byte, m_parser.previous.line);
+  m_current->func->push_byte(byte, m_parser.previous.line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_current->func.chunk_ptr->push_byte(code, m_parser.previous.line);
+  m_current->func->push_byte(code, m_parser.previous.line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_current->func.chunk_ptr->push_byte(code, m_parser.previous.line);
-  m_current->func.chunk_ptr->push_byte(byte, m_parser.previous.line);
+  m_current->func->push_byte(code, m_parser.previous.line);
+  m_current->func->push_byte(byte, m_parser.previous.line);
 }
 
 void compiler::skip_linebreaks()
@@ -208,15 +206,13 @@ void compiler::feature()
   // scenario();
 
   std::unique_ptr<compile_unit> last = end_function();
-  // const function& f = last->func;
-  const std::string name = last->func.name;
+  const std::string str = last->func->name();
 
   emit_bytes(op_code::constant,
-             m_current->func.chunk_ptr->make_constant(std::move(last->func)));
-            //  m_current->func.chunk_ptr->make_constant(f));
+             m_current->func->make_constant(std::move(last->func)));
   emit_bytes(op_code::define_var,
-             m_current->func.chunk_ptr->make_constant(name));
-  emit_bytes(op_code::get_var, m_current->func.chunk_ptr->last_constant());
+             m_current->func->make_constant(str));
+  emit_bytes(op_code::get_var, m_current->func->last_constant());
   emit_bytes(op_code::call, 0);
 }
 

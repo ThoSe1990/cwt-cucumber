@@ -7,6 +7,8 @@
 
 namespace cwt::details
 {
+chunk::chunk(const std::string& name) : m_name(name) {}
+const std::string& chunk::name() const noexcept { return m_name; }
 std::size_t chunk::size() const noexcept { return m_code.size(); }
 std::size_t chunk::constants_count() const noexcept
 {

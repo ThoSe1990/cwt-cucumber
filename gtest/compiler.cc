@@ -30,7 +30,7 @@ TEST(compiler, main_chunk_name)
 {
   compiler c("Feature:");
   function main = c.compile();
-  EXPECT_EQ(main.name, std::string{"script"});
+  EXPECT_EQ(main->name(), std::string{"script"});
 }
 TEST(compiler, main_chunk_other_language)
 {
@@ -42,7 +42,6 @@ Funktion:
 )*";
   compiler c(script);
   function main = c.compile();
-  EXPECT_EQ(main.name, std::string{"script"});
   EXPECT_TRUE(c.no_error());
 }
 TEST(compiler, main_chunk_ignore_linebreaks)
@@ -53,7 +52,6 @@ const char* script = R"*(
 )*";
   compiler c(script);
   function main = c.compile();
-  EXPECT_EQ(main.name, std::string{"script"});
   EXPECT_TRUE(c.no_error());
 }
 TEST(compiler, main_chunk_code)
@@ -61,34 +59,34 @@ TEST(compiler, main_chunk_code)
   compiler c("Feature:");
   function main = c.compile();
 
-  EXPECT_EQ(main.chunk_ptr->size(), 9);
+  EXPECT_EQ(main->size(), 9);
 
-  EXPECT_EQ(main.chunk_ptr->at(0), to_uint(op_code::constant));
-  EXPECT_EQ(main.chunk_ptr->at(1), 0);
-  EXPECT_EQ(main.chunk_ptr->at(2), to_uint(op_code::define_var));
-  EXPECT_EQ(main.chunk_ptr->at(3), 1);
-  EXPECT_EQ(main.chunk_ptr->at(4), to_uint(op_code::get_var));
-  EXPECT_EQ(main.chunk_ptr->at(5), 1);
-  EXPECT_EQ(main.chunk_ptr->at(6), to_uint(op_code::call));
-  EXPECT_EQ(main.chunk_ptr->at(7), 0);
-  EXPECT_EQ(main.chunk_ptr->at(8), to_uint(op_code::func_return));
+  EXPECT_EQ(main->at(0), to_uint(op_code::constant));
+  EXPECT_EQ(main->at(1), 0);
+  EXPECT_EQ(main->at(2), to_uint(op_code::define_var));
+  EXPECT_EQ(main->at(3), 1);
+  EXPECT_EQ(main->at(4), to_uint(op_code::get_var));
+  EXPECT_EQ(main->at(5), 1);
+  EXPECT_EQ(main->at(6), to_uint(op_code::call));
+  EXPECT_EQ(main->at(7), 0);
+  EXPECT_EQ(main->at(8), to_uint(op_code::func_return));
 }
 TEST(compiler, main_chunk_constants)
 {
   compiler c("Feature:");
   function main = c.compile();
 
-  EXPECT_EQ(main.chunk_ptr->constants_count(), 2);
-  EXPECT_EQ(main.chunk_ptr->constant(0).type(), value_type::function);
-  EXPECT_EQ(main.chunk_ptr->constant(1).type(), value_type::string);
+  EXPECT_EQ(main->constants_count(), 2);
+  EXPECT_EQ(main->constant(0).type(), value_type::function);
+  EXPECT_EQ(main->constant(1).type(), value_type::string);
 }
 TEST(compiler, feature_chunk)
 {
   compiler c("Feature:");
   function main = c.compile();
-  const function& feature = main.chunk_ptr->constant(0).as<function>();
-  EXPECT_EQ(feature.name, std::string(":1"));
-  EXPECT_EQ(feature.chunk_ptr->at(0), to_uint(op_code::func_return));
+  const function& feature = main->constant(0).as<function>();
+  EXPECT_EQ(feature->name(), std::string(":1"));
+  EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
 }
 TEST(compiler, regular_scenario)
 {
@@ -98,8 +96,8 @@ const char* script = R"*(
 )*";
   compiler c(script);
   function main = c.compile();
-  EXPECT_EQ(main.name, std::string{"script"});
-  EXPECT_EQ(main.chunk_ptr->size(), 9);
+  EXPECT_EQ(main->name(), std::string{"script"});
+  EXPECT_EQ(main->size(), 9);
   EXPECT_TRUE(c.no_error());
 }
 // TEST(compiler, feature_chunk_code)
