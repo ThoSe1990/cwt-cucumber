@@ -206,12 +206,12 @@ void compiler::feature()
   // scenario();
 
   std::unique_ptr<compile_unit> last = end_function();
-  const std::string str = last->func->name();
+  const std::string name = last->func->name();
 
   emit_bytes(op_code::constant,
              m_current->func->make_constant(std::move(last->func)));
   emit_bytes(op_code::define_var,
-             m_current->func->make_constant(str));
+             m_current->func->make_constant(name));
   emit_bytes(op_code::get_var, m_current->func->last_constant());
   emit_bytes(op_code::call, 0);
 }
