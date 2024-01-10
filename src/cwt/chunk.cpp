@@ -7,9 +7,6 @@
 
 namespace cwt::details
 {
-
-chunk::chunk(const std::string& name) : m_name(name) {}
-const std::string& chunk::name() const noexcept { return m_name; }
 std::size_t chunk::size() const noexcept { return m_code.size(); }
 std::size_t chunk::constants_count() const noexcept
 {
@@ -68,10 +65,6 @@ chunk::const_iterator chunk::cend() const
   return chunk::const_iterator(m_code.cend());
 }
 
-// op_code chunk::instruction(std::size_t index) const
-// {
-//   return static_cast<op_code>(m_code[index]);
-// }
 uint32_t chunk::at(std::size_t index) const { return m_code[index]; }
 uint32_t chunk::operator[](std::size_t index) const
 {

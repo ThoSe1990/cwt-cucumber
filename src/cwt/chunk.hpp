@@ -47,11 +47,6 @@ inline constexpr op_code to_code(uint32_t val)
 class chunk
 {
  public:
-  chunk() = default;
-  chunk(const std::string& name);
-
-  [[nodiscard]] const std::string& name() const noexcept;
-
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] const uint32_t& back() const noexcept;
 
@@ -111,7 +106,6 @@ class chunk
  private:
   std::vector<uint32_t> m_code;
   std::vector<std::size_t> m_lines;
-  std::string m_name{""};
   value_array m_constants;
 };
 

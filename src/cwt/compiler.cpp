@@ -26,6 +26,8 @@ static constexpr std::string create_string(const token& begin, const token& end)
 compiler::compiler(std::string_view source)
     : m_scanner(source), m_filename(std::string(""))
 {
+  // m_current = std::make_unique<compile_unit>(
+  //     function{std::string("script"), std::make_unique<chunk>()});
 }
 compiler::compiler(std::string_view source, std::string_view filename)
     : m_scanner(source), m_filename(filename)
@@ -34,18 +36,13 @@ compiler::compiler(std::string_view source, std::string_view filename)
 
 function compiler::compile()
 {
+  start_function("script");
+  
   advance();
-
-  function main = start_function("script");
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
-
-
   feature();
 
-  end_function();
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
-
-  return std::move(main);
+  auto result = end_function();
+  return std::move(result->func);
 }
 [[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
 [[nodiscard]] bool compiler::no_error() const noexcept { return !error(); }
@@ -69,30 +66,28 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
   m_parser.error = true;
 }
 
-function compiler::start_function(const std::string& name)
+void compiler::start_function(const std::string& name)
 {
-  m_enclosing = m_current;
-  function new_function{std::make_unique<chunk>(name)};
-  m_current = new_function.get();
-  return std::move(new_function);
+  auto tmp =
+      std::make_unique<compile_unit>(function{name, std::make_unique<chunk>()});
+  m_current.swap(tmp);
+  m_current->enclosing.swap(tmp);
 }
-function compiler::start_function()
-{
-  return std::move(
-      start_function(std::format("{}:{}", m_filename, m_parser.current.line)));
-}
-void compiler::end_function()
-{
-  m_current->push_byte(op_code::func_return, m_parser.previous.line);
 
+std::unique_ptr<compile_unit> compiler::end_function()
+{
+  m_current->func.chunk_ptr->push_byte(op_code::func_return, m_parser.previous.line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(*m_current, m_current->name());
+    disassemble_chunk(*m_current->func.chunk_ptr, m_current->func.name);
     std::cout << "\n";
   }
 #endif
-  m_current = m_enclosing;
+  std::unique_ptr<compile_unit> tmp;
+  m_current->enclosing.swap(tmp);
+  m_current.swap(tmp);
+  return std::move(tmp);
 }
 
 bool compiler::check(token_type type) { return m_parser.current.type == type; }
@@ -136,16 +131,16 @@ void compiler::advance()
 
 void compiler::emit_byte(uint32_t byte)
 {
-  m_current->push_byte(byte, m_parser.previous.line);
+  m_current->func.chunk_ptr->push_byte(byte, m_parser.previous.line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_current->push_byte(code, m_parser.previous.line);
+  m_current->func.chunk_ptr->push_byte(code, m_parser.previous.line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_current->push_byte(code, m_parser.previous.line);
-  m_current->push_byte(byte, m_parser.previous.line);
+  m_current->func.chunk_ptr->push_byte(code, m_parser.previous.line);
+  m_current->func.chunk_ptr->push_byte(byte, m_parser.previous.line);
 }
 
 void compiler::skip_linebreaks()
@@ -182,7 +177,7 @@ void compiler::parse_scenarios()
     {
       break;
     }
-    else 
+    else
     {
       error_at(m_parser.current, "Expect Scenario.");
     }
@@ -192,37 +187,36 @@ void compiler::scenario()
 {
   consume(token_type::scenario, "Expect FeatureLine");
 
-  function func = start_function();
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+  start_function(std::format("{}:{}", m_filename, m_parser.current.line));
 
   advance_until(token_type::linebreak, token_type::eof);
 
   end_function();
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
-
 }
 void compiler::feature()
 {
   skip_linebreaks();
   consume(token_type::feature, "Expect FeatureLine");
 
-  function func = start_function();
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
-  name();
-  advance();
+  start_function(std::format("{}:{}", m_filename, m_parser.current.line));
+  // name();
+  // advance();
 
-  advance_until(token_type::scenario, token_type::scenario_outline,
-                token_type::tag, token_type::background, token_type::eof);
+  // advance_until(token_type::scenario, token_type::scenario_outline,
+  //               token_type::tag, token_type::background, token_type::eof);
 
-  scenario();
+  // scenario();
 
-  end_function();
-  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+  std::unique_ptr<compile_unit> last = end_function();
+  // const function& f = last->func;
+  const std::string name = last->func.name;
 
-  const std::string function_name = func->name();
-  emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));
-  emit_bytes(op_code::define_var, m_current->make_constant(function_name));
-  emit_bytes(op_code::get_var, m_current->last_constant());
+  emit_bytes(op_code::constant,
+             m_current->func.chunk_ptr->make_constant(std::move(last->func)));
+            //  m_current->func.chunk_ptr->make_constant(f));
+  emit_bytes(op_code::define_var,
+             m_current->func.chunk_ptr->make_constant(name));
+  emit_bytes(op_code::get_var, m_current->func.chunk_ptr->last_constant());
   emit_bytes(op_code::call, 0);
 }
 

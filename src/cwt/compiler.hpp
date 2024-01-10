@@ -16,6 +16,12 @@ struct parser
   bool error{false};
 };
 
+struct compile_unit
+{
+  function func;
+  std::unique_ptr<compile_unit> enclosing;
+};
+
 class compiler
 {
  public:
@@ -26,9 +32,8 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
 
  private:
-  [[nodiscard]] function start_function();
-  [[nodiscard]] function start_function(const std::string& name);
-  void end_function();
+  void start_function(const std::string& name);
+  std::unique_ptr<compile_unit> end_function();
 
   void consume(token_type type, std::string_view msg);
   template <typename... Args>
@@ -38,7 +43,6 @@ class compiler
   }
   [[nodiscard]] bool check(token_type type);
   [[nodiscard]] bool match(token_type type);
-
 
   void advance();
   template <typename... Args>
@@ -66,7 +70,7 @@ class compiler
   void emit_constant(Arg&& arg)
   {
     emit_bytes(op_code::constant,
-               m_current->make_constant(std::forward<Arg>(arg)));
+               m_current->func.chunk_ptr->make_constant(std::forward<Arg>(arg)));
   }
 
   void feature();
@@ -75,8 +79,8 @@ class compiler
   scanner m_scanner;
   parser m_parser;
   std::string m_filename;
-  chunk* m_current;
-  chunk* m_enclosing;
+
+  std::unique_ptr<compile_unit> m_current;
 };
 
 }  // namespace cwt::details
