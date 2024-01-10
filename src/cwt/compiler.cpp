@@ -35,11 +35,11 @@ compiler::compiler(std::string_view source, std::string_view filename)
 function compiler::compile()
 {
   start_function("script");
-  
+
   advance();
   feature();
 
-  return end_function();
+  return std::make_unique<chunk>(end_function());
 }
 [[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
 [[nodiscard]] bool compiler::no_error() const noexcept { return !error(); }
@@ -65,27 +65,22 @@ void compiler::error_at(const token& t, std::string_view msg) noexcept
 
 void compiler::start_function(const std::string& name)
 {
-  auto tmp =
-      std::make_unique<chunk>(name);
-  m_current.current.swap(tmp);
-  m_current.enclosing.swap(tmp);
+  m_chunks.push(chunk(name));
 }
 
-std::unique_ptr<chunk> compiler::end_function()
+chunk compiler::end_function()
 {
-  m_current.current->push_byte(op_code::func_return, m_parser.previous.line);
+  m_chunks.top().push_byte(op_code::func_return, m_parser.previous.line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(*m_current.current.get(), m_current.current->name());
+    disassemble_chunk(m_chunks.top(), m_chunks.top().name());
     std::cout << "\n";
   }
 #endif
-  auto tmp =
-      std::unique_ptr<chunk>();
-  m_current.enclosing.swap(tmp);
-  m_current.current.swap(tmp);
-  return tmp;
+  chunk top = std::move(m_chunks.top());
+  m_chunks.pop();
+  return top;
 }
 
 bool compiler::check(token_type type) { return m_parser.current.type == type; }
@@ -129,16 +124,16 @@ void compiler::advance()
 
 void compiler::emit_byte(uint32_t byte)
 {
-  m_current.current->push_byte(byte, m_parser.previous.line);
+  m_chunks.top().push_byte(byte, m_parser.previous.line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_current.current->push_byte(code, m_parser.previous.line);
+  m_chunks.top().push_byte(code, m_parser.previous.line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_current.current->push_byte(code, m_parser.previous.line);
-  m_current.current->push_byte(byte, m_parser.previous.line);
+  m_chunks.top().push_byte(code, m_parser.previous.line);
+  m_chunks.top().push_byte(byte, m_parser.previous.line);
 }
 
 void compiler::skip_linebreaks()
@@ -183,35 +178,42 @@ void compiler::parse_scenarios()
 }
 void compiler::scenario()
 {
-  consume(token_type::scenario, "Expect FeatureLine");
-
-  start_function(std::format("{}:{}", m_filename, m_parser.current.line));
-
-  advance_until(token_type::linebreak, token_type::eof);
-
-  end_function();
+  if (match(token_type::scenario))
+  {
+    start_function(std::format("{}:{}", m_filename, m_parser.current.line));
+    advance_until(token_type::linebreak, token_type::eof);
+    auto val = end_function();
+  }
+  else
+  {
+    error_at(m_parser.current, "Expect ScenarioLine");
+  }
 }
 void compiler::feature()
 {
   skip_linebreaks();
-  consume(token_type::feature, "Expect FeatureLine");
+  if (match(token_type::feature))
+  {
+    start_function(std::format("{}:{}", m_filename, m_parser.current.line));
+    name();
+    advance();
 
-  start_function(std::format("{}:{}", m_filename, m_parser.current.line));
-  // name();
-  // advance();
+    advance_until(token_type::scenario, token_type::scenario_outline,
+                  token_type::tag, token_type::background, token_type::eof);
 
-  // advance_until(token_type::scenario, token_type::scenario_outline,
-  //               token_type::tag, token_type::background, token_type::eof);
+    scenario();
+    chunk last = end_function();
 
-  // scenario();
-  std::unique_ptr<chunk> last = end_function();
-  
-  emit_bytes(op_code::constant,
-             m_current.current->make_constant(std::move(last)));
-  emit_bytes(op_code::define_var,
-             m_current.current->make_constant(m_current.current->constants_back().as<function>()->name()));
-  emit_bytes(op_code::get_var, m_current.current->last_constant());
-  emit_bytes(op_code::call, 0);
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::make_unique<chunk>(last)));
+    emit_bytes(op_code::define_var, m_chunks.top().make_constant(last.name()));
+    emit_bytes(op_code::get_var, m_chunks.top().last_constant());
+    emit_bytes(op_code::call, 0);
+  }
+  else
+  {
+    error_at(m_parser.current, "Expect FeatureLine");
+  }
 }
 
 }  // namespace cwt::details

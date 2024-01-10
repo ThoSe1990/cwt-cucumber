@@ -24,11 +24,6 @@ class chunk;
 class value;
 using value_array = std::vector<value>;
 using function = std::unique_ptr<chunk>;
-// struct function 
-// {
-//   std::string name;
-//   std::unique_ptr<chunk> chunk_ptr;
-// };
 
 using cuke_step = void (*)(const value_array&);
 

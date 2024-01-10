@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <stack>
 
 #include "scanner.hpp"
 #include "token.hpp"
@@ -19,7 +20,7 @@ struct parser
 struct compile_unit
 {
   std::unique_ptr<chunk> current;
-  std::unique_ptr<chunk> enclosing;
+  std::unique_ptr<compile_unit> enclosing;
 };
 
 class compiler
@@ -33,7 +34,7 @@ class compiler
 
  private:
   void start_function(const std::string& name);
-  std::unique_ptr<chunk> end_function();
+  chunk end_function();
 
   void consume(token_type type, std::string_view msg);
   template <typename... Args>
@@ -70,7 +71,7 @@ class compiler
   void emit_constant(Arg&& arg)
   {
     emit_bytes(op_code::constant,
-               m_current.current->make_constant(std::forward<Arg>(arg)));
+               m_chunks.top().make_constant(std::forward<Arg>(arg)));
   }
 
   void feature();
@@ -80,7 +81,9 @@ class compiler
   parser m_parser;
   std::string m_filename;
 
-  compile_unit m_current;
+  std::stack<chunk> m_chunks;
+
+  // compile_unit m_current;
 };
 
 }  // namespace cwt::details

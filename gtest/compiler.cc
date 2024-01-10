@@ -28,12 +28,17 @@ TEST(compiler, invalid_begin)
 
 TEST(compiler, main_chunk_name)
 {
+  testing::internal::CaptureStderr();
   compiler c("Feature:");
   function main = c.compile();
+  EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
+  EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
+          testing::internal::GetCapturedStderr());
 }
 TEST(compiler, main_chunk_other_language)
 {
+  testing::internal::CaptureStderr();
 const char* script = R"*(
 
 # language: de
@@ -42,17 +47,24 @@ Funktion:
 )*";
   compiler c(script);
   function main = c.compile();
-  EXPECT_TRUE(c.no_error());
+  EXPECT_TRUE(c.error());
+  EXPECT_EQ(main->name(), std::string{"script"});
+  EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
+          testing::internal::GetCapturedStderr());
 }
 TEST(compiler, main_chunk_ignore_linebreaks)
 {
+  testing::internal::CaptureStderr();
 const char* script = R"*(
   
   Feature:
 )*";
   compiler c(script);
   function main = c.compile();
-  EXPECT_TRUE(c.no_error());
+  EXPECT_TRUE(c.error());
+  EXPECT_EQ(main->name(), std::string{"script"});
+  EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
+          testing::internal::GetCapturedStderr());
 }
 TEST(compiler, main_chunk_code)
 {
@@ -86,7 +98,7 @@ TEST(compiler, feature_chunk)
   function main = c.compile();
   const function& feature = main->constant(0).as<function>();
   EXPECT_EQ(feature->name(), std::string(":1"));
-  EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
+  EXPECT_EQ(feature->back(), to_uint(op_code::func_return));
 }
 TEST(compiler, regular_scenario)
 {
@@ -102,9 +114,13 @@ const char* script = R"*(
 }
 // TEST(compiler, feature_chunk_code)
 // {
-//   compiler c("Feature: a feature");
+// const char* script = R"*(
+//   Feature: A Fancy Feature
+//   Scenario: A Scenario
+// )*";
+//   compiler c(script);
 //   function main = c.compile();
-//   const function& feature = main.chunk_ptr->constant(0).as<function>();
+//   const function& feature = main->constant(0).as<function>();
 //   EXPECT_EQ(feature->size(), 23);
   
 //   EXPECT_EQ(feature->at(0), to_uint(op_code::constant));
