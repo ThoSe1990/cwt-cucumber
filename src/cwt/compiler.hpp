@@ -29,8 +29,31 @@ class compiler
   [[nodiscard]] function start_function();
   [[nodiscard]] function start_function(const std::string& name);
   void end_function();
+
   void consume(token_type type, std::string_view msg);
+  template <typename... Args>
+  [[nodiscard]] bool check(token_type type, Args... args)
+  {
+    return check(type) || check(args...);
+  }
+  [[nodiscard]] bool check(token_type type);
+  [[nodiscard]] bool match(token_type type);
+
+
   void advance();
+  template <typename... Args>
+  void advance_until(Args... args)
+  {
+    while (!check(std::forward<Args>(args)...))
+    {
+      advance();
+    }
+  }
+
+  void skip_linebreaks();
+  void name();
+  void scenario();
+  void parse_scenarios();
 
   void error_at(const token& t, std::string_view msg) noexcept;
 

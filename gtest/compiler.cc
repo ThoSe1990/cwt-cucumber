@@ -32,6 +32,30 @@ TEST(compiler, main_chunk_name)
   function main_chunk = c.compile();
   EXPECT_EQ(main_chunk->name(), std::string{"script"});
 }
+TEST(compiler, main_chunk_other_language)
+{
+const char* script = R"*(
+
+# language: de
+
+Funktion:
+)*";
+  compiler c(script);
+  function main_chunk = c.compile();
+  EXPECT_EQ(main_chunk->name(), std::string{"script"});
+  EXPECT_TRUE(c.no_error());
+}
+TEST(compiler, main_chunk_ignore_linebreaks)
+{
+const char* script = R"*(
+  
+  Feature:
+)*";
+  compiler c(script);
+  function main_chunk = c.compile();
+  EXPECT_EQ(main_chunk->name(), std::string{"script"});
+  EXPECT_TRUE(c.no_error());
+}
 TEST(compiler, main_chunk_code)
 {
   compiler c("Feature:");
@@ -66,16 +90,52 @@ TEST(compiler, feature_chunk)
   EXPECT_EQ(feature->name(), std::string(":1"));
   EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
 }
-
-TEST(compiler, scenario_chunk)
+TEST(compiler, regular_scenario)
 {
 const char* script = R"*(
-Feature: a feature
-Scenario: a scenario
+  Feature: A Fancy Feature
+  Scenario: A Scenario
 )*";
   compiler c(script);
   function main_chunk = c.compile();
-  const function& feature = main_chunk->constant(0).as<function>();
-  EXPECT_EQ(feature->size(), 1);
-  EXPECT_EQ(feature->at(0), to_uint(op_code::func_return));
+  EXPECT_EQ(main_chunk->name(), std::string{"script"});
+  EXPECT_EQ(main_chunk->size(), 9);
+  EXPECT_TRUE(c.no_error());
 }
+// TEST(compiler, feature_chunk_code)
+// {
+//   compiler c("Feature: a feature");
+//   function main_chunk = c.compile();
+//   const function& feature = main_chunk->constant(0).as<function>();
+//   EXPECT_EQ(feature->size(), 23);
+  
+//   EXPECT_EQ(feature->at(0), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(1), 0); // idx to string value to print
+//   EXPECT_EQ(feature->at(2), to_uint(op_code::print));
+//   EXPECT_EQ(feature->at(3), 0); // represents the color
+  
+//   EXPECT_EQ(feature->at(4), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(5), 1); // idx to string value to print
+//   EXPECT_EQ(feature->at(6), to_uint(op_code::println));
+//   EXPECT_EQ(feature->at(7), 0); // represents the color
+  
+//   EXPECT_EQ(feature->at(8), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(9), 2); // reset_context
+//   EXPECT_EQ(feature->at(10), to_uint(op_code::hook));
+
+//   EXPECT_EQ(feature->at(11), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(12), 3); // before
+//   EXPECT_EQ(feature->at(13), to_uint(op_code::hook));
+
+//   EXPECT_EQ(feature->at(14), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(15), 4); // function: scenario call
+//   EXPECT_EQ(feature->at(16), to_uint(op_code::call));
+
+//   EXPECT_EQ(feature->at(17), to_uint(op_code::constant));
+//   EXPECT_EQ(feature->at(18), 5); // after
+//   EXPECT_EQ(feature->at(19), to_uint(op_code::hook));
+  
+//   EXPECT_EQ(feature->at(20), to_uint(op_code::scenario_result));
+//   EXPECT_EQ(feature->at(21), to_uint(op_code::println));
+//   EXPECT_EQ(feature->at(22), to_uint(op_code::func_return));
+// }

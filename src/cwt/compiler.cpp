@@ -9,7 +9,19 @@
 namespace cwt::details
 {
 
-std::string create_string(std::string_view sv) { return std::string(sv); }
+static constexpr std::string create_string(std::string_view sv)
+{
+  return std::string(sv);
+}
+static constexpr std::string create_string(std::string_view begin,
+                                           std::string_view end)
+{
+  return std::string(begin.data(), end.data() - begin.data());
+}
+static constexpr std::string create_string(const token& begin, const token& end)
+{
+  return create_string(begin.value, end.value);
+}
 
 compiler::compiler(std::string_view source)
     : m_scanner(source), m_filename(std::string(""))
@@ -25,10 +37,14 @@ function compiler::compile()
   advance();
 
   function main = start_function("script");
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+
 
   feature();
 
   end_function();
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+
   return std::move(main);
 }
 [[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
@@ -79,6 +95,19 @@ void compiler::end_function()
   m_current = m_enclosing;
 }
 
+bool compiler::check(token_type type) { return m_parser.current.type == type; }
+bool compiler::match(token_type type)
+{
+  if (check(type))
+  {
+    advance();
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
 void compiler::consume(token_type type, std::string_view msg)
 {
   if (m_parser.current.type == type)
@@ -119,16 +148,80 @@ void compiler::emit_bytes(op_code code, uint32_t byte)
   m_current->push_byte(byte, m_parser.previous.line);
 }
 
+void compiler::skip_linebreaks()
+{
+  while (match(token_type::linebreak))
+  {
+  }
+}
+
+void compiler::name()
+{
+  token begin = m_parser.previous;
+  advance_until(token_type::linebreak, token_type::eof);
+  token end = m_parser.current;
+
+  emit_constant(create_string(begin, end));
+  // TODO second byte = color
+  emit_bytes(op_code::print, 0);
+
+  // TODO print location in black/grey
+  emit_constant(std::format("{}:{}", m_filename, m_parser.current.line));
+  emit_bytes(op_code::println, 0);
+}
+
+void compiler::parse_scenarios()
+{
+  for (;;)
+  {
+    if (match(token_type::scenario))
+    {
+      scenario();
+    }
+    else if (match(token_type::eof))
+    {
+      break;
+    }
+    else 
+    {
+      error_at(m_parser.current, "Expect Scenario.");
+    }
+  }
+}
+void compiler::scenario()
+{
+  consume(token_type::scenario, "Expect FeatureLine");
+
+  function func = start_function();
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+
+  advance_until(token_type::linebreak, token_type::eof);
+
+  end_function();
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+
+}
 void compiler::feature()
 {
+  skip_linebreaks();
   consume(token_type::feature, "Expect FeatureLine");
 
   function func = start_function();
-  const std::string name = func->name();
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+  name();
+  advance();
+
+  advance_until(token_type::scenario, token_type::scenario_outline,
+                token_type::tag, token_type::background, token_type::eof);
+
+  scenario();
 
   end_function();
+  std::cout << __LINE__ << ":  current: " << m_current << "   enclosing: " << m_enclosing << std::endl;
+
+  const std::string function_name = func->name();
   emit_bytes(op_code::constant, m_current->make_constant(std::move(func)));
-  emit_bytes(op_code::define_var, m_current->make_constant(name));
+  emit_bytes(op_code::define_var, m_current->make_constant(function_name));
   emit_bytes(op_code::get_var, m_current->last_constant());
   emit_bytes(op_code::call, 0);
 }
