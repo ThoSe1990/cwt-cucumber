@@ -58,14 +58,15 @@ class compiler
   void skip_linebreaks();
   void name();
   void scenario();
-  void parse_scenarios();
-
+  void step();
+  
   void error_at(const token& t, std::string_view msg) noexcept;
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
   void emit_bytes(op_code code, uint32_t byte);
-  void emit_function(function&& func);
+  uint32_t emit_jump();
+  void patch_jump(uint32_t offset);
 
   template <typename Arg>
   void emit_constant(Arg&& arg)

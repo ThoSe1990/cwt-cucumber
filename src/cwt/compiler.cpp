@@ -135,7 +135,21 @@ void compiler::emit_bytes(op_code code, uint32_t byte)
   m_chunks.top().push_byte(code, m_parser.previous.line);
   m_chunks.top().push_byte(byte, m_parser.previous.line);
 }
-
+uint32_t compiler::emit_jump()
+{
+  emit_byte(op_code::jump_if_failed);
+  emit_byte(std::numeric_limits<uint32_t>::max());
+  return m_chunks.top().size() - 1;
+}
+void compiler::patch_jump(uint32_t offset)
+{
+  uint32_t jump = m_chunks.top().size() - offset - 1;
+  if (std::numeric_limits<uint32_t>::max())
+  {
+    error_at(m_parser.previous, "Too much code to jump over.");
+  }
+  // m_chunks.top().at(offset) = jump;
+}
 void compiler::skip_linebreaks()
 {
   while (match(token_type::linebreak))
@@ -158,30 +172,28 @@ void compiler::name()
   emit_bytes(op_code::println, 0);
 }
 
-void compiler::parse_scenarios()
+void compiler::step()
 {
-  for (;;)
+  advance_until(token_type::linebreak, token_type::eof);
+  if (match(token_type::step))
   {
-    if (match(token_type::scenario))
-    {
-      scenario();
-    }
-    else if (match(token_type::eof))
-    {
-      break;
-    }
-    else
-    {
-      error_at(m_parser.current, "Expect Scenario.");
-    }
+    name();
+
+  }
+  else 
+  {
+    error_at(m_parser.current, "Expect StepLine");
   }
 }
+
 void compiler::scenario()
 {
   if (match(token_type::scenario))
   {
     start_function(std::format("{}:{}", m_filename, m_parser.current.line));
     advance_until(token_type::linebreak, token_type::eof);
+    // step();    
+
     chunk scenario_chunk = end_function();
     emit_bytes(op_code::constant,
                m_chunks.top().make_constant(std::string("reset_context")));

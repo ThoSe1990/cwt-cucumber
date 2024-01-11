@@ -63,7 +63,7 @@ class chunk
   void push_byte(op_code byte, const std::size_t line);
   void push_byte(uint32_t byte, const std::size_t line);
 
-  [[nodiscard]] uint32_t at(std::size_t index) const;
+  [[nodiscard]] uint32_t& at(std::size_t index);
   [[nodiscard]] uint32_t operator[](std::size_t index) const;
 
   template <typename Arg>

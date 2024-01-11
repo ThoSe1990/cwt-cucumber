@@ -65,7 +65,7 @@ chunk::const_iterator chunk::cend() const
   return chunk::const_iterator(m_code.cend());
 }
 
-uint32_t chunk::at(std::size_t index) const { return m_code[index]; }
+uint32_t& chunk::at(std::size_t index) { return m_code[index]; }
 uint32_t chunk::operator[](std::size_t index) const
 {
   if (index < m_code.size()) [[likely]]

@@ -77,7 +77,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     std::cout << '\t' << c.lines(offset) << ' ';
   }
 
-  switch (static_cast<op_code>(c.at(offset)))
+  switch (static_cast<op_code>(c[offset]))
   {
     case op_code::constant:
       return constant_instruction("op_code::constant", c, offset);

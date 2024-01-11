@@ -160,3 +160,15 @@ const char* script = R"*(
   EXPECT_EQ(feature->at(28), to_uint(op_code::scenario_result));
   EXPECT_EQ(feature->at(29), to_uint(op_code::func_return));
 }
+
+TEST(compiler, scenario_chunk_code)
+{
+const char* script = R"*(
+  Feature: A Fancy Feature
+  Scenario: A Scenario
+  Given Any Step
+)*";
+  compiler c(script);
+  function main = c.compile();
+  const function& feature = main->constant(0).as<function>();
+}
