@@ -94,9 +94,9 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     case op_code::define_var:
       return constant_instruction("op_code::define_var", c, offset);
     case op_code::print:
-      return constant_instruction("op_code::print", c, offset);
+      return byte_instruction("op_code::print", c, offset);
     case op_code::println:
-      return constant_instruction("op_code::println", c, offset);
+      return byte_instruction("op_code::println", c, offset);
     case op_code::step_result:
       return simple_instruction("op_code::step_result", offset);
     case op_code::init_scenario:

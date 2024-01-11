@@ -112,44 +112,51 @@ const char* script = R"*(
   EXPECT_EQ(main->size(), 9);
   EXPECT_TRUE(c.no_error());
 }
-// TEST(compiler, feature_chunk_code)
-// {
-// const char* script = R"*(
-//   Feature: A Fancy Feature
-//   Scenario: A Scenario
-// )*";
-//   compiler c(script);
-//   function main = c.compile();
-//   const function& feature = main->constant(0).as<function>();
-//   EXPECT_EQ(feature->size(), 23);
+TEST(compiler, feature_chunk_code)
+{
+const char* script = R"*(
+  Feature: A Fancy Feature
+  Scenario: A Scenario
+)*";
+  compiler c(script);
+  function main = c.compile();
+  const function& feature = main->constant(0).as<function>();
+  EXPECT_EQ(feature->size(), 30);
   
-//   EXPECT_EQ(feature->at(0), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(1), 0); // idx to string value to print
-//   EXPECT_EQ(feature->at(2), to_uint(op_code::print));
-//   EXPECT_EQ(feature->at(3), 0); // represents the color
+  EXPECT_EQ(feature->at(0), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(1), 0); // idx to string value to print
+  EXPECT_EQ(feature->at(2), to_uint(op_code::print));
+  EXPECT_EQ(feature->at(3), 0); // represents the color
   
-//   EXPECT_EQ(feature->at(4), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(5), 1); // idx to string value to print
-//   EXPECT_EQ(feature->at(6), to_uint(op_code::println));
-//   EXPECT_EQ(feature->at(7), 0); // represents the color
+  EXPECT_EQ(feature->at(4), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(5), 1); // idx to string value to print
+  EXPECT_EQ(feature->at(6), to_uint(op_code::println));
+  EXPECT_EQ(feature->at(7), 0); // represents the color
   
-//   EXPECT_EQ(feature->at(8), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(9), 2); // reset_context
-//   EXPECT_EQ(feature->at(10), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(8), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(9), 2); // reset_context
+  EXPECT_EQ(feature->at(10), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(11), 0); // tag count (hook)
 
-//   EXPECT_EQ(feature->at(11), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(12), 3); // before
-//   EXPECT_EQ(feature->at(13), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(12), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(13), 3); // before
+  EXPECT_EQ(feature->at(14), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(15), 0); // tag count (hook)
 
-//   EXPECT_EQ(feature->at(14), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(15), 4); // function: scenario call
-//   EXPECT_EQ(feature->at(16), to_uint(op_code::call));
+  EXPECT_EQ(feature->at(16), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(17), 4); // function: scenario call
+  EXPECT_EQ(feature->at(18),to_uint(op_code::define_var));
+  EXPECT_EQ(feature->at(19), 5);
+  EXPECT_EQ(feature->at(20),to_uint(op_code::get_var));
+  EXPECT_EQ(feature->at(21), 5);
+  EXPECT_EQ(feature->at(22), to_uint(op_code::call));
+  EXPECT_EQ(feature->at(23), 0); 
 
-//   EXPECT_EQ(feature->at(17), to_uint(op_code::constant));
-//   EXPECT_EQ(feature->at(18), 5); // after
-//   EXPECT_EQ(feature->at(19), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(24), to_uint(op_code::constant));
+  EXPECT_EQ(feature->at(25), 6); // after
+  EXPECT_EQ(feature->at(26), to_uint(op_code::hook));
+  EXPECT_EQ(feature->at(27), 0); // after
   
-//   EXPECT_EQ(feature->at(20), to_uint(op_code::scenario_result));
-//   EXPECT_EQ(feature->at(21), to_uint(op_code::println));
-//   EXPECT_EQ(feature->at(22), to_uint(op_code::func_return));
-// }
+  EXPECT_EQ(feature->at(28), to_uint(op_code::scenario_result));
+  EXPECT_EQ(feature->at(29), to_uint(op_code::func_return));
+}

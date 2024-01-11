@@ -182,7 +182,22 @@ void compiler::scenario()
   {
     start_function(std::format("{}:{}", m_filename, m_parser.current.line));
     advance_until(token_type::linebreak, token_type::eof);
-    auto val = end_function();
+    chunk scenario_chunk = end_function();
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::string("reset_context")));
+    emit_bytes(op_code::hook, 0);
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::string("before")));
+    emit_bytes(op_code::hook, 0);
+    emit_bytes(op_code::constant, m_chunks.top().make_constant(
+                                      std::make_unique<chunk>(scenario_chunk)));
+    emit_bytes(op_code::define_var, m_chunks.top().make_constant(scenario_chunk.name()));
+    emit_bytes(op_code::get_var, m_chunks.top().last_constant());
+    emit_bytes(op_code::call, 0);
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::string("after")));
+    emit_bytes(op_code::hook, 0);
+    emit_byte(op_code::scenario_result);
   }
   else
   {
@@ -202,11 +217,11 @@ void compiler::feature()
                   token_type::tag, token_type::background, token_type::eof);
 
     scenario();
-    chunk last = end_function();
+    chunk feature_chunk = end_function();
 
     emit_bytes(op_code::constant,
-               m_chunks.top().make_constant(std::make_unique<chunk>(last)));
-    emit_bytes(op_code::define_var, m_chunks.top().make_constant(last.name()));
+               m_chunks.top().make_constant(std::make_unique<chunk>(feature_chunk)));
+    emit_bytes(op_code::define_var, m_chunks.top().make_constant(feature_chunk.name()));
     emit_bytes(op_code::get_var, m_chunks.top().last_constant());
     emit_bytes(op_code::call, 0);
   }
