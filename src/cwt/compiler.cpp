@@ -143,12 +143,13 @@ uint32_t compiler::emit_jump()
 }
 void compiler::patch_jump(uint32_t offset)
 {
-  uint32_t jump = m_chunks.top().size() - offset - 1;
-  if (std::numeric_limits<uint32_t>::max())
+  uint32_t jump = m_chunks.top().size() - 1 - offset ;
+  if (jump > std::numeric_limits<uint32_t>::max())
   {
     error_at(m_parser.previous, "Too much code to jump over.");
   }
-  // m_chunks.top().at(offset) = jump;
+  // TODO check if this is correct
+  m_chunks.top().at(offset) = m_chunks.top().size();
 }
 void compiler::skip_linebreaks()
 {
@@ -160,7 +161,7 @@ void compiler::skip_linebreaks()
 void compiler::name()
 {
   token begin = m_parser.previous;
-  advance_until(token_type::linebreak, token_type::eof);
+  advance_to(token_type::linebreak, token_type::eof);
   token end = m_parser.current;
 
   emit_constant(create_string(begin, end));
@@ -174,13 +175,28 @@ void compiler::name()
 
 void compiler::step()
 {
-  advance_until(token_type::linebreak, token_type::eof);
   if (match(token_type::step))
   {
     name();
 
+    emit_byte(op_code::init_scenario);
+    uint32_t target_idx = emit_jump();
+
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::string("before_step")));
+    emit_bytes(op_code::hook, 0);
+
+    emit_bytes(op_code::call_step, m_chunks.top().make_constant(
+                                       std::string("TODO string from tokens")));
+
+    emit_bytes(op_code::constant,
+               m_chunks.top().make_constant(std::string("after_step")));
+    emit_bytes(op_code::hook, 0);
+
+    patch_jump(target_idx);
+    emit_byte(op_code::step_result);
   }
-  else 
+  else
   {
     error_at(m_parser.current, "Expect StepLine");
   }
@@ -191,8 +207,10 @@ void compiler::scenario()
   if (match(token_type::scenario))
   {
     start_function(std::format("{}:{}", m_filename, m_parser.current.line));
-    advance_until(token_type::linebreak, token_type::eof);
-    // step();    
+    // advances to end of line to consume name
+    advance_to(token_type::linebreak, token_type::eof);
+    advance();
+    step();
 
     chunk scenario_chunk = end_function();
     emit_bytes(op_code::constant,
@@ -203,7 +221,8 @@ void compiler::scenario()
     emit_bytes(op_code::hook, 0);
     emit_bytes(op_code::constant, m_chunks.top().make_constant(
                                       std::make_unique<chunk>(scenario_chunk)));
-    emit_bytes(op_code::define_var, m_chunks.top().make_constant(scenario_chunk.name()));
+    emit_bytes(op_code::define_var,
+               m_chunks.top().make_constant(scenario_chunk.name()));
     emit_bytes(op_code::get_var, m_chunks.top().last_constant());
     emit_bytes(op_code::call, 0);
     emit_bytes(op_code::constant,
@@ -225,15 +244,16 @@ void compiler::feature()
     name();
     advance();
 
-    advance_until(token_type::scenario, token_type::scenario_outline,
-                  token_type::tag, token_type::background, token_type::eof);
+    advance_to(token_type::scenario, token_type::scenario_outline,
+               token_type::tag, token_type::background, token_type::eof);
 
     scenario();
     chunk feature_chunk = end_function();
 
-    emit_bytes(op_code::constant,
-               m_chunks.top().make_constant(std::make_unique<chunk>(feature_chunk)));
-    emit_bytes(op_code::define_var, m_chunks.top().make_constant(feature_chunk.name()));
+    emit_bytes(op_code::constant, m_chunks.top().make_constant(
+                                      std::make_unique<chunk>(feature_chunk)));
+    emit_bytes(op_code::define_var,
+               m_chunks.top().make_constant(feature_chunk.name()));
     emit_bytes(op_code::get_var, m_chunks.top().last_constant());
     emit_bytes(op_code::call, 0);
   }

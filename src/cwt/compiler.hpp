@@ -47,7 +47,7 @@ class compiler
 
   void advance();
   template <typename... Args>
-  void advance_until(Args... args)
+  void advance_to(Args... args)
   {
     while (!check(std::forward<Args>(args)...))
     {

@@ -104,7 +104,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     case op_code::scenario_result:
       return simple_instruction("op_code::scenario_result", offset);
     case op_code::jump_if_failed:
-      return jump_instruction("op_code::jump_if_failed", 1, c, offset);
+      return byte_instruction("op_code::jump_if_failed", c, offset);
     case op_code::call:
       return byte_instruction("op_code::call", c, offset);
     case op_code::call_step:
@@ -117,7 +117,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     case op_code::func_return:
       return simple_instruction("op_code::func_return", offset);
     default:
-      std::cout << "Unknown op_code: " << static_cast<int>(c[offset]);
+      std::cout << "Unknown op_code: " << c[offset] << '\n';
       return offset + 1;
   }
 }
