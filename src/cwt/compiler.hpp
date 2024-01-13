@@ -3,19 +3,12 @@
 #include <memory>
 #include <stack>
 
-#include "scanner.hpp"
 #include "token.hpp"
 #include "value.hpp"
 #include "chunk.hpp"
+#include "parser.hpp"
 namespace cwt::details
 {
-
-struct parser
-{
-  token current;
-  token previous;
-  bool error{false};
-};
 
 struct compile_unit
 {
@@ -36,31 +29,9 @@ class compiler
   void start_function(const std::string& name);
   chunk end_function();
 
-  void consume(token_type type, std::string_view msg);
-  template <typename... Args>
-  [[nodiscard]] bool check(token_type type, Args... args)
-  {
-    return check(type) || check(args...);
-  }
-  [[nodiscard]] bool check(token_type type);
-  [[nodiscard]] bool match(token_type type);
-
-  void advance();
-  template <typename... Args>
-  void advance_to(Args... args)
-  {
-    while (!check(std::forward<Args>(args)...))
-    {
-      advance();
-    }
-  }
-
-  void skip_linebreaks();
   void name();
   void scenario();
   void step();
-  
-  void error_at(const token& t, std::string_view msg) noexcept;
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
@@ -78,13 +49,9 @@ class compiler
   void feature();
 
  private:
-  scanner m_scanner;
   parser m_parser;
   std::string m_filename;
-
   std::stack<chunk> m_chunks;
-
-  // compile_unit m_current;
 };
 
 }  // namespace cwt::details

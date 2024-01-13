@@ -24,11 +24,11 @@ static constexpr std::string create_string(const token& begin, const token& end)
 }
 
 compiler::compiler(std::string_view source)
-    : m_scanner(source), m_filename(std::string(""))
+    : m_parser(source), m_filename(std::string(""))
 {
 }
 compiler::compiler(std::string_view source, std::string_view filename)
-    : m_scanner(source), m_filename(filename)
+    : m_parser(source), m_filename(filename)
 {
 }
 
@@ -36,32 +36,13 @@ function compiler::compile()
 {
   start_function("script");
 
-  advance();
+  m_parser.advance();
   feature();
 
   return std::make_unique<chunk>(end_function());
 }
-[[nodiscard]] bool compiler::error() const noexcept { return m_parser.error; }
-[[nodiscard]] bool compiler::no_error() const noexcept { return !error(); }
-
-void compiler::error_at(const token& t, std::string_view msg) noexcept
-{
-  std::cerr << "[line " << t.line << "] Error ";
-  if (t.type == token_type::eof)
-  {
-    std::cerr << "at end";
-  }
-  else if (t.type == token_type::error)
-  {
-    // nothing
-  }
-  else
-  {
-    std::cerr << " at '" << t.value << '\'';
-  }
-  std::cerr << ": " << msg << '\n';
-  m_parser.error = true;
-}
+bool compiler::error() const noexcept { return m_parser.error(); }
+bool compiler::no_error() const noexcept { return !error(); }
 
 void compiler::start_function(const std::string& name)
 {
@@ -70,7 +51,7 @@ void compiler::start_function(const std::string& name)
 
 chunk compiler::end_function()
 {
-  m_chunks.top().push_byte(op_code::func_return, m_parser.previous.line);
+  m_chunks.top().push_byte(op_code::func_return, m_parser.previous().line);
 #ifdef PRINT_STACK
   if (no_error())
   {
@@ -83,57 +64,18 @@ chunk compiler::end_function()
   return top;
 }
 
-bool compiler::check(token_type type) { return m_parser.current.type == type; }
-bool compiler::match(token_type type)
-{
-  if (check(type))
-  {
-    advance();
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-void compiler::consume(token_type type, std::string_view msg)
-{
-  if (m_parser.current.type == type)
-  {
-    advance();
-  }
-  else
-  {
-    error_at(m_parser.current, msg);
-  }
-}
-
-void compiler::advance()
-{
-  m_parser.previous = m_parser.current;
-  for (;;)
-  {
-    m_parser.current = m_scanner.scan_token();
-    if (m_parser.current.type != token_type::error)
-    {
-      break;
-    }
-    error_at(m_parser.current, m_parser.current.value);
-  }
-}
-
 void compiler::emit_byte(uint32_t byte)
 {
-  m_chunks.top().push_byte(byte, m_parser.previous.line);
+  m_chunks.top().push_byte(byte, m_parser.previous().line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_chunks.top().push_byte(code, m_parser.previous.line);
+  m_chunks.top().push_byte(code, m_parser.previous().line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_chunks.top().push_byte(code, m_parser.previous.line);
-  m_chunks.top().push_byte(byte, m_parser.previous.line);
+  m_chunks.top().push_byte(code, m_parser.previous().line);
+  m_chunks.top().push_byte(byte, m_parser.previous().line);
 }
 uint32_t compiler::emit_jump()
 {
@@ -143,39 +85,33 @@ uint32_t compiler::emit_jump()
 }
 void compiler::patch_jump(uint32_t offset)
 {
-  uint32_t jump = m_chunks.top().size() - 1 - offset ;
+  uint32_t jump = m_chunks.top().size() - 1 - offset;
   if (jump > std::numeric_limits<uint32_t>::max())
   {
-    error_at(m_parser.previous, "Too much code to jump over.");
+    m_parser.error_at(m_parser.previous(), "Too much code to jump over.");
   }
   // TODO check if this is correct
   m_chunks.top().at(offset) = m_chunks.top().size();
 }
-void compiler::skip_linebreaks()
-{
-  while (match(token_type::linebreak))
-  {
-  }
-}
 
 void compiler::name()
 {
-  token begin = m_parser.previous;
-  advance_to(token_type::linebreak, token_type::eof);
-  token end = m_parser.current;
+  token begin = m_parser.previous();
+  m_parser.advance_to(token_type::linebreak, token_type::eof);
+  token end = m_parser.current();
 
   emit_constant(create_string(begin, end));
   // TODO second byte = color
   emit_bytes(op_code::print, 0);
 
   // TODO print location in black/grey
-  emit_constant(std::format("{}:{}", m_filename, m_parser.current.line));
+  emit_constant(std::format("{}:{}", m_filename, m_parser.current().line));
   emit_bytes(op_code::println, 0);
 }
 
 void compiler::step()
 {
-  if (match(token_type::step))
+  if (m_parser.match(token_type::step))
   {
     name();
 
@@ -198,18 +134,18 @@ void compiler::step()
   }
   else
   {
-    error_at(m_parser.current, "Expect StepLine");
+    m_parser.error_at(m_parser.current(), "Expect StepLine");
   }
 }
 
 void compiler::scenario()
 {
-  if (match(token_type::scenario))
+  if (m_parser.match(token_type::scenario))
   {
-    start_function(std::format("{}:{}", m_filename, m_parser.current.line));
+    start_function(std::format("{}:{}", m_filename, m_parser.current().line));
     // advances to end of line to consume name
-    advance_to(token_type::linebreak, token_type::eof);
-    advance();
+    m_parser.advance_to(token_type::linebreak, token_type::eof);
+    m_parser.advance();
     step();
 
     chunk scenario_chunk = end_function();
@@ -232,20 +168,21 @@ void compiler::scenario()
   }
   else
   {
-    error_at(m_parser.current, "Expect ScenarioLine");
+    m_parser.error_at(m_parser.current(), "Expect ScenarioLine");
   }
 }
 void compiler::feature()
 {
-  skip_linebreaks();
-  if (match(token_type::feature))
+  m_parser.skip_linebreaks();
+  if (m_parser.match(token_type::feature))
   {
-    start_function(std::format("{}:{}", m_filename, m_parser.current.line));
+    start_function(std::format("{}:{}", m_filename, m_parser.current().line));
     name();
-    advance();
+    m_parser.advance();
 
-    advance_to(token_type::scenario, token_type::scenario_outline,
-               token_type::tag, token_type::background, token_type::eof);
+    m_parser.advance_to(token_type::scenario, token_type::scenario_outline,
+                        token_type::tag, token_type::background,
+                        token_type::eof);
 
     scenario();
     chunk feature_chunk = end_function();
@@ -259,7 +196,7 @@ void compiler::feature()
   }
   else
   {
-    error_at(m_parser.current, "Expect FeatureLine");
+    m_parser.error_at(m_parser.current(), "Expect FeatureLine");
   }
 }
 
