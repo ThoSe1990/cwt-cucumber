@@ -1,11 +1,13 @@
 #include <format>
 
 #include "compiler.hpp"
-#include "chunk.hpp"
+#include "token.hpp"
+
 
 // TODO Remove define
 #define PRINT_STACK 1
 #include "debug.hpp"
+
 namespace cwt::details
 {
 
@@ -61,7 +63,7 @@ chunk compiler::end_function()
 #endif
   chunk top = std::move(m_chunks.top());
   m_chunks.pop();
-  return top;
+  return std::move(top);
 }
 
 void compiler::emit_byte(uint32_t byte)
@@ -90,7 +92,7 @@ void compiler::patch_jump(uint32_t offset)
   {
     m_parser.error_at(m_parser.previous(), "Too much code to jump over.");
   }
-  // TODO check if this is correct
+
   m_chunks.top().at(offset) = m_chunks.top().size();
 }
 

@@ -3,8 +3,6 @@
 #include <memory>
 #include <stack>
 
-#include "token.hpp"
-#include "value.hpp"
 #include "chunk.hpp"
 #include "parser.hpp"
 namespace cwt::details
