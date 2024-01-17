@@ -97,6 +97,12 @@ void vm::run()
         uint32_t next = frame->it.next();
         std::string name =
             frame->chunk_ptr->constant(next).copy_as<std::string>();
+        // TODO -> of course no loop here, just demonstartaion!
+        for(const auto& [key, step] : m_steps)
+        {
+          value_array values;
+          step(values);
+        }
         std::cout << "op_code::call_step: " << name << std::endl;
       }
       break;
