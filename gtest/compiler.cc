@@ -128,12 +128,12 @@ TEST(compiler, feature_chunk_code)
   EXPECT_EQ(feature->at(0), to_uint(op_code::constant));
   EXPECT_EQ(feature->at(1), 0);  // idx to string value to print
   EXPECT_EQ(feature->at(2), to_uint(op_code::print));
-  EXPECT_EQ(feature->at(3), 0);  // TODO enum for color represents the color
+  EXPECT_EQ(feature->at(3), to_uint(color::standard));  // TODO enum for color represents the color
 
   EXPECT_EQ(feature->at(4), to_uint(op_code::constant));
   EXPECT_EQ(feature->at(5), 1);  // idx to string value to print
   EXPECT_EQ(feature->at(6), to_uint(op_code::println));
-  EXPECT_EQ(feature->at(7), 0);  // TODO enum for color represents the color
+  EXPECT_EQ(feature->at(7), to_uint(color::black));  // TODO enum for color represents the color
 
   EXPECT_EQ(feature->at(8), to_uint(op_code::hook));
   EXPECT_EQ(feature->at(9), to_uint(hook_type::reset_context));

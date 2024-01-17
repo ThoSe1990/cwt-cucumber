@@ -4,6 +4,7 @@
 #include "compiler.hpp"
 #include "chunk.hpp"
 
+#include "util.hpp"
 // TODO Remove
 #define PRINT_STACK 1
 
@@ -125,7 +126,7 @@ void vm::run()
       break;
       case op_code::scenario_result:
       {
-        std::cout << "op_code::scenario_result" << std::endl;
+        println(color::green, "op_code::scenario_result");
       }
       break;
       case op_code::jump_if_failed:
@@ -136,16 +137,13 @@ void vm::run()
       break;
       case op_code::print:
       {
-        uint32_t color = frame->it.next();
-        std::cout << "** Color: " << color << "** " << m_stack.back().as<std::string>() << std::endl;
+        print(to_color(frame->it.next()), m_stack.back().as<std::string>());
         m_stack.pop_back();
       }
       break;
       case op_code::println:
       {
-        uint32_t color = frame->it.next();
-        std::cout << "** Color: " << color << "** " << m_stack.back().as<std::string>()
-                  << '\n';
+        println(to_color(frame->it.next()), m_stack.back().as<std::string>());
         m_stack.pop_back();
       }
       break;

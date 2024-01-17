@@ -3,62 +3,10 @@
 #include <vector>
 
 #include "value.hpp"
+#include "util.hpp"
 namespace cwt::details
 {
 
-enum class op_code : uint32_t
-{
-  constant,
-  tag,
-  nil,
-  pop,
-  get_var,
-  set_var,
-  define_var,
-  print,
-  println,
-  step_result,
-  init_scenario,
-  scenario_result,
-  jump_if_failed,
-  call,
-  call_step,
-  call_step_with_doc_string,
-  hook,
-  func_return
-};
-
-template <typename T>
-inline constexpr uint32_t to_uint(T value)
-{
-  return static_cast<uint32_t>(value);
-}
-inline constexpr op_code to_code(uint32_t val)
-{
-  if (val >= to_uint(op_code::constant) && val <= to_uint(op_code::func_return))
-      [[likely]]
-  {
-    return static_cast<op_code>(val);
-  }
-  else [[unlikely]]
-  {
-    throw std::out_of_range(
-        "inline op_code to_code(uint32_t val): value out of range");
-  }
-}
-inline constexpr hook_type to_hook_type(uint32_t val)
-{
-  if (val >= to_uint(hook_type::reset_context) &&
-      val <= to_uint(hook_type::after_step)) [[likely]]
-  {
-    return static_cast<hook_type>(val);
-  }
-  else [[unlikely]]
-  {
-    throw std::out_of_range(
-        "inline hook_type to_hook_type(uint32_t val): value out of range");
-  }
-}
 // TODO reserve chunks vectors by default ?
 class chunk
 {

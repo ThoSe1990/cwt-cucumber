@@ -112,9 +112,9 @@ std::size_t compiler::create_name(const std::string& location)
 
   emit_constant(create_string(begin, end));
   // TODO colors 
-  emit_bytes(op_code::print, 0);
+  emit_bytes(op_code::print, to_uint(color::standard));
   emit_constant(location);
-  emit_bytes(op_code::println, 0);
+  emit_bytes(op_code::println, to_uint(color::black));
   return m_chunks.top().last_constant() - 1;
 }
 
