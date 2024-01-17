@@ -11,10 +11,10 @@ protected:
   {
     m_background_called = false;
     open_cucumber();
-    cuke_step("background step", background);
-    cuke_step("{int} and {int} are equal", test_is_equal);
-    cuke_step("{int} is greater than {int}", test_is_greater);
-    cuke_step("a doc string", doc_string);
+    function_ptr("background step", background);
+    function_ptr("{int} and {int} are equal", test_is_equal);
+    function_ptr("{int} is greater than {int}", test_is_greater);
+    function_ptr("a doc string", doc_string);
   }
 
   void TearDown() override 

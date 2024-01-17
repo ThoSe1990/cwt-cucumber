@@ -11,7 +11,7 @@ protected:
   {
     m_called = false;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_before(hook);
   }
 
@@ -51,7 +51,7 @@ protected:
   {
     m_called = false;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_after(hook);
   }
 
@@ -91,7 +91,7 @@ protected:
   {
     m_called = false;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_before_t(hook, "@tag1 or @tag2");
   }
 
@@ -159,7 +159,7 @@ protected:
   {
     m_called = false;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_before_t(hook, "(@tag1 and @tag2)or@tag3");
   }
 
@@ -228,7 +228,7 @@ protected:
   {
     m_call_count = 0;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_before_step(hook);
     cuke_after_step(hook);
   }
@@ -273,7 +273,7 @@ protected:
   {
     m_call_count = 0;
     open_cucumber();
-    cuke_step("a step", step);
+    function_ptr("a step", step);
     cuke_after(hook);
     cuke_after_t(hook, "@hello and @world");
     cuke_before(hook);
@@ -346,8 +346,8 @@ protected:
   {
     m_call_count = 0;
     open_cucumber();
-    cuke_step("a step", step);
-    cuke_step("a step with {int} and {string}", step);
+    function_ptr("a step", step);
+    function_ptr("a step with {int} and {string}", step);
     cuke_after(hook);
     cuke_after_t(hook, "@hello and @world");
     cuke_before(hook);

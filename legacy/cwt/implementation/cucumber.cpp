@@ -42,7 +42,7 @@ namespace cuke::details
     open_cucumber();
     for (const auto& pair : steps()) 
     {
-        cuke_step(pair.first, pair.second);
+        function_ptr(pair.first, pair.second);
     }
     for (const hook& h : hooks())
     {

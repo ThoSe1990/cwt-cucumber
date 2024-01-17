@@ -11,9 +11,9 @@ protected:
   void SetUp() override
   {
     open_cucumber();
-    cuke_step("this fails", test_step_fail);
-    cuke_step("this passes", test_step_pass);
-    cuke_step("step with {int} and {int} are equal", test_is_equal);
+    function_ptr("this fails", test_step_fail);
+    function_ptr("this passes", test_step_pass);
+    function_ptr("step with {int} and {int} are equal", test_is_equal);
   }
 
   void TearDown() override 

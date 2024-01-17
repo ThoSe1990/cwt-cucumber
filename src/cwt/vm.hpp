@@ -28,7 +28,7 @@ class vm
  public:
   void interpret(std::string_view source);
 
-  void push_step(cuke_step step, const std::string& name);
+  void push_step(function_ptr step, const std::string& name);
 
   void push_before(hook_function hook);
   void push_after(hook_function hook);
@@ -44,7 +44,7 @@ class vm
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
 
-  std::unordered_map<std::string, cuke_step> m_steps;
+  std::unordered_map<std::string, function_ptr> m_steps;
 
   using hooks = std::vector<void(*)()>;
   hooks m_before;

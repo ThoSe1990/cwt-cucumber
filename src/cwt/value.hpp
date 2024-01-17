@@ -16,7 +16,7 @@ enum class value_type
   boolean,
   string,
   function,
-  native,
+  step,
   nil
 };
 
@@ -25,11 +25,11 @@ class value;
 using value_array = std::vector<value>;
 using function = std::unique_ptr<chunk>;
 
-using cuke_step = void (*)(const value_array&);
+using function_ptr = void (*)(const value_array&);
 
-struct native
+struct step
 {
-  cuke_step func;
+  function_ptr func;
 };
 
 template <typename T, typename = void>
@@ -66,9 +66,9 @@ struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, native>>>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, step>>>
 {
-  static constexpr value_type tag = value_type::native;
+  static constexpr value_type tag = value_type::step;
 };
 
 class value
@@ -179,8 +179,8 @@ class value
             function{std::make_unique<chunk>(*func)});
         }
         break;
-        case value_type::native:
-          m_value = std::make_unique<value_model<native>>(other.as<native>());
+        case value_type::step:
+          m_value = std::make_unique<value_model<step>>(other.as<step>());
           break;
         default:
           m_type = value_type::nil;

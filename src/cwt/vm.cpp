@@ -27,7 +27,7 @@ void vm::interpret(std::string_view source)
   }
 }
 
-void vm::push_step(cuke_step step, const std::string& name)
+void vm::push_step(function_ptr step, const std::string& name)
 {
   m_steps[name] = step;
 }

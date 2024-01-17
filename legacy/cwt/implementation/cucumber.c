@@ -165,22 +165,22 @@ void close_cucumber()
   free_vm();
 }
 
-void cuke_step(const char* name, cuke_step_t func)
+void function_ptr(const char* name, cuke_step_t func)
 {
   define_step(name, func);
 }
 
 void cuke_given(const char* name, cuke_step_t func)
 {
-  cuke_step(name, func);
+  function_ptr(name, func);
 }
 void cuke_when(const char* name, cuke_step_t func)
 {
-  cuke_step(name, func);
+  function_ptr(name, func);
 }
 void cuke_then(const char* name, cuke_step_t func)
 {
-  cuke_step(name, func);
+  function_ptr(name, func);
 }
 
 void cuke_hook(const char* name, cuke_step_t func, const char* tag_expression)

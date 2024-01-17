@@ -30,8 +30,8 @@ static void print_value(const value& v)
     case value_type::function:
       std::cout << '<' << v.as<function>()->name() << '>';
       break;
-    case value_type::native:
-      std::cout << "native function";
+    case value_type::step:
+      std::cout << "step function";
       break;
     case value_type::nil:
       std::cout << "nil";
