@@ -18,7 +18,7 @@ TEST(vm, first_feature)
   Given Any Step
 )*";
   vm test_vm;
-  test_vm.push_step([](const value_array&) { std::cout << "this gets called!" << std::endl; },
-                    "Any Step");
+  test_vm.push_step(step([](const value_array&) { std::cout << "this gets called!" << std::endl; },
+                    "Any Step"));
   test_vm.interpret(script);
 }

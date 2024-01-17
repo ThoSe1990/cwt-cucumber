@@ -17,6 +17,7 @@ enum class value_type
   string,
   function,
   step,
+  hook,
   nil
 };
 
@@ -25,11 +26,45 @@ class value;
 using value_array = std::vector<value>;
 using function = std::unique_ptr<chunk>;
 
-using function_ptr = void (*)(const value_array&);
-
-struct step
+using step_callback = void (*)(const value_array&);
+class step
 {
-  function_ptr func;
+ public:
+  step(step_callback cb, const std::string& definition)
+      : m_callback(cb), m_definition(definition)
+  {
+  }
+  const std::string& definition() const noexcept { return m_definition; }
+  void call(const value_array& values) const { m_callback(values); }
+  void operator()(const value_array& values) const { m_callback(values); }
+
+ private:
+  step_callback m_callback;
+  std::string m_definition;
+};
+
+enum class hook_type
+{
+  reset_context,
+  before,
+  after,
+  before_step,
+  after_step
+};
+using hook_callback = void (*)();
+struct hook
+{
+ public:
+  hook(hook_callback cb, const std::string& tags) : m_callback(cb), m_tags(tags)
+  {
+  }
+  const std::string& tags() const noexcept { return m_tags; }
+  void call() const { m_callback(); }
+  void operator()() const { m_callback(); }
+
+ private:
+  hook_callback m_callback;
+  std::string m_tags;
 };
 
 template <typename T, typename = void>
@@ -86,10 +121,7 @@ class value
     other.m_type = value_type::nil;
   }
 
-  value(const value& other) : m_type(other.m_type)
-  {
-    clone(other);
-  }
+  value(const value& other) : m_type(other.m_type) { clone(other); }
 
   template <typename T, typename = std::enable_if_t<
                             !std::is_same_v<std::decay_t<T>, value>>>
@@ -176,7 +208,7 @@ class value
         {
           const auto& func = other.as<function>();
           m_value = std::make_unique<value_model<function>>(
-            function{std::make_unique<chunk>(*func)});
+              function{std::make_unique<chunk>(*func)});
         }
         break;
         case value_type::step:

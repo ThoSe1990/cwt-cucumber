@@ -95,11 +95,10 @@ void compiler::patch_jump(uint32_t offset)
   m_chunks.top().at(offset) = m_chunks.top().size();
 }
 
-void compiler::emit_hook(std::string_view hook)
+void compiler::emit_hook(hook_type type)
 {
-  emit_bytes(op_code::constant,
-             m_chunks.top().make_constant(std::string(hook)));
-  emit_bytes(op_code::hook, 0);
+  emit_bytes(op_code::hook, to_uint(type));
+  emit_byte(0); // = args => overload! not all hooks have args
 }
 
 void compiler::name()
@@ -126,10 +125,10 @@ void compiler::step()
     emit_byte(op_code::init_scenario);
     uint32_t target_idx = emit_jump();
 
-    emit_hook("before_step");
+    emit_hook(hook_type::before_step);
     emit_bytes(op_code::call_step, m_chunks.top().make_constant(
                                        std::string("TODO string step name")));
-    emit_hook("after_step");
+    emit_hook(hook_type::after_step);
 
     patch_jump(target_idx);
     emit_bytes(op_code::step_result, m_chunks.top().make_constant(
@@ -153,15 +152,15 @@ void compiler::scenario()
     step();
 
     chunk scenario_chunk = end_function();
-    emit_hook("reset_context");
-    emit_hook("before");
+    emit_hook(hook_type::reset_context);
+    emit_hook(hook_type::before);
     emit_bytes(op_code::constant, m_chunks.top().make_constant(
                                       std::make_unique<chunk>(scenario_chunk)));
     emit_bytes(op_code::define_var,
                m_chunks.top().make_constant(scenario_chunk.name()));
     emit_bytes(op_code::get_var, m_chunks.top().last_constant());
     emit_bytes(op_code::call, 0);
-    emit_hook("after");
+    emit_hook(hook_type::after);
     emit_byte(op_code::scenario_result);
   }
   else

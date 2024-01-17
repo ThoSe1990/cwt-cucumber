@@ -27,7 +27,7 @@ void print_final_result();
 
 typedef void (*cuke_step_t)(int arg_count, cuke_value* args);
 
-void function_ptr(const char* name, cuke_step_t func);
+void step_function(const char* name, cuke_step_t func);
 void cuke_given(const char* name, cuke_step_t func);
 void cuke_when(const char* name, cuke_step_t func);
 void cuke_then(const char* name, cuke_step_t func);

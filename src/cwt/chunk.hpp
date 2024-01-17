@@ -28,7 +28,11 @@ enum class op_code : uint32_t
   func_return
 };
 
-inline constexpr uint32_t to_uint(op_code code) { return static_cast<uint32_t>(code); }
+template <typename T>
+inline constexpr uint32_t to_uint(T value)
+{
+  return static_cast<uint32_t>(value);
+}
 inline constexpr op_code to_code(uint32_t val)
 {
   if (val >= to_uint(op_code::constant) && val <= to_uint(op_code::func_return))
@@ -42,7 +46,19 @@ inline constexpr op_code to_code(uint32_t val)
         "inline op_code to_code(uint32_t val): value out of range");
   }
 }
-
+inline constexpr hook_type to_hook_type(uint32_t val)
+{
+  if (val >= to_uint(hook_type::reset_context) &&
+      val <= to_uint(hook_type::after_step)) [[likely]]
+  {
+    return static_cast<hook_type>(val);
+  }
+  else [[unlikely]]
+  {
+    throw std::out_of_range(
+        "inline hook_type to_hook_type(uint32_t val): value out of range");
+  }
+}
 // TODO reserve chunks vectors by default ?
 class chunk
 {

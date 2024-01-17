@@ -10,8 +10,8 @@ protected:
   void SetUp() override
   {
     open_cucumber();
-    function_ptr("a test step with a {string}", test_step);
-    function_ptr("any {int} value", test_step);
+    step_function("a test step with a {string}", test_step);
+    step_function("any {int} value", test_step);
   }
 
   void TearDown() override 

@@ -27,14 +27,11 @@ void vm::interpret(std::string_view source)
   }
 }
 
-void vm::push_step(function_ptr step, const std::string& name)
-{
-  m_steps[name] = step;
-}
-void vm::push_before(hook_function hook) { m_before.push_back(hook); }
-void vm::push_after(hook_function hook) { m_after.push_back(hook); }
-void vm::push_before_step(hook_function hook) { m_before_step.push_back(hook); }
-void vm::push_after_step(hook_function hook) { m_after_step.push_back(hook); }
+void vm::push_step(const step& s) { m_steps.push_back(s); }
+void vm::push_before(const hook& h) { m_before.push_back(h); }
+void vm::push_after(const hook& h) { m_after.push_back(h); }
+void vm::push_before_step(const hook& h) { m_before_step.push_back(h); }
+void vm::push_after_step(const hook& h) { m_after_step.push_back(h); }
 
 void vm::call(const function& func)
 {
@@ -60,7 +57,7 @@ void vm::run()
 
     // TODO: switch (to_code(frame->it.next()))
     uint32_t current = frame->it.next();
-    switch(to_code(current))
+    switch (to_code(current))
     {
       case op_code::constant:
       {
@@ -87,9 +84,10 @@ void vm::run()
       break;
       case op_code::hook:
       {
+        hook_type type = to_hook_type(frame->it.next());
         uint32_t tags = frame->it.next();
         std::cout << "op_code::hook: tags count = " << tags << std::endl;
-        m_stack.pop_back();
+        // m_stack.pop_back();
       }
       break;
       case op_code::call_step:
@@ -98,10 +96,10 @@ void vm::run()
         std::string name =
             frame->chunk_ptr->constant(next).copy_as<std::string>();
         // TODO -> of course no loop here, just demonstartaion!
-        for(const auto& [key, step] : m_steps)
+        for (const auto& s : m_steps)
         {
           value_array values;
-          step(values);
+          s(values);
         }
         std::cout << "op_code::call_step: " << name << std::endl;
       }
@@ -135,7 +133,7 @@ void vm::run()
       case op_code::print:
       {
         uint32_t color = frame->it.next();
-        std::cout << '[' << color << "] " << m_stack.back().as<std::string>();
+        std::cout << "** Color: " << color << "** " << m_stack.back().as<std::string>() << std::endl;
         m_stack.pop_back();
       }
       break;

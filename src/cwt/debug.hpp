@@ -54,6 +54,32 @@ static std::size_t byte_instruction(std::string_view name, const chunk& c,
   std::cout << ' ' << name << '\t' << idx << '\n';
   return offset + 2;
 }
+static std::size_t hook_instruction(std::string_view name, const chunk& c,
+                                    std::size_t offset)
+{
+  uint32_t tags = c[offset + 1];
+  uint32_t type = c[offset + 2];
+  std::cout << ' ' << name << '\t' << tags;
+  switch (to_hook_type(type))
+  {
+    case hook_type::before:
+      std::cout << " before";
+      break;
+    case hook_type::after:
+      std::cout << " after";
+      break;
+    case hook_type::before_step:
+      std::cout << " before_step";
+      break;
+    case hook_type::after_step:
+      std::cout << " after_step";
+      break;
+    case hook_type::reset_context:
+      std::cout << " reset_context";
+  }
+  std::cout << '\n';
+  return offset + 3;
+}
 static std::size_t simple_instruction(std::string_view name, std::size_t offset)
 {
   std::cout << ' ' << name << '\n';
@@ -113,7 +139,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
       return constant_instruction("op_code::call_step_with_doc_string", c,
                                   offset);
     case op_code::hook:
-      return byte_instruction("op_code::hook", c, offset);
+      return hook_instruction("op_code::hook", c, offset);
     case op_code::func_return:
       return simple_instruction("op_code::func_return", offset);
     default:

@@ -52,7 +52,7 @@ class compiler
                m_chunks.top().make_constant(std::forward<Arg>(arg)));
   }
 
-  void emit_hook(std::string_view hook);
+  void emit_hook(hook_type type);
 
 
  private:
