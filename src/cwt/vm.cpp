@@ -85,9 +85,13 @@ void vm::run()
       case op_code::hook:
       {
         hook_type type = to_hook_type(frame->it.next());
-        uint32_t tags = frame->it.next();
-        std::cout << "op_code::hook: tags count = " << tags << std::endl;
-        // m_stack.pop_back();
+        std::cout << "op_code::hook" << std::endl;
+        if (type == hook_type::before || type == hook_type::after)
+        {
+          uint32_t tags = frame->it.next();
+          std::cout << ": tags count = " << tags;
+        }
+        std::cout << std::endl;
       }
       break;
       case op_code::call_step:
@@ -140,7 +144,7 @@ void vm::run()
       case op_code::println:
       {
         uint32_t color = frame->it.next();
-        std::cout << '[' << color << "] " << m_stack.back().as<std::string>()
+        std::cout << "** Color: " << color << "** " << m_stack.back().as<std::string>()
                   << '\n';
         m_stack.pop_back();
       }

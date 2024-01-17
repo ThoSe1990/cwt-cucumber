@@ -57,28 +57,32 @@ static std::size_t byte_instruction(std::string_view name, const chunk& c,
 static std::size_t hook_instruction(std::string_view name, const chunk& c,
                                     std::size_t offset)
 {
-  uint32_t tags = c[offset + 1];
-  uint32_t type = c[offset + 2];
-  std::cout << ' ' << name << '\t' << tags;
+  uint32_t type = c[++offset] ;
+  std::cout << ' ' << name << '\t';
+  if (to_hook_type(type) == hook_type::before || to_hook_type(type) == hook_type::after)
+  {
+    uint32_t tags = c[++offset];
+    std::cout << tags << ' ';
+  }
   switch (to_hook_type(type))
   {
     case hook_type::before:
-      std::cout << " before";
+      std::cout << "before";
       break;
     case hook_type::after:
-      std::cout << " after";
+      std::cout << "after";
       break;
     case hook_type::before_step:
-      std::cout << " before_step";
+      std::cout << "before_step";
       break;
     case hook_type::after_step:
-      std::cout << " after_step";
+      std::cout << "after_step";
       break;
     case hook_type::reset_context:
-      std::cout << " reset_context";
+      std::cout << "reset_context";
   }
   std::cout << '\n';
-  return offset + 3;
+  return ++offset;
 }
 static std::size_t simple_instruction(std::string_view name, std::size_t offset)
 {

@@ -98,7 +98,10 @@ void compiler::patch_jump(uint32_t offset)
 void compiler::emit_hook(hook_type type)
 {
   emit_bytes(op_code::hook, to_uint(type));
-  emit_byte(0); // = args => overload! not all hooks have args
+  if (type == hook_type::before || type == hook_type::after)
+  {
+    emit_byte(0); // = args => overload! not all hooks have args
+  }
 }
 
 void compiler::name()
