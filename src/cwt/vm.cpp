@@ -85,7 +85,7 @@ void vm::run()
       case op_code::hook:
       {
         hook_type type = to_hook_type(frame->it.next());
-        std::cout << "op_code::hook" << std::endl;
+        std::cout << "op_code::hook";
         if (type == hook_type::before || type == hook_type::after)
         {
           uint32_t tags = frame->it.next();

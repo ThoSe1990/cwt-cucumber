@@ -149,7 +149,7 @@ void compiler::scenario()
   {
     start_function(std::format("{}:{}", m_filename, m_parser.current().line));
     name();
-    // advances to end of line to consume name
+// advances to end of line to consume name
     // m_parser.advance_to(token_type::linebreak, token_type::eof);
     m_parser.advance();
     step();
