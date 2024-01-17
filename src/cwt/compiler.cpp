@@ -100,42 +100,40 @@ void compiler::emit_hook(hook_type type)
   emit_bytes(op_code::hook, to_uint(type));
   if (type == hook_type::before || type == hook_type::after)
   {
-    emit_byte(0); // = args => overload! not all hooks have args
+    emit_byte(0);  // = args => overload! not all hooks have args
   }
 }
 
-void compiler::name()
+std::size_t compiler::create_name(const std::string& location)
 {
   token begin = m_parser.previous();
   m_parser.advance_to(token_type::linebreak, token_type::eof);
   token end = m_parser.current();
 
   emit_constant(create_string(begin, end));
-  // TODO second byte = color
+  // TODO colors 
   emit_bytes(op_code::print, 0);
-
-  // TODO print location in black/grey
-  emit_constant(std::format("{}:{}", m_filename, begin.line));
+  emit_constant(location);
   emit_bytes(op_code::println, 0);
+  return m_chunks.top().last_constant() - 1;
 }
 
 void compiler::step()
 {
   if (m_parser.match(token_type::step))
   {
-    name();
-
+    const std::size_t step_idx =
+        create_name(std::format("{}:{}", m_filename, m_parser.current().line));
+  
     emit_byte(op_code::init_scenario);
     uint32_t target_idx = emit_jump();
 
     emit_hook(hook_type::before_step);
-    emit_bytes(op_code::call_step, m_chunks.top().make_constant(
-                                       std::string("TODO string step name")));
+    emit_bytes(op_code::call_step, step_idx);
     emit_hook(hook_type::after_step);
 
     patch_jump(target_idx);
-    emit_bytes(op_code::step_result, m_chunks.top().make_constant(
-                                       std::string("TODO result here")));
+    emit_bytes(op_code::step_result, step_idx);
   }
   else
   {
@@ -147,9 +145,11 @@ void compiler::scenario()
 {
   if (m_parser.match(token_type::scenario))
   {
-    start_function(std::format("{}:{}", m_filename, m_parser.current().line));
-    name();
-// advances to end of line to consume name
+    const std::string location =
+        std::format("{}:{}", m_filename, m_parser.current().line);
+    start_function(location);
+    [[maybe_unused]] std::size_t idx = create_name(location);
+    // advances to end of line to consume name
     // m_parser.advance_to(token_type::linebreak, token_type::eof);
     m_parser.advance();
     step();
@@ -176,8 +176,9 @@ void compiler::feature()
   m_parser.skip_linebreaks();
   if (m_parser.match(token_type::feature))
   {
-    start_function(std::format("{}:{}", m_filename, m_parser.current().line));
-    name();
+    const std::string location = std::format("{}:{}", m_filename, m_parser.current().line);
+    start_function(location);
+    [[maybe_unused]] std::size_t idx = create_name(location);
     m_parser.advance();
 
     m_parser.advance_to(token_type::scenario, token_type::scenario_outline,

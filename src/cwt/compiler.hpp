@@ -38,7 +38,7 @@ class compiler
   void scenario();
   void step();
 
-  void name();
+  [[nodiscard]] std::size_t create_name(const std::string& location);
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
