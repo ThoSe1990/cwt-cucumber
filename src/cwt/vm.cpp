@@ -27,6 +27,15 @@ void vm::interpret(std::string_view source)
   }
 }
 
+void vm::push_step(cuke_step step, const std::string& name)
+{
+  m_steps[name] = step;
+}
+void vm::push_before(hook_function hook) { m_before.push_back(hook); }
+void vm::push_after(hook_function hook) { m_after.push_back(hook); }
+void vm::push_before_step(hook_function hook) { m_before_step.push_back(hook); }
+void vm::push_after_step(hook_function hook) { m_after_step.push_back(hook); }
+
 void vm::call(const function& func)
 {
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
@@ -49,7 +58,9 @@ void vm::run()
                             frame->chunk_ptr->get_index(frame->it));
 #endif
 
-    switch (to_code(frame->it.next()))
+    // TODO: switch (to_code(frame->it.next()))
+    uint32_t current = frame->it.next();
+    switch(to_code(current))
     {
       case op_code::constant:
       {
@@ -74,6 +85,29 @@ void vm::run()
         m_stack.push_back(m_globals[name]);
       }
       break;
+      case op_code::hook:
+      {
+        uint32_t tags = frame->it.next();
+        std::cout << "op_code::hook: tags count = " << tags << std::endl;
+        m_stack.pop_back();
+      }
+      break;
+      case op_code::call_step:
+      {
+        uint32_t next = frame->it.next();
+        std::string name =
+            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        std::cout << "op_code::call_step: " << name << std::endl;
+      }
+      break;
+      case op_code::step_result:
+      {
+        uint32_t next = frame->it.next();
+        std::string name =
+            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        std::cout << "op_code::step_result: " << name << std::endl;
+      }
+      break;
       case op_code::call:
       {
         uint32_t argc = frame->it.next();  // this is arg count
@@ -81,22 +115,43 @@ void vm::run()
         frame = &m_frames.back();
       }
       break;
+      case op_code::scenario_result:
+      {
+        std::cout << "op_code::scenario_result" << std::endl;
+      }
+      break;
+      case op_code::jump_if_failed:
+      {
+        uint32_t target = frame->it.next();
+        std::cout << "op_code::jump_if_failed: " << target << std::endl;
+      }
+      break;
       case op_code::print:
       {
-        // std::cout << "here we print some stuff!!!" << std::endl;
+        uint32_t color = frame->it.next();
+        std::cout << '[' << color << "] " << m_stack.back().as<std::string>();
+        m_stack.pop_back();
       }
       break;
       case op_code::println:
       {
-        // std::cout << "here we print some stuff!!!" << std::endl;
+        uint32_t color = frame->it.next();
+        std::cout << '[' << color << "] " << m_stack.back().as<std::string>()
+                  << '\n';
+        m_stack.pop_back();
+      }
+      break;
+      case op_code::init_scenario:
+      {
+        std::cout << "op_code::init_scenario" << std::endl;
       }
       break;
       case op_code::func_return:
       {
+        m_stack.pop_back();
         m_frames.pop_back();
         if (m_frames.empty())
         {
-          m_stack.pop_back();
           return;
         }
         else
@@ -107,7 +162,7 @@ void vm::run()
       break;
       default:
       {
-        std::cout << "default!" << std::endl;
+        std::cout << "default! Missing op_code: " << current << std::endl;
       }
     }
   }

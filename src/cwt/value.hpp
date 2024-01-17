@@ -80,11 +80,6 @@ class value
         m_value(std::make_unique<value_model<function>>(std::move(func)))
   {
   }
-  value(native&& func)
-      : m_type(value_type::native),
-        m_value(std::make_unique<value_model<native>>(std::move(func)))
-  {
-  }
 
   value(value&& other) : m_type(other.m_type), m_value(std::move(other.m_value))
   {
