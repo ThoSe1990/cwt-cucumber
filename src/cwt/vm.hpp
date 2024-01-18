@@ -21,14 +21,15 @@ class vm
  public:
   [[nodiscard]] return_code interpret(std::string_view source);
 
-  void push_step(const step& s);
-
-  void push_before(const hook& h);
-  void push_after(const hook& h);
-  void push_before_step(const hook& h);
-  void push_after_step(const hook& h);
+  static void push_step(const step& s);
 
  private:
+  [[nodiscard]] static std::vector<step>& steps();
+  [[nodiscard]] static std::vector<hook>& before();
+  [[nodiscard]] static std::vector<hook>& after();
+  [[nodiscard]] static std::vector<hook>& before_step();
+  [[nodiscard]] static std::vector<hook>& after_step();
+
   void run();
   void call(const function& func);
 
@@ -36,13 +37,6 @@ class vm
   std::deque<value> m_stack;
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
-
-  std::vector<step> m_steps;
-
-  std::vector<hook> m_before;
-  std::vector<hook> m_after;
-  std::vector<hook> m_before_step;
-  std::vector<hook> m_after_step;
 };
 
 }  // namespace cwt::details

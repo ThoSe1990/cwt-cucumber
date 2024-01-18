@@ -1,9 +1,10 @@
+// TODO remove iostream
 #include <iostream>
+#include <format>
 
 #include "vm.hpp"
 #include "compiler.hpp"
 #include "chunk.hpp"
-
 #include "util.hpp"
 // TODO Remove
 #define PRINT_STACK 1
@@ -33,13 +34,35 @@ return_code vm::interpret(std::string_view source)
     return return_code::compile_error;
   }
 }
-
-void vm::push_step(const step& s) { m_steps.push_back(s); }
-void vm::push_before(const hook& h) { m_before.push_back(h); }
-void vm::push_after(const hook& h) { m_after.push_back(h); }
-void vm::push_before_step(const hook& h) { m_before_step.push_back(h); }
-void vm::push_after_step(const hook& h) { m_after_step.push_back(h); }
-
+std::vector<step>& vm::steps()
+{
+  static std::vector<step> instance;
+  return instance;
+}
+void vm::push_step(const step& s)
+{
+  steps().push_back(s);
+}
+std::vector<hook>& vm::before()
+{
+  static std::vector<hook> instance;
+  return instance;
+}
+std::vector<hook>& vm::after()
+{
+  static std::vector<hook> instance;
+  return instance;
+}
+std::vector<hook>& vm::before_step()
+{
+  static std::vector<hook> instance;
+  return instance;
+}
+std::vector<hook>& vm::after_step()
+{
+  static std::vector<hook> instance;
+  return instance;
+}
 void vm::call(const function& func)
 {
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
@@ -107,7 +130,8 @@ void vm::run()
         std::string name =
             frame->chunk_ptr->constant(next).copy_as<std::string>();
         // TODO -> of course no loop here, just demonstartaion!
-        for (const auto& s : m_steps)
+        println(color::red, std::format("steps count: {}", steps().size()));
+        for (const auto& s : steps())
         {
           value_array values;
           s(values);
