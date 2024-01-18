@@ -2,11 +2,21 @@
 
 #include <string>
 #include <iostream>
+#include <unordered_map>
 
 #include "value.hpp"
 
 namespace cwt::details
 {
+
+enum class return_code
+{
+  passed,
+  failed,
+  compile_error,
+  runtime_error
+};
+
 enum class op_code : uint32_t
 {
   constant,
@@ -38,55 +48,6 @@ enum class color
   blue,
   black
 };
-
-class console_log
-{
- public:
-  console_log(color c, const std::string& str)
-  {
-    switch (c)
-    {
-      case color::standard:
-      {
-        std::cout << "\x1b[0m";
-      }
-      break;
-      case color::green:
-      {
-        std::cout << "\x1b[32m";
-      }
-      break;
-      case color::yellow:
-      {
-        std::cout << "\x1b[33m";
-      }
-      break;
-      case color::red:
-      {
-        std::cout << "\x1b[31m";
-      }
-      break;
-      case color::blue:
-      {
-        std::cout << "\x1b[34m";
-      }
-      break;
-      case color::black:
-      {
-        std::cout << "\x1b[30m";
-      }
-    }
-    std::cout << str;
-  }
-  ~console_log() { std::cout << "\x1b[0m"; }
-};
-
-static void print(color c, const std::string& str) { console_log(c, str); }
-static void println(color c, const std::string& str)
-{
-  print(c, str);
-  std::cout << '\n';
-}
 
 template <typename T>
 inline constexpr uint32_t to_uint(T value)
@@ -131,6 +92,31 @@ inline constexpr color to_color(uint32_t val)
     throw std::out_of_range(
         "inline color to_color(uint32_t val): value out of range");
   }
+}
+
+static const std::unordered_map<color, std::string> color_codes = {
+    {color::standard, "\x1b[0m"}, {color::green, "\x1b[32m"},
+    {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
+    {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
+
+static void print(color c, const std::string& str)
+{
+  auto it = color_codes.find(c);
+  if (it != color_codes.end())
+  {
+    std::cout << it->second;
+  }
+  else
+  {
+    std::cerr << "Color code " << to_uint(c) << " not found!\n";
+  }
+  std::cout << str << "\x1b[0m";
+}
+
+static void println(color c, const std::string& str)
+{
+  print(c, str);
+  std::cout << '\n';
 }
 
 }  // namespace cwt::details

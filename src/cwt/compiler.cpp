@@ -134,6 +134,7 @@ void compiler::step()
 
     patch_jump(target_idx);
     emit_bytes(op_code::step_result, step_idx);
+    
   }
   else
   {

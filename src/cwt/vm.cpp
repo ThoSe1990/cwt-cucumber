@@ -15,7 +15,7 @@
 namespace cwt::details
 {
 
-void vm::interpret(std::string_view source)
+return_code vm::interpret(std::string_view source)
 {
   compiler c(source);
   function feature = c.compile();
@@ -25,6 +25,12 @@ void vm::interpret(std::string_view source)
     m_stack.push_back(std::move(feature));
     call(m_stack.back().as<function>());
     run();
+    // TODO doesn't pass always
+    return return_code::passed;
+  }
+  else
+  {
+    return return_code::compile_error;
   }
 }
 

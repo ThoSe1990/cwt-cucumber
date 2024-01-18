@@ -16,11 +16,10 @@ struct call_frame
   chunk::const_iterator it;
 };
 
-
 class vm
 {
  public:
-  void interpret(std::string_view source);
+  [[nodiscard]] return_code interpret(std::string_view source);
 
   void push_step(const step& s);
 
