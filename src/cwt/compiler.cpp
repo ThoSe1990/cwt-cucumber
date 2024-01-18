@@ -38,7 +38,7 @@ function compiler::compile()
   start_function("script");
 
   m_parser.advance();
-  feature();
+  internal_compile();
 
   return std::make_unique<chunk>(end_function());
 }
@@ -111,94 +111,116 @@ std::size_t compiler::create_name(const std::string& location)
   token end = m_parser.current();
 
   emit_constant(create_string(begin, end));
-  // TODO colors 
+  // TODO colors
   emit_bytes(op_code::print, to_uint(color::standard));
   emit_constant(location);
   emit_bytes(op_code::println, to_uint(color::black));
   return m_chunks.top().last_constant() - 1;
 }
 
-void compiler::step()
-{
-  if (m_parser.match(token_type::step))
-  {
-    const std::size_t step_idx =
-        create_name(std::format("{}:{}", m_filename, m_parser.current().line));
-  
-    emit_byte(op_code::init_scenario);
-    uint32_t target_idx = emit_jump();
-
-    emit_hook(hook_type::before_step);
-    emit_bytes(op_code::call_step, step_idx);
-    emit_hook(hook_type::after_step);
-
-    patch_jump(target_idx);
-    emit_bytes(op_code::step_result, step_idx);
-    
-  }
-  else
-  {
-    m_parser.error_at(m_parser.current(), "Expect StepLine");
-  }
-}
-
-void compiler::scenario()
-{
-  if (m_parser.match(token_type::scenario))
-  {
-    const std::string location =
-        std::format("{}:{}", m_filename, m_parser.current().line);
-    start_function(location);
-    [[maybe_unused]] std::size_t idx = create_name(location);
-    // advances to end of line to consume name
-    // m_parser.advance_to(token_type::linebreak, token_type::eof);
-    m_parser.advance();
-    step();
-
-    chunk scenario_chunk = end_function();
-    emit_hook(hook_type::reset_context);
-    emit_hook(hook_type::before);
-    emit_bytes(op_code::constant, m_chunks.top().make_constant(
-                                      std::make_unique<chunk>(scenario_chunk)));
-    emit_bytes(op_code::define_var,
-               m_chunks.top().make_constant(scenario_chunk.name()));
-    emit_bytes(op_code::get_var, m_chunks.top().last_constant());
-    emit_bytes(op_code::call, 0);
-    emit_hook(hook_type::after);
-    emit_byte(op_code::scenario_result);
-  }
-  else
-  {
-    m_parser.error_at(m_parser.current(), "Expect ScenarioLine");
-  }
-}
-void compiler::feature()
+void compiler::internal_compile()
 {
   m_parser.skip_linebreaks();
   if (m_parser.match(token_type::feature))
   {
-    const std::string location = std::format("{}:{}", m_filename, m_parser.current().line);
-    start_function(location);
-    [[maybe_unused]] std::size_t idx = create_name(location);
-    m_parser.advance();
-
-    m_parser.advance_to(token_type::scenario, token_type::scenario_outline,
-                        token_type::tag, token_type::background,
-                        token_type::eof);
-
-    scenario();
-    chunk feature_chunk = end_function();
-
-    emit_bytes(op_code::constant, m_chunks.top().make_constant(
-                                      std::make_unique<chunk>(feature_chunk)));
-    emit_bytes(op_code::define_var,
-               m_chunks.top().make_constant(feature_chunk.name()));
-    emit_bytes(op_code::get_var, m_chunks.top().last_constant());
-    emit_bytes(op_code::call, 0);
+    feature_t f(this);
+    f.compile();
   }
   else
   {
     m_parser.error_at(m_parser.current(), "Expect FeatureLine");
+  }
+}
+
+compiler::feature_t::feature_t(compiler* parent) : m_parent(parent)
+{
+  const std::string location = std::format("{}:{}", m_parent->m_filename,
+                                           m_parent->m_parser.current().line);
+  m_parent->start_function(location);
+  [[maybe_unused]] std::size_t idx = m_parent->create_name(location);
+  m_parent->m_parser.advance();
+
+  m_parent->m_parser.advance_to(token_type::scenario,
+                                token_type::scenario_outline, token_type::tag,
+                                token_type::background, token_type::eof);
+}
+
+compiler::feature_t::~feature_t()
+{
+  chunk feature_chunk = m_parent->end_function();
+
+  m_parent->emit_bytes(op_code::constant,
+                       m_parent->m_chunks.top().make_constant(
+                           std::make_unique<chunk>(feature_chunk)));
+  m_parent->emit_bytes(
+      op_code::define_var,
+      m_parent->m_chunks.top().make_constant(feature_chunk.name()));
+  m_parent->emit_bytes(op_code::get_var,
+                       m_parent->m_chunks.top().last_constant());
+  m_parent->emit_bytes(op_code::call, 0);
+}
+
+void compiler::feature_t::compile()
+{
+  if (m_parent->m_parser.match(token_type::scenario))
+  {
+    scenario_t s(m_parent);
+    s.compile();
+  }
+  else
+  {
+    m_parent->m_parser.error_at(m_parent->m_parser.current(),
+                                "Expect ScenarioLine");
+  }
+}
+
+compiler::scenario_t::scenario_t(compiler* parent) : m_parent(parent)
+{
+  const std::string location = std::format("{}:{}", m_parent->m_filename,
+                                           m_parent->m_parser.current().line);
+  m_parent->start_function(location);
+  [[maybe_unused]] std::size_t idx = m_parent->create_name(location);
+  m_parent->m_parser.advance();
+}
+compiler::scenario_t::~scenario_t()
+{
+  chunk scenario_chunk = m_parent->end_function();
+  m_parent->emit_hook(hook_type::reset_context);
+  m_parent->emit_hook(hook_type::before);
+  m_parent->emit_bytes(op_code::constant,
+                       m_parent->m_chunks.top().make_constant(
+                           std::make_unique<chunk>(scenario_chunk)));
+  m_parent->emit_bytes(
+      op_code::define_var,
+      m_parent->m_chunks.top().make_constant(scenario_chunk.name()));
+  m_parent->emit_bytes(op_code::get_var,
+                       m_parent->m_chunks.top().last_constant());
+  m_parent->emit_bytes(op_code::call, 0);
+  m_parent->emit_hook(hook_type::after);
+  m_parent->emit_byte(op_code::scenario_result);
+}
+
+void compiler::scenario_t::compile()
+{
+  if (m_parent->m_parser.match(token_type::step))
+  {
+    const std::size_t step_idx = m_parent->create_name(std::format(
+        "{}:{}", m_parent->m_filename, m_parent->m_parser.current().line));
+
+    m_parent->emit_byte(op_code::init_scenario);
+    uint32_t target_idx = m_parent->emit_jump();
+
+    m_parent->emit_hook(hook_type::before_step);
+    m_parent->emit_bytes(op_code::call_step, step_idx);
+    m_parent->emit_hook(hook_type::after_step);
+
+    m_parent->patch_jump(target_idx);
+    m_parent->emit_bytes(op_code::step_result, step_idx);
+  }
+  else
+  {
+    m_parent->m_parser.error_at(m_parent->m_parser.current(),
+                                "Expect StepLine");
   }
 }
 

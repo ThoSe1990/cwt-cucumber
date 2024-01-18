@@ -6,13 +6,12 @@
 #include "chunk.hpp"
 #include "parser.hpp"
 
-
 /*
 
 TODO hooks args is for tags
 -> in version 1.0.0 tag evaluation is at runtime (in vm)
-        and this is reasonable because when compiling cucumber 
-        users hooks are not there, steps/hooks are implemented later
+        and this is reasonable because when compiling cucumber
+    10    users hooks are not there, steps/hooks are implemented later
 -> change hook types from string to an enum
 -> more emit functions to structure code (emit_hook(type))
 
@@ -31,13 +30,28 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
 
  private:
+  class feature_t
+  {
+   public:
+    feature_t(compiler* parent);
+    ~feature_t();
+    void compile();
+   private:
+    compiler* m_parent;
+  };
+  class scenario_t
+  {
+   public:
+    scenario_t(compiler* parent);
+    void compile();
+    ~scenario_t();
+   private:
+    compiler* m_parent;
+  };
   void start_function(const std::string& name);
   chunk end_function();
 
-  void feature();
-  void scenario();
-  void step();
-
+  void internal_compile();
   [[nodiscard]] std::size_t create_name(const std::string& location);
 
   void emit_byte(uint32_t byte);
@@ -53,7 +67,6 @@ class compiler
   }
 
   void emit_hook(hook_type type);
-
 
  private:
   parser m_parser;
