@@ -55,16 +55,18 @@ using hook_callback = void (*)();
 struct hook
 {
  public:
+  hook(hook_callback cb) : m_callback(cb) {}
   hook(hook_callback cb, const std::string& tags) : m_callback(cb), m_tags(tags)
   {
   }
-  const std::string& tags() const noexcept { return m_tags; }
+  [[nodiscard]] bool has_tags() const noexcept { return !m_tags.empty(); }
+  [[nodiscard]] const std::string& tags() const noexcept { return m_tags; }
   void call() const { m_callback(); }
   void operator()() const { m_callback(); }
 
  private:
   hook_callback m_callback;
-  std::string m_tags;
+  std::string m_tags{""};
 };
 
 template <typename T, typename = void>

@@ -22,6 +22,10 @@ class vm
   [[nodiscard]] return_code interpret(std::string_view source);
 
   static void push_step(const step& s);
+  static void push_hook_before(const hook& h);
+  static void push_hook_after(const hook& h);
+  static void push_hook_before_step(const hook& h);
+  static void push_hook_after_step(const hook& h);
 
  private:
   [[nodiscard]] static std::vector<step>& steps();

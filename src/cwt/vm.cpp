@@ -48,21 +48,38 @@ std::vector<hook>& vm::before()
   static std::vector<hook> instance;
   return instance;
 }
+void vm::push_hook_before(const hook& h)
+{
+  before().push_back(h);
+}
 std::vector<hook>& vm::after()
 {
   static std::vector<hook> instance;
   return instance;
+}
+void vm::push_hook_after(const hook& h)
+{
+  after().push_back(h);
 }
 std::vector<hook>& vm::before_step()
 {
   static std::vector<hook> instance;
   return instance;
 }
+void vm::push_hook_before_step(const hook& h)
+{
+  before_step().push_back(h);
+}
 std::vector<hook>& vm::after_step()
 {
   static std::vector<hook> instance;
   return instance;
 }
+void vm::push_hook_after_step(const hook& h)
+{
+  after_step().push_back(h);
+}
+
 void vm::call(const function& func)
 {
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
@@ -116,6 +133,35 @@ void vm::run()
       {
         hook_type type = to_hook_type(frame->it.next());
         std::cout << "op_code::hook";
+        if (type == hook_type::before)
+        {
+          for (auto& h : before())
+          {
+            h.call();
+          }
+        }
+        if (type == hook_type::after)
+        {
+          for (auto& h : after())
+          {
+            h.call();
+          }
+        }
+
+        if (type == hook_type::before_step)
+        {
+          for (auto& h : before_step())
+          {
+            h.call();
+          }
+        }
+        if (type == hook_type::after_step)
+        {
+          for (auto& h : after_step())
+          {
+            h.call();
+          }
+        }
         if (type == hook_type::before || type == hook_type::after)
         {
           uint32_t tags = frame->it.next();
