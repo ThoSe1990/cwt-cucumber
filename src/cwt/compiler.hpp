@@ -36,6 +36,7 @@ class compiler
     feature(compiler* parent);
     ~feature();
     void compile();
+
    private:
     compiler* m_parent;
   };
@@ -45,6 +46,7 @@ class compiler
     scenario(compiler* parent);
     ~scenario();
     void compile();
+
    private:
     compiler* m_parent;
   };
@@ -59,6 +61,11 @@ class compiler
   void emit_bytes(op_code code, uint32_t byte);
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
+  template <typename Arg>
+  void emit_constant(op_code code, Arg&& arg)
+  {
+    emit_bytes(code, m_chunks.top().make_constant(std::forward<Arg>(arg)));
+  }
   template <typename Arg>
   void emit_constant(Arg&& arg)
   {

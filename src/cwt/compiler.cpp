@@ -149,12 +149,8 @@ compiler::feature::~feature()
 {
   chunk feature_chunk = m_parent->end_function();
 
-  m_parent->emit_bytes(op_code::constant,
-                       m_parent->m_chunks.top().make_constant(
-                           std::make_unique<chunk>(feature_chunk)));
-  m_parent->emit_bytes(
-      op_code::define_var,
-      m_parent->m_chunks.top().make_constant(feature_chunk.name()));
+  m_parent->emit_constant(std::make_unique<chunk>(feature_chunk));
+  m_parent->emit_constant(op_code::define_var, feature_chunk.name());
   m_parent->emit_bytes(op_code::get_var,
                        m_parent->m_chunks.top().last_constant());
   m_parent->emit_bytes(op_code::call, 0);
@@ -187,12 +183,8 @@ compiler::scenario::~scenario()
   chunk scenario_chunk = m_parent->end_function();
   m_parent->emit_hook(hook_type::reset_context);
   m_parent->emit_hook(hook_type::before);
-  m_parent->emit_bytes(op_code::constant,
-                       m_parent->m_chunks.top().make_constant(
-                           std::make_unique<chunk>(scenario_chunk)));
-  m_parent->emit_bytes(
-      op_code::define_var,
-      m_parent->m_chunks.top().make_constant(scenario_chunk.name()));
+  m_parent->emit_constant(std::make_unique<chunk>(scenario_chunk));
+  m_parent->emit_constant(op_code::define_var, scenario_chunk.name());
   m_parent->emit_bytes(op_code::get_var,
                        m_parent->m_chunks.top().last_constant());
   m_parent->emit_bytes(op_code::call, 0);
