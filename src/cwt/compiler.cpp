@@ -64,10 +64,8 @@ chunk compiler::end_function()
   m_chunks.pop();
   return std::move(top);
 }
-chunk& compiler::current_chunk()
-{
-  return m_chunks.top();
-}
+
+chunk& compiler::current_chunk() { return m_chunks.top(); }
 void compiler::emit_byte(uint32_t byte)
 {
   current_chunk().push_byte(byte, m_parser.previous().line);
@@ -202,13 +200,13 @@ void compiler::scenario::compile()
         "{}:{}", m_parent->m_filename, m_parent->m_parser.current().line));
 
     m_parent->emit_byte(op_code::init_scenario);
-    uint32_t target_idx = m_parent->emit_jump();
+    uint32_t jump = m_parent->emit_jump();
 
     m_parent->emit_hook(hook_type::before_step);
     m_parent->emit_bytes(op_code::call_step, step_idx);
     m_parent->emit_hook(hook_type::after_step);
 
-    m_parent->patch_jump(target_idx);
+    m_parent->patch_jump(jump);
     m_parent->emit_bytes(op_code::step_result, step_idx);
   }
   else

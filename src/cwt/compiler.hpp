@@ -66,13 +66,13 @@ class compiler
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
   {
-    emit_bytes(code, m_chunks.top().make_constant(std::forward<Arg>(arg)));
+    emit_bytes(code, current_chunk().make_constant(std::forward<Arg>(arg)));
   }
   template <typename Arg>
   void emit_constant(Arg&& arg)
   {
     emit_bytes(op_code::constant,
-               m_chunks.top().make_constant(std::forward<Arg>(arg)));
+               current_chunk().make_constant(std::forward<Arg>(arg)));
   }
 
   void emit_hook(hook_type type);
