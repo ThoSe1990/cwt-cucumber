@@ -51,7 +51,9 @@ class compiler
     compiler* m_parent;
   };
   void start_function(const std::string& name);
-  chunk end_function();
+  [[nodiscard]] chunk end_function();
+
+  [[nodiscard]] chunk& current_chunk();
 
   void internal_compile();
   [[nodiscard]] std::size_t create_name(const std::string& location);

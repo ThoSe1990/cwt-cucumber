@@ -52,47 +52,50 @@ void compiler::start_function(const std::string& name)
 
 chunk compiler::end_function()
 {
-  m_chunks.top().push_byte(op_code::func_return, m_parser.previous().line);
+  current_chunk().push_byte(op_code::func_return, m_parser.previous().line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(m_chunks.top(), m_chunks.top().name());
+    disassemble_chunk(current_chunk(), current_chunk().name());
     std::cout << "\n";
   }
 #endif
-  chunk top = std::move(m_chunks.top());
+  chunk top = std::move(current_chunk());
   m_chunks.pop();
   return std::move(top);
 }
-
+chunk& compiler::current_chunk()
+{
+  return m_chunks.top();
+}
 void compiler::emit_byte(uint32_t byte)
 {
-  m_chunks.top().push_byte(byte, m_parser.previous().line);
+  current_chunk().push_byte(byte, m_parser.previous().line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_chunks.top().push_byte(code, m_parser.previous().line);
+  current_chunk().push_byte(code, m_parser.previous().line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_chunks.top().push_byte(code, m_parser.previous().line);
-  m_chunks.top().push_byte(byte, m_parser.previous().line);
+  current_chunk().push_byte(code, m_parser.previous().line);
+  current_chunk().push_byte(byte, m_parser.previous().line);
 }
 uint32_t compiler::emit_jump()
 {
   emit_byte(op_code::jump_if_failed);
   emit_byte(std::numeric_limits<uint32_t>::max());
-  return m_chunks.top().size() - 1;
+  return current_chunk().size() - 1;
 }
 void compiler::patch_jump(uint32_t offset)
 {
-  uint32_t jump = m_chunks.top().size() - 1 - offset;
+  uint32_t jump = current_chunk().size() - 1 - offset;
   if (jump > std::numeric_limits<uint32_t>::max())
   {
     m_parser.error_at(m_parser.previous(), "Too much code to jump over.");
   }
 
-  m_chunks.top().at(offset) = m_chunks.top().size();
+  current_chunk().at(offset) = current_chunk().size();
 }
 
 void compiler::emit_hook(hook_type type)
@@ -111,11 +114,10 @@ std::size_t compiler::create_name(const std::string& location)
   token end = m_parser.current();
 
   emit_constant(create_string(begin, end));
-  // TODO colors
   emit_bytes(op_code::print, to_uint(color::standard));
   emit_constant(location);
   emit_bytes(op_code::println, to_uint(color::black));
-  return m_chunks.top().last_constant() - 1;
+  return current_chunk().last_constant() - 1;
 }
 
 void compiler::internal_compile()
@@ -152,7 +154,7 @@ compiler::feature::~feature()
   m_parent->emit_constant(std::make_unique<chunk>(feature_chunk));
   m_parent->emit_constant(op_code::define_var, feature_chunk.name());
   m_parent->emit_bytes(op_code::get_var,
-                       m_parent->m_chunks.top().last_constant());
+                       m_parent->current_chunk().last_constant());
   m_parent->emit_bytes(op_code::call, 0);
 }
 
@@ -186,7 +188,7 @@ compiler::scenario::~scenario()
   m_parent->emit_constant(std::make_unique<chunk>(scenario_chunk));
   m_parent->emit_constant(op_code::define_var, scenario_chunk.name());
   m_parent->emit_bytes(op_code::get_var,
-                       m_parent->m_chunks.top().last_constant());
+                       m_parent->current_chunk().last_constant());
   m_parent->emit_bytes(op_code::call, 0);
   m_parent->emit_hook(hook_type::after);
   m_parent->emit_byte(op_code::scenario_result);
