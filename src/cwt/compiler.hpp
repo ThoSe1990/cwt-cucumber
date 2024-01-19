@@ -5,20 +5,16 @@
 
 #include "chunk.hpp"
 #include "parser.hpp"
-
-/*
-
-TODO hooks args is for tags
--> in version 1.0.0 tag evaluation is at runtime (in vm)
-        and this is reasonable because when compiling cucumber
-    10    users hooks are not there, steps/hooks are implemented later
--> change hook types from string to an enum
--> more emit functions to structure code (emit_hook(type))
-
-*/
+#include "token.hpp"
 
 namespace cwt::details
 {
+
+static constexpr std::string create_string(std::string_view sv);
+static constexpr std::string create_string(std::string_view begin,
+                                           std::string_view end);
+static constexpr std::string create_string(const token& begin,
+                                           const token& end);
 
 class compiler
 {
@@ -30,32 +26,11 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
 
  private:
-  class feature
-  {
-   public:
-    feature(compiler* parent);
-    ~feature();
-    void compile();
-
-   private:
-    compiler* m_parent;
-  };
-  class scenario
-  {
-   public:
-    scenario(compiler* parent);
-    ~scenario();
-    void compile();
-
-   private:
-    compiler* m_parent;
-  };
-  void start_function(const std::string& name);
-  [[nodiscard]] chunk end_function();
-
   [[nodiscard]] chunk& current_chunk();
+  [[nodiscard]] chunk pop_chunk();
+  void push_chunk(const std::string& name);
 
-  void internal_compile();
+  [[nodiscard]] std::string location() const;
   [[nodiscard]] std::size_t create_name(const std::string& location);
 
   void emit_byte(uint32_t byte);
@@ -76,6 +51,52 @@ class compiler
   }
 
   void emit_hook(hook_type type);
+
+ private:
+  template <typename C>
+  class parent_compiler
+  {
+   public:
+    parent_compiler(compiler* parent) : m_parent(parent)
+    {
+      m_parent->push_chunk("script");
+    }
+
+    parent_compiler(compiler* parent, const std::string& name)
+        : m_parent(parent)
+    {
+      m_parent->push_chunk(name);
+    }
+
+    ~parent_compiler() = default;
+
+    void compile() { static_cast<C*>(this)->compile_impl(); }
+    compiler* parent() { return m_parent; }
+    
+   private:
+    compiler* m_parent;
+  };
+
+  class main_compiler : public parent_compiler<main_compiler>
+  {
+   public:
+    main_compiler(compiler* parent);
+    void compile_impl();
+  };
+  class feature : public parent_compiler<feature>
+  {
+   public:
+    feature(compiler* p);
+    ~feature();
+    void compile_impl();
+  };
+  class scenario : public parent_compiler<scenario>
+  {
+   public:
+    scenario(compiler* parent);
+    ~scenario();
+    void compile_impl();
+  };
 
  private:
   parser m_parser;

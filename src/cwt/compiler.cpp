@@ -1,11 +1,9 @@
 #include <format>
-
-#include "compiler.hpp"
-#include "token.hpp"
-
 // TODO Remove define
 #define PRINT_STACK 1
 #include "debug.hpp"
+
+#include "compiler.hpp"
 
 namespace cwt::details
 {
@@ -35,28 +33,23 @@ compiler::compiler(std::string_view source, std::string_view filename)
 
 function compiler::compile()
 {
-  start_function("script");
-
-  m_parser.advance();
-  internal_compile();
-
-  return std::make_unique<chunk>(end_function());
+  main_compiler m(this);
+  m.compile();
+  return std::make_unique<chunk>(pop_chunk());
 }
 bool compiler::error() const noexcept { return m_parser.error(); }
 bool compiler::no_error() const noexcept { return !error(); }
+chunk& compiler::current_chunk() { return m_chunks.top(); }
 
-void compiler::start_function(const std::string& name)
+chunk compiler::pop_chunk()
 {
-  m_chunks.push(chunk(name));
-}
-
-chunk compiler::end_function()
-{
-  current_chunk().push_byte(op_code::func_return, m_parser.previous().line);
+  current_chunk().push_byte(op_code::func_return,
+                                      m_parser.previous().line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(current_chunk(), current_chunk().name());
+    disassemble_chunk(current_chunk(),
+                      current_chunk().name());
     std::cout << "\n";
   }
 #endif
@@ -64,8 +57,15 @@ chunk compiler::end_function()
   m_chunks.pop();
   return std::move(top);
 }
+void compiler::push_chunk(const std::string& name)
+{
+  m_chunks.push(chunk(name));
+}
 
-chunk& compiler::current_chunk() { return m_chunks.top(); }
+std::string compiler::location() const
+{
+  return std::format("{}:{}", m_filename, m_parser.current().line);
+}
 void compiler::emit_byte(uint32_t byte)
 {
   current_chunk().push_byte(byte, m_parser.previous().line);
@@ -116,104 +116,6 @@ std::size_t compiler::create_name(const std::string& location)
   emit_constant(location);
   emit_bytes(op_code::println, to_uint(color::black));
   return current_chunk().last_constant() - 1;
-}
-
-void compiler::internal_compile()
-{
-  m_parser.skip_linebreaks();
-  if (m_parser.match(token_type::feature))
-  {
-    feature f(this);
-    f.compile();
-  }
-  else
-  {
-    m_parser.error_at(m_parser.current(), "Expect FeatureLine");
-  }
-}
-
-compiler::feature::feature(compiler* parent) : m_parent(parent)
-{
-  const std::string location = std::format("{}:{}", m_parent->m_filename,
-                                           m_parent->m_parser.current().line);
-  m_parent->start_function(location);
-  [[maybe_unused]] std::size_t idx = m_parent->create_name(location);
-  m_parent->m_parser.advance();
-
-  m_parent->m_parser.advance_to(token_type::scenario,
-                                token_type::scenario_outline, token_type::tag,
-                                token_type::background, token_type::eof);
-}
-
-compiler::feature::~feature()
-{
-  chunk feature_chunk = m_parent->end_function();
-
-  m_parent->emit_constant(std::make_unique<chunk>(feature_chunk));
-  m_parent->emit_constant(op_code::define_var, feature_chunk.name());
-  m_parent->emit_bytes(op_code::get_var,
-                       m_parent->current_chunk().last_constant());
-  m_parent->emit_bytes(op_code::call, 0);
-}
-
-void compiler::feature::compile()
-{
-  if (m_parent->m_parser.match(token_type::scenario))
-  {
-    scenario s(m_parent);
-    s.compile();
-  }
-  else
-  {
-    m_parent->m_parser.error_at(m_parent->m_parser.current(),
-                                "Expect ScenarioLine");
-  }
-}
-
-compiler::scenario::scenario(compiler* parent) : m_parent(parent)
-{
-  const std::string location = std::format("{}:{}", m_parent->m_filename,
-                                           m_parent->m_parser.current().line);
-  m_parent->start_function(location);
-  [[maybe_unused]] std::size_t idx = m_parent->create_name(location);
-  m_parent->m_parser.advance();
-}
-compiler::scenario::~scenario()
-{
-  chunk scenario_chunk = m_parent->end_function();
-  m_parent->emit_hook(hook_type::reset_context);
-  m_parent->emit_hook(hook_type::before);
-  m_parent->emit_constant(std::make_unique<chunk>(scenario_chunk));
-  m_parent->emit_constant(op_code::define_var, scenario_chunk.name());
-  m_parent->emit_bytes(op_code::get_var,
-                       m_parent->current_chunk().last_constant());
-  m_parent->emit_bytes(op_code::call, 0);
-  m_parent->emit_hook(hook_type::after);
-  m_parent->emit_byte(op_code::scenario_result);
-}
-
-void compiler::scenario::compile()
-{
-  if (m_parent->m_parser.match(token_type::step))
-  {
-    const std::size_t step_idx = m_parent->create_name(std::format(
-        "{}:{}", m_parent->m_filename, m_parent->m_parser.current().line));
-
-    m_parent->emit_byte(op_code::init_scenario);
-    uint32_t jump = m_parent->emit_jump();
-
-    m_parent->emit_hook(hook_type::before_step);
-    m_parent->emit_bytes(op_code::call_step, step_idx);
-    m_parent->emit_hook(hook_type::after_step);
-
-    m_parent->patch_jump(jump);
-    m_parent->emit_bytes(op_code::step_result, step_idx);
-  }
-  else
-  {
-    m_parent->m_parser.error_at(m_parent->m_parser.current(),
-                                "Expect StepLine");
-  }
 }
 
 }  // namespace cwt::details
