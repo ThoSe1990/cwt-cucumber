@@ -123,7 +123,7 @@ void compiler::internal_compile()
   m_parser.skip_linebreaks();
   if (m_parser.match(token_type::feature))
   {
-    feature_t f(this);
+    feature f(this);
     f.compile();
   }
   else
@@ -132,7 +132,7 @@ void compiler::internal_compile()
   }
 }
 
-compiler::feature_t::feature_t(compiler* parent) : m_parent(parent)
+compiler::feature::feature(compiler* parent) : m_parent(parent)
 {
   const std::string location = std::format("{}:{}", m_parent->m_filename,
                                            m_parent->m_parser.current().line);
@@ -145,7 +145,7 @@ compiler::feature_t::feature_t(compiler* parent) : m_parent(parent)
                                 token_type::background, token_type::eof);
 }
 
-compiler::feature_t::~feature_t()
+compiler::feature::~feature()
 {
   chunk feature_chunk = m_parent->end_function();
 
@@ -160,11 +160,11 @@ compiler::feature_t::~feature_t()
   m_parent->emit_bytes(op_code::call, 0);
 }
 
-void compiler::feature_t::compile()
+void compiler::feature::compile()
 {
   if (m_parent->m_parser.match(token_type::scenario))
   {
-    scenario_t s(m_parent);
+    scenario s(m_parent);
     s.compile();
   }
   else
@@ -174,7 +174,7 @@ void compiler::feature_t::compile()
   }
 }
 
-compiler::scenario_t::scenario_t(compiler* parent) : m_parent(parent)
+compiler::scenario::scenario(compiler* parent) : m_parent(parent)
 {
   const std::string location = std::format("{}:{}", m_parent->m_filename,
                                            m_parent->m_parser.current().line);
@@ -182,7 +182,7 @@ compiler::scenario_t::scenario_t(compiler* parent) : m_parent(parent)
   [[maybe_unused]] std::size_t idx = m_parent->create_name(location);
   m_parent->m_parser.advance();
 }
-compiler::scenario_t::~scenario_t()
+compiler::scenario::~scenario()
 {
   chunk scenario_chunk = m_parent->end_function();
   m_parent->emit_hook(hook_type::reset_context);
@@ -200,7 +200,7 @@ compiler::scenario_t::~scenario_t()
   m_parent->emit_byte(op_code::scenario_result);
 }
 
-void compiler::scenario_t::compile()
+void compiler::scenario::compile()
 {
   if (m_parent->m_parser.match(token_type::step))
   {

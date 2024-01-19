@@ -30,21 +30,21 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
 
  private:
-  class feature_t
+  class feature
   {
    public:
-    feature_t(compiler* parent);
-    ~feature_t();
+    feature(compiler* parent);
+    ~feature();
     void compile();
    private:
     compiler* m_parent;
   };
-  class scenario_t
+  class scenario
   {
    public:
-    scenario_t(compiler* parent);
+    scenario(compiler* parent);
+    ~scenario();
     void compile();
-    ~scenario_t();
    private:
     compiler* m_parent;
   };
