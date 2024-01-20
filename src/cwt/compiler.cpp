@@ -33,8 +33,18 @@ compiler::compiler(std::string_view source, std::string_view filename)
 
 function compiler::compile()
 {
-  main_compiler m(this);
-  m.compile();
+  push_chunk("script");
+  m_parser.advance();
+  m_parser.skip_linebreaks();
+  if (m_parser.match(token_type::feature))
+  {
+    feature f(this);
+    f.compile();
+  }
+  else
+  {
+    m_parser.error_at(m_parser.current(), "Expect FeatureLine");
+  }
   return std::make_unique<chunk>(pop_chunk());
 }
 bool compiler::error() const noexcept { return m_parser.error(); }
@@ -43,13 +53,11 @@ chunk& compiler::current_chunk() { return m_chunks.top(); }
 
 chunk compiler::pop_chunk()
 {
-  current_chunk().push_byte(op_code::func_return,
-                                      m_parser.previous().line);
+  current_chunk().push_byte(op_code::func_return, m_parser.previous().line);
 #ifdef PRINT_STACK
   if (no_error())
   {
-    disassemble_chunk(current_chunk(),
-                      current_chunk().name());
+    disassemble_chunk(current_chunk(), current_chunk().name());
     std::cout << "\n";
   }
 #endif

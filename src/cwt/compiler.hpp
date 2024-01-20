@@ -72,17 +72,11 @@ class compiler
 
     void compile() { static_cast<C*>(this)->compile_impl(); }
     compiler* parent() { return m_parent; }
-    
+
    private:
     compiler* m_parent;
   };
 
-  class main_compiler : public parent_compiler<main_compiler>
-  {
-   public:
-    main_compiler(compiler* parent);
-    void compile_impl();
-  };
   class feature : public parent_compiler<feature>
   {
    public:
