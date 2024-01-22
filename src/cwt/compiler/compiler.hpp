@@ -10,11 +10,18 @@
 
 namespace cwt::details
 {
-static constexpr std::string create_string(std::string_view sv);
-static constexpr std::string create_string(std::string_view begin,
-                                           std::string_view end);
-static constexpr std::string create_string(const token& begin,
-                                           const token& end);
+inline std::string create_string(std::string_view sv)
+{
+  return std::string(sv);
+}
+inline std::string create_string(std::string_view begin, std::string_view end)
+{
+  return std::string(begin.data(), end.data() - begin.data());
+}
+inline std::string create_string(const token& begin, const token& end)
+{
+  return create_string(begin.value, end.value);
+}
 
 class compiler
 {

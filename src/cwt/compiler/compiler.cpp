@@ -12,26 +12,16 @@
 namespace cwt::details
 {
 
-static constexpr std::string create_string(std::string_view sv)
-{
-  return std::string(sv);
-}
-static constexpr std::string create_string(std::string_view begin,
-                                           std::string_view end)
-{
-  return std::string(begin.data(), end.data() - begin.data());
-}
-static constexpr std::string create_string(const token& begin, const token& end)
-{
-  return create_string(begin.value, end.value);
-}
-
 compiler::compiler(std::string_view source)
-    : m_parser(std::make_shared<parser>(source)), m_filename(std::string(""))
+    : m_parser(std::make_shared<parser>(source)),
+      m_filename(std::string("")),
+      m_chunk("script")
 {
 }
 compiler::compiler(std::string_view source, std::string_view filename)
-    : m_parser(std::make_shared<parser>(source)), m_filename(filename)
+    : m_parser(std::make_shared<parser>(source)),
+      m_filename(filename),
+      m_chunk("script")
 {
 }
 

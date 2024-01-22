@@ -25,7 +25,7 @@ return_code vm::interpret(std::string_view source)
 
   if (c.no_error())
   {
-    m_stack.push_back(c.create_function());
+    m_stack.push_back(c.make_function());
     call(m_stack.back().as<function>());
     run();
     // TODO that can fail in run()

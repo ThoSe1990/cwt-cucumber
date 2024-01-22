@@ -1,17 +1,17 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler.hpp"
-#include "../src/cwt/chunk.hpp"
+#include "../src/cwt/compiler/cuke_compiler.hpp"
 
 using namespace cwt::details;
 
-TEST(compiler, init_object) { compiler c(""); }
+TEST(compiler, init_object) 
+{ cuke_compiler c(""); }
 
 TEST(compiler, empty_script)
 {
   testing::internal::CaptureStderr();
-  compiler c("");
-  function func = c.compile();
+  cuke_compiler c("");
+  c.compile();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(std::string("[line 1] Error at end: Expect FeatureLine\n"),
             testing::internal::GetCapturedStderr());
@@ -19,8 +19,8 @@ TEST(compiler, empty_script)
 TEST(compiler, invalid_begin)
 {
   testing::internal::CaptureStderr();
-  compiler c("asdfsadf");
-  function func = c.compile();
+  cuke_compiler c("asdfsadf");
+  c.compile();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(std::string("[line 1] Error  at 'asdfsadf': Expect FeatureLine\n"),
             testing::internal::GetCapturedStderr());
@@ -29,8 +29,9 @@ TEST(compiler, invalid_begin)
 TEST(compiler, main_chunk_name)
 {
   testing::internal::CaptureStderr();
-  compiler c("Feature:");
-  function main = c.compile();
+  cuke_compiler c("Feature:");
+  c.compile();
+  function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
   EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
@@ -45,8 +46,9 @@ TEST(compiler, main_chunk_other_language)
 
 Funktion:
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
   EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
@@ -59,8 +61,9 @@ TEST(compiler, main_chunk_ignore_linebreaks)
   
   Feature:
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
   EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
@@ -68,8 +71,9 @@ TEST(compiler, main_chunk_ignore_linebreaks)
 }
 TEST(compiler, main_chunk_code)
 {
-  compiler c("Feature:");
-  function main = c.compile();
+  cuke_compiler c("Feature:");
+  c.compile();
+  function main = c.make_function();
 
   EXPECT_EQ(main->size(), 9);
 
@@ -85,8 +89,9 @@ TEST(compiler, main_chunk_code)
 }
 TEST(compiler, main_chunk_constants)
 {
-  compiler c("Feature:");
-  function main = c.compile();
+  cuke_compiler c("Feature:");
+  c.compile();
+  function main = c.make_function();
 
   EXPECT_EQ(main->constants_count(), 2);
   EXPECT_EQ(main->constant(0).type(), value_type::function);
@@ -94,8 +99,9 @@ TEST(compiler, main_chunk_constants)
 }
 TEST(compiler, feature_chunk)
 {
-  compiler c("Feature:");
-  function main = c.compile();
+  cuke_compiler c("Feature:");
+  c.compile();
+  function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
   EXPECT_EQ(feature->name(), std::string(":1"));
   EXPECT_EQ(feature->back(), to_uint(op_code::func_return));
@@ -106,8 +112,9 @@ TEST(compiler, regular_scenario)
   const char* script = R"*(
   Feature: A Fancy Feature
   Scenario: A Scenario)*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   EXPECT_EQ(main->name(), std::string{"script"});
   EXPECT_EQ(main->size(), 9);
   EXPECT_EQ(std::string("[line 3] Error at end: Expect StepLine\n"),
@@ -120,8 +127,9 @@ TEST(compiler, feature_chunk_code)
   Feature: A Fancy Feature
   Scenario: A Scenario
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
   EXPECT_EQ(feature->size(), 26);
 
@@ -166,8 +174,9 @@ TEST(compiler, feature_constants)
   Scenario: A Scenario
   Given Any Step
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
   ASSERT_EQ(feature->constants_count(), 4);
   EXPECT_EQ(feature->name(), ":2");
@@ -190,8 +199,9 @@ TEST(compiler, scenario_chunk_code)
   Scenario: A Scenario
   Given Any Step
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
   const function& scenario = feature->constant(2).as<function>();
 
@@ -241,8 +251,9 @@ TEST(compiler, scenario_chunk_constants)
   Scenario: A Scenario
   Given Any Step
 )*";
-  compiler c(script);
-  function main = c.compile();
+  cuke_compiler c(script);
+  c.compile();
+  function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
   const function& scenario = feature->constant(2).as<function>();
   // ASSERT_EQ(scenario->constants_count(), 8);

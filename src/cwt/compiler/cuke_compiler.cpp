@@ -4,20 +4,24 @@
 
 namespace cwt::details
 {
-cuke_compiler::cuke_compiler(std::string_view source) : compiler(source, "") {}
+cuke_compiler::cuke_compiler(std::string_view source) : compiler(source, "")
+{
+  m_parser->advance();
+  m_parser->skip_linebreaks();
+}
 cuke_compiler::cuke_compiler(std::string_view source, std::string_view filename)
     : compiler(source, filename)
 {
+  m_parser->advance();
+  m_parser->skip_linebreaks();
 }
-function cuke_compiler::create_function() noexcept
+function cuke_compiler::make_function() noexcept
 {
   return std::make_unique<chunk>(take_chunk());
 }
 void cuke_compiler::compile()
 {
-  m_parser->advance();
-  m_parser->skip_linebreaks();
-  if (m_parser->match(token_type::feature))
+  if (m_parser->check(token_type::feature))
   {
     feature f(this);
     f.compile();
