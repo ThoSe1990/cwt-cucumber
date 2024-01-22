@@ -2,6 +2,13 @@
 
 #include "compiler.hpp"
 
+// TODO Remove define
+#define PRINT_STACK 1
+
+#ifdef PRINT_STACK
+#include "../debug.hpp"
+#endif
+
 namespace cwt::details
 {
 
@@ -30,7 +37,19 @@ compiler::compiler(std::string_view source, std::string_view filename)
 
 bool compiler::error() const noexcept { return m_parser->error(); }
 bool compiler::no_error() const noexcept { return !error(); }
-chunk compiler::take_chunk() noexcept { return std::move(m_chunk); }
+chunk& compiler::get_chunk() noexcept { return m_chunk; }
+chunk compiler::take_chunk() noexcept
+{
+  m_chunk.push_byte(op_code::func_return, m_parser->previous().line);
+#ifdef PRINT_STACK
+  if (no_error())
+  {
+    disassemble_chunk(m_chunk, m_chunk.name());
+    std::cout << "\n";
+  }
+#endif
+  return std::move(m_chunk);
+}
 
 std::string compiler::location() const
 {

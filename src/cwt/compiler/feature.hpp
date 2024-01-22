@@ -9,6 +9,7 @@ class feature : public compiler
 {
  public:
   feature(cuke_compiler* enclosing);
+  ~feature();
   void compile();
 
  private:

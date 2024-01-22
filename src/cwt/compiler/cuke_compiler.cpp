@@ -9,6 +9,10 @@ cuke_compiler::cuke_compiler(std::string_view source, std::string_view filename)
     : compiler(source, filename)
 {
 }
+function cuke_compiler::create_function() noexcept
+{
+  return std::make_unique<chunk>(take_chunk());
+}
 void cuke_compiler::compile()
 {
   m_parser->advance();

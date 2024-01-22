@@ -5,6 +5,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cuke_compiler.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vm.cpp
 )

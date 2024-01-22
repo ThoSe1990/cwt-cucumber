@@ -63,5 +63,3 @@ TEST(vm, first_feature)
   test_vm.interpret(script);
 }
 
-#include "../src/cwt/compiler/cuke_compiler.hpp"
-

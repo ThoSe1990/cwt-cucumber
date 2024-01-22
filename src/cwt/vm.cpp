@@ -3,9 +3,10 @@
 #include <format>
 
 #include "vm.hpp"
-#include "compiler.hpp"
 #include "chunk.hpp"
 #include "util.hpp"
+#include "compiler/cuke_compiler.hpp"
+
 // TODO Remove
 #define PRINT_STACK 1
 
@@ -18,15 +19,16 @@ namespace cwt::details
 
 return_code vm::interpret(std::string_view source)
 {
-  compiler c(source);
-  function feature = c.compile();
+  cuke_compiler c(source);
+  
+  c.compile();
 
   if (c.no_error())
   {
-    m_stack.push_back(std::move(feature));
+    m_stack.push_back(c.create_function());
     call(m_stack.back().as<function>());
     run();
-    // TODO doesn't pass always
+    // TODO that can fail in run()
     return return_code::passed;
   }
   else

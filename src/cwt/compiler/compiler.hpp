@@ -24,6 +24,7 @@ class compiler
   [[nodiscard]] bool error() const noexcept;
   [[nodiscard]] bool no_error() const noexcept;
   [[nodiscard]] chunk take_chunk() noexcept;
+  [[nodiscard]] chunk& get_chunk() noexcept;
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
