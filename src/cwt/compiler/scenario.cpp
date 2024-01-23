@@ -6,6 +6,7 @@ namespace cwt::details
 scenario::scenario(feature* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
+  m_parser->advance();
   [[maybe_unused]] std::size_t idx = create_name(location());
   m_parser->advance();
 }

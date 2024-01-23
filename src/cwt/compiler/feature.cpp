@@ -7,8 +7,7 @@ namespace cwt::details
 feature::feature(cuke_compiler* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
-  m_parser->consume(token_type::feature, "Expect FeatureLine");
-  
+  m_parser->advance();
   [[maybe_unused]] std::size_t idx = create_name(location());
   m_parser->advance();
   m_parser->advance_to(token_type::scenario, token_type::scenario_outline,
@@ -26,14 +25,19 @@ feature::~feature()
 }
 void feature::compile()
 {
-  if (m_parser->match(token_type::scenario))
+  switch (m_parser->current().type)
   {
-    scenario s(this);
-    s.compile();
-  }
-  else
-  {
-    m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
+    case token_type::scenario:
+    {
+      scenario s(this);
+      s.compile();
+    }
+    break;
+    default:
+    {
+      m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
+      return ;
+    }
   }
 }
 

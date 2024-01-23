@@ -24,14 +24,18 @@ void cuke_compiler::init()
 }
 void cuke_compiler::compile()
 {
-  if (m_parser->check(token_type::feature))
+  switch (m_parser->current().type)
   {
-    feature f(this);
-    f.compile();
-  }
-  else
-  {
-    m_parser->error_at(m_parser->current(), "Expect FeatureLine");
+    case token_type::feature:
+    {
+      feature f(this);
+      f.compile();
+    }
+    break;
+    default:
+    {
+      m_parser->error_at(m_parser->current(), "Expect FeatureLine");
+    }
   }
   finish_chunk();
 }
