@@ -5,7 +5,7 @@
 #include "vm.hpp"
 #include "chunk.hpp"
 #include "util.hpp"
-#include "compiler/cuke_compiler.hpp"
+#include "compiler/cucumber.hpp"
 
 // TODO Remove
 #define PRINT_STACK 1
@@ -19,7 +19,7 @@ namespace cwt::details
 
 return_code vm::interpret(std::string_view source)
 {
-  cuke_compiler c(source);
+  compiler::cucumber c(source);
   
   c.compile();
 
@@ -189,10 +189,7 @@ void vm::run()
       break;
       case op_code::step_result:
       {
-        uint32_t next = frame->it.next();
-        std::string name =
-            frame->chunk_ptr->constant(next).copy_as<std::string>();
-        std::cout << "op_code::step_result: " << name << std::endl;
+        std::cout << "op_code::step_result - pop follows... "  << std::endl;
       }
       break;
       case op_code::call:

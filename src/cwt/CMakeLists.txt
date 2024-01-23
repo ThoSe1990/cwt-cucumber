@@ -3,7 +3,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cuke_compiler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cucumber.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cpp

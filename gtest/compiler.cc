@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler/cuke_compiler.hpp"
+#include "../src/cwt/compiler/cucumber.hpp"
 
 using namespace cwt::details;
 
 TEST(compiler, init_object) 
-{ cuke_compiler c(""); }
+{ compiler::cucumber c(""); }
 
 TEST(compiler, empty_script)
 {
   testing::internal::CaptureStderr();
-  cuke_compiler c("");
+  compiler::cucumber c("");
   c.compile();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(std::string("[line 1] Error at end: Expect FeatureLine\n"),
@@ -19,7 +19,7 @@ TEST(compiler, empty_script)
 TEST(compiler, invalid_begin)
 {
   testing::internal::CaptureStderr();
-  cuke_compiler c("asdfsadf");
+  compiler::cucumber c("asdfsadf");
   c.compile();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(std::string("[line 1] Error  at 'asdfsadf': Expect FeatureLine\n"),
@@ -29,7 +29,7 @@ TEST(compiler, invalid_begin)
 TEST(compiler, main_chunk_name)
 {
   testing::internal::CaptureStderr();
-  cuke_compiler c("Feature:");
+  compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
   EXPECT_TRUE(c.error());
@@ -46,7 +46,7 @@ TEST(compiler, main_chunk_other_language)
 
 Funktion:
 )*";
-  cuke_compiler c(script);
+  compiler::cucumber c(script);
   c.compile();
   function main = c.make_function();
   EXPECT_TRUE(c.error());
@@ -61,7 +61,7 @@ TEST(compiler, main_chunk_ignore_linebreaks)
   
   Feature:
 )*";
-  cuke_compiler c(script);
+  compiler::cucumber c(script);
   c.compile();
   function main = c.make_function();
   EXPECT_TRUE(c.error());
@@ -71,7 +71,7 @@ TEST(compiler, main_chunk_ignore_linebreaks)
 }
 TEST(compiler, main_chunk_code)
 {
-  cuke_compiler c("Feature:");
+  compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
 
@@ -89,7 +89,7 @@ TEST(compiler, main_chunk_code)
 }
 TEST(compiler, main_chunk_constants)
 {
-  cuke_compiler c("Feature:");
+  compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
 
@@ -99,7 +99,7 @@ TEST(compiler, main_chunk_constants)
 }
 TEST(compiler, feature_chunk)
 {
-  cuke_compiler c("Feature:");
+  compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
@@ -112,7 +112,7 @@ TEST(compiler, regular_scenario)
   const char* script = R"*(
   Feature: A Fancy Feature
   Scenario: A Scenario)*";
-  cuke_compiler c(script);
+  compiler::cucumber c(script);
   c.compile();
   function main = c.make_function();
   EXPECT_EQ(main->name(), std::string{"script"});

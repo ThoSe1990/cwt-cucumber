@@ -2,7 +2,7 @@
 
 #include "feature.hpp"
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
 
 class scenario : public compiler

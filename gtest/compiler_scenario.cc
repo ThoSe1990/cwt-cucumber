@@ -11,9 +11,9 @@ const char* script = R"*(
   Scenario: A Scenario
 )*";
   testing::internal::CaptureStderr();
-  cuke_compiler cuke(script);
-  feature f(&cuke);
-  scenario s(&f);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  compiler::scenario s(&f);
   s.compile();
   
   ASSERT_EQ(s.get_chunk().size(), 9);
@@ -40,11 +40,11 @@ const char* script = R"*(
   Given A Step
 )*";
 
-  cuke_compiler cuke(script);
-  feature f(&cuke);
-  scenario s(&f);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  compiler::scenario s(&f);
   s.compile();
-  EXPECT_EQ(s.get_chunk().size(), 19);
+  EXPECT_EQ(s.get_chunk().size(), 22);
 }
 
 TEST(compiler_scenario, chunk_size_3_steps)
@@ -57,11 +57,11 @@ const char* script = R"*(
   Then Third Step
 )*";
 
-  cuke_compiler cuke(script);
-  feature f(&cuke);
-  scenario s(&f);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  compiler::scenario s(&f);
   s.compile();
-  EXPECT_EQ(s.get_chunk().size(), 39);
+  EXPECT_EQ(s.get_chunk().size(), 48);
 }
 
 TEST(compiler_scenario, chunk_size_2_scenarios)
@@ -74,8 +74,8 @@ const char* script = R"*(
   Given A Step
 )*";
   
-  cuke_compiler cuke(script);
-  feature f(&cuke);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
   f.compile();
   EXPECT_EQ(f.get_chunk().size(), 42);
 }

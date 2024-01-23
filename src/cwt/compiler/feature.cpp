@@ -1,10 +1,10 @@
 #include "feature.hpp"
 #include "scenario.hpp"
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
 
-feature::feature(cuke_compiler* enclosing)
+feature::feature(cucumber* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
   m_parser->advance();

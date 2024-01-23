@@ -8,7 +8,7 @@
 #include "../chunk.hpp"
 #include "../parser.hpp"
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
 inline std::string create_string(std::string_view sv)
 {

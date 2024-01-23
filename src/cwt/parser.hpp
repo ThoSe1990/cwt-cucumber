@@ -26,6 +26,11 @@ class parser
   {
     return check(type) || check(args...);
   }
+  template <typename... Args>
+  [[nodiscard]] bool is_none_of(token_type type, Args... args)
+  {
+    return !check(type) && !check(args...);
+  }
   [[nodiscard]] bool check(token_type type);
   [[nodiscard]] bool match(token_type type);
 

@@ -9,7 +9,7 @@
 #include "../debug.hpp"
 #endif
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
 
 compiler::compiler(std::string_view source)

@@ -1,19 +1,19 @@
 #pragma once
 
-#include "cuke_compiler.hpp"
+#include "cucumber.hpp"
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
 
 class feature : public compiler
 {
  public:
-  feature(cuke_compiler* enclosing);
+  feature(cucumber* enclosing);
   ~feature();
   void compile();
 
  private:
-  cuke_compiler* m_enclosing;
+  cucumber* m_enclosing;
 };
 
 }  // namespace cwt::details

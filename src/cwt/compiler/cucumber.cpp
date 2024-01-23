@@ -1,28 +1,28 @@
 
-#include "cuke_compiler.hpp"
+#include "cucumber.hpp"
 #include "feature.hpp"
 
-namespace cwt::details
+namespace cwt::details::compiler
 {
-cuke_compiler::cuke_compiler(std::string_view source) : compiler(source, "")
+cucumber::cucumber(std::string_view source) : compiler(source, "")
 {
   init();
 }
-cuke_compiler::cuke_compiler(std::string_view source, std::string_view filename)
+cucumber::cucumber(std::string_view source, std::string_view filename)
     : compiler(source, filename)
 {
   init();
 }
-function cuke_compiler::make_function() noexcept
+function cucumber::make_function() noexcept
 {
   return std::make_unique<chunk>(get_chunk());
 }
-void cuke_compiler::init()
+void cucumber::init()
 {
   m_parser->advance();
   m_parser->skip_linebreaks();
 }
-void cuke_compiler::compile()
+void cucumber::compile()
 {
   switch (m_parser->current().type)
   {

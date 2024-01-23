@@ -7,8 +7,8 @@ using namespace cwt::details;
 TEST(compiler_feature, chunk_size_wo_scenario)
 {
   testing::internal::CaptureStderr();
-  cuke_compiler cuke("Feature: Hello World");
-  feature f(&cuke);
+  compiler::cucumber cuke("Feature: Hello World");
+  compiler::feature f(&cuke);
   f.compile();
   EXPECT_EQ(f.get_chunk().size(), 8);
   EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
@@ -21,8 +21,8 @@ const char* script = R"*(
   Scenario: A Scenario
 )*";
   testing::internal::CaptureStderr();
-  cuke_compiler cuke(script);
-  feature f(&cuke);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
   f.compile();
   EXPECT_EQ(f.get_chunk().size(), 25);
   EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
@@ -35,8 +35,8 @@ const char* script = R"*(
   Scenario: A Scenario
 )*";
 
-  cuke_compiler cuke(script);
-  feature f(&cuke);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
   f.compile();
 
   EXPECT_EQ(f.get_chunk().at(0), to_uint(op_code::constant));
@@ -78,8 +78,8 @@ const char* script = R"*(
   Feature: Hello World
   Scenario: A Scenario
 )*";
-  cuke_compiler cuke(script);
-  feature f(&cuke);
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
   f.compile();
 
   ASSERT_EQ(f.get_chunk().constants_count(), 4);
