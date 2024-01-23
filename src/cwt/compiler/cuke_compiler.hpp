@@ -12,6 +12,9 @@ class cuke_compiler : public compiler
   cuke_compiler(std::string_view source, std::string_view filename);
   void compile();
   function make_function() noexcept;
+
+ private:
+  void init();
 };
 
 }  // namespace cwt::details

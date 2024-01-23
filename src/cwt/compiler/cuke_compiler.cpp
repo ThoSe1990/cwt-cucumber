@@ -6,18 +6,21 @@ namespace cwt::details
 {
 cuke_compiler::cuke_compiler(std::string_view source) : compiler(source, "")
 {
-  m_parser->advance();
-  m_parser->skip_linebreaks();
+  init();
 }
 cuke_compiler::cuke_compiler(std::string_view source, std::string_view filename)
     : compiler(source, filename)
 {
-  m_parser->advance();
-  m_parser->skip_linebreaks();
+  init();
 }
 function cuke_compiler::make_function() noexcept
 {
   return std::make_unique<chunk>(get_chunk());
+}
+void cuke_compiler::init()
+{
+  m_parser->advance();
+  m_parser->skip_linebreaks();
 }
 void cuke_compiler::compile()
 {
