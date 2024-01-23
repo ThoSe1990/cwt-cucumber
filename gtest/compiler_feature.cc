@@ -28,7 +28,7 @@ const char* script = R"*(
   EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
             testing::internal::GetCapturedStderr());
 }
-TEST(compiler_feature, chunk_constants)
+TEST(compiler_feature, feature_chunk_code)
 {
 const char* script = R"*(
   Feature: Hello World
@@ -40,12 +40,12 @@ const char* script = R"*(
   f.compile();
 
   EXPECT_EQ(f.get_chunk().at(0), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(1), 0);  // idx to string value to print
+  EXPECT_EQ(f.get_chunk().at(1), 1);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(2), to_uint(op_code::print));
   EXPECT_EQ(f.get_chunk().at(3), to_uint(color::standard));  // TODO enum for color represents the color
 
   EXPECT_EQ(f.get_chunk().at(4), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(5), 1);  // idx to string value to print
+  EXPECT_EQ(f.get_chunk().at(5), 0);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(6), to_uint(op_code::println));
   EXPECT_EQ(f.get_chunk().at(7), to_uint(color::black));  // TODO enum for color represents the color
 
@@ -85,9 +85,9 @@ const char* script = R"*(
   ASSERT_EQ(f.get_chunk().constants_count(), 4);
   EXPECT_EQ(f.get_chunk().name(), ":2");
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), "Feature: Hello World");
+  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(), ":2");
+  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(), "Feature: Hello World");
   EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
   EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), ":3");
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);

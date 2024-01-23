@@ -27,7 +27,8 @@ class compiler
 {
  public:
   [[nodiscard]] std::string location() const;
-  [[nodiscard]] std::size_t create_name(const std::string& location);
+  [[nodiscard]] std::pair<std::size_t, std::size_t> create_name_and_location();
+  void print_name_and_location(std::size_t name_idx, std::size_t location_idx);
   [[nodiscard]] bool error() const noexcept;
   [[nodiscard]] bool no_error() const noexcept;
   void finish_chunk() noexcept;

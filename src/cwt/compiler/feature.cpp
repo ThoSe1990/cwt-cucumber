@@ -8,7 +8,8 @@ feature::feature(cuke_compiler* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
   m_parser->advance();
-  [[maybe_unused]] std::size_t idx = create_name(location());
+  auto [name_idx, location_idx] = create_name_and_location();
+  print_name_and_location(name_idx, location_idx);
   m_parser->advance();
   m_parser->advance_to(token_type::scenario, token_type::scenario_outline,
                        token_type::tag, token_type::background,
