@@ -17,7 +17,7 @@ cuke_compiler::cuke_compiler(std::string_view source, std::string_view filename)
 }
 function cuke_compiler::make_function() noexcept
 {
-  return std::make_unique<chunk>(take_chunk());
+  return std::make_unique<chunk>(get_chunk());
 }
 void cuke_compiler::compile()
 {
@@ -30,6 +30,7 @@ void cuke_compiler::compile()
   {
     m_parser->error_at(m_parser->current(), "Expect FeatureLine");
   }
+  finish_chunk();
 }
 
 }  // namespace cwt::details

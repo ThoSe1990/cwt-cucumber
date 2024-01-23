@@ -28,7 +28,7 @@ compiler::compiler(std::string_view source, std::string_view filename)
 bool compiler::error() const noexcept { return m_parser->error(); }
 bool compiler::no_error() const noexcept { return !error(); }
 chunk& compiler::get_chunk() noexcept { return m_chunk; }
-chunk compiler::take_chunk() noexcept
+void compiler::finish_chunk() noexcept
 {
   m_chunk.push_byte(op_code::func_return, m_parser->previous().line);
 #ifdef PRINT_STACK
@@ -38,7 +38,6 @@ chunk compiler::take_chunk() noexcept
     std::cout << "\n";
   }
 #endif
-  return std::move(m_chunk);
 }
 
 std::string compiler::location() const

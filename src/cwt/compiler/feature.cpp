@@ -17,9 +17,9 @@ feature::feature(cuke_compiler* enclosing)
 }
 feature::~feature()
 {
-  chunk c = take_chunk();
-  m_enclosing->emit_constant(std::make_unique<chunk>(c));
-  m_enclosing->emit_constant(op_code::define_var, c.name());
+  finish_chunk();
+  m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
+  m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
   m_enclosing->emit_bytes(op_code::get_var,
                           m_enclosing->get_chunk().last_constant());
   m_enclosing->emit_bytes(op_code::call, 0);

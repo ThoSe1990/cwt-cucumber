@@ -9,13 +9,14 @@ scenario::scenario(feature* enclosing)
   [[maybe_unused]] std::size_t idx = create_name(location());
   m_parser->advance();
 }
+
 scenario::~scenario()
 {
-  chunk scenario_chunk = take_chunk();
+  finish_chunk();
   m_enclosing->emit_hook(hook_type::reset_context);
   m_enclosing->emit_hook(hook_type::before);
-  m_enclosing->emit_constant(std::make_unique<chunk>(scenario_chunk));
-  m_enclosing->emit_constant(op_code::define_var, scenario_chunk.name());
+  m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
+  m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
   m_enclosing->emit_bytes(op_code::get_var, m_enclosing->get_chunk().last_constant());
   m_enclosing->emit_bytes(op_code::call, 0);
   m_enclosing->emit_hook(hook_type::after);
