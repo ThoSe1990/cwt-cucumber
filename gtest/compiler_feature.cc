@@ -93,3 +93,4 @@ const char* script = R"*(
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), ":3");
 }
+
