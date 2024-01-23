@@ -37,6 +37,7 @@ void cuke_compiler::compile()
       m_parser->error_at(m_parser->current(), "Expect FeatureLine");
     }
   }
+
   finish_chunk();
 }
 

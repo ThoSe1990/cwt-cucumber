@@ -25,20 +25,23 @@ feature::~feature()
 }
 void feature::compile()
 {
-  switch (m_parser->current().type)
+  do 
   {
-    case token_type::scenario:
+    switch (m_parser->current().type)
     {
-      scenario s(this);
-      s.compile();
+      case token_type::scenario:
+      {
+        scenario s(this);
+        s.compile();
+      }
+      break;
+      default:
+      {
+        m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
+      }
     }
-    break;
-    default:
-    {
-      m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
-      return ;
-    }
-  }
+    m_parser->skip_linebreaks();
+  } while (!m_parser->check(token_type::eof));
 }
 
 }  // namespace cwt::details
