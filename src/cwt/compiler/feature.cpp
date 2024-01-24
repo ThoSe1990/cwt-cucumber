@@ -1,5 +1,6 @@
 #include "feature.hpp"
 #include "scenario.hpp"
+#include "scenario_outline.hpp"
 
 namespace cwt::details::compiler
 {
@@ -36,9 +37,16 @@ void feature::compile()
         s.compile();
       }
       break;
+      case token_type::scenario_outline:
+      {
+        scenario_outline s(this);
+        s.compile();
+      }
+      break;
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
+        return ;
       }
     }
     m_parser->skip_linebreaks();

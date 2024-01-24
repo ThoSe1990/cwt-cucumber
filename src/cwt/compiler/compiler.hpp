@@ -33,6 +33,10 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
   void finish_chunk() noexcept;
   [[nodiscard]] chunk& get_chunk() noexcept;
+  [[nodiscard]] parser& get_parser() noexcept
+  {
+    return *m_parser.get();
+  }
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler/scenario.hpp"
+#include "../src/cwt/compiler/scenario_outline.hpp"
 
 using namespace cwt::details;
 
@@ -14,11 +14,18 @@ const char* script = R"*(
   Examples:
   | var |
   | 1   |
+  | 2   |
+  Examples:
+  | var |
+  | "1"   |
+  | "2"   |
 )*";
   
   compiler::cucumber cuke(script);
-  compiler::feature f(&cuke);
-  f.compile();
-
+  cuke.compile();
+  // compiler::feature f(&cuke);
+  // compiler::scenario_outline s(&f);
+  // s.compile();
+  // s.finish_chunk();
 
 }
