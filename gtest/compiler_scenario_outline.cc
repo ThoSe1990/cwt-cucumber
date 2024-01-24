@@ -13,8 +13,12 @@ const char* script = R"*(
   
   Examples:
   | var |
-  | 1   |
-  | 2   |
+  | 111   |
+  | 222   |
+  Examples:
+  | var |
+  | 1.11   |
+  | 2.22   |
   Examples:
   | var |
   | "1"   |

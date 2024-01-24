@@ -50,10 +50,11 @@ std::pair<std::size_t, std::size_t> compiler::create_name_and_location()
   token begin = m_parser->previous();
   m_parser->advance_to(token_type::linebreak, token_type::eof);
   token end = m_parser->current();
-  std::size_t name_idx = m_chunk.make_constant(create_string(begin,end));
+  std::size_t name_idx = m_chunk.make_constant(create_string(begin, end));
   return std::make_pair(name_idx, location_idx);
 }
-void compiler::print_name_and_location(std::size_t name_idx, std::size_t location_idx)
+void compiler::print_name_and_location(std::size_t name_idx,
+                                       std::size_t location_idx)
 {
   emit_bytes(op_code::constant, name_idx);
   emit_bytes(op_code::print, to_uint(color::standard));
@@ -100,4 +101,42 @@ void compiler::emit_hook(hook_type type)
   }
 }
 
-}  // namespace cwt::details
+void compiler::emit_table_value()
+{
+  bool negative = m_parser->match(token_type::minus);
+  switch (m_parser->current().type)
+  {
+    case token_type::long_value:
+    {
+      long v = std::stol(m_parser->current().value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      emit_constant(v);
+    }
+    break;
+    case token_type::double_value:
+    {
+      double v = std::stod(m_parser->current().value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      emit_constant(v);
+    }
+    break;
+    case token_type::string_value:
+    {
+      emit_constant(create_string(m_parser->current().value));
+    }
+    break;
+    default:
+    {
+      m_parser->error_at(m_parser->current(),
+                         "Expect a number or string value in table.");
+    }
+  }
+}
+
+}  // namespace cwt::details::compiler

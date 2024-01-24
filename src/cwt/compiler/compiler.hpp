@@ -33,10 +33,7 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
   void finish_chunk() noexcept;
   [[nodiscard]] chunk& get_chunk() noexcept;
-  [[nodiscard]] parser& get_parser() noexcept
-  {
-    return *m_parser.get();
-  }
+  [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
@@ -44,6 +41,7 @@ class compiler
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
   void emit_hook(hook_type type);
+  void emit_table_value();
 
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
@@ -53,9 +51,11 @@ class compiler
   template <typename Arg>
   void emit_constant(Arg&& arg)
   {
+    using Decayed = typename std::decay<Arg>::type;
     emit_bytes(op_code::constant,
-               m_chunk.make_constant(std::forward<Arg>(arg)));
+               m_chunk.make_constant(std::forward<Decayed>(arg)));
   }
+
 
  protected:
   compiler(std::string_view source);
@@ -78,4 +78,4 @@ class compiler
   chunk m_chunk;
 };
 
-}  // namespace cwt::details
+}  // namespace cwt::details::compiler

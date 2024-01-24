@@ -34,7 +34,8 @@ void examples::body(std::size_t scenario_idx)
         // TODO
       }
       // TODO emit_string, emit_long, emit_double, etc. ...
-      m_parent->emit_constant(create_string(p.current().value));
+      m_parent->emit_table_value();
+      // m_parent->emit_constant(create_string(p.current().value));
       // TODO access variable name (or make constant before and then access the
       // corresponding index it before to access it)
       m_parent->emit_bytes(

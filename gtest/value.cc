@@ -22,9 +22,18 @@ TEST(value, invalid_access)
   value v{true};
   EXPECT_THROW(v.as<int>(), std::runtime_error);
 }
-TEST(value, int_value)
+TEST(value, ulong_value)
 {
   value v{123ul};
+  EXPECT_EQ(v.type(), value_type::integral);
+  EXPECT_EQ(v.as<int>(), 123);
+  EXPECT_EQ(v.as<unsigned int>(), 123);
+  EXPECT_EQ(v.as<long>(), 123);
+  EXPECT_EQ(v.as<unsigned long>(), 123);
+}
+TEST(value, long_value)
+{
+  value v(123l);
   EXPECT_EQ(v.type(), value_type::integral);
   EXPECT_EQ(v.as<int>(), 123);
   EXPECT_EQ(v.as<unsigned int>(), 123);

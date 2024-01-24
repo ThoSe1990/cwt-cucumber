@@ -14,27 +14,19 @@ template <typename Parent,
 class step
 {
  public:
-  step(Parent* parent) : m_parent(parent) {}
+  step(Parent* parent) : m_parent(parent) 
+  {
+    m_location_idx =
+        m_parent->get_chunk().make_constant(m_parent->location());
+    m_begin = m_parent->get_parser().previous();
+  }
 
   void compile()
   {
-    std::size_t location_idx =
-        m_parent->get_chunk().make_constant(m_parent->location());
-    token begin = m_parent->get_parser().previous();
+    token end = process_step();
 
-    while (m_parent->get_parser().is_none_of(token_type::linebreak,
-                                             token_type::eof))
-    {
-      m_parent->get_parser().advance();
-      if (m_parent->get_parser().match(token_type::variable))
-      {
-        std::string_view name = get_var_name(m_parent->get_parser().previous().value);
-        m_parent->emit_bytes(op_code::get_var, m_parent->get_chunk().make_constant(create_string(name)));
-      }
-    }
-    token end = m_parent->get_parser().previous();
     std::size_t name_idx =
-        m_parent->get_chunk().make_constant(create_string(begin, end));
+        m_parent->get_chunk().make_constant(create_string(m_begin, end));
 
     uint32_t jump = m_parent->emit_jump();
 
@@ -45,8 +37,7 @@ class step
     m_parent->patch_jump(jump);
 
     m_parent->emit_bytes(op_code::constant, name_idx);
-    m_parent->emit_bytes(op_code::constant, location_idx);
-
+    m_parent->emit_bytes(op_code::constant, m_location_idx);
     m_parent->emit_byte(op_code::step_result);
   }
 
@@ -58,10 +49,25 @@ class step
     return without_ankle_brackets(str);
   }
 
+  token process_step()
+  {
+    while (m_parent->get_parser().is_none_of(token_type::linebreak,
+                                             token_type::eof))
+    {
+      m_parent->get_parser().advance();
+      if (m_parent->get_parser().match(token_type::variable))
+      {
+        std::string_view name = get_var_name(m_parent->get_parser().previous().value);
+        m_parent->emit_bytes(op_code::get_var, m_parent->get_chunk().make_constant(create_string(name)));
+      }
+    }
+    return m_parent->get_parser().previous();
+  }
+
  private:
   Parent* m_parent;
-  std::size_t m_location;
-  std::size_t m_name;
+  std::size_t m_location_idx;
+  token m_begin;
 };
 
 }  // namespace cwt::details::compiler
