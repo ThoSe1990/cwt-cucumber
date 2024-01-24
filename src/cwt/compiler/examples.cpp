@@ -12,6 +12,7 @@ void examples::header()
   while (!p.match(token_type::linebreak))
   {
     p.consume(token_type::word, "Expect variable name.");
+    // TODO push nil for op_code::define_Var war as init value
     m_parent->emit_bytes(
         op_code::define_var,
         m_parent->get_chunk().make_constant(create_string(p.previous().value)));

@@ -51,9 +51,9 @@ class compiler
   template <typename Arg>
   void emit_constant(Arg&& arg)
   {
-    using Decayed = typename std::decay<Arg>::type;
+    using RemovedRef = std::remove_reference_t<Arg>;
     emit_bytes(op_code::constant,
-               m_chunk.make_constant(std::forward<Decayed>(arg)));
+               m_chunk.make_constant(std::forward<RemovedRef>(arg)));
   }
 
 
