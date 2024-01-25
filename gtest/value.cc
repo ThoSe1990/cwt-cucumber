@@ -84,6 +84,11 @@ TEST(value, native_value)
   EXPECT_EQ(v.type(), value_type::step);
 }
 
+TEST(value, nil_value)
+{
+  value v(nil_value{});
+  EXPECT_EQ(v.type(), value_type::nil);
+}
 TEST(value, emplace_value)
 {
   value v;

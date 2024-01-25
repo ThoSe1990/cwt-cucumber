@@ -25,6 +25,7 @@ class chunk;
 class value;
 using value_array = std::vector<value>;
 using function = std::unique_ptr<chunk>;
+struct nil_value{};
 
 using step_callback = void (*)(const value_array&);
 class step
@@ -106,6 +107,11 @@ template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, step>>>
 {
   static constexpr value_type tag = value_type::step;
+};
+template <typename T>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, nil_value>>>
+{
+  static constexpr value_type tag = value_type::nil;
 };
 
 class value

@@ -12,6 +12,7 @@ class parser
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;
   void advance();
+  void advance_to(token_type type);
   template <typename... Args>
   void advance_to(Args... args)
   {

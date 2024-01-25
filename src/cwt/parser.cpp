@@ -43,6 +43,14 @@ bool parser::match(token_type type)
     return false;
   }
 }
+void parser::advance_to(token_type type)
+{
+  while (!check(type))
+  {
+    advance();
+  }
+}
+
 void parser::consume(token_type type, std::string_view msg)
 {
   if (m_current.type == type)

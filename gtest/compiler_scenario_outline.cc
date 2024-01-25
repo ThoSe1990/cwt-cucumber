@@ -9,27 +9,17 @@ TEST(compiler_scenario_outline, first_scenario)
 const char* script = R"*(
   Feature: Hello World
   Scenario Outline: A Scenario
-  Given A Step with <var> 
+  Given A Step with <va  r1> and <va r2>
   
   Examples:
-  | var |
-  | 111   |
-  | 222   |
-  Examples:
-  | var |
-  | 1.11   |
-  | 2.22   |
-  Examples:
-  | var |
-  | "1"   |
-  | "2"   |
+  | va  r1 | var 2 |
+  | 1    | 2    |
+  | 3    | 4    |
 )*";
   
   compiler::cucumber cuke(script);
-  cuke.compile();
-  // compiler::feature f(&cuke);
-  // compiler::scenario_outline s(&f);
-  // s.compile();
-  // s.finish_chunk();
+  compiler::feature f(&cuke);
+  compiler::scenario_outline s(&f);
+  s.compile();
 
 }
