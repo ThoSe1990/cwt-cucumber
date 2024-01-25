@@ -16,7 +16,7 @@ inline std::string create_string(std::string_view sv)
 }
 inline std::string create_string(std::string_view begin, std::string_view end)
 {
-  return std::string(begin.data(), end.data() - begin.data());
+  return std::string(begin.data(), end.data() + end.size());
 }
 inline std::string create_string(const token& begin, const token& end)
 {

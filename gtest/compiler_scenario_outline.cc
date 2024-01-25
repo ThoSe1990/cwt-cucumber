@@ -9,12 +9,12 @@ TEST(compiler_scenario_outline, first_scenario)
 const char* script = R"*(
   Feature: Hello World
   Scenario Outline: A Scenario
-  Given A Step with <va  r1> and <va r2>
+  Given A Step with <first var> and <second var>
   
   Examples:
-  | va  r1 | var 2 |
-  | 1    | 2    |
-  | 3    | 4    |
+  | first var | second var |
+  | 1         | 2          |
+  | 3         | 4          |
 )*";
   
   compiler::cucumber cuke(script);

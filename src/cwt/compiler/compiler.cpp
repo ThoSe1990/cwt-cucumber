@@ -49,7 +49,7 @@ std::pair<std::size_t, std::size_t> compiler::create_name_and_location()
   std::size_t location_idx = m_chunk.make_constant(location());
   token begin = m_parser->previous();
   m_parser->advance_to(token_type::linebreak, token_type::eof);
-  token end = m_parser->current();
+  token end = m_parser->previous();
   std::size_t name_idx = m_chunk.make_constant(create_string(begin, end));
   return std::make_pair(name_idx, location_idx);
 }

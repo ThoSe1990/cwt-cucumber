@@ -18,10 +18,13 @@ class examples
 
  private:
   std::size_t make_variable();
+  void process_table_row();
+  void create_call(std::size_t scenario_idx);
+
 
  private:
   feature* m_parent;
-  std::vector<std::size_t> m_indices;
+  std::vector<std::size_t> m_variables;
 };
 
 }  // namespace cwt::details::compiler

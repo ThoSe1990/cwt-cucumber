@@ -15,20 +15,14 @@ scenario_outline::scenario_outline(feature* enclosing)
   emit_byte(op_code::init_scenario);
 }
 
-scenario_outline::~scenario_outline()
-{
-  // finish_chunk();
-  // m_enclosing->emit_hook(hook_type::reset_context);
-  // m_enclosing->emit_hook(hook_type::before);
-  // m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
-  // m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
-  // m_enclosing->emit_bytes(op_code::get_var,
-  //                         m_enclosing->get_chunk().last_constant());
-  // m_enclosing->emit_bytes(op_code::call, 0);
-  // m_enclosing->emit_hook(hook_type::after);
-  // m_enclosing->emit_byte(op_code::scenario_result);
-}
 void scenario_outline::compile()
+{
+  compile_steps();
+  const std::size_t scenario_idx = make_scenario();
+  compile_examples(scenario_idx);
+}
+
+void scenario_outline::compile_steps()
 {
   do
   {
@@ -45,11 +39,20 @@ void scenario_outline::compile()
     }
     m_parser->skip_linebreaks();
   } while (m_parser->is_none_of(token_type::examples, token_type::tag));
-  finish_chunk(); // FINISH SCENARIO OUTLINE CHUNK HERE
-  // and declare it as variable in enclosing 
+
+  finish_chunk();
+}
+
+std::size_t scenario_outline::make_scenario()
+{
   m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
   m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
-  const std::size_t scenario_idx = m_enclosing->get_chunk().last_constant();
+  
+  return m_enclosing->get_chunk().last_constant();
+}
+
+void scenario_outline::compile_examples(std::size_t scenario_idx)
+{
   do
   {
     if (m_parser->match(token_type::examples))
