@@ -66,7 +66,7 @@ TEST(scanner, parameter_byte)
 }
 TEST(scanner, parameter_short)
 {
-  EXPECT_EQ(scanner("{}").scan_token().type, token_type::parameter_short);
+  EXPECT_EQ(scanner("{short}").scan_token().type, token_type::parameter_short);
 }
 TEST(scanner, parameter_long)
 {

@@ -38,6 +38,7 @@ class scanner
   [[nodiscard]] token string();
   [[nodiscard]] token doc_string();
   [[nodiscard]] token word();
+  [[nodiscard]] token parameter();
 
  private:
   std::size_t m_line{1};

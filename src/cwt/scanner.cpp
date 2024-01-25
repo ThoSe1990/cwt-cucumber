@@ -291,6 +291,56 @@ token scanner::word()
   return make_token(token_type::word);
 }
 
+token scanner::parameter()
+{
+  while (peek() != '}')
+  {
+    if (is_at_end() || end_of_line())
+    {
+      return error_token("Expect '}' after parameter.");
+    }
+    advance();
+  }
+  advance();
+
+  if (m_source.substr(m_start, m_pos - m_start).starts_with("{int}"))
+  {
+    return make_token(token_type::parameter_int);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{float}"))
+  {
+    return make_token(token_type::parameter_float);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{word}"))
+  {
+    return make_token(token_type::parameter_word);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{string}"))
+  {
+    return make_token(token_type::parameter_string);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{double}"))
+  {
+    return make_token(token_type::parameter_double);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{byte}"))
+  {
+    return make_token(token_type::parameter_byte);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{short}"))
+  {
+    return make_token(token_type::parameter_short);
+  }
+  else if (m_source.substr(m_start, m_pos - m_start).starts_with("{long}"))
+  {
+    return make_token(token_type::parameter_long);
+  }
+  else
+  {
+    return error_token("Unknown parameter");
+  }
+}
+
 token scanner::scan_token()
 {
   skip();
@@ -310,6 +360,8 @@ token scanner::scan_token()
   {
     case '|':
       return make_token(token_type::vertical);
+    case '{':
+      return parameter();
     case '-':
       return make_token(token_type::minus);
     case '*':
