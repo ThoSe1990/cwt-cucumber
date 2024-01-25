@@ -9,7 +9,7 @@ TEST(vm, init_obj) { vm test_vm; }
 TEST(vm, run_chunk)
 {
   vm test_vm;
-  test_vm.interpret("Feature:");
+  [[maybe_unused]] return_code result = test_vm.interpret("Feature:");
 }
 
 STEP(some_step, "Any Step")
@@ -60,6 +60,6 @@ TEST(vm, first_feature)
 )*";
   vm test_vm;
 
-  test_vm.interpret(script);
+  [[maybe_unused]] return_code result = test_vm.interpret(script);
 }
 

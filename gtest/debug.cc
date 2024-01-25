@@ -18,3 +18,5 @@ TEST(debug, print_chunk)
   c.push_byte(c.make_constant(123.123), 2);
   disassemble_chunk(c, "test_chunk");
 }
+
+#undef PRINT_STACK

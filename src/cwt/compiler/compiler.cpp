@@ -2,9 +2,6 @@
 
 #include "compiler.hpp"
 
-// TODO Remove define
-#define PRINT_STACK 1
-
 #ifdef PRINT_STACK
 #include "../debug.hpp"
 #endif

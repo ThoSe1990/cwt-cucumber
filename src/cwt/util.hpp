@@ -99,7 +99,7 @@ static const std::unordered_map<color, std::string> color_codes = {
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
     {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
 
-static void print(color c, const std::string& str)
+static void print(color c, std::string_view msg)
 {
   auto it = color_codes.find(c);
   if (it != color_codes.end())
@@ -110,7 +110,7 @@ static void print(color c, const std::string& str)
   {
     std::cerr << "Color code " << to_uint(c) << " not found!\n";
   }
-  std::cout << str << "\x1b[0m";
+  std::cout << msg << "\x1b[0m";
 }
 
 static void println(color c, const std::string& str)

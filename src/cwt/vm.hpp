@@ -34,6 +34,8 @@ class vm
   [[nodiscard]] static std::vector<hook>& before_step();
   [[nodiscard]] static std::vector<hook>& after_step();
 
+  void runtime_error(std::string_view msg);
+
   void run();
   void call(const function& func);
 

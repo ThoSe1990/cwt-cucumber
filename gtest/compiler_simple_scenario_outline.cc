@@ -4,7 +4,7 @@
 
 using namespace cwt::details;
 
-namespace compiler_scenario_outline
+namespace compiler_simple_scenario_outline
 {
 const char* script = R"*(
   Feature: Hello World
@@ -16,11 +16,11 @@ const char* script = R"*(
   | 1         | 2          |
   | 3         | 4          |
 )*";
-}  // namespace compiler_scenario_outline
+}  // namespace compiler_simple_scenario_outline
 
-TEST(compiler_scenario_outline, scenarios_code)
+TEST(compiler_simple_scenario_outline, scenarios_code)
 {
-  compiler::cucumber cuke(compiler_scenario_outline::script);
+  compiler::cucumber cuke(compiler_simple_scenario_outline::script);
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();
@@ -55,9 +55,9 @@ TEST(compiler_scenario_outline, scenarios_code)
   EXPECT_EQ(s.get_chunk().at(26), to_uint(op_code::func_return));
 }
 
-TEST(compiler_scenario_outline, scenarios_constants)
+TEST(compiler_simple_scenario_outline, scenarios_constants)
 {
-  compiler::cucumber cuke(compiler_scenario_outline::script);
+  compiler::cucumber cuke(compiler_simple_scenario_outline::script);
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();
@@ -76,9 +76,9 @@ TEST(compiler_scenario_outline, scenarios_constants)
   EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(), "Given A Step with <first var> and <second var>");
 }
 
-TEST(compiler_scenario_outline, parent_feature_code)
+TEST(compiler_simple_scenario_outline, parent_feature_code)
 {
-  compiler::cucumber cuke(compiler_scenario_outline::script);
+  compiler::cucumber cuke(compiler_simple_scenario_outline::script);
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();
@@ -123,9 +123,9 @@ TEST(compiler_scenario_outline, parent_feature_code)
   EXPECT_EQ(f.get_chunk().at(45), to_uint(op_code::set_var));
   EXPECT_EQ(f.get_chunk().at(46), 6);
 }
-TEST(compiler_scenario_outline, parent_feature_constants)
+TEST(compiler_simple_scenario_outline, parent_feature_constants)
 {
-  compiler::cucumber cuke(compiler_scenario_outline::script);
+  compiler::cucumber cuke(compiler_simple_scenario_outline::script);
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();

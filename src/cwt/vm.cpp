@@ -7,9 +7,6 @@
 #include "util.hpp"
 #include "compiler/cucumber.hpp"
 
-// TODO Remove
-#define PRINT_STACK 1
-
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
@@ -20,7 +17,7 @@ namespace cwt::details
 return_code vm::interpret(std::string_view source)
 {
   compiler::cucumber c(source);
-  
+
   c.compile();
 
   if (c.no_error())
@@ -41,45 +38,35 @@ std::vector<step>& vm::steps()
   static std::vector<step> instance;
   return instance;
 }
-void vm::push_step(const step& s)
-{
-  steps().push_back(s);
-}
+void vm::push_step(const step& s) { steps().push_back(s); }
 std::vector<hook>& vm::before()
 {
   static std::vector<hook> instance;
   return instance;
 }
-void vm::push_hook_before(const hook& h)
-{
-  before().push_back(h);
-}
+void vm::push_hook_before(const hook& h) { before().push_back(h); }
 std::vector<hook>& vm::after()
 {
   static std::vector<hook> instance;
   return instance;
 }
-void vm::push_hook_after(const hook& h)
-{
-  after().push_back(h);
-}
+void vm::push_hook_after(const hook& h) { after().push_back(h); }
 std::vector<hook>& vm::before_step()
 {
   static std::vector<hook> instance;
   return instance;
 }
-void vm::push_hook_before_step(const hook& h)
-{
-  before_step().push_back(h);
-}
+void vm::push_hook_before_step(const hook& h) { before_step().push_back(h); }
 std::vector<hook>& vm::after_step()
 {
   static std::vector<hook> instance;
   return instance;
 }
-void vm::push_hook_after_step(const hook& h)
+void vm::push_hook_after_step(const hook& h) { after_step().push_back(h); }
+
+void vm::runtime_error(std::string_view msg) 
 {
-  after_step().push_back(h);
+  print(color::red, msg);
 }
 
 void vm::call(const function& func)
@@ -129,6 +116,22 @@ void vm::run()
         std::string name =
             frame->chunk_ptr->constant(next).copy_as<std::string>();
         m_stack.push_back(m_globals[name]);
+      }
+      break;
+      case op_code::set_var:
+      {
+        uint32_t next = frame->it.next();
+        std::string var =
+            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        if (m_globals.contains(var))
+        {
+          m_globals[var] = m_stack.back();
+        }
+        else
+        {
+          runtime_error(std::format("Undefined variable '{}'.", var));
+        }
+        m_stack.pop_back();
       }
       break;
       case op_code::hook:
@@ -189,7 +192,7 @@ void vm::run()
       break;
       case op_code::step_result:
       {
-        std::cout << "op_code::step_result - pop follows... "  << std::endl;
+        std::cout << "op_code::step_result - pop follows... " << std::endl;
       }
       break;
       case op_code::call:
