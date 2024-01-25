@@ -40,6 +40,38 @@ TEST(scanner, variable)
 {
   EXPECT_EQ(scanner("<some variable>").scan_token().type, token_type::variable);
 }
+TEST(scanner, parameter_int)
+{
+  EXPECT_EQ(scanner("{int}").scan_token().type, token_type::parameter_int);
+}
+TEST(scanner, parameter_float)
+{
+  EXPECT_EQ(scanner("{float}").scan_token().type, token_type::parameter_float);
+}
+TEST(scanner, parameter_word)
+{
+  EXPECT_EQ(scanner("{word}").scan_token().type, token_type::parameter_word);
+}
+TEST(scanner, parameter_string)
+{
+  EXPECT_EQ(scanner("{string}").scan_token().type, token_type::parameter_string);
+}
+TEST(scanner, parameter_double)
+{
+  EXPECT_EQ(scanner("{double}").scan_token().type, token_type::parameter_double);
+}
+TEST(scanner, parameter_byte)
+{
+  EXPECT_EQ(scanner("{byte}").scan_token().type, token_type::parameter_byte);
+}
+TEST(scanner, parameter_short)
+{
+  EXPECT_EQ(scanner("{}").scan_token().type, token_type::parameter_short);
+}
+TEST(scanner, parameter_long)
+{
+  EXPECT_EQ(scanner("{long}").scan_token().type, token_type::parameter_long);
+}
 TEST(scanner, variable_missing_closing)
 {
   EXPECT_EQ(scanner("<some variable").scan_token().type, token_type::error);

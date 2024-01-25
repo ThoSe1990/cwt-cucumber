@@ -27,6 +27,15 @@ enum class token_type
   word,
   linebreak,
 
+  parameter_int,
+  parameter_float,
+  parameter_word,
+  parameter_string,
+  parameter_double,
+  parameter_byte,
+  parameter_short,
+  parameter_long,
+
   error,
   eof,
   none

@@ -119,4 +119,9 @@ static void println(color c, const std::string& str)
   std::cout << '\n';
 }
 
+static bool step_matches(std::string_view implemented, std::string_view feature)
+{
+  return false;
+}
+
 }  // namespace cwt::details
