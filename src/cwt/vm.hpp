@@ -20,6 +20,9 @@ class vm
 {
  public:
   [[nodiscard]] return_code interpret(std::string_view source);
+  void push_value(const value& v);
+  void pop();
+  void pop(std::size_t count);
 
   static void push_step(const step& s);
   static void push_hook_before(const hook& h);

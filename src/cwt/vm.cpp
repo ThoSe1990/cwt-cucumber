@@ -23,7 +23,7 @@ return_code vm::interpret(std::string_view source)
 
   if (c.no_error())
   {
-    m_stack.push_back(c.make_function());
+    push_value(c.make_function());
     call(m_stack.back().as<function>());
     run();
     // TODO that can fail in run()
@@ -32,6 +32,15 @@ return_code vm::interpret(std::string_view source)
   else
   {
     return return_code::compile_error;
+  }
+}
+void vm::push_value(const value& v) { m_stack.push_back(v); }
+void vm::pop() { m_stack.pop_back(); }
+void vm::pop(std::size_t count)
+{
+  for (int i = 0; i < count; ++i)
+  {
+    m_stack.pop_back();
   }
 }
 std::vector<step>& vm::steps()
@@ -96,7 +105,7 @@ void vm::run()
       case op_code::constant:
       {
         uint32_t next = frame->it.next();
-        m_stack.push_back(frame->chunk_ptr->constant(next));
+        push_value(frame->chunk_ptr->constant(next));
       }
       break;
       case op_code::define_var:
@@ -105,7 +114,7 @@ void vm::run()
         const std::string& name =
             frame->chunk_ptr->constant(next).as<std::string>();
         m_globals[name] = m_stack.back();
-        m_stack.pop_back();
+        pop();
       }
       break;
       case op_code::get_var:
@@ -113,7 +122,7 @@ void vm::run()
         uint32_t next = frame->it.next();
         const std::string& name =
             frame->chunk_ptr->constant(next).as<std::string>();
-        m_stack.push_back(m_globals[name]);
+        push_value(m_globals[name]);
       }
       break;
       case op_code::set_var:
@@ -129,7 +138,7 @@ void vm::run()
         {
           runtime_error(std::format("Undefined variable '{}'.", var));
         }
-        m_stack.pop_back();
+        pop();
       }
       break;
       case op_code::hook:
@@ -183,7 +192,9 @@ void vm::run()
           if (sf.step_matches())
           {
             value_array va;
+            // sf.for_each_value([this](const value& v) { push_value(v); });
             s.call(va);
+            // pop(sf.arg_count());
           }
         }
         std::cout << "op_code::call_step: " << name << std::endl;
@@ -215,13 +226,13 @@ void vm::run()
       case op_code::print:
       {
         print(to_color(frame->it.next()), m_stack.back().as<std::string>());
-        m_stack.pop_back();
+        pop();
       }
       break;
       case op_code::println:
       {
         println(to_color(frame->it.next()), m_stack.back().as<std::string>());
-        m_stack.pop_back();
+        pop();
       }
       break;
       case op_code::init_scenario:
@@ -231,7 +242,7 @@ void vm::run()
       break;
       case op_code::func_return:
       {
-        m_stack.pop_back();
+        pop();
         m_frames.pop_back();
         if (m_frames.empty())
         {
