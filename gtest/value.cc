@@ -31,7 +31,7 @@ TEST(value, ulong_value)
   EXPECT_EQ(v.as<long>(), 123);
   EXPECT_EQ(v.as<unsigned long>(), 123);
 }
-TEST(value, long_value)
+TEST(value, long_value_1)
 {
   value v(123l);
   EXPECT_EQ(v.type(), value_type::integral);
@@ -39,6 +39,12 @@ TEST(value, long_value)
   EXPECT_EQ(v.as<unsigned int>(), 123);
   EXPECT_EQ(v.as<long>(), 123);
   EXPECT_EQ(v.as<unsigned long>(), 123);
+}
+TEST(value, long_value_2)
+{
+  long number = 99;
+  value v(number);
+  EXPECT_EQ(v.type(), value_type::integral);
 }
 TEST(value, float_value)
 {
@@ -184,7 +190,7 @@ TEST(value, move_function_object)
   EXPECT_EQ(v1.as<function>()->make_constant(std::string{"some value"}), 0);
   EXPECT_EQ(v1.as<function>()->make_constant(123), 1);
   value v2(std::move(v1));
-  
+
   EXPECT_EQ(v1.type(), value_type::nil);
   EXPECT_EQ(v2.type(), value_type::function);
   EXPECT_EQ(v2.as<function>()->size(), 0);

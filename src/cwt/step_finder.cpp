@@ -25,8 +25,7 @@ bool step_finder::step_matches()
       }
       if (parameter_matches_value(implemented.type, feature.type))
       {
-        make_value(feature, negative);
-        // m_values.push_back(make_value(feature, negative));
+        m_values.push_back(token_to_value(feature, negative));
       }
       else
       {
@@ -44,40 +43,6 @@ bool step_finder::step_matches()
   }
 }
 
-void step_finder::make_value(const token& t, bool negative)
-{
-  switch (t.type)
-  {
-    case token_type::long_value:
-    {
-      long v = std::stol(t.value.data());
-      if (negative)
-      {
-        v *= -1;
-      }
-      m_values.push_back(value{v});
-    }
-    break;
-    case token_type::double_value:
-    {
-      double v = std::stod(t.value.data());
-      if (negative)
-      {
-        v *= -1;
-      }
-      m_values.push_back(value{v});
-    }
-    break;
-    case token_type::string_value:
-    {
-      m_values.push_back(value{std::string(t.value)});
-    }
-    break;
-    default:
-      println(color::red,
-              std::format("step_finder: Given token '{}' is invalid", t.value));
-  }
-}
 bool step_finder::parameter_matches_value(token_type parameter,
                                           token_type value)
 {

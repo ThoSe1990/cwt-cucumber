@@ -24,7 +24,6 @@ class step_finder
   }
 
  private:
-  void make_value(const token& t, bool negative);
   [[nodiscard]] bool parameter_matches_value(token_type parameter,
                                              token_type value);
   [[nodiscard]] bool is_parameter(token_type parameter);

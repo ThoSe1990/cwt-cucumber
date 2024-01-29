@@ -120,7 +120,7 @@ static void println(color c, const std::string& str)
   std::cout << '\n';
 }
 
-[[nodiscard]] static value make_value(const token& t, bool negative)
+[[nodiscard]] static value token_to_value(const token& t, bool negative)
 {
   switch (t.type)
   {
@@ -131,7 +131,7 @@ static void println(color c, const std::string& str)
       {
         v *= -1;
       }
-      return value{v};
+      return value(v);
     }
     break;
     case token_type::double_value:
@@ -141,19 +141,19 @@ static void println(color c, const std::string& str)
       {
         v *= -1;
       }
-      return value{v};
+      return value(v);
     }
     break;
     case token_type::string_value:
     {
-      return value{std::string(t.value)};
+      return value(std::string(t.value));
     }
     break;
     default:
       println(
           color::red,
           std::format(
-              "util::make_value: Given token '{}' is invalid to create a value",
+              "util::token_to_value: Given token '{}' is invalid to create a value",
               t.value));
       return value{nil_value{}};
   }

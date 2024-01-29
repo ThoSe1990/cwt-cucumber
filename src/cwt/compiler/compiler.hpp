@@ -46,7 +46,8 @@ class compiler
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
   {
-    emit_bytes(code, m_chunk.make_constant(std::forward<Arg>(arg)));
+    using RemovedRef = std::remove_reference_t<Arg>;
+    emit_bytes(code, m_chunk.make_constant(std::forward<RemovedRef>(arg)));
   }
   template <typename Arg>
   void emit_constant(Arg&& arg)
@@ -55,7 +56,6 @@ class compiler
     emit_bytes(op_code::constant,
                m_chunk.make_constant(std::forward<RemovedRef>(arg)));
   }
-
 
  protected:
   compiler(std::string_view source);

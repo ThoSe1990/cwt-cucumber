@@ -101,40 +101,7 @@ void compiler::emit_hook(hook_type type)
 void compiler::emit_table_value()
 {
   bool negative = m_parser->match(token_type::minus);
-  // emit_constant(make_value(m_parser->current(), negative));
-  switch (m_parser->current().type)
-  {
-    case token_type::long_value:
-    {
-      long v = std::stol(m_parser->current().value.data());
-      if (negative)
-      {
-        v *= -1;
-      }
-      emit_constant(v);
-    }
-    break;
-    case token_type::double_value:
-    {
-      double v = std::stod(m_parser->current().value.data());
-      if (negative)
-      {
-        v *= -1;
-      }
-      emit_constant(v);
-    }
-    break;
-    case token_type::string_value:
-    {
-      emit_constant(create_string(m_parser->current().value));
-    }
-    break;
-    default:
-    {
-      m_parser->error_at(m_parser->current(),
-                         "Expect a number or string value in table.");
-    }
-  }
+  emit_constant(token_to_value(m_parser->current(), negative));
 }
 
 }  // namespace cwt::details::compiler

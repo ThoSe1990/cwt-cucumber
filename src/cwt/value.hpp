@@ -26,7 +26,9 @@ class chunk;
 class value;
 using value_array = std::vector<value>;
 using function = std::unique_ptr<chunk>;
-struct nil_value{};
+struct nil_value
+{
+};
 
 using step_callback = void (*)(const value_array&);
 class step
@@ -133,10 +135,11 @@ class value
   value(const value& other) : m_type(other.m_type) { clone(other); }
 
   template <typename T, typename = std::enable_if_t<
-                            !std::is_same_v<std::decay_t<T>, value>>>
+                            !std::is_same_v<std::remove_reference_t<T>, value>>>
   value(T&& value)
-      : m_type(value_trait<T>::tag),
-        m_value(std::make_unique<value_model<T>>(std::forward<T>(value)))
+      : m_type(value_trait<std::remove_reference_t<T>>::tag),
+        m_value(std::make_unique<value_model<std::remove_reference_t<T>>>(
+            std::forward<T>(value)))
   {
   }
 
