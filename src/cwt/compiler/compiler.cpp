@@ -101,6 +101,7 @@ void compiler::emit_hook(hook_type type)
 void compiler::emit_table_value()
 {
   bool negative = m_parser->match(token_type::minus);
+  // emit_constant(make_value(m_parser->current(), negative));
   switch (m_parser->current().type)
   {
     case token_type::long_value:

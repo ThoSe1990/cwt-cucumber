@@ -197,13 +197,12 @@ token scanner::number()
     is_double = true;
     advance();
   }
-  if (is_digit(peek_next()))
+
+  while (is_digit(peek()))
   {
-    while (is_digit(peek()))
-    {
-      advance();
-    }
+    advance();
   }
+
   return is_double ? make_token(token_type::double_value)
                    : make_token(token_type::long_value);
 }

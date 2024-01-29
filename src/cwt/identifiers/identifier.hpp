@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-#include "token.hpp"
+#include "../token.hpp"
 
 namespace cwt::details
 {

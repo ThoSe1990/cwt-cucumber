@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "token.hpp"
 #include "value.hpp"
 
 namespace cwt::details
@@ -119,9 +120,43 @@ static void println(color c, const std::string& str)
   std::cout << '\n';
 }
 
-static bool step_matches(std::string_view implemented, std::string_view feature)
+[[nodiscard]] static value make_value(const token& t, bool negative)
 {
-  return false;
+  switch (t.type)
+  {
+    case token_type::long_value:
+    {
+      long v = std::stol(t.value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      return value{v};
+    }
+    break;
+    case token_type::double_value:
+    {
+      double v = std::stod(t.value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      return value{v};
+    }
+    break;
+    case token_type::string_value:
+    {
+      return value{std::string(t.value)};
+    }
+    break;
+    default:
+      println(
+          color::red,
+          std::format(
+              "util::make_value: Given token '{}' is invalid to create a value",
+              t.value));
+      return value{nil_value{}};
+  }
 }
 
 }  // namespace cwt::details
