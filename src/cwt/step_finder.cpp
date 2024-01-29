@@ -9,7 +9,20 @@ step_finder::step_finder(std::string_view implemented, std::string_view feature)
     : m_implemented(implemented), m_feature(feature)
 {
 }
-
+step_finder::step_finder(std::string_view feature)
+    : m_feature(feature)
+{
+}
+std::size_t step_finder::values_count()
+{
+  return m_values.size();
+}
+void step_finder::set_implemented_step(std::string_view implemented)
+{
+  m_feature.reset();
+  m_values.clear();
+  m_implemented = scanner(implemented);
+}
 bool step_finder::step_matches()
 {
   for (;;)

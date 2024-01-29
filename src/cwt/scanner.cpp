@@ -339,7 +339,11 @@ token scanner::parameter()
     return error_token("Unknown parameter");
   }
 }
-
+void scanner::reset()
+{
+  m_start = 0;
+  m_pos = 0;
+}
 token scanner::scan_token()
 {
   skip();

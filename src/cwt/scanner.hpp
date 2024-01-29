@@ -15,7 +15,7 @@ class scanner
  public:
   scanner(std::string_view source);
   [[nodiscard]] token scan_token();
-
+  void reset();
  private:
   char advance();
   void skip();

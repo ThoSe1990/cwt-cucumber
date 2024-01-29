@@ -196,23 +196,33 @@ void vm::run()
       {
         const std::string& name =
             frame->chunk_ptr->constant(frame->it.next()).as<std::string>();
-        for (const step& s : steps())
+
+        step_finder finder(name);
+
+        auto found_step = std::find_if(steps().begin(), steps().end(),
+                         [&finder](const step& s)
+                         {
+                           finder.set_implemented_step(s.definition());
+                           return finder.step_matches();
+                         });
+        if (found_step != steps().end())
         {
-          step_finder sf(s.definition(), name);
-          if (sf.step_matches())
-          {
-            value_array va;
-            // sf.for_each_value([this](const value& v) { push_value(v); });
-            s.call(0, m_stack.rbegin());
-            
-            // pop(sf.arg_count());
-          }
+          finder.for_each_value([this](const value& v) { push_value(v); });
+          found_step->call(finder.values_count(), m_stack.rbegin());
+          pop(finder.values_count());
         }
+        else 
+        {
+          println(color::red, "step not found!!!");
+          // TODO Error step not found
+        }
+
         std::cout << "op_code::call_step: " << name << std::endl;
       }
       break;
       case op_code::step_result:
       {
+        pop(2);
         std::cout << "op_code::step_result - pop follows... " << std::endl;
       }
       break;
