@@ -8,53 +8,31 @@ namespace cwt::details
 class english : public identifier
 {
  public:
-  token_type get_token(std::string_view str) const override
+  std::pair<token_type, std::size_t> get_token(
+      std::string_view str) const override
   {
-    if (str.starts_with("Scenario:"))
+    for (const auto& element : m_identifiers)
     {
-      return token_type::scenario;
+      if (str.starts_with(element.first))
+      {
+        return {element.second, element.first.length()};
+      }
     }
-    else if (str.starts_with("Scenario Outline:"))
-    {
-      return token_type::scenario_outline;
-    }
-    else if (str.starts_with("Background:"))
-    {
-      return token_type::background;
-    }
-    else if (str.starts_with("Examples:"))
-    {
-      return token_type::examples;
-    }
-    else if (str.starts_with("Given"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("When"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Then"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("And"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("But"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Feature:"))
-    {
-      return token_type::feature;
-    }
-    else
-    {
-      return token_type::none;
-    }
+    return {token_type::none, 0};
   }
+
+ private:
+  static constexpr std::array<std::pair<std::string_view, token_type>, 10>
+      m_identifiers{{{"Feature:", token_type::feature},
+                     {"Scenario:", token_type::scenario},
+                     {"Scenario Outline:", token_type::scenario_outline},
+                     {"Background:", token_type::background},
+                     {"Examples:", token_type::examples},
+                     {"Given", token_type::step},
+                     {"When", token_type::step},
+                     {"Then", token_type::step},
+                     {"And", token_type::step},
+                     {"But", token_type::step}}};
 };
 
 }  // namespace cwt::details

@@ -403,9 +403,10 @@ token scanner::scan_token()
     }
   }
 
-  token_type identifier = m_identifiers->get_token(m_source.substr(m_pos - 1));
+  auto [identifier, length] = m_identifiers->get_token(m_source.substr(m_pos - 1));
   if (identifier != token_type::none)
   {
+    m_pos += length-1;
     return make_token(identifier);
   }
 

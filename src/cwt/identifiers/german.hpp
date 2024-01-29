@@ -8,85 +8,39 @@ namespace cwt::details
 class german : public identifier
 {
  public:
-  token_type get_token(std::string_view str) const override
+  std::pair<token_type, std::size_t> get_token(
+      std::string_view str) const override
   {
-    if (str.starts_with("Szenario:"))
+    for (const auto& element : m_identifiers)
     {
-      return token_type::scenario;
+      if (str.starts_with(element.first))
+      {
+        return {element.second, element.first.length()};
+      }
     }
-    else if (str.starts_with("Beispiel:"))
-    {
-      return token_type::scenario;
-    }
-    else if (str.starts_with("Szenariogrundriss:"))
-    {
-      return token_type::scenario_outline;
-    }
-    else if (str.starts_with("Szenarien:"))
-    {
-      return token_type::scenario_outline;
-    }
-    else if (str.starts_with("Grundlage:"))
-    {
-      return token_type::background;
-    }
-    else if (str.starts_with("Hintergrund:"))
-    {
-      return token_type::background;
-    }
-    else if (str.starts_with("Voraussetzungen:"))
-    {
-      return token_type::background;
-    }
-    else if (str.starts_with("Vorbedingungen:"))
-    {
-      return token_type::background;
-    }
-    else if (str.starts_with("Beispiele:"))
-    {
-      return token_type::examples;
-    }
-    else if (str.starts_with("Angenommen"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Gegeben sei"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Gegeben seien"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Wenn"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Dann"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Und"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Aber"))
-    {
-      return token_type::step;
-    }
-    else if (str.starts_with("Funktionalität:"))
-    {
-      return token_type::feature;
-    }
-    else if (str.starts_with("Funktion:"))
-    {
-      return token_type::feature;
-    }
-    else
-    {
-      return token_type::none;
-    }
+    return {token_type::none, 0};
   }
+
+ private:
+  static constexpr std::array<std::pair<std::string_view, token_type>, 18>
+      m_identifiers{{{"Funktionalität:", token_type::feature},
+                     {"Funktion:", token_type::feature},
+                     {"Szenario:", token_type::scenario},
+                     {"Beispiel:", token_type::scenario},
+                     {"Szenariogrundriss:", token_type::scenario_outline},
+                     {"Szenarien:", token_type::scenario_outline},
+                     {"Grundlage:", token_type::background},
+                     {"Hintergrund:", token_type::background},
+                     {"Voraussetzungen:", token_type::background},
+                     {"Vorbedingungen:", token_type::background},
+                     {"Beispiele:", token_type::examples},
+                     {"Angenommen", token_type::step},
+                     {"Gegeben sei", token_type::step},
+                     {"Gegeben seien", token_type::step},
+                     {"Wenn", token_type::step},
+                     {"Dann", token_type::step},
+                     {"Und", token_type::step},
+                     {"Aber", token_type::step}}};
 };
 
 }  // namespace cwt::details

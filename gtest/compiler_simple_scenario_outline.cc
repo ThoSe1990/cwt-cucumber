@@ -73,7 +73,7 @@ TEST(compiler_simple_scenario_outline, scenarios_constants)
   EXPECT_EQ(s.get_chunk().constant(4).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(4).as<std::string>(), "second var");
   EXPECT_EQ(s.get_chunk().constant(5).type(), value_type::string);
-  EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(), "Given A Step with <first var> and <second var>");
+  EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(), "A Step with <first var> and <second var>");
 }
 
 TEST(compiler_simple_scenario_outline, parent_feature_code)

@@ -3,8 +3,9 @@
 #include <format>
 
 #include "vm.hpp"
-#include "chunk.hpp"
 #include "util.hpp"
+#include "chunk.hpp"
+#include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 
 #ifdef PRINT_STACK
@@ -180,12 +181,20 @@ void vm::run()
         uint32_t next = frame->it.next();
         std::string name =
             frame->chunk_ptr->constant(next).copy_as<std::string>();
+        
+        // std::find_if(steps().begin(), steps().end(), [](const step& s){
+        //   ste
+        // });
+        
         // TODO -> of course no loop here, just demonstartaion!
-        println(color::red, std::format("steps count: {}", steps().size()));
-        for (const auto& s : steps())
+        // println(color::red, std::format("steps count: {}", steps().size()));
+        for (const step& s : steps())
         {
-          value_array values;
-          s(values);
+          step_finder sf(s.definition(), name);
+          if (sf.step_matches())
+          {
+            std::cout << "step: " << name << "\nmatches: " << s.definition() << std::endl;
+          }
         }
         std::cout << "op_code::call_step: " << name << std::endl;
       }

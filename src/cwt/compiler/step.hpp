@@ -14,11 +14,12 @@ template <typename Parent,
 class step
 {
  public:
-  step(Parent* parent) : m_parent(parent) 
+  step(Parent* parent)
+      : m_parent(parent),
+        m_location_idx(
+            m_parent->get_chunk().make_constant(m_parent->location())),
+        m_begin(m_parent->get_parser().current())
   {
-    m_location_idx =
-        m_parent->get_chunk().make_constant(m_parent->location());
-    m_begin = m_parent->get_parser().previous();
   }
 
   void compile()
@@ -57,8 +58,11 @@ class step
       m_parent->get_parser().advance();
       if (m_parent->get_parser().match(token_type::variable))
       {
-        std::string_view name = get_var_name(m_parent->get_parser().previous().value);
-        m_parent->emit_bytes(op_code::get_var, m_parent->get_chunk().make_constant(create_string(name)));
+        std::string_view name =
+            get_var_name(m_parent->get_parser().previous().value);
+        m_parent->emit_bytes(
+            op_code::get_var,
+            m_parent->get_chunk().make_constant(create_string(name)));
       }
     }
     return m_parent->get_parser().previous();
