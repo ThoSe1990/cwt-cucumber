@@ -8,6 +8,8 @@
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 
+// TODO Remove
+#define PRINT_STACK 1
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
@@ -17,6 +19,7 @@ namespace cwt::details
 
 return_code vm::interpret(std::string_view source)
 {
+  m_stack.reserve(10);
   compiler::cucumber c(source);
 
   c.compile();
