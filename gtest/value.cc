@@ -78,15 +78,15 @@ TEST(value, function_value)
 }
 TEST(value, native_value)
 {
-  auto test_func = [](const value_array& arr)
+  auto test_func = [](step_argc n, step_argv v)
   {
-    ASSERT_EQ(arr.size(), 1);
-    EXPECT_EQ(arr.at(0).as<int>(), 99);
+    ASSERT_EQ(n, 1);
+    EXPECT_EQ(v->as<int>(), 99);
   };
   value v(step(test_func, "some step ..."));
   value_array arr;
   arr.emplace_back(99);
-  v.as<step>().call(arr);
+  v.as<step>().call(arr.size(), arr.rbegin());
   EXPECT_EQ(v.type(), value_type::step);
 }
 
@@ -202,13 +202,13 @@ TEST(value, move_function_object)
 TEST(value, copy_native)
 {
   value_array arr;
-  auto test_func = [](const value_array& arr)
+  auto test_func = [](step_argc, step_argv)
   { throw std::runtime_error("only in this test..."); };
   value v1(step(test_func, "some step ..."));
   value v2(v1);
 
   EXPECT_EQ(v2.type(), value_type::step);
   EXPECT_EQ(v2.type(), v1.type());
-  EXPECT_THROW(v1.as<step>().call(arr), std::runtime_error);
-  EXPECT_THROW(v2.as<step>().call(arr), std::runtime_error);
+  EXPECT_THROW(v1.as<step>().call(arr.size(), arr.rbegin()), std::runtime_error);
+  EXPECT_THROW(v2.as<step>().call(arr.size(), arr.rbegin()), std::runtime_error);
 }

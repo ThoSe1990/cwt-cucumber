@@ -30,7 +30,9 @@ struct nil_value
 {
 };
 
-using step_callback = void (*)(const value_array&);
+using step_argv = const std::reverse_iterator<value_array::iterator>&;
+using step_argc = std::size_t;
+using step_callback = void (*)(step_argc, step_argv);
 class step
 {
  public:
@@ -39,8 +41,8 @@ class step
   {
   }
   const std::string& definition() const noexcept { return m_definition; }
-  void call(const value_array& values) const { m_callback(values); }
-  void operator()(const value_array& values) const { m_callback(values); }
+  void call(step_argc n, step_argv values) const { m_callback(n, values); }
+  void operator()(step_argc n, step_argv values) const { m_callback(n, values); }
 
  private:
   step_callback m_callback;

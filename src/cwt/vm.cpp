@@ -19,7 +19,14 @@ namespace cwt::details
 
 return_code vm::interpret(std::string_view source)
 {
-  m_stack.reserve(10);
+  // FYI a call frame stores the current frame as raw pointer,
+  //  pointing to the chunk_ptr / function on the stack
+  //  if the vector reallocates when capacity is exceeded
+  //  we loose the rawpointer to the chunk in the current call frame
+  //  for now the stack is under control and will most likely not m_exceed
+  //  max_stack_size only if a step has more than ~250 variables which is rather
+  //  unlikely
+  m_stack.reserve(m_max_stack_size);
   compiler::cucumber c(source);
 
   c.compile();
@@ -196,7 +203,8 @@ void vm::run()
           {
             value_array va;
             // sf.for_each_value([this](const value& v) { push_value(v); });
-            s.call(va);
+            s.call(0, m_stack.rbegin());
+            
             // pop(sf.arg_count());
           }
         }
