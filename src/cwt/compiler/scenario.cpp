@@ -33,8 +33,6 @@ void scenario::compile()
   {
     if (m_parser->match(token_type::step))
     {
-      std::cout << "************* prv: " << m_parser->previous().value << "  " << to_uint(m_parser->previous().type) << std::endl;
-      std::cout << "************* crt: " << m_parser->current().value  << "  " << to_uint(m_parser->current().type) << std::endl;
       step s(this);
       s.compile();
     }

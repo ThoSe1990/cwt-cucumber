@@ -22,7 +22,7 @@ class step_finder
       cb(v);
     }
   }
-
+  
  private:
   [[nodiscard]] bool parameter_matches_value(token_type parameter,
                                              token_type value);

@@ -14,7 +14,12 @@ TEST(vm, run_chunk)
 
 STEP(some_step, "Any Step")
 {
-  std::cout << "hello again!!!" << std::endl;
+  std::cout << "**************** Any Step" << std::endl;
+}
+
+STEP(another_step, "Another Step")
+{
+  std::cout << "**************** Another Step" << std::endl;
 }
 
 BEFORE(some_hook)
@@ -56,6 +61,8 @@ TEST(vm, first_feature)
   const char* script = R"*(
   Feature: A Fancy Feature
   Scenario: A Scenario
+  Given Any Step
+  Given Another Step
   Given Any Step
 )*";
   vm test_vm;

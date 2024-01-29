@@ -65,10 +65,7 @@ std::vector<hook>& vm::after_step()
 }
 void vm::push_hook_after_step(const hook& h) { after_step().push_back(h); }
 
-void vm::runtime_error(std::string_view msg) 
-{
-  print(color::red, msg);
-}
+void vm::runtime_error(std::string_view msg) { print(color::red, msg); }
 
 void vm::call(const function& func)
 {
@@ -99,14 +96,14 @@ void vm::run()
       case op_code::constant:
       {
         uint32_t next = frame->it.next();
-        m_stack.push_back(std::move(frame->chunk_ptr->constant(next)));
+        m_stack.push_back(frame->chunk_ptr->constant(next));
       }
       break;
       case op_code::define_var:
       {
         uint32_t next = frame->it.next();
-        std::string name =
-            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        const std::string& name =
+            frame->chunk_ptr->constant(next).as<std::string>();
         m_globals[name] = m_stack.back();
         m_stack.pop_back();
       }
@@ -114,16 +111,16 @@ void vm::run()
       case op_code::get_var:
       {
         uint32_t next = frame->it.next();
-        std::string name =
-            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        const std::string& name =
+            frame->chunk_ptr->constant(next).as<std::string>();
         m_stack.push_back(m_globals[name]);
       }
       break;
       case op_code::set_var:
       {
         uint32_t next = frame->it.next();
-        std::string var =
-            frame->chunk_ptr->constant(next).copy_as<std::string>();
+        const std::string& var =
+            frame->chunk_ptr->constant(next).as<std::string>();
         if (m_globals.contains(var))
         {
           m_globals[var] = m_stack.back();
@@ -178,22 +175,15 @@ void vm::run()
       break;
       case op_code::call_step:
       {
-        uint32_t next = frame->it.next();
-        std::string name =
-            frame->chunk_ptr->constant(next).copy_as<std::string>();
-        
-        // std::find_if(steps().begin(), steps().end(), [](const step& s){
-        //   ste
-        // });
-        
-        // TODO -> of course no loop here, just demonstartaion!
-        // println(color::red, std::format("steps count: {}", steps().size()));
+        const std::string& name =
+            frame->chunk_ptr->constant(frame->it.next()).as<std::string>();
         for (const step& s : steps())
         {
           step_finder sf(s.definition(), name);
           if (sf.step_matches())
           {
-            std::cout << "step: " << name << "\nmatches: " << s.definition() << std::endl;
+            value_array va;
+            s.call(va);
           }
         }
         std::cout << "op_code::call_step: " << name << std::endl;
