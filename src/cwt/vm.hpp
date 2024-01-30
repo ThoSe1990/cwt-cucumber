@@ -20,8 +20,9 @@ class vm
  public:
   [[nodiscard]] return_code interpret(std::string_view source);
   [[nodiscard]] return_code run(function func);
-  [[nodiscard]] std::vector<value>& stack();
-  [[nodiscard]] std::vector<call_frame>& frames();
+  [[nodiscard]] const std::vector<value>& stack() const;
+  [[nodiscard]] const std::vector<call_frame>& frames() const;
+  [[nodiscard]] value& global(const std::string& name);
 
   static void push_step(const step& s);
   static void push_hook_before(const hook& h);
@@ -50,7 +51,7 @@ class vm
   std::vector<value> m_stack;
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
-
+  return_code m_result{return_code::passed};
   static constexpr const std::size_t m_max_stack_size{256};
 };
 

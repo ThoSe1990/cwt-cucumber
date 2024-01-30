@@ -22,7 +22,6 @@ enum class op_code : uint32_t
 {
   constant,
   tag,
-  nil,
   pop,
   get_var,
   set_var,

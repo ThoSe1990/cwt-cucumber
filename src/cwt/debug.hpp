@@ -113,8 +113,6 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
       return constant_instruction("op_code::constant", c, offset);
     case op_code::tag:
       return constant_instruction("op_code::tag", c, offset);
-    case op_code::nil:
-      return constant_instruction("op_code::nil", c, offset);
     case op_code::pop:
       return simple_instruction("op_code::pop", offset);
     case op_code::get_var:

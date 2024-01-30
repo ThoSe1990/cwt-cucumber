@@ -48,11 +48,23 @@ return_code vm::run(function func)
   call(m_stack.back().as<function>());
   run();
   // TODO that can fail in run()
-  return return_code::passed;
+  return m_result;
 }
 
-std::vector<value>& vm::stack() { return m_stack; }
-std::vector<call_frame>& vm::frames() { return m_frames; }
+const std::vector<value>& vm::stack() const { return m_stack; }
+const std::vector<call_frame>& vm::frames() const { return m_frames; }
+
+value& vm::global(const std::string& name)
+{
+  if (m_globals.contains(name)) [[likely]]
+  {
+    return m_globals[name];
+  }
+  else [[unlikely]]
+  {
+    throw std::runtime_error(std::format("Undefined variable '{}'", name));
+  }
+}
 
 void vm::push_value(const value& v)
 {
@@ -126,7 +138,6 @@ void vm::run()
   call_frame* frame = &m_frames.back();
   while (frame->it != frame->chunk_ptr->cend())
   {
-
 #ifdef PRINT_STACK
     for (const auto& v : m_stack)
     {
@@ -308,7 +319,7 @@ void vm::run()
   }
 
   println(color::red, "Call frame out of range.");
-  throw std::out_of_range("Call frame out of range.");
+  m_result = return_code::runtime_error;
 }
 
 }  // namespace cwt::details
