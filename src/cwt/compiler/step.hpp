@@ -31,9 +31,9 @@ class step
 
     uint32_t jump = m_parent->emit_jump();
 
-    m_parent->emit_hook(hook_type::before_step);
+    m_parent->emit_byte(op_code::hook_before_step);
     m_parent->emit_bytes(op_code::call_step, name_idx);
-    m_parent->emit_hook(hook_type::after_step);
+    m_parent->emit_byte(op_code::hook_after_step);
 
     m_parent->patch_jump(jump);
 

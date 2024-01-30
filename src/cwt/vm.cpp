@@ -191,45 +191,29 @@ void vm::run()
         pop();
       }
       break;
-      case op_code::hook:
+      case op_code::hook_before:
       {
-        hook_type type = to_hook_type(frame->it.next());
-        std::cout << "op_code::hook";
-        if (type == hook_type::before)
-        {
-          for (auto& h : before())
-          {
-            h.call();
-          }
-        }
-        if (type == hook_type::after)
-        {
-          for (auto& h : after())
-          {
-            h.call();
-          }
-        }
-
-        if (type == hook_type::before_step)
-        {
-          for (auto& h : before_step())
-          {
-            h.call();
-          }
-        }
-        if (type == hook_type::after_step)
-        {
-          for (auto& h : after_step())
-          {
-            h.call();
-          }
-        }
-        if (type == hook_type::before || type == hook_type::after)
-        {
-          uint32_t tags = frame->it.next();
-          std::cout << ": tags count = " << tags;
-        }
-        std::cout << std::endl;
+         std::cout << "op_code::hook_before" << std::endl;
+      }
+      break;
+      case op_code::hook_after:
+      {
+         std::cout << "op_code::hook_after" << std::endl;
+      }
+      break;
+      case op_code::hook_before_step:
+      {
+         std::cout << "op_code::hook_before_step" << std::endl;
+      }
+      break;
+      case op_code::hook_after_step:
+      {
+         std::cout << "op_code::hook_after_step" << std::endl;
+      }
+      break;
+      case op_code::reset_context:
+      {
+         std::cout << "op_code::reset_context" << std::endl;
       }
       break;
       case op_code::call_step:
@@ -313,7 +297,10 @@ void vm::run()
       break;
       default:
       {
-        std::cout << "default! Missing op_code: " << current << std::endl;
+        println(
+            color::red,
+            std::format("Virtual Machine: Missing instruction '{}'", current));
+        m_result = return_code::runtime_error;
       }
     }
   }

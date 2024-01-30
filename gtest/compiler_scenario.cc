@@ -44,7 +44,7 @@ const char* script = R"*(
   compiler::feature f(&cuke);
   compiler::scenario s(&f);
   s.compile();
-  ASSERT_EQ(s.get_chunk().size(), 22);
+  ASSERT_EQ(s.get_chunk().size(), 20);
 
   EXPECT_EQ(s.get_chunk().at(0), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(1), 1);
@@ -56,18 +56,16 @@ const char* script = R"*(
   EXPECT_EQ(s.get_chunk().at(7), to_uint(color::black));
   EXPECT_EQ(s.get_chunk().at(8), to_uint(op_code::init_scenario));
   EXPECT_EQ(s.get_chunk().at(9), to_uint(op_code::jump_if_failed));
-  EXPECT_EQ(s.get_chunk().at(10), 17);
-  EXPECT_EQ(s.get_chunk().at(11), to_uint(op_code::hook));
-  EXPECT_EQ(s.get_chunk().at(12), to_uint(hook_type::before_step));
-  EXPECT_EQ(s.get_chunk().at(13), to_uint(op_code::call_step));
-  EXPECT_EQ(s.get_chunk().at(14), 3);
-  EXPECT_EQ(s.get_chunk().at(15), to_uint(op_code::hook));
-  EXPECT_EQ(s.get_chunk().at(16), to_uint(hook_type::after_step));
+  EXPECT_EQ(s.get_chunk().at(10), 15);
+  EXPECT_EQ(s.get_chunk().at(11), to_uint(op_code::hook_before_step));
+  EXPECT_EQ(s.get_chunk().at(12), to_uint(op_code::call_step));
+  EXPECT_EQ(s.get_chunk().at(13), 3);
+  EXPECT_EQ(s.get_chunk().at(14), to_uint(op_code::hook_after_step));
+  EXPECT_EQ(s.get_chunk().at(15), to_uint(op_code::constant));
+  EXPECT_EQ(s.get_chunk().at(16), 3);
   EXPECT_EQ(s.get_chunk().at(17), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(18), 3);
-  EXPECT_EQ(s.get_chunk().at(19), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(20), 2);
-  EXPECT_EQ(s.get_chunk().at(21), to_uint(op_code::step_result));
+  EXPECT_EQ(s.get_chunk().at(18), 2);
+  EXPECT_EQ(s.get_chunk().at(19), to_uint(op_code::step_result));
 }
 
 TEST(compiler_scenario, chunk_size_3_steps)
@@ -84,7 +82,7 @@ const char* script = R"*(
   compiler::feature f(&cuke);
   compiler::scenario s(&f);
   s.compile();
-  EXPECT_EQ(s.get_chunk().size(), 48);
+  EXPECT_EQ(s.get_chunk().size(), 42);
 }
 
 TEST(compiler_scenario, chunk_size_2_scenarios)
@@ -100,5 +98,5 @@ const char* script = R"*(
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 42);
+  EXPECT_EQ(f.get_chunk().size(), 36);
 }

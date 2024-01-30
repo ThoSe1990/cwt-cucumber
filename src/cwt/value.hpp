@@ -49,14 +49,6 @@ class step
   std::string m_definition;
 };
 
-enum class hook_type
-{
-  reset_context,
-  before,
-  after,
-  before_step,
-  after_step
-};
 using hook_callback = void (*)();
 struct hook
 {

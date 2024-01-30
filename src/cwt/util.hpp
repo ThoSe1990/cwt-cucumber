@@ -35,7 +35,11 @@ enum class op_code : uint32_t
   call,
   call_step,
   call_step_with_doc_string,
-  hook,
+  hook_before,
+  hook_before_step,
+  hook_after,
+  hook_after_step,
+  reset_context,
   func_return
 };
 
@@ -65,19 +69,6 @@ inline constexpr op_code to_code(uint32_t val)
   {
     throw std::out_of_range(
         "inline op_code to_code(uint32_t val): value out of range");
-  }
-}
-inline constexpr hook_type to_hook_type(uint32_t val)
-{
-  if (val >= to_uint(hook_type::reset_context) &&
-      val <= to_uint(hook_type::after_step)) [[likely]]
-  {
-    return static_cast<hook_type>(val);
-  }
-  else [[unlikely]]
-  {
-    throw std::out_of_range(
-        "inline hook_type to_hook_type(uint32_t val): value out of range");
   }
 }
 inline constexpr color to_color(uint32_t val)

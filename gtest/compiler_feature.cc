@@ -24,7 +24,7 @@ const char* script = R"*(
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 25);
+  EXPECT_EQ(f.get_chunk().size(), 22);
   EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
             testing::internal::GetCapturedStderr());
 }
@@ -49,27 +49,23 @@ const char* script = R"*(
   EXPECT_EQ(f.get_chunk().at(6), to_uint(op_code::println));
   EXPECT_EQ(f.get_chunk().at(7), to_uint(color::black));  // TODO enum for color represents the color
 
-  EXPECT_EQ(f.get_chunk().at(8), to_uint(op_code::hook));
-  EXPECT_EQ(f.get_chunk().at(9), to_uint(hook_type::reset_context));
+  EXPECT_EQ(f.get_chunk().at(8), to_uint(op_code::reset_context));
+  EXPECT_EQ(f.get_chunk().at(9), to_uint(op_code::hook_before));
+  EXPECT_EQ(f.get_chunk().at(10), 0);  // tag count (hook)
 
-  EXPECT_EQ(f.get_chunk().at(10), to_uint(op_code::hook));
-  EXPECT_EQ(f.get_chunk().at(11), to_uint(hook_type::before));
-  EXPECT_EQ(f.get_chunk().at(12), 0);  // tag count (hook)
-
-  EXPECT_EQ(f.get_chunk().at(13), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(14), 2);  // function: scenario call
-  EXPECT_EQ(f.get_chunk().at(15), to_uint(op_code::define_var));
+  EXPECT_EQ(f.get_chunk().at(11), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(12), 2);  // function: scenario call
+  EXPECT_EQ(f.get_chunk().at(13), to_uint(op_code::define_var));
+  EXPECT_EQ(f.get_chunk().at(14), 3);
+  EXPECT_EQ(f.get_chunk().at(15), to_uint(op_code::get_var));
   EXPECT_EQ(f.get_chunk().at(16), 3);
-  EXPECT_EQ(f.get_chunk().at(17), to_uint(op_code::get_var));
-  EXPECT_EQ(f.get_chunk().at(18), 3);
-  EXPECT_EQ(f.get_chunk().at(19), to_uint(op_code::call));
-  EXPECT_EQ(f.get_chunk().at(20), 0);
+  EXPECT_EQ(f.get_chunk().at(17), to_uint(op_code::call));
+  EXPECT_EQ(f.get_chunk().at(18), 0);
 
-  EXPECT_EQ(f.get_chunk().at(21), to_uint(op_code::hook));
-  EXPECT_EQ(f.get_chunk().at(22), to_uint(hook_type::after));
-  EXPECT_EQ(f.get_chunk().at(23), 0);  // tag count (hook)
+  EXPECT_EQ(f.get_chunk().at(19), to_uint(op_code::hook_after));
+  EXPECT_EQ(f.get_chunk().at(20), 0);  // tag count (hook)
 
-  EXPECT_EQ(f.get_chunk().at(24), to_uint(op_code::scenario_result));
+  EXPECT_EQ(f.get_chunk().at(21), to_uint(op_code::scenario_result));
 }
 
 TEST(compiler_feature, feature_constants)

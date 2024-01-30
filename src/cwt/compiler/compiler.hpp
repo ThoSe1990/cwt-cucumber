@@ -40,7 +40,6 @@ class compiler
   void emit_bytes(op_code code, uint32_t byte);
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
-  void emit_hook(hook_type type);
   void emit_table_value();
 
   template <typename Arg>

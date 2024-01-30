@@ -17,14 +17,16 @@ scenario::scenario(feature* enclosing)
 scenario::~scenario()
 {
   finish_chunk();
-  m_enclosing->emit_hook(hook_type::reset_context);
-  m_enclosing->emit_hook(hook_type::before);
+  m_enclosing->emit_byte(op_code::reset_context);
+  m_enclosing->emit_byte(op_code::hook_before);
+  m_enclosing->emit_byte(0);  // = args => overload! not all hooks have args
   m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
   m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
   m_enclosing->emit_bytes(op_code::get_var,
                           m_enclosing->get_chunk().last_constant());
   m_enclosing->emit_bytes(op_code::call, 0);
-  m_enclosing->emit_hook(hook_type::after);
+  m_enclosing->emit_byte(op_code::hook_after);
+  m_enclosing->emit_byte(0);  // = args => overload! not all hooks have args
   m_enclosing->emit_byte(op_code::scenario_result);
 }
 void scenario::compile()

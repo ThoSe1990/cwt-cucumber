@@ -90,15 +90,6 @@ void compiler::patch_jump(uint32_t offset)
   m_chunk.at(offset) = m_chunk.size();
 }
 
-void compiler::emit_hook(hook_type type)
-{
-  emit_bytes(op_code::hook, to_uint(type));
-  if (type == hook_type::before || type == hook_type::after)
-  {
-    emit_byte(0);  // = args => overload! not all hooks have args
-  }
-}
-
 void compiler::emit_table_value()
 {
   bool negative = m_parser->match(token_type::minus);
