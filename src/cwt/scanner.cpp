@@ -111,6 +111,12 @@ char scanner::peek_next() const
     return '\0';
   }
 }
+bool scanner::is_alpha(char c) const noexcept
+{
+  return  (c >= 'a' && c <= 'z') ||
+          (c >= 'A' && c <= 'Z') ||
+          c == '_';
+}
 bool scanner::is_at_end() const { return m_pos >= m_source.size(); }
 bool scanner::tripple_quotes() const
 {
@@ -209,12 +215,8 @@ token scanner::number()
 
 token scanner::tag()
 {
-  for (;;)
+  while (is_alpha(peek()) || is_digit(peek()))
   {
-    if (is_at_end() || peek() == ' ' || end_of_line())
-    {
-      break;
-    }
     advance();
   }
   return make_token(token_type::tag);
@@ -279,12 +281,8 @@ token scanner::doc_string()
 
 token scanner::word()
 {
-  while (!is_at_end() && !end_of_line())
+  while (is_alpha(peek()))
   {
-    if (peek() == ' ' || peek() == '|')
-    {
-      break;
-    }
     advance();
   }
   return make_token(token_type::word);
@@ -363,6 +361,10 @@ token scanner::scan_token()
   {
     case '|':
       return make_token(token_type::vertical);
+    case '(':
+      return make_token(token_type::left_paren);
+    case ')':
+      return make_token(token_type::right_paren);
     case '{':
       return parameter();
     case '-':

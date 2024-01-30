@@ -32,9 +32,57 @@ TEST(scanner, asterisk)
 {
   EXPECT_EQ(scanner("*").scan_token().type, token_type::step);
 }
-TEST(scanner, tag)
+TEST(scanner, left_paren)
+{
+  EXPECT_EQ(scanner("(").scan_token().type, token_type::left_paren);
+}
+TEST(scanner, right_paren)
+{
+  EXPECT_EQ(scanner(")").scan_token().type, token_type::right_paren);
+}
+TEST(scanner, and_token)
+{
+  EXPECT_EQ(scanner("and").scan_token().type, token_type::_and);
+}
+TEST(scanner, or_token)
+{
+  EXPECT_EQ(scanner("or").scan_token().type, token_type::_or);
+}
+TEST(scanner, not_token)
+{
+  EXPECT_EQ(scanner("not").scan_token().type, token_type::_not);
+}
+TEST(scanner, xor_token)
+{
+  EXPECT_EQ(scanner("xor").scan_token().type, token_type::_xor);
+}
+
+TEST(scanner, tag_paren_token)
+{
+  scanner s("@tag1()");
+  EXPECT_EQ(s.scan_token().type, token_type::tag);
+  EXPECT_EQ(s.scan_token().type, token_type::left_paren);
+  EXPECT_EQ(s.scan_token().type, token_type::right_paren);
+}
+TEST(scanner, word_paren_token)
+{
+  scanner s("hello world and ()");
+  EXPECT_EQ(s.scan_token().type, token_type::word);
+  EXPECT_EQ(s.scan_token().type, token_type::word);
+  EXPECT_EQ(s.scan_token().type, token_type::_and);
+  EXPECT_EQ(s.scan_token().type, token_type::left_paren);
+  EXPECT_EQ(s.scan_token().type, token_type::right_paren);
+}
+
+TEST(scanner, tag_1)
 {
   EXPECT_EQ(scanner("@my_tag").scan_token().type, token_type::tag);
+}
+TEST(scanner, tag_2)
+{
+  token t = scanner("@tag1with2numbers").scan_token();
+  EXPECT_EQ(t.type, token_type::tag);
+  EXPECT_EQ(t.value, "@tag1with2numbers");
 }
 TEST(scanner, variable)
 {
@@ -138,7 +186,7 @@ TEST(scanner, statement_1)
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::variable);
-  EXPECT_EQ(s.scan_token().type, token_type::word);
+  EXPECT_EQ(s.scan_token().type, token_type::_and);
   EXPECT_EQ(s.scan_token().type, token_type::long_value);
 }
 
@@ -149,7 +197,7 @@ TEST(scanner, statement_2)
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::string_value);
-  EXPECT_EQ(s.scan_token().type, token_type::word);
+  EXPECT_EQ(s.scan_token().type, token_type::_and);
   EXPECT_EQ(s.scan_token().type, token_type::double_value);
 }
 TEST(scanner, table_header)

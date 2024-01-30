@@ -25,6 +25,7 @@ class scanner
   [[nodiscard]] char peek() const;
   [[nodiscard]] char peek_next() const;
   [[nodiscard]] std::size_t chars_left() const;
+  [[nodiscard]] bool is_alpha(char c) const noexcept;
   [[nodiscard]] bool is_at_end() const;
   [[nodiscard]] bool tripple_quotes() const;
   [[nodiscard]] bool end_of_line() const;

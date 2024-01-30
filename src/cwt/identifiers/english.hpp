@@ -7,8 +7,7 @@ namespace cwt::details
 
 class english : public identifier
 {
- public:
-  std::pair<token_type, std::size_t> get_token(
+  std::pair<token_type, std::size_t> language_token(
       std::string_view str) const override
   {
     for (const auto& element : m_identifiers)

@@ -22,9 +22,10 @@ class step
   {
   }
 
-  void compile()
+  void compile() const
   {
-    token end = process_step();
+    advance_to_linebreak();
+    token end = m_parent->get_parser().previous();
 
     std::size_t name_idx =
         m_parent->get_chunk().make_constant(create_string(m_begin, end));
@@ -43,29 +44,37 @@ class step
   }
 
  private:
-  std::string_view get_var_name(std::string_view str)
+  std::string_view get_var_name(std::string_view str) const
   {
     auto without_ankle_brackets = [](std::string_view str)
     { return str.substr(1, str.size() - 2); };
     return without_ankle_brackets(str);
   }
 
-  token process_step()
+  void advance_to_linebreak() const
   {
-    while (m_parent->get_parser().is_none_of(token_type::linebreak,
-                                             token_type::eof))
+    while (not_at_linebreak())
     {
       m_parent->get_parser().advance();
       if (m_parent->get_parser().match(token_type::variable))
       {
-        std::string_view name =
-            get_var_name(m_parent->get_parser().previous().value);
-        m_parent->emit_bytes(
-            op_code::get_var,
-            m_parent->get_chunk().make_constant(create_string(name)));
+        emit_variable();
       }
     }
-    return m_parent->get_parser().previous();
+  }
+
+  void emit_variable() const
+  {
+    std::string_view name =
+        get_var_name(m_parent->get_parser().previous().value);
+    m_parent->emit_bytes(op_code::get_var, m_parent->get_chunk().make_constant(
+                                               create_string(name)));
+  }
+
+  bool not_at_linebreak() const
+  {
+    return m_parent->get_parser().is_none_of(token_type::linebreak,
+                                             token_type::eof);
   }
 
  private:

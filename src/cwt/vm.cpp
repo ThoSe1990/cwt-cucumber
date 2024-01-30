@@ -128,6 +128,14 @@ void vm::runtime_error(std::string_view msg)
                                   m_frames.back().chunk_ptr->lines(idx), msg));
 }
 
+void vm::run_hooks(const std::vector<hook>& hooks) const
+{
+  for (const auto& hook : hooks)
+  {
+    hook.call();
+  }
+}
+
 void vm::call(const function& func)
 {
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
@@ -193,27 +201,29 @@ void vm::run()
       break;
       case op_code::hook_before:
       {
-         std::cout << "op_code::hook_before" << std::endl;
+        uint32_t tag_count = frame->it.next();
+        run_hooks(before());
       }
       break;
       case op_code::hook_after:
       {
-         std::cout << "op_code::hook_after" << std::endl;
+        uint32_t tag_count = frame->it.next();
+        run_hooks(after());
       }
       break;
       case op_code::hook_before_step:
       {
-         std::cout << "op_code::hook_before_step" << std::endl;
+        run_hooks(before_step());
       }
       break;
       case op_code::hook_after_step:
       {
-         std::cout << "op_code::hook_after_step" << std::endl;
+        run_hooks(after_step());
       }
       break;
       case op_code::reset_context:
       {
-         std::cout << "op_code::reset_context" << std::endl;
+        std::cout << "op_code::reset_context" << std::endl;
       }
       break;
       case op_code::call_step:

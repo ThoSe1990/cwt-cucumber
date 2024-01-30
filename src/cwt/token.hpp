@@ -18,7 +18,15 @@ enum class token_type
   examples,
 
   variable,
+  
   tag,
+  _and,
+  _or,
+  _xor,
+  _not,
+  left_paren,
+  right_paren,
+
   doc_string,
   long_value,
   double_value,
