@@ -10,12 +10,12 @@ namespace cwt::details
 class step_finder
 {
  public:
-  step_finder(std::string_view implemented, std::string_view feature);
+  step_finder(std::string_view defined, std::string_view feature);
   step_finder(std::string_view feature);
   
-  void set_implemented_step(std::string_view implemented);
+  void reset_with_next_step(std::string_view defined) noexcept;
   [[nodiscard]] bool step_matches();
-  [[nodiscard]] std::size_t values_count();
+  [[nodiscard]] std::size_t values_count() const noexcept;
   template <typename Callback>
   void for_each_value(Callback&& cb)
   {
@@ -34,7 +34,7 @@ class step_finder
   [[nodiscard]] std::pair<token, token> next();
 
  private:
-  scanner m_implemented{""};
+  scanner m_defined{""};
   scanner m_feature{""};
   value_array m_values;
 };

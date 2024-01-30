@@ -1,6 +1,6 @@
 // TODO remove iostream
-#include <iostream>
 #include <format>
+#include <algorithm>
 
 #include "vm.hpp"
 #include "util.hpp"
@@ -84,7 +84,12 @@ std::vector<hook>& vm::after_step()
 }
 void vm::push_hook_after_step(const hook& h) { after_step().push_back(h); }
 
-void vm::runtime_error(std::string_view msg) { print(color::red, msg); }
+void vm::runtime_error(std::string_view msg)
+{
+  std::size_t idx = m_frames.back().chunk_ptr->get_index(m_frames.back().it);
+  println(color::red, std::format("[line {}]: {}",
+                                m_frames.back().chunk_ptr->lines(idx), msg));
+}
 
 void vm::call(const function& func)
 {
@@ -194,15 +199,15 @@ void vm::run()
       break;
       case op_code::call_step:
       {
-        const std::string& name =
+        const std::string& step_name =
             frame->chunk_ptr->constant(frame->it.next()).as<std::string>();
-
-        step_finder finder(name);
-
-        auto found_step = std::find_if(steps().begin(), steps().end(),
+        step_finder finder(
+            step_name);
+        auto found_step =
+            std::find_if(steps().begin(), steps().end(),
                          [&finder](const step& s)
                          {
-                           finder.set_implemented_step(s.definition());
+                           finder.reset_with_next_step(s.definition());
                            return finder.step_matches();
                          });
         if (found_step != steps().end())
@@ -211,13 +216,11 @@ void vm::run()
           found_step->call(finder.values_count(), m_stack.rbegin());
           pop(finder.values_count());
         }
-        else 
+        else
         {
-          println(color::red, "step not found!!!");
+          runtime_error(std::format("Undefined step '{}'", step_name));
           // TODO Error step not found
         }
-
-        std::cout << "op_code::call_step: " << name << std::endl;
       }
       break;
       case op_code::step_result:

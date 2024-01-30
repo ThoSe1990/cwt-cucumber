@@ -5,30 +5,30 @@
 namespace cwt::details
 {
 
-step_finder::step_finder(std::string_view implemented, std::string_view feature)
-    : m_implemented(implemented), m_feature(feature)
+step_finder::step_finder(std::string_view defined, std::string_view feature)
+    : m_defined(defined), m_feature(feature)
 {
 }
 step_finder::step_finder(std::string_view feature)
     : m_feature(feature)
 {
 }
-std::size_t step_finder::values_count()
+std::size_t step_finder::values_count() const noexcept
 {
   return m_values.size();
 }
-void step_finder::set_implemented_step(std::string_view implemented)
+void step_finder::reset_with_next_step(std::string_view defined) noexcept
 {
   m_feature.reset();
   m_values.clear();
-  m_implemented = scanner(implemented);
+  m_defined = scanner(defined);
 }
 bool step_finder::step_matches()
 {
   for (;;)
   {
-    auto [implemented, feature] = next();
-    if (is_parameter(implemented.type))
+    auto [defined, feature] = next();
+    if (is_parameter(defined.type))
     {
       bool negative = false;
       if (feature.type == token_type::minus)
@@ -36,7 +36,7 @@ bool step_finder::step_matches()
         negative = true;
         feature = m_feature.scan_token();
       }
-      if (parameter_matches_value(implemented.type, feature.type))
+      if (parameter_matches_value(defined.type, feature.type))
       {
         m_values.push_back(token_to_value(feature, negative));
       }
@@ -45,11 +45,11 @@ bool step_finder::step_matches()
         return false;
       }
     }
-    else if (is_not_equal(implemented, feature))
+    else if (is_not_equal(defined, feature))
     {
       return false;
     }
-    else if (is_at_end(implemented) && is_at_end(feature))
+    else if (is_at_end(defined) && is_at_end(feature))
     {
       return true;
     }
@@ -102,7 +102,7 @@ bool step_finder::is_not_equal(const token& lhs, const token& rhs)
 
 std::pair<token, token> step_finder::next()
 {
-  return {m_implemented.scan_token(), m_feature.scan_token()};
+  return {m_defined.scan_token(), m_feature.scan_token()};
 }
 
 }  // namespace cwt::details

@@ -16,9 +16,10 @@ STEP(some_step, "Any Step")
 {
   std::cout << "**************** Any Step" << std::endl;
 }
-STEP(some_step2, "Any Step with {string}")
+STEP(some_step2, "Any Step with {string} and {int}")
 {
-  std::cout << "**************** Any Step " << values->as<std::string>() << std::endl;
+  std::cout << "**************** Any Step " << values->as<int>() << std::endl;
+  std::cout << "**************** Any Step " << (values+1)->as<std::string>() << std::endl;
 }
 STEP(some_step_with_int, "A Step with {int}")
 {
@@ -70,7 +71,8 @@ TEST(vm, first_feature)
   Feature: A Fancy Feature
   Scenario: A Scenario
   Given Any Step
-  Given Any Step with "hello world!!!"
+  Given Any Stasdfep
+  Given Any Step with "hello world!!!" and 23
   Given Another Step
   Given A Step with 11
   Given A Step with 22
