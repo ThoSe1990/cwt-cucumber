@@ -12,73 +12,88 @@ TEST(vm, run_chunk)
   [[maybe_unused]] return_code result = test_vm.interpret("Feature:");
 }
 
-STEP(some_step, "Any Step")
+TEST(vm, op_code_constant)
 {
-  std::cout << "**************** Any Step" << std::endl;
-}
-STEP(some_step2, "Any Step with {string} and {int}")
-{
-  std::cout << "**************** Any Step " << values->as<int>() << std::endl;
-  std::cout << "**************** Any Step " << (values+1)->as<std::string>() << std::endl;
-}
-STEP(some_step_with_int, "A Step with {int}")
-{
-  std::cout << "**************** n = " << n << "  -> " << values->as<int>() << std::endl;
-}
-
-STEP(another_step, "Another Step")
-{
-  std::cout << "**************** Another Step" << std::endl;
-}
-
-BEFORE(some_hook)
-{
-  std::cout << "BEFORE(some_hook)" << std::endl;
-}
-BEFORE(some_hook2)
-{
-  std::cout << "BEFORE(some_hook2)" << std::endl;
-}
-AFTER(some_hook3)
-{
-  std::cout << "AFTER(some_hook3)" << std::endl;
-}
-AFTER(some_hook4)
-{
-  std::cout << "AFTER(some_hook4)" << std::endl;
-}
-
-BEFORE_STEP(some_hook5)
-{
-  std::cout << "BEFORE_STEP(some_hook5)" << std::endl;
-}
-BEFORE_STEP(some_hook6)
-{
-  std::cout << "BEFORE_STEP(some_hook6)" << std::endl;
-}
-AFTER_STEP(some_hook7)
-{
-  std::cout << "AFTER_STEP(some_hook7)" << std::endl;
-}
-AFTER_STEP(some_hook8)
-{
-  std::cout << "AFTER_STEP(some_hook8)" << std::endl;
-}
-
-TEST(vm, first_feature)
-{
-  const char* script = R"*(
-  Feature: A Fancy Feature
-  Scenario: A Scenario
-  Given Any Step
-  Given Any Stasdfep
-  Given Any Step with "hello world!!!" and 23
-  Given Another Step
-  Given A Step with 11
-  Given A Step with 22
-)*";
   vm test_vm;
+  function f = std::make_unique<chunk>();
+  f->push_byte(op_code::constant, 0);
+  f->push_byte(f->make_constant(123), 0);
 
-  [[maybe_unused]] return_code result = test_vm.interpret(script);
+  ASSERT_THROW([[maybe_unused]] auto result = test_vm.run(std::move(f)),
+               std::out_of_range);
+  EXPECT_EQ(test_vm.stack().size(), 2);
+  EXPECT_EQ(test_vm.stack().at(0).type(), value_type::function);
+  EXPECT_EQ(test_vm.stack().at(1).type(), value_type::integral);
+  EXPECT_EQ(test_vm.stack().at(1).as<int>(), 123);
+  EXPECT_EQ(test_vm.frames().size(), 1);
+  EXPECT_EQ(test_vm.frames().at(0).chunk_ptr,
+            test_vm.stack().at(0).as<function>().get());
 }
-
+//  TEST(vm, op_code_tag)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_nil)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_pop)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_get_var)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_set_var)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_define_var)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_print)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_println)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_step_result)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_init_scenario)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_scenario_result)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_jump_if_failed)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_call)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_call_step)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_call_step_with_doc_string)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_hook)
+//  {
+//   vm test_vm;
+//  }
+//  TEST(vm, op_code_func_return)
+//  {
+//   vm test_vm;
+//  }

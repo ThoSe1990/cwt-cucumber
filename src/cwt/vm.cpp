@@ -19,6 +19,22 @@ namespace cwt::details
 
 return_code vm::interpret(std::string_view source)
 {
+  compiler::cucumber c(source);
+
+  c.compile();
+
+  if (c.no_error())
+  {
+    return run(c.make_function());
+  }
+  else
+  {
+    return return_code::compile_error;
+  }
+}
+
+return_code vm::run(function func)
+{
   // FYI a call frame stores the current frame as raw pointer,
   //  pointing to the chunk_ptr / function on the stack
   //  if the vector reallocates when capacity is exceeded
@@ -27,24 +43,28 @@ return_code vm::interpret(std::string_view source)
   //  max_stack_size only if a step has more than ~250 variables which is rather
   //  unlikely
   m_stack.reserve(m_max_stack_size);
-  compiler::cucumber c(source);
 
-  c.compile();
+  push_value(std::move(func));
+  call(m_stack.back().as<function>());
+  run();
+  // TODO that can fail in run()
+  return return_code::passed;
+}
 
-  if (c.no_error())
+std::vector<value>& vm::stack() { return m_stack; }
+std::vector<call_frame>& vm::frames() { return m_frames; }
+
+void vm::push_value(const value& v)
+{
+  if (m_stack.size() < m_max_stack_size)
   {
-    push_value(c.make_function());
-    call(m_stack.back().as<function>());
-    run();
-    // TODO that can fail in run()
-    return return_code::passed;
+    m_stack.push_back(v);
   }
   else
   {
-    return return_code::compile_error;
+    runtime_error("Stack Overflow: Maximum stack size reached.");
   }
 }
-void vm::push_value(const value& v) { m_stack.push_back(v); }
 void vm::pop() { m_stack.pop_back(); }
 void vm::pop(std::size_t count)
 {
@@ -82,13 +102,18 @@ std::vector<hook>& vm::after_step()
   static std::vector<hook> instance;
   return instance;
 }
+std::vector<std::string>& vm::failed_scenarios()
+{
+  static std::vector<std::string> instance;
+  return instance;
+}
 void vm::push_hook_after_step(const hook& h) { after_step().push_back(h); }
 
 void vm::runtime_error(std::string_view msg)
 {
   std::size_t idx = m_frames.back().chunk_ptr->get_index(m_frames.back().it);
   println(color::red, std::format("[line {}]: {}",
-                                m_frames.back().chunk_ptr->lines(idx), msg));
+                                  m_frames.back().chunk_ptr->lines(idx), msg));
 }
 
 void vm::call(const function& func)
@@ -99,8 +124,9 @@ void vm::call(const function& func)
 void vm::run()
 {
   call_frame* frame = &m_frames.back();
-  for (;;)
+  while (frame->it != frame->chunk_ptr->cend())
   {
+
 #ifdef PRINT_STACK
     for (const auto& v : m_stack)
     {
@@ -112,8 +138,6 @@ void vm::run()
     disassemble_instruction(*frame->chunk_ptr,
                             frame->chunk_ptr->get_index(frame->it));
 #endif
-
-    // TODO: switch (to_code(frame->it.next()))
     uint32_t current = frame->it.next();
     switch (to_code(current))
     {
@@ -201,8 +225,7 @@ void vm::run()
       {
         const std::string& step_name =
             frame->chunk_ptr->constant(frame->it.next()).as<std::string>();
-        step_finder finder(
-            step_name);
+        step_finder finder(step_name);
         auto found_step =
             std::find_if(steps().begin(), steps().end(),
                          [&finder](const step& s)
@@ -219,7 +242,6 @@ void vm::run()
         else
         {
           runtime_error(std::format("Undefined step '{}'", step_name));
-          // TODO Error step not found
         }
       }
       break;
@@ -284,6 +306,9 @@ void vm::run()
       }
     }
   }
+
+  println(color::red, "Call frame out of range.");
+  throw std::out_of_range("Call frame out of range.");
 }
 
 }  // namespace cwt::details

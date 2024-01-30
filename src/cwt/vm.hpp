@@ -19,9 +19,9 @@ class vm
 {
  public:
   [[nodiscard]] return_code interpret(std::string_view source);
-  void push_value(const value& v);
-  void pop();
-  void pop(std::size_t count);
+  [[nodiscard]] return_code run(function func);
+  [[nodiscard]] std::vector<value>& stack();
+  [[nodiscard]] std::vector<call_frame>& frames();
 
   static void push_step(const step& s);
   static void push_hook_before(const hook& h);
@@ -36,8 +36,13 @@ class vm
   [[nodiscard]] static std::vector<hook>& before_step();
   [[nodiscard]] static std::vector<hook>& after_step();
 
-  void runtime_error(std::string_view msg);
+  [[nodiscard]] static std::vector<std::string>& failed_scenarios();
 
+  void push_value(const value& v);
+  void pop();
+  void pop(std::size_t count);
+
+  void runtime_error(std::string_view msg);
   void run();
   void call(const function& func);
 
