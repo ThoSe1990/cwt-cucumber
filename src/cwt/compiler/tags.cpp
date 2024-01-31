@@ -79,8 +79,7 @@ void tag_expression::tag()
   m_out.push_back(make_token());
   if (!m_operators.empty() && m_operators.back().token == token_type::_not)
   {
-    m_out.push_back(m_operators.back());
-    m_operators.pop_back();
+    operator_to_out();
   }
 
   if (m_parser.match(token_type::_and, token_type::_or, token_type::_xor))
@@ -108,12 +107,11 @@ void tag_expression::left_association()
     return;
   }
 
-  token_type back = m_operators.back().token;
-  if (back == token_type::_and || back == token_type::_or ||
-      back == token_type::_xor)
+  if (m_operators.back().token == token_type::_and ||
+      m_operators.back().token == token_type::_or ||
+      m_operators.back().token == token_type::_xor)
   {
-    m_out.push_back(m_operators.back());
-    m_operators.pop_back();
+    operator_to_out();
   }
 }
 
@@ -167,10 +165,19 @@ void tag_expression::push_remaining_operators()
   {
     if (m_operators.back().token != token_type::left_paren)
     {
-      m_out.push_back(m_operators.back());
+      operator_to_out();
     }
-    m_operators.pop_back();
+    else
+    {
+      m_operators.pop_back();
+    }
   }
+}
+
+void tag_expression::operator_to_out()
+{
+  m_out.push_back(m_operators.back());
+  m_operators.pop_back();
 }
 
 }  // namespace cwt::details::compiler

@@ -35,6 +35,8 @@ class tag_expression
   void close_grouping();
   void push_remaining_operators();
 
+  void operator_to_out();
+
  private:
   std::vector<tag_token> m_out;
   std::vector<tag_token> m_operators;
