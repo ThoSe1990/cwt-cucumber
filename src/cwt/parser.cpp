@@ -30,8 +30,8 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   m_error = true;
 }
 
-bool parser::check(token_type type) { return m_current.type == type; }
-bool parser::match(token_type type)
+bool parser::check(token_type type) const noexcept { return m_current.type == type; }
+bool parser::match(token_type type) noexcept
 {
   if (check(type))
   {

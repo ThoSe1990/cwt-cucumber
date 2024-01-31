@@ -4,6 +4,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tags.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cucumber.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/examples.cpp

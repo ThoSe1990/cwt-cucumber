@@ -111,7 +111,7 @@ static tag_token_type check_keyword(int start, int length, const char* rest, tag
   } 
   else 
   {
-    return TAG_TOKEN_ERROR;
+    return ;
   }
 }
 

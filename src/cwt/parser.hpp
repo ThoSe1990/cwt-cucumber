@@ -23,17 +23,22 @@ class parser
   }
   void consume(token_type type, std::string_view msg);
   template <typename... Args>
-  [[nodiscard]] bool check(token_type type, Args... args)
+  [[nodiscard]] bool check(token_type type, Args... args) const noexcept
   {
     return check(type) || check(args...);
   }
   template <typename... Args>
-  [[nodiscard]] bool is_none_of(token_type type, Args... args)
+  [[nodiscard]] bool is_none_of(token_type type, Args... args) const noexcept
   {
     return !check(type) && !check(args...);
   }
-  [[nodiscard]] bool check(token_type type);
-  [[nodiscard]] bool match(token_type type);
+  template <typename... Args>
+  [[nodiscard]] bool match(token_type type, Args... args) noexcept
+  {
+    return match(type) || match(args...);
+  }
+  [[nodiscard]] bool check(token_type type) const noexcept;
+  [[nodiscard]] bool match(token_type type) noexcept;
 
   void skip_linebreaks();
   void error_at(const token& t, std::string_view msg) noexcept;
