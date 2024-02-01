@@ -325,7 +325,7 @@ TEST(tag_evaluation, a_big_condition_false_2)
   compiler::tag_expression tc(
       "@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
       "and @tag9))");
-  EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
+  EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
 TEST(tag_evaluation, xor_true)
 {

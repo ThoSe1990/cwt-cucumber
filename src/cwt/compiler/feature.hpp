@@ -13,7 +13,10 @@ class feature : public compiler
   void compile();
 
  private:
+  void compiler_scenario();
+
+ private:
   cucumber* m_enclosing;
 };
 
-}  // namespace cwt::details
+}  // namespace cwt::details::compiler

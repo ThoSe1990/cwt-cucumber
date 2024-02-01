@@ -20,7 +20,7 @@ void tag_expression::set(std::string_view expression)
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 bool tag_expression::evaluate(argc n, argv tags) const
 {
-  if (m_out.empty())
+  if (m_out.empty() || n == 0)
   {
     return true;
   }

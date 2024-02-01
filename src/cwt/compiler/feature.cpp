@@ -27,14 +27,18 @@ feature::~feature()
 }
 void feature::compile()
 {
-  do 
+  do
   {
     switch (m_parser->current().type)
     {
+      case token_type::tag:
+      {
+        read_tags();
+      }
+      break;
       case token_type::scenario:
       {
-        scenario s(this);
-        s.compile();
+        compiler_scenario();
       }
       break;
       case token_type::scenario_outline:
@@ -46,11 +50,27 @@ void feature::compile()
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
-        return ;
+        return;
       }
     }
     m_parser->skip_linebreaks();
   } while (!m_parser->check(token_type::eof));
 }
 
-}  // namespace cwt::details
+void feature::compiler_scenario()
+{
+  if (tags_valid())
+  {
+    scenario s(this);
+    s.compile();
+  }
+  else
+  {
+    m_parser->advance();
+    m_parser->advance_to(token_type::feature, token_type::tag,
+                         token_type::scenario, token_type::scenario_outline,
+                         token_type::eof);
+  }
+}
+
+}  // namespace cwt::details::compiler

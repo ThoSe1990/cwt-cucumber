@@ -2,6 +2,9 @@
 
 #include "../src/cwt/compiler/scenario.hpp"
 
+#define PRINT_STACK 1
+#include "../src/cwt/debug.hpp"
+
 using namespace cwt::details;
 
 TEST(compiler_scenario, chunk_wo_step)
@@ -99,4 +102,52 @@ const char* script = R"*(
   compiler::feature f(&cuke);
   f.compile();
   EXPECT_EQ(f.get_chunk().size(), 36);
+}
+
+
+TEST(compiler_scenario, chunk_w_tags_1)
+{
+const char* script = R"*(
+  Feature: Hello World
+  @tag1 @tag2
+  Scenario: A Scenario
+)*";
+  compiler::cucumber cuke(script);
+  cuke.compile();
+  
+  ASSERT_EQ(cuke.get_chunk().size(), 9);
+}
+
+TEST(compiler_scenario, chunk_w_tags_2)
+{
+const char* script = R"*(
+  Feature: Hello World
+  @tag1 @tag2
+  Scenario: A Scenario
+)*";
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  f.set_tag_expression("@some_other_tag");
+  f.compile();
+  
+  disassemble_chunk(f.get_chunk(), "chunk w/o matching tags");
+
+  EXPECT_EQ(f.get_chunk().size(), 8);
+}
+
+TEST(compiler_scenario, chunk_w_tags_3)
+{
+const char* script = R"*(
+  Feature: Hello World
+  @tag1 @tag2
+  Scenario: A Scenario
+)*";
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  f.set_tag_expression("@tag1 and @tag2");
+  f.compile();
+  
+  disassemble_chunk(f.get_chunk(), "chunk with matching tags");
+
+  EXPECT_EQ(f.get_chunk().size(), 22);
 }
