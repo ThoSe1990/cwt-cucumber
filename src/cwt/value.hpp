@@ -30,9 +30,9 @@ struct nil_value
 {
 };
 
-using step_argv = const std::reverse_iterator<value_array::iterator>&;
-using step_argc = std::size_t;
-using step_callback = void (*)(step_argc, step_argv);
+using argv = const std::reverse_iterator<value_array::iterator>&;
+using argc = std::size_t;
+using step_callback = void (*)(argc, argv);
 class step
 {
  public:
@@ -41,8 +41,8 @@ class step
   {
   }
   const std::string& definition() const noexcept { return m_definition; }
-  void call(step_argc n, step_argv values) const { m_callback(n, values); }
-  void operator()(step_argc n, step_argv values) const { m_callback(n, values); }
+  void call(argc n, argv values) const { m_callback(n, values); }
+  void operator()(argc n, argv values) const { m_callback(n, values); }
 
  private:
   step_callback m_callback;
@@ -257,3 +257,5 @@ class value
 using value_array = std::vector<value>;
 
 }  // namespace cwt::details
+
+#include "chunk.hpp"

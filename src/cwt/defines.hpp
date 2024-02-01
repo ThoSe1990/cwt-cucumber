@@ -8,7 +8,7 @@
 
 // TODO check if args change to iterators
 #define _STEP(function_name, step_definition)                              \
-  void function_name(step_argc n, step_argv values);                             \
+  void function_name(argc n, argv values);                             \
   namespace                                                                \
   {                                                                        \
   struct CONCAT(function_name, _t)                                         \
@@ -19,7 +19,7 @@
     }                                                                      \
   } CONCAT(g_, function_name);                                             \
   }                                                                        \
-  void function_name(step_argc n, step_argv values)
+  void function_name(argc n, argv values)
 
 /**
  * @def STEP(function_name, step_definition)

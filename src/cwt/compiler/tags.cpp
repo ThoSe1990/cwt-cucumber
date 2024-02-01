@@ -1,4 +1,7 @@
+#include <stack>
+
 #include "tags.hpp"
+#include "../util.hpp"
 
 namespace cwt::details::compiler
 {
@@ -8,6 +11,85 @@ tag_expression::tag_expression(std::string_view expression)
 {
   compile();
 }
+std::size_t tag_expression::size() const noexcept { return m_out.size(); }
+bool tag_expression::evaluate(argc n, argv tags) const
+{
+  if (m_out.empty())
+  { 
+    return true;
+  }
+
+  std::stack<bool> stack;
+  auto pop_top = [](std::stack<bool>& stack)
+  {
+    bool value = stack.top();
+    stack.pop();
+    return value;
+  };
+
+  for (const tag_token& t : m_out)
+  {
+    switch (t.token)
+    {
+      case token_type::tag:
+      {
+        stack.push(contains(t.value, n, tags));
+      }
+      break;
+      case token_type::_not:
+      {
+        stack.push(!pop_top(stack));
+      }
+      break;
+      case token_type::_or:
+      {
+        bool rhs = pop_top(stack);
+        bool lhs = pop_top(stack);
+        stack.push(lhs || rhs);
+      }
+      break;
+      case token_type::_and:
+      {
+        bool rhs = pop_top(stack);
+        bool lhs = pop_top(stack);
+        stack.push(lhs && rhs);
+      }
+      break;
+      case token_type::_xor:
+      {
+        bool rhs = pop_top(stack);
+        bool lhs = pop_top(stack);
+        stack.push(lhs != rhs);
+      }
+      break;
+      default:
+        throw std::runtime_error("Unexpected token in tags.");
+    }
+  }
+
+  if (stack.size() == 1) [[likely]]
+  { 
+    return stack.top();
+  }
+  else [[unlikely]]
+  {
+    throw std::runtime_error("Shunting Yard Error: To many values in stack");
+  }
+}
+bool tag_expression::contains(const std::string& tag, argc n, argv tags) const
+{
+  for (std::size_t i = 0; i < n; ++i)
+  {
+    const value& current = to_value(tags, i);
+    if (current.type() == value_type::string &&
+        current.as<std::string>() == tag)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 const tag_token& tag_expression::operator[](std::size_t idx) const
 {
   if (idx < m_out.size()) [[likely]]
@@ -19,8 +101,6 @@ const tag_token& tag_expression::operator[](std::size_t idx) const
     throw std::out_of_range("tag_compiler: Access is out of range.");
   }
 }
-
-std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 
 tag_token tag_expression::make_token() const noexcept
 {

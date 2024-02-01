@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string_view>
 
+#include "../value.hpp"
 #include "../parser.hpp"
 
 namespace cwt::details::compiler
@@ -20,9 +21,11 @@ class tag_expression
 {
  public:
   tag_expression(std::string_view expression);
-  const tag_token& operator[](std::size_t idx) const;
 
-  std::size_t size() const noexcept;
+  [[nodiscard]] bool evaluate(argc n, argv tags) const;
+  [[nodiscard]] std::size_t size() const noexcept;
+
+  const tag_token& operator[](std::size_t idx) const;
 
  private:
   [[nodiscard]] tag_token make_token() const noexcept;
@@ -36,6 +39,7 @@ class tag_expression
   void push_remaining_operators();
 
   void operator_to_out();
+  [[nodiscard]] bool contains(const std::string& tag, argc n, argv tags) const;
 
  private:
   std::vector<tag_token> m_out;

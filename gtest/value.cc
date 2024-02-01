@@ -78,7 +78,7 @@ TEST(value, function_value)
 }
 TEST(value, native_value)
 {
-  auto test_func = [](step_argc n, step_argv v)
+  auto test_func = [](argc n, argv v)
   {
     ASSERT_EQ(n, 1);
     EXPECT_EQ(v->as<int>(), 99);
@@ -202,7 +202,7 @@ TEST(value, move_function_object)
 TEST(value, copy_native)
 {
   value_array arr;
-  auto test_func = [](step_argc, step_argv)
+  auto test_func = [](argc, argv)
   { throw std::runtime_error("only in this test..."); };
   value v1(step(test_func, "some step ..."));
   value v2(v1);

@@ -149,4 +149,9 @@ static void println(color c, const std::string& str)
   }
 }
 
+inline const value& to_value(argv values, std::size_t idx)
+{
+  return *(values + idx);
+}
+
 }  // namespace cwt::details
