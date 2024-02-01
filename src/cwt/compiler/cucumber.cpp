@@ -4,10 +4,7 @@
 
 namespace cwt::details::compiler
 {
-cucumber::cucumber(std::string_view source) : compiler(source, "")
-{
-  init();
-}
+cucumber::cucumber(std::string_view source) : compiler(source, "") { init(); }
 cucumber::cucumber(std::string_view source, std::string_view filename)
     : compiler(source, filename)
 {
@@ -22,23 +19,44 @@ void cucumber::init()
   m_parser->advance();
   m_parser->skip_linebreaks();
 }
+
+value_array compiler::get_all_tags()
+{
+  value_array result;
+  while (m_parser->check(token_type::tag))
+  {
+    result.push_back(std::string(m_parser->current().value));
+    m_parser->advance();
+  }
+  return result;
+}
+
 void cucumber::compile()
 {
-  switch (m_parser->current().type)
+  while (!m_parser->check(token_type::eof))
   {
-    case token_type::feature:
+    m_parser->skip_linebreaks();
+    switch (m_parser->current().type)
     {
-      feature f(this);
-      f.compile();
+      case token_type::tag:
+      {
+        m_tags = get_all_tags();
+      }
+      break;
+      case token_type::feature:
+      {
+        feature f(this);
+        f.compile();
+      }
+      break;
+      default:
+      {
+        m_parser->error_at(m_parser->current(), "Expect FeatureLine");
+        return ;
+      }
     }
-    break;
-    default:
-    {
-      m_parser->error_at(m_parser->current(), "Expect FeatureLine");
-    }
-  }
-
+  } 
   finish_chunk();
 }
 
-}  // namespace cwt::details
+}  // namespace cwt::details::compiler

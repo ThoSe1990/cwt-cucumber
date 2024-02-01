@@ -2,6 +2,9 @@
 
 #include "../src/cwt/compiler/feature.hpp"
 
+#define PRINT_STACK 1
+#include "../src/cwt/debug.hpp"
+
 using namespace cwt::details;
 
 TEST(compiler_feature, chunk_size_wo_scenario)
@@ -42,15 +45,12 @@ TEST(compiler_feature, feature_chunk_code)
   EXPECT_EQ(f.get_chunk().at(0), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(1), 1);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(2), to_uint(op_code::print));
-  EXPECT_EQ(
-      f.get_chunk().at(3),
-      to_uint(color::standard));  // TODO enum for color represents the color
+  EXPECT_EQ(f.get_chunk().at(3), to_uint(color::standard));
 
   EXPECT_EQ(f.get_chunk().at(4), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(5), 0);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(6), to_uint(op_code::println));
-  EXPECT_EQ(f.get_chunk().at(7),
-            to_uint(color::black));  // TODO enum for color represents the color
+  EXPECT_EQ(f.get_chunk().at(7), to_uint(color::black));
 
   EXPECT_EQ(f.get_chunk().at(8), to_uint(op_code::reset_context));
   EXPECT_EQ(f.get_chunk().at(9), to_uint(op_code::hook_before));
@@ -94,17 +94,46 @@ TEST(compiler_feature, feature_constants)
   EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), ":3");
 }
 
-// TEST(compiler_feature, chunk_with_tags)
-// {
-//   const char* script = R"*(
-//   @tag1 @tag2
-//   Feature: Hello World
-// )*";
-//   testing::internal::CaptureStderr();
-//   compiler::cucumber cuke(script);
-//   compiler::feature f(&cuke);
-//   f.compile();
-//   EXPECT_EQ(f.get_chunk().size(), 8);
-//   EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
-//             testing::internal::GetCapturedStderr());
-// }
+TEST(compiler_feature, chunk_with_tags_1)
+{
+  const char* script = R"*(
+  @tag1 @tag2
+  Feature: Hello World
+)*";
+  testing::internal::CaptureStderr();
+  compiler::cucumber cuke(script);
+  cuke.compile();
+  EXPECT_EQ(cuke.get_chunk().size(), 9);
+  EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
+            testing::internal::GetCapturedStderr());
+}
+TEST(compiler_feature, chunk_with_tags_2)
+{
+  const char* script = R"*(
+  @tag1 @tag2
+
+
+  Feature: Hello World
+)*";
+  testing::internal::CaptureStderr();
+  compiler::cucumber cuke(script);
+  cuke.compile();
+  EXPECT_EQ(cuke.get_chunk().size(), 9);
+  EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
+            testing::internal::GetCapturedStderr());
+}
+TEST(compiler_feature, chunk_with_tags_3)
+{
+  const char* script = R"*(
+  @tag1 @tag2
+  # some comments
+  # inbetween
+  Feature: Hello World
+)*";
+  testing::internal::CaptureStderr();
+  compiler::cucumber cuke(script);
+  cuke.compile();
+  EXPECT_EQ(cuke.get_chunk().size(), 9);
+  EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
+            testing::internal::GetCapturedStderr());
+}

@@ -63,7 +63,6 @@ static std::size_t simple_instruction(std::string_view name, std::size_t offset)
 static std::size_t jump_instruction(std::string_view name, int sign,
                                     const chunk& c, std::size_t offset)
 {
-  // TODO!
   return offset + 1;
 }
 static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)

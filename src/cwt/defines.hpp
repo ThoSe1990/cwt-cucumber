@@ -6,7 +6,6 @@
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
-// TODO check if args change to iterators
 #define _STEP(function_name, step_definition)                              \
   void function_name(argc n, argv values);                             \
   namespace                                                                \
