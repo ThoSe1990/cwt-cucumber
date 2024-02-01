@@ -8,6 +8,8 @@
 #include "../chunk.hpp"
 #include "../parser.hpp"
 
+#include "tags.hpp"
+
 namespace cwt::details::compiler
 {
 inline std::string create_string(std::string_view sv)
@@ -41,6 +43,7 @@ class compiler
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
   void emit_table_value();
+  void emit_tag();
 
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
@@ -71,6 +74,8 @@ class compiler
 
  protected:
   std::shared_ptr<parser> m_parser;
+  
+  static tag_expression tags;
 
  private:
   std::string m_filename;

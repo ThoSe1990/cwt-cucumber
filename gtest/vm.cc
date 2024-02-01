@@ -62,7 +62,6 @@ TEST(vm, op_code_set_var)
   f->push_byte(idx, 0);
 
   ASSERT_EQ(test_vm.run(std::move(f)), return_code::runtime_error);
-
   ASSERT_EQ(test_vm.global(name).type(), value_type::floating);
   EXPECT_EQ(test_vm.global(name).as<double>(), 99.99);
 }
@@ -82,7 +81,6 @@ TEST(vm, op_code_get_var)
   f->push_byte(idx, 0);
 
   ASSERT_EQ(test_vm.run(std::move(f)), return_code::runtime_error);
-
   ASSERT_EQ(test_vm.stack().size(), 2);
   EXPECT_EQ(test_vm.stack().back().type(), value_type::string);
   EXPECT_EQ(test_vm.stack().back().as<std::string>(),

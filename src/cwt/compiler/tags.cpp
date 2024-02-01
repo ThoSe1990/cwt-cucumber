@@ -6,16 +6,22 @@
 namespace cwt::details::compiler
 {
 
+tag_expression::tag_expression() : m_parser("") {}
 tag_expression::tag_expression(std::string_view expression)
     : m_parser(expression)
 {
+  compile();
+}
+void tag_expression::set(std::string_view expression)
+{
+  m_parser = parser(expression);
   compile();
 }
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 bool tag_expression::evaluate(argc n, argv tags) const
 {
   if (m_out.empty())
-  { 
+  {
     return true;
   }
 
@@ -68,7 +74,7 @@ bool tag_expression::evaluate(argc n, argv tags) const
   }
 
   if (stack.size() == 1) [[likely]]
-  { 
+  {
     return stack.top();
   }
   else [[unlikely]]

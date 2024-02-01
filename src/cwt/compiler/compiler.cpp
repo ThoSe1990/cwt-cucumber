@@ -96,4 +96,9 @@ void compiler::emit_table_value()
   emit_constant(token_to_value(m_parser->current(), negative));
 }
 
+void compiler::emit_tag()
+{
+  emit_constant(m_parser->previous().value);
+}
+
 }  // namespace cwt::details::compiler

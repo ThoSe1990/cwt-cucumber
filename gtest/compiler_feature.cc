@@ -16,7 +16,7 @@ TEST(compiler_feature, chunk_size_wo_scenario)
 }
 TEST(compiler_feature, chunk_size)
 {
-const char* script = R"*(
+  const char* script = R"*(
   Feature: Hello World
   Scenario: A Scenario
 )*";
@@ -30,7 +30,7 @@ const char* script = R"*(
 }
 TEST(compiler_feature, feature_chunk_code)
 {
-const char* script = R"*(
+  const char* script = R"*(
   Feature: Hello World
   Scenario: A Scenario
 )*";
@@ -42,12 +42,15 @@ const char* script = R"*(
   EXPECT_EQ(f.get_chunk().at(0), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(1), 1);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(2), to_uint(op_code::print));
-  EXPECT_EQ(f.get_chunk().at(3), to_uint(color::standard));  // TODO enum for color represents the color
+  EXPECT_EQ(
+      f.get_chunk().at(3),
+      to_uint(color::standard));  // TODO enum for color represents the color
 
   EXPECT_EQ(f.get_chunk().at(4), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(5), 0);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(6), to_uint(op_code::println));
-  EXPECT_EQ(f.get_chunk().at(7), to_uint(color::black));  // TODO enum for color represents the color
+  EXPECT_EQ(f.get_chunk().at(7),
+            to_uint(color::black));  // TODO enum for color represents the color
 
   EXPECT_EQ(f.get_chunk().at(8), to_uint(op_code::reset_context));
   EXPECT_EQ(f.get_chunk().at(9), to_uint(op_code::hook_before));
@@ -70,7 +73,7 @@ const char* script = R"*(
 
 TEST(compiler_feature, feature_constants)
 {
-const char* script = R"*(
+  const char* script = R"*(
   Feature: Hello World
   Scenario: A Scenario
 )*";
@@ -83,10 +86,25 @@ const char* script = R"*(
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(), "Feature: Hello World");
+  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
+            "Feature: Hello World");
   EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
   EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), ":3");
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), ":3");
 }
 
+// TEST(compiler_feature, chunk_with_tags)
+// {
+//   const char* script = R"*(
+//   @tag1 @tag2
+//   Feature: Hello World
+// )*";
+//   testing::internal::CaptureStderr();
+//   compiler::cucumber cuke(script);
+//   compiler::feature f(&cuke);
+//   f.compile();
+//   EXPECT_EQ(f.get_chunk().size(), 8);
+//   EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
+//             testing::internal::GetCapturedStderr());
+// }

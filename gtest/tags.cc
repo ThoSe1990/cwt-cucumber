@@ -339,16 +339,41 @@ TEST(tag_evaluation, syntax_error_2)
   compiler::tag_expression tc("tag1 @tag2");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
-
 TEST(tag_evaluation, syntax_error_3)
 {
   value_array tags{std::string("@tag")};
   compiler::tag_expression tc("$tag");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
-TEST(tag_evaluation, empty_expression)
+TEST(tag_evaluation, empty_expression_1)
+{
+  value_array tags{std::string("@tag")};
+  compiler::tag_expression tc;
+  EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
+}
+TEST(tag_evaluation, empty_expression_2)
 {
   value_array tags{std::string("@tag")};
   compiler::tag_expression tc("");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
+}
+TEST(tag_evaluation, default_ctor_and_set_1)
+{
+  value_array tags{std::string("@tag1"), std::string("@tag2")};
+  compiler::tag_expression tc;
+  tc.set(
+      "@tag1 or (( (@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
+      "and @tag9))");
+  EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
+}
+TEST(tag_evaluation, default_ctor_and_set_2)
+{
+  value_array tags{std::string("@tag1"), std::string("@tag4"),
+                   std::string("@tag5"), std::string("@tag8"),
+                   std::string("@tag9")};
+  compiler::tag_expression tc;
+  tc.set(
+      "@tag1 xor (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
+      "and @tag9))");
+  EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
 }
