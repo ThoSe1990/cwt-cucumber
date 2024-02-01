@@ -9,7 +9,9 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_simple_scenario_outline.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_examples_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm.cc

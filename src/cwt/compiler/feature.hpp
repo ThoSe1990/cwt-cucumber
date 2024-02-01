@@ -13,7 +13,22 @@ class feature : public compiler
   void compile();
 
  private:
-  void compiler_scenario();
+  template <typename S>
+  void do_compile()
+  {
+    if (tags_valid())
+    {
+      S s(this);
+      s.compile();
+    }
+    else
+    {
+      m_parser->advance();
+      m_parser->advance_to(token_type::feature, token_type::tag,
+                           token_type::scenario, token_type::scenario_outline,
+                           token_type::eof);
+    }
+  }
 
  private:
   cucumber* m_enclosing;

@@ -38,13 +38,12 @@ void feature::compile()
       break;
       case token_type::scenario:
       {
-        compiler_scenario();
+        do_compile<scenario>();
       }
       break;
       case token_type::scenario_outline:
       {
-        scenario_outline s(this);
-        s.compile();
+        do_compile<scenario_outline>();
       }
       break;
       default:
@@ -55,22 +54,6 @@ void feature::compile()
     }
     m_parser->skip_linebreaks();
   } while (!m_parser->check(token_type::eof));
-}
-
-void feature::compiler_scenario()
-{
-  if (tags_valid())
-  {
-    scenario s(this);
-    s.compile();
-  }
-  else
-  {
-    m_parser->advance();
-    m_parser->advance_to(token_type::feature, token_type::tag,
-                         token_type::scenario, token_type::scenario_outline,
-                         token_type::eof);
-  }
 }
 
 }  // namespace cwt::details::compiler
