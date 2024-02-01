@@ -20,43 +20,60 @@ void cucumber::init()
   m_parser->skip_linebreaks();
 }
 
-value_array compiler::get_all_tags()
+bool compiler::tags_valid()
 {
-  value_array result;
+  return m_tag_expression->evaluate(m_tags.size(), m_tags.rbegin());
+}
+
+void compiler::read_tags()
+{
+  m_tags.clear();
   while (m_parser->check(token_type::tag))
   {
-    result.push_back(std::string(m_parser->current().value));
+    m_tags.push_back(std::string(m_parser->current().value));
     m_parser->advance();
   }
-  return result;
 }
 
 void cucumber::compile()
 {
-  do 
+  do
   {
     m_parser->skip_linebreaks();
     switch (m_parser->current().type)
     {
       case token_type::tag:
       {
-        m_tags = get_all_tags();
+        read_tags();
       }
       break;
       case token_type::feature:
       {
-        feature f(this);
-        f.compile();
+        compile_feature();
       }
       break;
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect FeatureLine");
-        return ;
+        return;
       }
     }
   } while (!m_parser->check(token_type::eof));
   finish_chunk();
+}
+
+void cucumber::compile_feature()
+{
+  if (tags_valid())
+  {
+    feature f(this);
+    f.compile();
+  }
+  else
+  {
+    m_parser->advance();
+    m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
+  }
 }
 
 }  // namespace cwt::details::compiler

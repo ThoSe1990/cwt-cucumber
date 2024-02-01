@@ -15,6 +15,7 @@ class cucumber : public compiler
 
  private:
   void init();
+  void compile_feature();
 
  private:
   value_array m_tags;

@@ -383,10 +383,10 @@ TEST(tag_evaluation, default_ctor_and_set_2)
       "and @tag9))");
   EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
 }
-// TEST(tag_evaluation, not_1_and_not_2)
-// {
-//   value_array tags{std::string("@tag1"), std::string("@tag2")};
-//   compiler::tag_expression tc;
-//   tc.set("not @tag1 and not @tag2");
-//   EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
-// }
+TEST(tag_evaluation, not_1_and_not_2)
+{
+  value_array tags{std::string("@tag1"), std::string("@tag2")};
+  compiler::tag_expression tc;
+  tc.set("not @tag1 and not @tag2");
+  EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
+}

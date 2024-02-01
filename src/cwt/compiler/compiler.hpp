@@ -36,7 +36,10 @@ class compiler
   void finish_chunk() noexcept;
   [[nodiscard]] chunk& get_chunk() noexcept;
   [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
-  [[nodiscard]] value_array get_all_tags();
+  
+  void set_tag_expression(std::string_view expression);
+  void read_tags();
+  [[nodiscard]] bool tags_valid();
 
 
   void emit_byte(uint32_t byte);
@@ -69,6 +72,7 @@ class compiler
             typename = std::enable_if_t<std::is_base_of_v<compiler, Other>>>
   compiler(const Other& other)
       : m_parser(other.m_parser),
+        m_tag_expression(other.m_tag_expression),
         m_filename(other.m_filename),
         m_chunk(location())
   {
@@ -76,12 +80,12 @@ class compiler
 
  protected:
   std::shared_ptr<parser> m_parser;
-  
-  // static tag_expression tags;
+  std::shared_ptr<tag_expression> m_tag_expression;
 
  private:
   std::string m_filename;
   chunk m_chunk;
+  value_array m_tags;
 };
 
 }  // namespace cwt::details::compiler

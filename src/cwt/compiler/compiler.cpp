@@ -11,12 +11,14 @@ namespace cwt::details::compiler
 
 compiler::compiler(std::string_view source)
     : m_parser(std::make_shared<parser>(source)),
+      m_tag_expression(std::make_shared<tag_expression>()),
       m_filename(std::string("")),
       m_chunk("script")
 {
 }
 compiler::compiler(std::string_view source, std::string_view filename)
     : m_parser(std::make_shared<parser>(source)),
+      m_tag_expression(std::make_shared<tag_expression>()),
       m_filename(filename),
       m_chunk("script")
 {
@@ -35,6 +37,11 @@ void compiler::finish_chunk() noexcept
     std::cout << "\n";
   }
 #endif
+}
+
+void compiler::set_tag_expression(std::string_view expression)
+{
+  m_tag_expression = std::make_shared<tag_expression>(expression);
 }
 
 std::string compiler::location() const
@@ -95,9 +102,6 @@ void compiler::emit_table_value()
   emit_constant(token_to_value(m_parser->current(), negative));
 }
 
-void compiler::emit_tag()
-{
-  emit_constant(m_parser->previous().value);
-}
+void compiler::emit_tag() { emit_constant(m_parser->previous().value); }
 
 }  // namespace cwt::details::compiler
