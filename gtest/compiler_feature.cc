@@ -137,3 +137,35 @@ TEST(compiler_feature, chunk_with_tags_3)
   EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
             testing::internal::GetCapturedStderr());
 }
+
+// TEST(compiler_feature, chunk_with_tags_4)
+// {
+//   const char* script = R"*(
+//   @tag1 @tag2
+//   Feature: Hello World
+// )*";
+//   testing::internal::CaptureStderr();
+
+//   compiler::cucumber cuke(script);
+//   cuke.set_tag_expression("@tag1 or @tag2");
+//   cuke.compile();
+
+//   EXPECT_EQ(cuke.get_chunk().size(), 9);
+//   EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
+//             testing::internal::GetCapturedStderr());
+// }
+// TEST(compiler_feature, chunk_with_tags_5)
+// {
+//   const char* script = R"*(
+//   @tag1 @tag2
+//   Feature: Hello World
+// )*";
+//   testing::internal::CaptureStderr();
+
+//   compiler::cucumber cuke(script);
+//   cuke.set_tag_expression("not @tag1 and not @tag2");
+//   cuke.compile();
+
+//   EXPECT_EQ(cuke.get_chunk().size(), 1);
+//   EXPECT_EQ(cuke.get_chunk().at(0), to_uint(op_code::func_return));
+// }

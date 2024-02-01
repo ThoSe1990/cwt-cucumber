@@ -33,7 +33,7 @@ value_array compiler::get_all_tags()
 
 void cucumber::compile()
 {
-  while (!m_parser->check(token_type::eof))
+  do 
   {
     m_parser->skip_linebreaks();
     switch (m_parser->current().type)
@@ -55,7 +55,7 @@ void cucumber::compile()
         return ;
       }
     }
-  } 
+  } while (!m_parser->check(token_type::eof));
   finish_chunk();
 }
 
