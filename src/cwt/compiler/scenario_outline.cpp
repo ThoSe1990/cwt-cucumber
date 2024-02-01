@@ -57,7 +57,6 @@ void scenario_outline::compile_examples(std::size_t scenario_idx)
   {
     if (m_parser->match(token_type::examples))
     {
-      m_parser->advance();
       m_parser->skip_linebreaks();
       examples e(m_enclosing);
       e.header();
