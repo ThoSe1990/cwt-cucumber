@@ -16,6 +16,7 @@ class scanner
   scanner(std::string_view source);
   [[nodiscard]] token scan_token();
   void reset();
+  
  private:
   char advance();
   void skip();
@@ -46,7 +47,7 @@ class scanner
   std::size_t m_pos{0};
   std::size_t m_start{0};
   static constexpr const std::string_view m_lan_keyword{"language:"};
-  std::unique_ptr<identifier> m_identifiers = std::make_unique<english>();
+  std::shared_ptr<identifier> m_identifiers = std::make_shared<english>();
   std::string_view m_source;
 };
 
