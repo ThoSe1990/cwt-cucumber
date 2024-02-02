@@ -8,18 +8,17 @@
 #include "compiler/cucumber.hpp"
 #include "hooks.hpp"
 
-
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
 
 namespace cwt::details
 {
-
+void vm::set_tag_expression(const std::string& str) { m_tag_expression = str; }
 return_code vm::interpret(std::string_view source)
 {
   compiler::cucumber c(source);
-
+  c.set_tag_expression(m_tag_expression);
   c.compile();
 
   if (c.no_error())

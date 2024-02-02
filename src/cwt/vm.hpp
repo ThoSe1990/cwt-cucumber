@@ -24,6 +24,8 @@ class vm
   [[nodiscard]] const std::vector<call_frame>& frames() const;
   [[nodiscard]] value& global(const std::string& name);
 
+  void set_tag_expression(const std::string& str);
+
   static void reset();
 
   static void push_step(const step& s);
@@ -55,6 +57,7 @@ class vm
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
   return_code m_result{return_code::passed};
+  std::string m_tag_expression{""};
   static constexpr const std::size_t m_max_stack_size{256};
 };
 

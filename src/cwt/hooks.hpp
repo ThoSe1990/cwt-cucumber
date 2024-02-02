@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "value.hpp"
 #include "compiler/tags.hpp"
@@ -14,11 +14,17 @@ struct hook
   {
   }
 
-  void call(argc n, argv tags) const 
+  void call(argc n, argv tags) const
   {
-    if (m_tags.evaluate(n, tags))
+    const auto scenario_has_no_tags = [&n]() { return n == 0; };
+    const auto hook_has_tags = [this]() { return !m_tags.empty(); };
+    if (hook_has_tags() && scenario_has_no_tags())
     {
-      m_callback(); 
+      return;
+    }
+    else if (m_tags.evaluate(n, tags))
+    {
+      m_callback();
     }
   }
   void operator()() const { m_callback(); }
@@ -28,4 +34,4 @@ struct hook
   compiler::tag_expression m_tags;
 };
 
-} // namespace cwt::details
+}  // namespace cwt::details

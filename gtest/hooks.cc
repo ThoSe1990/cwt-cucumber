@@ -29,33 +29,38 @@ struct hook_test_exception
 
 TEST_F(hook_tests, before)
 {
-  std::size_t call_count = 0;
   test_vm.push_hook_before(hook([]() { throw hook_test_exception{}; }));
-
   EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
                hook_test_exception);
 }
 TEST_F(hook_tests, after)
 {
-  std::size_t call_count = 0;
   test_vm.push_hook_after(hook([]() { throw hook_test_exception{}; }));
-
   EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
                hook_test_exception);
 }
 TEST_F(hook_tests, before_step)
 {
-  std::size_t call_count = 0;
   test_vm.push_hook_before_step(hook([]() { throw hook_test_exception{}; }));
-
   EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
                hook_test_exception);
 }
 TEST_F(hook_tests, after_step)
 {
-  std::size_t call_count = 0;
   test_vm.push_hook_after_step(hook([]() { throw hook_test_exception{}; }));
+  EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
+               hook_test_exception);
+}
 
+TEST_F(hook_tests, before_tag_no_call)
+{
+  struct dont_throw_me
+  {
+  };
+  
+  test_vm.push_hook_before(hook([]() { throw hook_test_exception{}; }));
+  test_vm.push_hook_after(
+      hook([]() { throw dont_throw_me{}; }, "@tag1 or @tag2"));
   EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
                hook_test_exception);
 }
