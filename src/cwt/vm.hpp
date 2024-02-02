@@ -46,7 +46,7 @@ class vm
   void runtime_error(std::string_view msg);
   void run();
   void call(const function& func);
-  void run_hooks(const std::vector<hook>& hooks) const;
+  void run_hooks(const std::vector<hook>& hooks, uint32_t n) const;
 
  private:
   std::vector<value> m_stack;

@@ -6,6 +6,8 @@
 #include "chunk.hpp"
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
+#include "hooks.hpp"
+
 
 #ifdef PRINT_STACK
 #include "debug.hpp"
@@ -125,11 +127,11 @@ void vm::runtime_error(std::string_view msg)
                                   m_frames.back().chunk_ptr->lines(idx), msg));
 }
 
-void vm::run_hooks(const std::vector<hook>& hooks) const
+void vm::run_hooks(const std::vector<hook>& hooks, uint32_t tag_count) const
 {
   for (const auto& hook : hooks)
   {
-    hook.call();
+    hook.call(tag_count, m_stack.rbegin());
   }
 }
 
@@ -199,23 +201,23 @@ void vm::run()
       case op_code::hook_before:
       {
         uint32_t tag_count = frame->it.next();
-        run_hooks(before());
+        run_hooks(before(), tag_count);
       }
       break;
       case op_code::hook_after:
       {
         uint32_t tag_count = frame->it.next();
-        run_hooks(after());
+        run_hooks(after(), tag_count);
       }
       break;
       case op_code::hook_before_step:
       {
-        run_hooks(before_step());
+        run_hooks(before_step(), 0);
       }
       break;
       case op_code::hook_after_step:
       {
-        run_hooks(after_step());
+        run_hooks(after_step(), 0);
       }
       break;
       case op_code::reset_context:

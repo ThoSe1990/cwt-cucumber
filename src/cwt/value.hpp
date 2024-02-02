@@ -29,8 +29,7 @@ using function = std::unique_ptr<chunk>;
 struct nil_value
 {
 };
-
-using argv = const std::reverse_iterator<value_array::iterator>&;
+using argv = const std::reverse_iterator<value_array::const_iterator>&;
 using argc = std::size_t;
 using step_callback = void (*)(argc, argv);
 class step
@@ -50,22 +49,7 @@ class step
 };
 
 using hook_callback = void (*)();
-struct hook
-{
- public:
-  hook(hook_callback cb) : m_callback(cb) {}
-  hook(hook_callback cb, const std::string& tags) : m_callback(cb), m_tags(tags)
-  {
-  }
-  [[nodiscard]] bool has_tags() const noexcept { return !m_tags.empty(); }
-  [[nodiscard]] const std::string& tags() const noexcept { return m_tags; }
-  void call() const { m_callback(); }
-  void operator()() const { m_callback(); }
-
- private:
-  hook_callback m_callback;
-  std::string m_tags{""};
-};
+struct hook;
 
 template <typename T, typename = void>
 struct value_trait

@@ -23,7 +23,12 @@ class tag_expression
   tag_expression();
   tag_expression(std::string_view expression);
 
-  void set(std::string_view expression); 
+  tag_expression(const tag_expression&) = default;
+  tag_expression(tag_expression&&) = default;
+  tag_expression& operator=(const tag_expression&) = default;
+  tag_expression& operator=(tag_expression&&) = default;
+
+  void set(std::string_view expression);
   [[nodiscard]] bool evaluate(argc n, argv tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
 

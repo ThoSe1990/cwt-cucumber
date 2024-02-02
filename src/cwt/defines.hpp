@@ -2,6 +2,7 @@
 
 #include "vm.hpp"
 #include "value.hpp"
+#include "hooks.hpp"
 
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
