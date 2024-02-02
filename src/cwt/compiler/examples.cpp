@@ -4,7 +4,11 @@
 namespace cwt::details::compiler
 {
 
-examples::examples(feature* parent) : m_parent(parent) {}
+examples::examples(feature* parent) : m_parent(parent)
+{
+  m_parent->get_parser().advance();
+  m_parent->get_parser().skip_linebreaks();
+}
 void examples::header()
 {
   m_variables.clear();
@@ -32,6 +36,7 @@ void examples::body(std::size_t scenario_idx)
   {
     process_table_row();
     create_call(scenario_idx);
+    p.skip_linebreaks();
   }
 }
 
@@ -42,8 +47,7 @@ std::size_t examples::make_variable()
   token end = m_parent->get_parser().previous();
   m_parent->get_parser().consume(token_type::vertical,
                                  "Expect '|' after variable.");
-  return m_parent->get_chunk().make_constant(
-      create_string(begin, end));
+  return m_parent->get_chunk().make_constant(create_string(begin, end));
 }
 
 void examples::process_table_row()

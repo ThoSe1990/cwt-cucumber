@@ -20,21 +20,6 @@ void cucumber::init()
   m_parser->skip_linebreaks();
 }
 
-bool compiler::tags_valid()
-{
-  return m_tag_expression->evaluate(m_tags.size(), m_tags.rbegin());
-}
-
-void compiler::read_tags()
-{
-  m_tags.clear();
-  while (m_parser->check(token_type::tag))
-  {
-    m_tags.push_back(std::string(m_parser->current().value));
-    m_parser->advance();
-  }
-}
-
 void cucumber::compile()
 {
   do

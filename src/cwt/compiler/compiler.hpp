@@ -39,6 +39,7 @@ class compiler
   
   void set_tag_expression(std::string_view expression);
   void read_tags();
+  void clear_tags();
   [[nodiscard]] bool tags_valid();
 
 
@@ -84,8 +85,8 @@ class compiler
 
  private:
   std::string m_filename;
-  chunk m_chunk;
   value_array m_tags;
+  chunk m_chunk;
 };
 
 }  // namespace cwt::details::compiler

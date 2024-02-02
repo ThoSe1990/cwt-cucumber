@@ -13,6 +13,7 @@ class scenario_outline : public compiler
 
  private:
   void compile_steps();
+  void compile_table(std::size_t scenario_idx);
   void compile_examples(std::size_t scenario_idx);
   std::size_t make_scenario();
 
