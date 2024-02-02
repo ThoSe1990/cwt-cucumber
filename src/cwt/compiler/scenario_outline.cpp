@@ -65,7 +65,7 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
       case token_type::examples:
       {
         compile_examples(scenario_idx);
-        // clear_tags();
+        clear_tags();
       }
       break;
       default:

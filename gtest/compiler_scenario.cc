@@ -149,5 +149,5 @@ const char* script = R"*(
   
   disassemble_chunk(f.get_chunk(), "chunk with matching tags");
 
-  EXPECT_EQ(f.get_chunk().size(), 22);
+  EXPECT_EQ(f.get_chunk().size(), 30);
 }

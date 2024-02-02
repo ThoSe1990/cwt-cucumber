@@ -39,6 +39,8 @@ class compiler
   
   void set_tag_expression(std::string_view expression);
   void read_tags();
+  void clear_tags();
+  [[nodiscard]] std::size_t tags_count();
   [[nodiscard]] bool tags_valid();
 
 
@@ -48,7 +50,7 @@ class compiler
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
   void emit_table_value();
-  void emit_tag();
+  void emit_tags();
 
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)

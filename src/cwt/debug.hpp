@@ -111,9 +111,9 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
       return constant_instruction("op_code::call_step_with_doc_string", c,
                                   offset);
     case op_code::hook_before:
-      return constant_instruction("op_code::hook_before", c, offset);
+      return byte_instruction("op_code::hook_before", c, offset);
     case op_code::hook_after:
-      return constant_instruction("op_code::hook_after", c, offset);
+      return byte_instruction("op_code::hook_after", c, offset);
     case op_code::hook_before_step:
       return simple_instruction("op_code::hook_before_step", offset);
     case op_code::hook_after_step:

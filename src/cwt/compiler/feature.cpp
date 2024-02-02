@@ -39,6 +39,7 @@ void feature::compile()
       case token_type::scenario:
       {
         do_compile<scenario>();
+        clear_tags();
       }
       break;
       case token_type::scenario_outline:

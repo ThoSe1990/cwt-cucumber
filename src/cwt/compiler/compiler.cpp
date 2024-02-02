@@ -45,11 +45,16 @@ void compiler::set_tag_expression(std::string_view expression)
 }
 bool compiler::tags_valid()
 {
-  bool result = m_tag_expression->evaluate(m_tags->size(), m_tags->rbegin());
-  m_tags->clear();
-  return result;
+  return m_tag_expression->evaluate(m_tags->size(), m_tags->rbegin());
 }
-
+void compiler::clear_tags()
+{
+  m_tags->clear();
+}
+std::size_t compiler::tags_count()
+{
+  return m_tags->size();
+}
 void compiler::read_tags()
 {
   while (m_parser->check(token_type::tag))
@@ -117,6 +122,13 @@ void compiler::emit_table_value()
   emit_constant(token_to_value(m_parser->current(), negative));
 }
 
-void compiler::emit_tag() { emit_constant(m_parser->previous().value); }
+void compiler::emit_tags() 
+{ 
+  for (const auto tag : *m_tags.get())
+  {
+    emit_constant(tag.as<std::string>());
+  }
+}
+
 
 }  // namespace cwt::details::compiler

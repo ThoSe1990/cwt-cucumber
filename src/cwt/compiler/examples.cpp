@@ -65,12 +65,12 @@ void examples::process_table_row()
 }
 void examples::create_call(std::size_t scenario_idx)
 {
-  m_parent->emit_byte(op_code::hook_before);
-  m_parent->emit_byte(0);  // = args => overload! not all hooks have args
+  m_parent->emit_bytes(op_code::hook_before, m_parent->tags_count());
+  m_parent->emit_tags();
   m_parent->emit_bytes(op_code::get_var, scenario_idx);
   m_parent->emit_bytes(op_code::call, 0);
-  m_parent->emit_byte(op_code::hook_after);
-  m_parent->emit_byte(0);  // = args => overload! not all hooks have args
+  m_parent->emit_bytes(op_code::hook_after, m_parent->tags_count());
+  m_parent->emit_tags();
   m_parent->emit_byte(op_code::scenario_result);
 }
 
