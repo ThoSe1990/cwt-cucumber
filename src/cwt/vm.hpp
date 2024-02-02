@@ -24,6 +24,8 @@ class vm
   [[nodiscard]] const std::vector<call_frame>& frames() const;
   [[nodiscard]] value& global(const std::string& name);
 
+  static void reset();
+
   static void push_step(const step& s);
   static void push_hook_before(const hook& h);
   static void push_hook_after(const hook& h);

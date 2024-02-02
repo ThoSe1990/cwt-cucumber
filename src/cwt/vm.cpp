@@ -84,6 +84,14 @@ void vm::pop(std::size_t count)
     m_stack.pop_back();
   }
 }
+void vm::reset()
+{
+  steps().clear();
+  before().clear();
+  after().clear();
+  before_step().clear();
+  after_step().clear();
+}
 std::vector<step>& vm::steps()
 {
   static std::vector<step> instance;
