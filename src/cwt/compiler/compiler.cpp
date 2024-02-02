@@ -45,21 +45,18 @@ void compiler::set_tag_expression(std::string_view expression)
 }
 bool compiler::tags_valid()
 {
-  return m_tag_expression->evaluate(m_tags.size(), m_tags.rbegin());
+  bool result = m_tag_expression->evaluate(m_tags->size(), m_tags->rbegin());
+  m_tags->clear();
+  return result;
 }
 
 void compiler::read_tags()
 {
-  m_tags.clear();
   while (m_parser->check(token_type::tag))
   {
-    m_tags.push_back(std::string(m_parser->current().value));
+    m_tags->push_back(std::string(m_parser->current().value));
     m_parser->advance();
   }
-}
-void compiler::clear_tags()
-{
-  m_tags.clear();
 }
 
 std::string compiler::location() const

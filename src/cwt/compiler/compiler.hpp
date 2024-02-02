@@ -39,7 +39,6 @@ class compiler
   
   void set_tag_expression(std::string_view expression);
   void read_tags();
-  void clear_tags();
   [[nodiscard]] bool tags_valid();
 
 
@@ -74,6 +73,7 @@ class compiler
   compiler(const Other& other)
       : m_parser(other.m_parser),
         m_tag_expression(other.m_tag_expression),
+        m_tags(other.m_tags),
         m_filename(other.m_filename),
         m_chunk(location())
   {
@@ -82,10 +82,11 @@ class compiler
  protected:
   std::shared_ptr<parser> m_parser;
   std::shared_ptr<tag_expression> m_tag_expression;
+  std::shared_ptr<value_array> m_tags = std::make_shared<value_array>();
 
  private:
   std::string m_filename;
-  value_array m_tags;
+  // value_array m_tags;
   chunk m_chunk;
 };
 
