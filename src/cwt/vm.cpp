@@ -136,9 +136,12 @@ void vm::runtime_error(std::string_view msg)
 
 void vm::run_hooks(const std::vector<hook>& hooks, uint32_t tag_count) const
 {
-  for (const auto& hook : hooks)
+  for (const auto& h : hooks)
   {
-    hook.call(tag_count, m_stack.rbegin());
+    if (h.valid_tags(tag_count, m_stack.rbegin()))
+    {
+      h.call();
+    }
   }
 }
 

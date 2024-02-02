@@ -13,21 +13,19 @@ struct hook
   hook(hook_callback cb, std::string_view tags) : m_callback(cb), m_tags(tags)
   {
   }
-
-  void call(argc n, argv tags) const
+  [[nodiscard]] bool valid_tags(argc n, argv tags) const
   {
-    const auto scenario_has_no_tags = [&n]() { return n == 0; };
-    const auto hook_has_tags = [this]() { return !m_tags.empty(); };
-    if (hook_has_tags() && scenario_has_no_tags())
+    const auto scenario_has_tags = [&n]() { return n > 0; };
+    if (m_tags.empty())
     {
-      return;
+      return true;
     }
-    else if (m_tags.evaluate(n, tags))
+    else
     {
-      m_callback();
+      return scenario_has_tags() ? m_tags.evaluate(n, tags) : false;
     }
   }
-  void operator()() const { m_callback(); }
+  void call() const { m_callback(); }
 
  private:
   hook_callback m_callback;
