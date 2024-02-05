@@ -17,8 +17,6 @@ class cucumber : public compiler
   void init();
   void compile_feature();
 
-//  private:
-//   value_array m_tags;
 };
 
 }  // namespace cwt::details::compiler

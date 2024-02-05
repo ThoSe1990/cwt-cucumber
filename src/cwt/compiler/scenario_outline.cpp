@@ -59,13 +59,16 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
     {
       case token_type::tag:
       {
+        std::size_t before = tags_count();
         read_tags();
+        m_delta_tags = tags_count() - before;
       }
       break;
       case token_type::examples:
       {
         compile_examples(scenario_idx);
-        clear_tags();
+        pop_tag(m_delta_tags);
+        m_delta_tags = 0;
       }
       break;
       default:

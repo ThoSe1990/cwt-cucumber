@@ -19,6 +19,7 @@ class scenario_outline : public compiler
 
  private:
   feature* m_enclosing;
+  std::size_t m_delta_tags{0};
 };
 
 }  // namespace cwt::details::compiler

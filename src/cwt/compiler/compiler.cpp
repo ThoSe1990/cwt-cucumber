@@ -64,6 +64,15 @@ void compiler::read_tags()
   }
 }
 
+void compiler::pop_tag(std::size_t n)
+{
+  if (n == 0) return;
+  for (std::size_t i = 0 ; i < n ; ++i)
+  {
+    m_tags->pop_back();
+  }
+}
+
 std::string compiler::location() const
 {
   return std::format("{}:{}", m_filename, m_parser->current().line);

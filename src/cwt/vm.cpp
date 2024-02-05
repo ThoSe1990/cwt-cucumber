@@ -7,7 +7,7 @@
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 #include "hooks.hpp"
-#define PRINT_STACK 1
+
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif

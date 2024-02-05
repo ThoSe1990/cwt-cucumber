@@ -40,6 +40,7 @@ class compiler
   void set_tag_expression(std::string_view expression);
   void read_tags();
   void clear_tags();
+  void pop_tag(std::size_t n);
   [[nodiscard]] std::size_t tags_count();
   [[nodiscard]] bool tags_valid();
 
@@ -88,7 +89,6 @@ class compiler
 
  private:
   std::string m_filename;
-  // value_array m_tags;
   chunk m_chunk;
 };
 
