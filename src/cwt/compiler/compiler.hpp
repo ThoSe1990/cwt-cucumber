@@ -39,10 +39,8 @@ class compiler
   
   void set_tag_expression(std::string_view expression);
   void read_tags();
-  void clear_tags();
-  void pop_tag(std::size_t n);
-  [[nodiscard]] std::size_t tags_count();
-  [[nodiscard]] bool tags_valid();
+  [[nodiscard]] value_array tags();
+  [[nodiscard]] bool tags_valid(const value_array& tags);
 
 
   void emit_byte(uint32_t byte);
@@ -51,7 +49,7 @@ class compiler
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
   void emit_table_value();
-  void emit_tags();
+  void emit_tags(const value_array& tags);
 
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
@@ -76,20 +74,20 @@ class compiler
   compiler(const Other& other)
       : m_parser(other.m_parser),
         m_tag_expression(other.m_tag_expression),
-        m_tags(other.m_tags),
         m_filename(other.m_filename),
-        m_chunk(location())
+        m_chunk(location()),
+        m_latest_tags(other.m_latest_tags)
   {
   }
 
  protected:
   std::shared_ptr<parser> m_parser;
   std::shared_ptr<tag_expression> m_tag_expression;
-  std::shared_ptr<value_array> m_tags = std::make_shared<value_array>();
 
  private:
   std::string m_filename;
   chunk m_chunk;
+  std::shared_ptr<value_array> m_latest_tags = std::make_unique<value_array>();
 };
 
 }  // namespace cwt::details::compiler

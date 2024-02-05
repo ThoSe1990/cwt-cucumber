@@ -15,6 +15,7 @@ feature::feature(cucumber* enclosing)
   m_parser->advance_to(token_type::scenario, token_type::scenario_outline,
                        token_type::tag, token_type::background,
                        token_type::eof);
+  
 }
 feature::~feature()
 {
@@ -39,7 +40,6 @@ void feature::compile()
       case token_type::scenario:
       {
         do_compile<scenario>();
-        clear_tags();
       }
       break;
       case token_type::scenario_outline:

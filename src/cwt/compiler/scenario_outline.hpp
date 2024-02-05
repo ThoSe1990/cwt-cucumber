@@ -9,6 +9,10 @@ class scenario_outline : public compiler
 {
  public:
   scenario_outline(feature* enclosing);
+  void set_tags(const value_array& tags)
+  {
+    m_tags = tags;
+  }
   void compile();
 
  private:
@@ -19,7 +23,8 @@ class scenario_outline : public compiler
 
  private:
   feature* m_enclosing;
-  std::size_t m_delta_tags{0};
+  value_array m_tags;
+
 };
 
 }  // namespace cwt::details::compiler

@@ -156,9 +156,23 @@ static void println(color c, const std::string& str)
   }
 }
 
-inline const value& to_value(argv values, std::size_t idx)
+[[nodiscard]] inline const value& to_value(argv values, std::size_t idx)
 {
   return *(values + idx);
+}
+
+[[nodiscard]] inline value_array combine(const value_array& v1, const value_array& v2)
+{
+  value_array result;
+  for (const auto& v : v1)
+  {
+    result.push_back(v);
+  }
+  for (const auto& v : v2)
+  {
+    result.push_back(v);
+  }
+  return result;
 }
 
 }  // namespace cwt::details

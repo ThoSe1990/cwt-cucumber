@@ -49,9 +49,10 @@ void cucumber::compile()
 
 void cucumber::compile_feature()
 {
-  if (tags_valid())
+  if (tags_valid(tags()))
   {
     feature f(this);
+    f.set_tags(tags());
     f.compile();
   }
   else

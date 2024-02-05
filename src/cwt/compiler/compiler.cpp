@@ -43,33 +43,24 @@ void compiler::set_tag_expression(std::string_view expression)
 {
   m_tag_expression = std::make_shared<tag_expression>(expression);
 }
-bool compiler::tags_valid()
+value_array compiler::tags()
 {
-  return m_tag_expression->evaluate(m_tags->size(), m_tags->rbegin());
+  
+  value_array result = *m_latest_tags.get();
+  m_latest_tags->clear();
+  return result;
 }
-void compiler::clear_tags()
+bool compiler::tags_valid(const value_array& tags)
 {
-  m_tags->clear();
-}
-std::size_t compiler::tags_count()
-{
-  return m_tags->size();
+  return m_tag_expression->evaluate(tags.size(), tags.rbegin());
 }
 void compiler::read_tags()
 {
+  m_latest_tags->clear();
   while (m_parser->check(token_type::tag))
   {
-    m_tags->push_back(std::string(m_parser->current().value));
+    m_latest_tags->push_back(std::string(m_parser->current().value));
     m_parser->advance();
-  }
-}
-
-void compiler::pop_tag(std::size_t n)
-{
-  if (n == 0) return;
-  for (std::size_t i = 0 ; i < n ; ++i)
-  {
-    m_tags->pop_back();
   }
 }
 
@@ -131,11 +122,11 @@ void compiler::emit_table_value()
   emit_constant(token_to_value(m_parser->current(), negative));
 }
 
-void compiler::emit_tags() 
+void compiler::emit_tags(const value_array& tags) 
 { 
-  for (const auto tag : *m_tags.get())
+  for (const auto t : tags)
   {
-    emit_constant(tag.as<std::string>());
+    emit_constant(t.as<std::string>());
   }
 }
 
