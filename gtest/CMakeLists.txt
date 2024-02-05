@@ -11,12 +11,14 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_tags_2.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_examples_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_examples_tags_2.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_and_scenario_w_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/hooks_scenario_outline.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_matches.cc
@@ -25,6 +27,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_english.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_german.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scenario_outline.cc
   )
   target_link_libraries(${target} cucumber-no-main GTest::gtest_main)
 

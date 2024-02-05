@@ -404,3 +404,10 @@ TEST(tag_evaluation, tag1_and_tag2_2)
   tc.set("@tag2");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
+TEST(tag_evaluation, tag2_and_tag3)
+{
+  value_array tags{std::string("@tag2"), std::string("@tag3")};
+  compiler::tag_expression tc;
+  tc.set("@tag3 and @tag2");
+  EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
+}

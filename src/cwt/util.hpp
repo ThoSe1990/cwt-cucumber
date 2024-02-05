@@ -136,15 +136,22 @@ static void println(color c, const std::string& str)
     break;
     case token_type::string_value:
     {
-      return value(std::string(t.value));
+      if (t.value.starts_with('"') && t.value.ends_with('"'))
+      {
+        const auto without_quotes = [&t]()
+        { return value(std::string(t.value.substr(1, t.value.size() - 2))); };
+        return without_quotes();
+      }
+      else
+      {
+        return value(std::string(t.value));
+      }
     }
     break;
     default:
-      println(
-          color::red,
-          std::format(
-              "util::token_to_value: Given token '{}' is invalid to create a value",
-              t.value));
+      println(color::red, std::format("util::token_to_value: Given token '{}' "
+                                      "is invalid to create a value",
+                                      t.value));
       return value{nil_value{}};
   }
 }

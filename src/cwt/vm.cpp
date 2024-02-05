@@ -7,7 +7,7 @@
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 #include "hooks.hpp"
-
+#define PRINT_STACK 1
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
@@ -212,12 +212,14 @@ void vm::run()
       {
         uint32_t tag_count = frame->it.next();
         run_hooks(before(), tag_count);
+        pop(tag_count);
       }
       break;
       case op_code::hook_after:
       {
         uint32_t tag_count = frame->it.next();
         run_hooks(after(), tag_count);
+        pop(tag_count);
       }
       break;
       case op_code::hook_before_step:
@@ -249,7 +251,14 @@ void vm::run()
                          });
         if (found_step != steps().end())
         {
-          finder.for_each_value([this](const value& v) { push_value(v); });
+          finder.for_each_value(
+              [this](const value& v)
+              {
+                if (v.type() != value_type::nil)
+                {
+                  push_value(v);
+                }
+              });
           found_step->call(finder.values_count(), m_stack.rbegin());
           pop(finder.values_count());
         }

@@ -40,6 +40,11 @@ bool step_finder::step_matches()
       {
         m_values.push_back(token_to_value(feature, negative));
       }
+      else if (feature.type == token_type::variable)
+      {
+        m_values.push_back(nil_value{});
+        // nothing value already on the stack
+      }
       else
       {
         return false;

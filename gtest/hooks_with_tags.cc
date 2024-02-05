@@ -5,11 +5,17 @@
 
 using namespace cwt::details;
 
+namespace hooks_tests_call_count
+{
+std::size_t value = 0;
+}
+
 class hooks_tests_with_tags : public ::testing::Test
 {
  protected:
   void SetUp() override
   {
+    hooks_tests_call_count::value = 0;
     test_vm = vm();
     test_vm.push_step(step([](argc, argv) {}, "A Step"));
   }
@@ -29,20 +35,69 @@ class hooks_tests_with_tags : public ::testing::Test
   vm test_vm;
 };
 
-struct hook_test_exception
-{
-};
 
-TEST_F(hooks_tests_with_tags, call_hook)
+TEST_F(hooks_tests_with_tags, before_call_hook)
 {
-  test_vm.push_hook_after(
-      hook([]() { throw hook_test_exception{}; }, "@tag1"));
-  EXPECT_THROW([[maybe_unused]] auto result = test_vm.interpret(script),
-               hook_test_exception);
+  test_vm.push_hook_before(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag1"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 1);
 }
-TEST_F(hooks_tests_with_tags, dont_call_hook)
+TEST_F(hooks_tests_with_tags, before_dont_call_hook)
+{
+  test_vm.push_hook_before(
+      hook([]() { ++hooks_tests_call_count::value; }, "@some_other_tag"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 0);
+}
+TEST_F(hooks_tests_with_tags, after_call_hook)
 {
   test_vm.push_hook_after(
-      hook([]() { throw hook_test_exception{}; }, "@some_other_tag"));
-  EXPECT_NO_THROW([[maybe_unused]] auto result = test_vm.interpret(script));
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag1"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 1);
+}
+TEST_F(hooks_tests_with_tags, after_dont_call_hook)
+{
+  test_vm.push_hook_after(
+      hook([]() { ++hooks_tests_call_count::value; }, "@some_other_tag"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 0);
+}
+
+TEST_F(hooks_tests_with_tags, after_count_calls_1)
+{
+  test_vm.push_hook_after(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag1 or @tag2"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 2);
+}
+TEST_F(hooks_tests_with_tags, after_count_calls_2)
+{
+  test_vm.push_hook_after(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag3 and @tag2"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 1);
+}
+TEST_F(hooks_tests_with_tags, after_count_calls_3)
+{
+  test_vm.push_hook_after(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag3 or @tag2"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 1);
+}
+
+TEST_F(hooks_tests_with_tags, before_count_calls_1)
+{
+  test_vm.push_hook_before(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag1 or @tag2"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 2);
+}
+TEST_F(hooks_tests_with_tags, before_count_calls_2)
+{
+  test_vm.push_hook_before(
+      hook([]() { ++hooks_tests_call_count::value; }, "@tag3 and @tag2"));
+  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(hooks_tests_call_count::value, 1);
 }

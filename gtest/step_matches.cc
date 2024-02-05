@@ -73,3 +73,7 @@ TEST(step_matcher, chinese_letters)
 {
   EXPECT_TRUE(step_finder("一个盒子有 {int} x {int} x {int}", "一个盒子有 2 x 2 x 2").step_matches());
 }
+TEST(step_matcher, step_with_variable)
+{
+  EXPECT_TRUE(step_finder("A Step with a {string}", "A Step with a <value>").step_matches());
+}
