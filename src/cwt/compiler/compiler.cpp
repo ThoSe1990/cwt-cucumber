@@ -123,6 +123,9 @@ void compiler::emit_table_value()
 
 void compiler::emit_tags(const value_array& tags) 
 { 
+  // TODO: if we introduce a find function for constants in chunk
+  // we can avoid pushing redundand tags, which always happens in 
+  // before and after because all tags are pushed twice (at least...)
   for (const auto t : tags)
   {
     emit_constant(t.as<std::string>());
