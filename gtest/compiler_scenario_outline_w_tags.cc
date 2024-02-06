@@ -29,7 +29,7 @@ TEST(compiler_scenario_outline_w_tags, scenarios_code_1)
   compiler::feature f(&cuke);
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
-  EXPECT_EQ(f.get_chunk().size(), 72);
+  EXPECT_EQ(f.get_chunk().size(), 71);
 }
 
 TEST(compiler_scenario_outline_w_tags, scenarios_code_2)
@@ -38,7 +38,7 @@ TEST(compiler_scenario_outline_w_tags, scenarios_code_2)
   compiler::feature f(&cuke);
   f.set_tag_expression("@tag1 and @tag2");
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 72);
+  EXPECT_EQ(f.get_chunk().size(), 71);
 }
 TEST(compiler_scenario_outline_w_tags, scenarios_code_3)
 {
@@ -46,7 +46,7 @@ TEST(compiler_scenario_outline_w_tags, scenarios_code_3)
   compiler::feature f(&cuke);
   f.set_tag_expression("@tag1");
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 72);
+  EXPECT_EQ(f.get_chunk().size(), 71);
 }
 TEST(compiler_scenario_outline_w_tags, scenarios_code_4)
 {
@@ -55,5 +55,5 @@ TEST(compiler_scenario_outline_w_tags, scenarios_code_4)
   f.set_tag_expression("@tag3");
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
-  EXPECT_EQ(f.get_chunk().size(), 10);
+  EXPECT_EQ(f.get_chunk().size(), 9);
 }

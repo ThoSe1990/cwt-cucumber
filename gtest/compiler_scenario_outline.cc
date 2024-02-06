@@ -28,10 +28,11 @@ TEST(compiler_scenario_outline, scenarios_code)
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();
-  ASSERT_EQ(s.get_chunk().size(), 26);
+  ASSERT_EQ(s.get_chunk().size(), 27);
   
   std::size_t i = 0;
 
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_linebreak));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(i++), 1);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print));
@@ -47,7 +48,7 @@ TEST(compiler_scenario_outline, scenarios_code)
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::get_var));
   EXPECT_EQ(s.get_chunk().at(i++), 4);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::jump_if_failed));
-  EXPECT_EQ(s.get_chunk().at(i++), 20);
+  EXPECT_EQ(s.get_chunk().at(i++), 21);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::hook_before_step));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::call_step));
   EXPECT_EQ(s.get_chunk().at(i++), 5);
@@ -90,9 +91,9 @@ TEST(compiler_scenario_outline, parent_feature_code)
 
   disassemble_chunk(f.get_chunk(), "scenario");
 
-  ASSERT_EQ(f.get_chunk().size(), 56);
+  ASSERT_EQ(f.get_chunk().size(), 55);
 
-  std::size_t i = 14;  
+  std::size_t i = 13;  
 
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(i++), 5);

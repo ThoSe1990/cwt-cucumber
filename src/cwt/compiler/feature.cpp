@@ -31,7 +31,6 @@ void feature::init()
   m_parser->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);
-  emit_byte(op_code::print_linebreak);
   m_parser->advance();
   m_parser->advance_to(token_type::scenario, token_type::scenario_outline,
                        token_type::tag, token_type::background,
