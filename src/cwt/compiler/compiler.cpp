@@ -81,6 +81,7 @@ void compiler::print_name_and_location(std::size_t name_idx,
 {
   emit_bytes(op_code::constant, name_idx);
   emit_bytes(op_code::print, to_uint(color::standard));
+  emit_byte(op_code::print_indent);
   emit_bytes(op_code::constant, location_idx);
   emit_bytes(op_code::println, to_uint(color::black));
 }

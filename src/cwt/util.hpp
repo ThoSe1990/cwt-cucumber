@@ -30,6 +30,8 @@ enum class op_code : uint32_t
   define_var,
   print,
   println,
+  print_linebreak,
+  print_indent,
   step_result,
   init_scenario,
   scenario_result,
@@ -105,11 +107,23 @@ static void print(color c, std::string_view msg)
   }
   std::cout << msg << "\x1b[0m";
 }
-
-static void println(color c, const std::string& str)
+static void print(std::string_view msg)
 {
-  print(c, str);
+  print(color::standard, msg);
+}
+
+static void println(color c, std::string_view mgs)
+{
+  print(c, mgs);
   std::cout << '\n';
+}
+static void println()
+{
+  std::cout << '\n';
+}
+static void println(std::string_view msg)
+{
+  println(color::standard, msg);
 }
 
 [[nodiscard]] static value token_to_value(const token& t, bool negative)

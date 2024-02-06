@@ -245,7 +245,6 @@ void vm::run()
       break;
       case op_code::reset_context:
       {
-
       }
       break;
       case op_code::call_step:
@@ -284,8 +283,9 @@ void vm::run()
         std::string file_line = m_stack.back().copy_as<std::string>();
         pop();
         std::string step = m_stack.back().copy_as<std::string>();
-        pop(); 
+        pop();
         print(color::green, step);
+        print("  ");
         println(color::green, file_line);
       }
       break;
@@ -298,7 +298,6 @@ void vm::run()
       break;
       case op_code::scenario_result:
       {
-
       }
       break;
       case op_code::jump_if_failed:
@@ -318,6 +317,17 @@ void vm::run()
         pop();
       }
       break;
+      case op_code::print_linebreak:
+      {
+        println();
+      }
+      break;
+      case op_code::print_indent:
+      {
+        print("  ");
+      }
+      break;
+
       case op_code::init_scenario:
       {
         vm::push_scenario_to_result();
@@ -340,10 +350,10 @@ void vm::run()
       break;
       default:
       {
-        println(
-            color::red,
-            std::format("Virtual Machine: Missing instruction '{}'", current));
+        println(color::red,
+                std::format("Cuke VM: Missing instruction '{}'", current));
         m_result = return_code::runtime_error;
+        return;
       }
     }
   }

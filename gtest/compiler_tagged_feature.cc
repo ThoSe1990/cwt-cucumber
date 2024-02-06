@@ -17,7 +17,7 @@ const char* script = R"*(
   compiler::cucumber cuke(script);
   cuke.compile();
   chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get(); 
-  EXPECT_EQ(feature_chunk->size(), 31);
+  EXPECT_EQ(feature_chunk->size(), 33);
   disassemble_chunk(cuke.get_chunk(), "script");
   disassemble_chunk(*feature_chunk, "feature");
 }

@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "../src/cwt/compiler/scenario_outline.hpp"
+#define PRINT_STACK 1 
+#include "../src/cwt/debug.hpp"
+
+
 
 using namespace cwt::details;
 
@@ -24,33 +28,36 @@ TEST(compiler_scenario_outline, scenarios_code)
   compiler::feature f(&cuke);
   compiler::scenario_outline s(&f);
   s.compile();
-  ASSERT_EQ(s.get_chunk().size(), 25);
+  ASSERT_EQ(s.get_chunk().size(), 26);
+  
+  std::size_t i = 0;
 
-  EXPECT_EQ(s.get_chunk().at(0), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(1), 1);
-  EXPECT_EQ(s.get_chunk().at(2), to_uint(op_code::print));
-  EXPECT_EQ(s.get_chunk().at(3), 0);
-  EXPECT_EQ(s.get_chunk().at(4), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(5), 0);
-  EXPECT_EQ(s.get_chunk().at(6), to_uint(op_code::println));
-  EXPECT_EQ(s.get_chunk().at(7), 5);
-  EXPECT_EQ(s.get_chunk().at(8), to_uint(op_code::init_scenario));
-  EXPECT_EQ(s.get_chunk().at(9), to_uint(op_code::get_var));
-  EXPECT_EQ(s.get_chunk().at(10), 3);
-  EXPECT_EQ(s.get_chunk().at(11), to_uint(op_code::get_var));
-  EXPECT_EQ(s.get_chunk().at(12), 4);
-  EXPECT_EQ(s.get_chunk().at(13), to_uint(op_code::jump_if_failed));
-  EXPECT_EQ(s.get_chunk().at(14), 19);
-  EXPECT_EQ(s.get_chunk().at(15), to_uint(op_code::hook_before_step));
-  EXPECT_EQ(s.get_chunk().at(16), to_uint(op_code::call_step));
-  EXPECT_EQ(s.get_chunk().at(17), 5);
-  EXPECT_EQ(s.get_chunk().at(18), to_uint(op_code::hook_after_step));
-  EXPECT_EQ(s.get_chunk().at(19), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(20), 5);
-  EXPECT_EQ(s.get_chunk().at(21), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(22), 2);
-  EXPECT_EQ(s.get_chunk().at(23), to_uint(op_code::step_result));
-  EXPECT_EQ(s.get_chunk().at(24), to_uint(op_code::func_return));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(s.get_chunk().at(i++), 1);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print));
+  EXPECT_EQ(s.get_chunk().at(i++), 0);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_indent));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(s.get_chunk().at(i++), 0);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::println));
+  EXPECT_EQ(s.get_chunk().at(i++), 5);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::init_scenario));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::get_var));
+  EXPECT_EQ(s.get_chunk().at(i++), 3);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::get_var));
+  EXPECT_EQ(s.get_chunk().at(i++), 4);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::jump_if_failed));
+  EXPECT_EQ(s.get_chunk().at(i++), 20);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::hook_before_step));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::call_step));
+  EXPECT_EQ(s.get_chunk().at(i++), 5);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::hook_after_step));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(s.get_chunk().at(i++), 5);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(s.get_chunk().at(i++), 2);
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::step_result));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::func_return));
 }
 
 TEST(compiler_scenario_outline, scenarios_constants)
@@ -81,43 +88,45 @@ TEST(compiler_scenario_outline, parent_feature_code)
   compiler::scenario_outline s(&f);
   s.compile();
 
-  ASSERT_EQ(f.get_chunk().size(), 54);
+  disassemble_chunk(f.get_chunk(), "scenario");
 
+  ASSERT_EQ(f.get_chunk().size(), 56);
 
-  EXPECT_EQ(f.get_chunk().at(12), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(13), 5);
-  EXPECT_EQ(f.get_chunk().at(14), to_uint(op_code::define_var));
-  EXPECT_EQ(f.get_chunk().at(15), 4);
-  EXPECT_EQ(f.get_chunk().at(16), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(17), 7);
-  EXPECT_EQ(f.get_chunk().at(18), to_uint(op_code::define_var));
-  EXPECT_EQ(f.get_chunk().at(19), 6);
-  EXPECT_EQ(f.get_chunk().at(20), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(21), 8);
-  EXPECT_EQ(f.get_chunk().at(22), to_uint(op_code::set_var));
-  EXPECT_EQ(f.get_chunk().at(23), 4);
-  EXPECT_EQ(f.get_chunk().at(24), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(25), 9);
-  EXPECT_EQ(f.get_chunk().at(26), to_uint(op_code::set_var));
-  EXPECT_EQ(f.get_chunk().at(27), 6);
-  EXPECT_EQ(f.get_chunk().at(28), to_uint(op_code::hook_before));
-  EXPECT_EQ(f.get_chunk().at(29), 0);
-  EXPECT_EQ(f.get_chunk().at(30), to_uint(op_code::get_var));
-  EXPECT_EQ(f.get_chunk().at(31), 3);
-  EXPECT_EQ(f.get_chunk().at(32), to_uint(op_code::call));
-  EXPECT_EQ(f.get_chunk().at(33), 0);
-  EXPECT_EQ(f.get_chunk().at(34), to_uint(op_code::hook_after));
-  EXPECT_EQ(f.get_chunk().at(35), 0);
-  EXPECT_EQ(f.get_chunk().at(36), to_uint(op_code::scenario_result));
+  std::size_t i = 14;  
 
-  EXPECT_EQ(f.get_chunk().at(37), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(38), 10);
-  EXPECT_EQ(f.get_chunk().at(39), to_uint(op_code::set_var));
-  EXPECT_EQ(f.get_chunk().at(40), 4);
-  EXPECT_EQ(f.get_chunk().at(41), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(42), 11);
-  EXPECT_EQ(f.get_chunk().at(43), to_uint(op_code::set_var));
-  EXPECT_EQ(f.get_chunk().at(44), 6);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 5);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::define_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 4);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 7);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::define_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 6);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 8);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 4);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 9);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 6);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_before));
+  EXPECT_EQ(f.get_chunk().at(i++), 0);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::get_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 3);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::call));
+  EXPECT_EQ(f.get_chunk().at(i++), 0);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_after));
+  EXPECT_EQ(f.get_chunk().at(i++), 0);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::scenario_result));
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 10);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 4);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 11);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
+  EXPECT_EQ(f.get_chunk().at(i++), 6);
 }
 TEST(compiler_scenario_outline, parent_feature_constants)
 {

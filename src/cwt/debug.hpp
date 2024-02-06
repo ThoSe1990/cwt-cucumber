@@ -91,6 +91,10 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
       return constant_instruction("op_code::set_var", c, offset);
     case op_code::define_var:
       return constant_instruction("op_code::define_var", c, offset);
+    case op_code::print_linebreak:
+      return simple_instruction("op_code::print_linebreak", offset);
+    case op_code::print_indent:
+      return simple_instruction("op_code::print_indent", offset);
     case op_code::print:
       return byte_instruction("op_code::print", c, offset);
     case op_code::println:
