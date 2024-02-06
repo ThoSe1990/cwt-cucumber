@@ -132,7 +132,7 @@ std::vector<std::vector<return_code>>& vm::results()
   static std::vector<std::vector<return_code>> instance;
   return instance;
 }
-void vm::push_scenario_result() { results().push_back({}); }
+void vm::push_scenario_to_result() { results().push_back({}); }
 void vm::push_step_result(return_code result)
 {
   results().back().push_back(result);
@@ -245,7 +245,7 @@ void vm::run()
       break;
       case op_code::reset_context:
       {
-        std::cout << "op_code::reset_context" << std::endl;
+
       }
       break;
       case op_code::call_step:
@@ -281,8 +281,12 @@ void vm::run()
       break;
       case op_code::step_result:
       {
-        pop(2);
-        std::cout << "op_code::step_result - pop follows... " << std::endl;
+        std::string file_line = m_stack.back().copy_as<std::string>();
+        pop();
+        std::string step = m_stack.back().copy_as<std::string>();
+        pop(); 
+        print(color::green, step);
+        println(color::green, file_line);
       }
       break;
       case op_code::call:
@@ -294,13 +298,12 @@ void vm::run()
       break;
       case op_code::scenario_result:
       {
-        println(color::green, "op_code::scenario_result");
+
       }
       break;
       case op_code::jump_if_failed:
       {
         uint32_t target = frame->it.next();
-        std::cout << "op_code::jump_if_failed: " << target << std::endl;
       }
       break;
       case op_code::print:
@@ -317,7 +320,7 @@ void vm::run()
       break;
       case op_code::init_scenario:
       {
-        std::cout << "op_code::init_scenario" << std::endl;
+        vm::push_scenario_to_result();
       }
       break;
       case op_code::func_return:
@@ -326,6 +329,7 @@ void vm::run()
         m_frames.pop_back();
         if (m_frames.empty())
         {
+          // TODO Print final results
           return;
         }
         else
