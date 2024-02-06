@@ -7,6 +7,16 @@ namespace cwt::details::compiler
 scenario::scenario(feature* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
+  init();
+}
+scenario::scenario(feature* enclosing, const value_array& tags)
+    : m_enclosing(enclosing), m_tags(tags), compiler(*enclosing)
+{
+  init();
+}
+
+void scenario::init()
+{
   m_parser->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);

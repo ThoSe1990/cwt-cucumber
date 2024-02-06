@@ -10,6 +10,16 @@ namespace cwt::details::compiler
 scenario_outline::scenario_outline(feature* enclosing)
     : m_enclosing(enclosing), compiler(*enclosing)
 {
+  init();
+}
+scenario_outline::scenario_outline(feature* enclosing, const value_array& tags)
+    : m_enclosing(enclosing), m_tags(tags), compiler(*enclosing)
+{
+  init();
+}
+
+void scenario_outline::init()
+{
   m_parser->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);
@@ -82,7 +92,7 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
 
 void scenario_outline::compile_examples(std::size_t scenario_idx)
 {
-  const value_array all_tags = combine(m_tags, tags());
+  const value_array all_tags = combine(m_tags, latest_tags());
   if (tags_valid(all_tags))
   {
     examples e(m_enclosing, all_tags);

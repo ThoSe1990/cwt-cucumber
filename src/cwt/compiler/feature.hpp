@@ -9,22 +9,20 @@ class feature : public compiler
 {
  public:
   feature(cucumber* enclosing);
+  feature(cucumber* enclosing, const value_array& tags);
   ~feature();
-    void set_tags(const value_array& tags)
-  {
-    m_tags = tags;
-  }
+
   void compile();
 
  private:
+  void init();
   template <typename S>
   void do_compile()
   {
-    value_array all_tags = combine(m_tags, tags());
+    value_array all_tags = combine(m_tags, latest_tags());
     if (tags_valid(all_tags))
     {
-      S s(this);
-      s.set_tags(all_tags);
+      S s(this, all_tags);
       s.compile();
     }
     else

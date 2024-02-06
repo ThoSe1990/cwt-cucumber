@@ -39,7 +39,7 @@ class compiler
   
   void set_tag_expression(std::string_view expression);
   void read_tags();
-  [[nodiscard]] value_array tags();
+  [[nodiscard]] value_array latest_tags();
   [[nodiscard]] bool tags_valid(const value_array& tags);
 
 

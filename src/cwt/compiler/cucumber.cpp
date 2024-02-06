@@ -49,10 +49,10 @@ void cucumber::compile()
 
 void cucumber::compile_feature()
 {
-  if (tags_valid(tags()))
+  const value_array tags = latest_tags();
+  if (tags_valid(tags))
   {
-    feature f(this);
-    f.set_tags(tags());
+    feature f(this, tags);
     f.compile();
   }
   else

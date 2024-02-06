@@ -43,9 +43,8 @@ void compiler::set_tag_expression(std::string_view expression)
 {
   m_tag_expression = std::make_shared<tag_expression>(expression);
 }
-value_array compiler::tags()
+value_array compiler::latest_tags()
 {
-  
   value_array result = *m_latest_tags.get();
   m_latest_tags->clear();
   return result;
