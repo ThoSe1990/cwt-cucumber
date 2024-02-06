@@ -127,6 +127,17 @@ std::vector<std::string>& vm::failed_scenarios()
 }
 void vm::push_hook_after_step(const hook& h) { after_step().push_back(h); }
 
+std::vector<std::vector<return_code>>& vm::results()
+{
+  static std::vector<std::vector<return_code>> instance;
+  return instance;
+}
+void vm::push_scenario_result() { results().push_back({}); }
+void vm::push_step_result(return_code result)
+{
+  results().back().push_back(result);
+}
+
 void vm::runtime_error(std::string_view msg)
 {
   std::size_t idx = m_frames.back().chunk_ptr->get_index(m_frames.back().it);

@@ -34,6 +34,9 @@ class vm
   static void push_hook_before_step(const hook& h);
   static void push_hook_after_step(const hook& h);
 
+  static void push_scenario_result();
+  static void push_step_result(return_code result);
+
  private:
   [[nodiscard]] static std::vector<step>& steps();
   [[nodiscard]] static std::vector<hook>& before();
@@ -42,6 +45,7 @@ class vm
   [[nodiscard]] static std::vector<hook>& after_step();
 
   [[nodiscard]] static std::vector<std::string>& failed_scenarios();
+  [[nodiscard]] static std::vector<std::vector<return_code>>& results();
 
   void push_value(const value& v);
   void pop();

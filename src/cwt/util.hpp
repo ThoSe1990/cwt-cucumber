@@ -14,6 +14,8 @@ enum class return_code
 {
   passed,
   failed,
+  undefined,
+  skipped,
   compile_error,
   runtime_error
 };
