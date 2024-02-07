@@ -52,15 +52,15 @@ class vm
   void pop(std::size_t count);
 
   void runtime_error(std::string_view msg);
-  void run();
+  [[nodiscard]] return_code run();
   void call(const function& func);
   void run_hooks(const std::vector<hook>& hooks, uint32_t n) const;
+  [[nodiscard]] return_code final_result() const noexcept;
 
  private:
   std::vector<value> m_stack;
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
-  return_code m_result{return_code::passed};
   std::string m_tag_expression{""};
   static constexpr const std::size_t m_max_stack_size{256};
 };

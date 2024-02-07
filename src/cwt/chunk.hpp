@@ -29,7 +29,7 @@ class chunk
 
   [[nodiscard]] uint32_t& at(std::size_t index);
   [[nodiscard]] uint32_t operator[](std::size_t index) const;
-
+  
   template <typename Arg>
   [[nodiscard]] std::size_t make_constant(Arg&& arg)
   {

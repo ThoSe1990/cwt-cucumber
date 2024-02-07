@@ -18,10 +18,9 @@ class vm_run_scenarios : public ::testing::Test
   vm test_vm;
 };
 
-
 TEST_F(vm_run_scenarios, run_simple_scenario)
 {
-const char* script = R"*(
+  const char* script = R"*(
   Feature: First Feature
   Scenario: First Scenario
   Given A Step with 123
@@ -31,12 +30,11 @@ const char* script = R"*(
   // testing::internal::CaptureStderr();
   // EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
   //           testing::internal::GetCapturedStderr());
-  // testing::internal::CaptureStdout();
   // testing::internal::GetCapturedStdout();
 }
 TEST_F(vm_run_scenarios, run_simple_scenario_outline)
 {
-const char* script = R"*(
+  const char* script = R"*(
   Feature: First Feature
   Scenario Outline: First Scenario Outline
   Given A Step with <value>

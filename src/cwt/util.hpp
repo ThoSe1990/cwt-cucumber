@@ -58,11 +58,11 @@ enum class color
 };
 
 template <typename T>
-inline constexpr uint32_t to_uint(T value)
+[[nodiscard]] inline constexpr uint32_t to_uint(T value)
 {
   return static_cast<uint32_t>(value);
 }
-inline constexpr op_code to_code(uint32_t val)
+[[nodiscard]] inline constexpr op_code to_code(uint32_t val)
 {
   if (val >= to_uint(op_code::constant) && val <= to_uint(op_code::func_return))
       [[likely]]
@@ -75,7 +75,7 @@ inline constexpr op_code to_code(uint32_t val)
         "inline op_code to_code(uint32_t val): value out of range");
   }
 }
-inline constexpr color to_color(uint32_t val)
+[[nodiscard]] inline constexpr color to_color(uint32_t val)
 {
   if (val >= to_uint(color::standard) && val <= to_uint(color::black))
       [[likely]]
@@ -86,6 +86,23 @@ inline constexpr color to_color(uint32_t val)
   {
     throw std::out_of_range(
         "inline color to_color(uint32_t val): value out of range");
+  }
+}
+
+[[nodiscard]] inline color to_color(return_code result)
+{
+  switch (result)
+  {
+    case return_code::passed:
+      return color::green;
+    case return_code::failed:
+      return color::red;
+    case return_code::skipped:
+      return color::blue;
+    case return_code::undefined:
+      return color::yellow;
+    default:
+      return color::standard;
   }
 }
 
@@ -107,24 +124,15 @@ static void print(color c, std::string_view msg)
   }
   std::cout << msg << "\x1b[0m";
 }
-static void print(std::string_view msg)
-{
-  print(color::standard, msg);
-}
+static void print(std::string_view msg) { print(color::standard, msg); }
 
 static void println(color c, std::string_view mgs)
 {
   print(c, mgs);
   std::cout << '\n';
 }
-static void println()
-{
-  std::cout << '\n';
-}
-static void println(std::string_view msg)
-{
-  println(color::standard, msg);
-}
+static void println() { std::cout << '\n'; }
+static void println(std::string_view msg) { println(color::standard, msg); }
 
 [[nodiscard]] static value token_to_value(const token& t, bool negative)
 {
@@ -177,7 +185,8 @@ static void println(std::string_view msg)
   return *(values + idx);
 }
 
-[[nodiscard]] inline value_array combine(const value_array& v1, const value_array& v2)
+[[nodiscard]] inline value_array combine(const value_array& v1,
+                                         const value_array& v2)
 {
   value_array result;
   for (const auto& v : v1)
@@ -187,6 +196,143 @@ static void println(std::string_view msg)
   for (const auto& v : v2)
   {
     result.push_back(v);
+  }
+  return result;
+}
+
+[[nodiscard]] inline return_code to_return_code(
+    const std::unordered_map<return_code, std::size_t>& results)
+{
+  if (results.at(return_code::failed) == 0 &&
+      results.at(return_code::skipped) == 0 &&
+      results.at(return_code::undefined) == 0)
+  {
+    return return_code::passed;
+  }
+  else
+  {
+    return return_code::failed;
+  }
+}
+
+[[nodiscard]] inline std::string to_string(return_code rc)
+{
+  switch (rc)
+  {
+    case return_code::passed:
+      return std::string("passed");
+    case return_code::failed:
+      return std::string("failed");
+    case return_code::skipped:
+      return std::string("skipped");
+    case return_code::undefined:
+      return std::string("undefined");
+    default:
+      return std::string("");
+  }
+}
+
+[[nodiscard]] inline std::size_t count_values(
+    const std::unordered_map<return_code, std::size_t>& m)
+{
+  std::size_t count = 0;
+  for (const auto& pair : m)
+  {
+    count += pair.second;
+  }
+  return count;
+}
+
+[[nodiscard]] inline void print(
+    const std::unordered_map<return_code, std::size_t>& results)
+{
+  bool need_comma = false;
+  print(" (");
+  for (const return_code& rc : {return_code::passed, return_code::failed,
+                                return_code::skipped, return_code::undefined})
+  {
+    if (results.at(rc) > 0)
+    {
+      if (need_comma)
+      {
+        print(", ");
+      }
+      print(to_color(rc), std::format("{} {}", results.at(rc), to_string(rc)));
+      need_comma = true;
+    }
+  }
+  println(")");
+}
+
+struct results_count
+{
+  long long passed;
+  long long failed;
+  long long skipped;
+  long long undefined;
+};
+
+[[nodiscard]] inline results_count count_results(
+    const std::vector<return_code>& scenario)
+{
+  return {std::count(scenario.begin(), scenario.end(), return_code::passed),
+          std::count(scenario.begin(), scenario.end(), return_code::failed),
+          std::count(scenario.begin(), scenario.end(), return_code::skipped),
+          std::count(scenario.begin(), scenario.end(), return_code::undefined)};
+}
+
+[[nodiscard]] inline return_code scenario_result(const results_count r)
+{
+  if (r.failed > 0)
+  {
+    return return_code::failed;
+  }
+  else if (r.skipped > 0)
+  {
+    return return_code::skipped;
+  }
+  else if (r.undefined > 0)
+  {
+    return return_code::undefined;
+  }
+  else
+  {
+    return return_code::passed;
+  }
+}
+
+[[nodiscard]] inline std::unordered_map<return_code, std::size_t>
+get_scenario_results(const std::vector<std::vector<return_code>>& scenarios)
+{
+  std::unordered_map<return_code, std::size_t> result{
+      {return_code::passed, 0},
+      {return_code::failed, 0},
+      {return_code::skipped, 0},
+      {return_code::undefined, 0}};
+  for (const std::vector<return_code>& s : scenarios)
+  {
+    auto [passed, failed, skipped, undefined] = count_results(s);
+    return_code current = scenario_result({passed, failed, skipped, undefined});
+    result[current]++;
+  }
+  return result;
+}
+[[nodiscard]] inline std::unordered_map<return_code, std::size_t>
+get_step_results(const std::vector<std::vector<return_code>>& scenarios)
+{
+  std::unordered_map<return_code, std::size_t> result{
+      {return_code::passed, 0},
+      {return_code::failed, 0},
+      {return_code::skipped, 0},
+      {return_code::undefined, 0}};
+
+  for (const std::vector<return_code>& s : scenarios)
+  {
+    auto [passed, failed, skipped, undefined] = count_results(s);
+    result[return_code::passed] += passed;
+    result[return_code::failed] += failed;
+    result[return_code::skipped] += skipped;
+    result[return_code::undefined] += undefined;
   }
   return result;
 }

@@ -21,11 +21,19 @@ class examples
   void process_table_row();
   void create_call(std::size_t scenario_idx);
 
-
  private:
   feature* m_feature;
   std::vector<std::size_t> m_variables;
   value_array m_tags;
+  
+  struct row
+  {
+    token begin;
+    token end;
+  };
+  row m_header;
+  row m_current_row;
+
 };
 
 }  // namespace cwt::details::compiler

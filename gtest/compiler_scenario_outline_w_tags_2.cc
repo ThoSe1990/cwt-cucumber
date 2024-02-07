@@ -33,5 +33,5 @@ TEST(compiler_scenario_outline_w_tags_2, scenarios_code_1)
   compiler::feature f(&cuke);
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
-  EXPECT_EQ(f.get_chunk().size(), 83);
+  EXPECT_EQ(f.get_chunk().size(), 99);
 }

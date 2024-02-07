@@ -91,7 +91,7 @@ TEST(compiler_scenario_outline, parent_feature_code)
 
   disassemble_chunk(f.get_chunk(), "scenario");
 
-  ASSERT_EQ(f.get_chunk().size(), 55);
+  ASSERT_EQ(f.get_chunk().size(), 71);
 
   std::size_t i = 13;  
 
@@ -119,13 +119,21 @@ TEST(compiler_scenario_outline, parent_feature_code)
   EXPECT_EQ(f.get_chunk().at(i++), 0);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_after));
   EXPECT_EQ(f.get_chunk().at(i++), 0);
-  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::scenario_result));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(i++), 10);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::print));
+  EXPECT_EQ(f.get_chunk().at(i++), 0);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 11);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::println));
+  EXPECT_EQ(f.get_chunk().at(i++), 0);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::scenario_result));
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f.get_chunk().at(i++), 12);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
   EXPECT_EQ(f.get_chunk().at(i++), 4);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
-  EXPECT_EQ(f.get_chunk().at(i++), 11);
+  EXPECT_EQ(f.get_chunk().at(i++), 13);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
   EXPECT_EQ(f.get_chunk().at(i++), 6);
 }
@@ -136,7 +144,7 @@ TEST(compiler_scenario_outline, parent_feature_constants)
   compiler::scenario_outline s(&f);
   s.compile();
 
-  ASSERT_EQ(f.get_chunk().constants_count(), 12);
+  ASSERT_EQ(f.get_chunk().constants_count(), 16);
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
@@ -155,8 +163,10 @@ TEST(compiler_scenario_outline, parent_feature_constants)
   EXPECT_EQ(f.get_chunk().constant(8).as<long>(), 1);
   EXPECT_EQ(f.get_chunk().constant(9).type(), value_type::integral);
   EXPECT_EQ(f.get_chunk().constant(9).as<long>(), 2);
-  EXPECT_EQ(f.get_chunk().constant(10).type(), value_type::integral);
-  EXPECT_EQ(f.get_chunk().constant(10).as<long>(), 3);
-  EXPECT_EQ(f.get_chunk().constant(11).type(), value_type::integral);
-  EXPECT_EQ(f.get_chunk().constant(11).as<long>(), 4);
+  EXPECT_EQ(f.get_chunk().constant(10).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(11).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(12).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(12).as<long>(), 3);
+  EXPECT_EQ(f.get_chunk().constant(13).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(13).as<long>(), 4);
 }

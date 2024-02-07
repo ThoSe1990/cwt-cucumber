@@ -31,6 +31,26 @@ return_code vm::interpret(std::string_view source)
   }
 }
 
+return_code vm::final_result() const noexcept
+{
+  println();
+  println();
+
+  std::unordered_map<return_code, std::size_t> scenarios =
+      get_scenario_results(results());
+  print(std::format("{} Scenarios", count_values(scenarios)));
+  print(scenarios);
+
+  std::unordered_map<return_code, std::size_t> steps =
+      get_step_results(results());
+  print(std::format("{} Steps", count_values(steps)));
+  print(steps);
+
+  // TODO Failed Scenarios:
+
+  return to_return_code(scenarios);
+}
+
 return_code vm::run(function func)
 {
   // FYI a call frame stores the current frame as raw pointer,
@@ -44,9 +64,7 @@ return_code vm::run(function func)
 
   push_value(std::move(func));
   call(m_stack.back().as<function>());
-  run();
-  // TODO that can fail in run()
-  return m_result;
+  return run();
 }
 
 const std::vector<value>& vm::stack() const { return m_stack; }
@@ -161,7 +179,7 @@ void vm::call(const function& func)
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
 }
 
-void vm::run()
+return_code vm::run()
 {
   call_frame* frame = &m_frames.back();
   while (frame->it != frame->chunk_ptr->cend())
@@ -261,6 +279,7 @@ void vm::run()
                          });
         if (found_step != steps().end())
         {
+          results().back().push_back(return_code::passed);
           finder.for_each_value(
               [this](const value& v)
               {
@@ -274,19 +293,9 @@ void vm::run()
         }
         else
         {
+          results().back().push_back(return_code::undefined);
           runtime_error(std::format("Undefined step '{}'", step_name));
         }
-      }
-      break;
-      case op_code::step_result:
-      {
-        std::string file_line = m_stack.back().copy_as<std::string>();
-        pop();
-        std::string step = m_stack.back().copy_as<std::string>();
-        pop();
-        print(color::green, step);
-        print("  ");
-        println(color::green, file_line);
       }
       break;
       case op_code::call:
@@ -296,6 +305,17 @@ void vm::run()
         frame = &m_frames.back();
       }
       break;
+      case op_code::step_result:
+      {
+        std::string file_line = m_stack.back().copy_as<std::string>();
+        pop();
+        std::string step = m_stack.back().copy_as<std::string>();
+        pop();
+        print(to_color(results().back().back()), step);
+        print("  ");
+        println(color::black, file_line);
+      }
+      break;
       case op_code::scenario_result:
       {
       }
@@ -303,6 +323,7 @@ void vm::run()
       case op_code::jump_if_failed:
       {
         uint32_t target = frame->it.next();
+        // if so: results().back().push_back(return_code::skipped);
       }
       break;
       case op_code::print:
@@ -339,8 +360,7 @@ void vm::run()
         m_frames.pop_back();
         if (m_frames.empty())
         {
-          // TODO Print final results
-          return;
+          return final_result();
         }
         else
         {
@@ -352,14 +372,13 @@ void vm::run()
       {
         println(color::red,
                 std::format("Cuke VM: Missing instruction '{}'", current));
-        m_result = return_code::runtime_error;
-        return;
+        return return_code::runtime_error;
       }
     }
   }
 
-  println(color::red, "Call frame out of range.");
-  m_result = return_code::runtime_error;
+  println(color::red, "Cuke VM: Call frame out of range.");
+  return return_code::runtime_error;
 }
 
 }  // namespace cwt::details
