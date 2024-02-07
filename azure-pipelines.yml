@@ -8,7 +8,7 @@ jobs:
       vmImage: 'windows-latest'
     steps:
     - script: | 
-        choco install -y python3
+        choco install -y python3 --version 3.12.1
         py.exe -m pip install cmake
         py.exe -m pip install conan
       displayName: Install CMake, Conan

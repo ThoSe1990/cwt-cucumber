@@ -322,7 +322,6 @@ return_code vm::run()
         {
           failed_scenarios().push_back(frame->chunk_ptr->name());
         }
-
       }
       break;
       case op_code::call:
