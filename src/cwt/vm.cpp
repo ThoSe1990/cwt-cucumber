@@ -9,7 +9,6 @@
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 
-
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
@@ -44,6 +43,16 @@ return_code vm::final_result() const noexcept
 {
   println();
   println();
+
+  if (failed_scenarios().size() > 0)
+  {
+    println(color::red, "Failed Scenarios: ");
+    for (const std::string& failed : failed_scenarios())
+    {
+      println(color::red, std::format("  {}", failed));
+    }
+    println();
+  }
 
   std::unordered_map<return_code, std::size_t> scenarios =
       get_scenario_results(results());
@@ -119,6 +128,7 @@ void vm::reset()
   after_step().clear();
   results().clear();
   reset_context();
+  failed_scenarios().clear();
 }
 std::vector<step>& vm::steps()
 {
@@ -307,6 +317,12 @@ return_code vm::run()
           results().back().push_back(return_code::undefined);
           runtime_error(std::format("Undefined step '{}'", step_name));
         }
+
+        if (results().back().back() != return_code::passed)
+        {
+          failed_scenarios().push_back(frame->chunk_ptr->name());
+        }
+
       }
       break;
       case op_code::call:
@@ -323,13 +339,10 @@ return_code vm::run()
         std::string step = m_stack.back().copy_as<std::string>();
         pop();
         const return_code step_result = results().back().back();
-        print(to_color(step_result), std::format("{} {}", step_prefix(step_result), step));
+        print(to_color(step_result),
+              std::format("{} {}", step_prefix(step_result), step));
         print("  ");
         println(color::black, file_line);
-      }
-      break;
-      case op_code::scenario_result:
-      {
       }
       break;
       case op_code::jump_if_failed:
@@ -339,7 +352,7 @@ return_code vm::run()
             results().back().back() != return_code::passed)
         {
           results().back().push_back(return_code::skipped);
-          // TODO if compiler already has the target as difference 
+          // TODO if compiler already has the target as difference
           // we don't need to calculate this at runtime
           frame->it += target - frame->chunk_ptr->get_index(frame->it);
         }
@@ -367,7 +380,6 @@ return_code vm::run()
         print("  ");
       }
       break;
-
       case op_code::init_scenario:
       {
         results().push_back({});

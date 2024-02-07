@@ -27,7 +27,7 @@ TEST(compiler_feature, chunk_size)
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 23);
+  EXPECT_EQ(f.get_chunk().size(), 22);
   EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
             testing::internal::GetCapturedStderr());
 }
@@ -70,8 +70,6 @@ TEST(compiler_feature, feature_chunk_code)
 
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_after));
   EXPECT_EQ(f.get_chunk().at(i++), 0);  // tag count (hook)
-
-  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::scenario_result));
 }
 
 TEST(compiler_feature, feature_constants)

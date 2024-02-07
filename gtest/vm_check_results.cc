@@ -4,7 +4,7 @@
 
 using namespace cwt::details;
 
-class vm_run_scenarios : public ::testing::Test
+class vm_check_results : public ::testing::Test
 {
  protected:
   void SetUp() override
@@ -23,7 +23,7 @@ class vm_run_scenarios : public ::testing::Test
   vm test_vm;
 };
 
-TEST_F(vm_run_scenarios, run_simple_scenario)
+TEST_F(vm_check_results, run_simple_scenario)
 {
   const char* script = R"*(
   Feature: First Feature
@@ -45,7 +45,7 @@ TEST_F(vm_run_scenarios, run_simple_scenario)
   EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
-TEST_F(vm_run_scenarios, run_simple_scenario_fails)
+TEST_F(vm_check_results, run_simple_scenario_fails)
 {
   const char* script = R"*(
   Feature: First Feature
@@ -66,7 +66,7 @@ TEST_F(vm_run_scenarios, run_simple_scenario_fails)
   EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
-TEST_F(vm_run_scenarios, simple_scenario_with_undefined_steps)
+TEST_F(vm_check_results, simple_scenario_with_undefined_steps)
 {
   const char* script = R"*(
   Feature: First Feature
@@ -88,7 +88,7 @@ TEST_F(vm_run_scenarios, simple_scenario_with_undefined_steps)
   EXPECT_EQ(1, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
-TEST_F(vm_run_scenarios, run_simple_scenario_fails_steps_skipped_1)
+TEST_F(vm_check_results, run_simple_scenario_fails_steps_skipped_1)
 {
   const char* script = R"*(
   Feature: First Feature
@@ -111,7 +111,36 @@ TEST_F(vm_run_scenarios, run_simple_scenario_fails_steps_skipped_1)
   EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
-TEST_F(vm_run_scenarios, run_simple_scenario_outline)
+TEST_F(vm_check_results, run_simple_scenario_fails_steps_skipped_2)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step with 123
+  Given This fails
+  Given This throws
+  Given This throws
+  # and another one ... 
+  Scenario: Second Scenario
+  Given A Step with 123
+  Given This fails
+  Given This throws
+  Given This throws
+)*";
+
+  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+
+  EXPECT_EQ(2, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(2, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(4, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
+}
+TEST_F(vm_check_results, run_simple_scenario_outline)
 {
   const char* script = R"*(
   Feature: First Feature
@@ -136,3 +165,5 @@ TEST_F(vm_run_scenarios, run_simple_scenario_outline)
   EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
 }
+
+

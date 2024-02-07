@@ -107,7 +107,7 @@ const char* script = R"*(
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 37);
+  EXPECT_EQ(f.get_chunk().size(), 35);
 }
 
 
@@ -155,5 +155,5 @@ const char* script = R"*(
   
   disassemble_chunk(f.get_chunk(), "chunk with matching tags");
 
-  EXPECT_EQ(f.get_chunk().size(), 31);
+  EXPECT_EQ(f.get_chunk().size(), 30);
 }

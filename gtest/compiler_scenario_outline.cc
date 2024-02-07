@@ -91,7 +91,7 @@ TEST(compiler_scenario_outline, parent_feature_code)
 
   disassemble_chunk(f.get_chunk(), "scenario");
 
-  ASSERT_EQ(f.get_chunk().size(), 71);
+  ASSERT_EQ(f.get_chunk().size(), 69);
 
   std::size_t i = 13;  
 
@@ -127,7 +127,6 @@ TEST(compiler_scenario_outline, parent_feature_code)
   EXPECT_EQ(f.get_chunk().at(i++), 11);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::println));
   EXPECT_EQ(f.get_chunk().at(i++), 0);
-  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::scenario_result));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(i++), 12);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));

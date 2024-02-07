@@ -51,4 +51,6 @@ TEST_F(context, set_value)
   cuke::context<bar>().value = 88.8f;
 
   EXPECT_EQ(cuke::context<bar>().value, 88.8f);
+  EXPECT_EQ(cuke::context<std::size_t>(), 11);
+  EXPECT_EQ(cuke::context<foo>().value, 22);
 }

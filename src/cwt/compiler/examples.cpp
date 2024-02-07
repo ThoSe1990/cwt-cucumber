@@ -89,7 +89,6 @@ void examples::create_call(std::size_t scenario_idx)
                                           m_current_row.end.value.length()}));
   m_feature->emit_bytes(op_code::println, to_uint(color::standard));
 
-  m_feature->emit_byte(op_code::scenario_result);
 }
 
 }  // namespace cwt::details::compiler

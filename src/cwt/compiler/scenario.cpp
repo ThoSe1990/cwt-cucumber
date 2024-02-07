@@ -38,7 +38,6 @@ scenario::~scenario()
   m_enclosing->emit_bytes(op_code::call, 0);
   m_enclosing->emit_tags(m_tags);
   m_enclosing->emit_bytes(op_code::hook_after, m_tags.size());
-  m_enclosing->emit_byte(op_code::scenario_result);
 }
 void scenario::compile()
 {
