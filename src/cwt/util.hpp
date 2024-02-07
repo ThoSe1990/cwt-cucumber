@@ -243,7 +243,7 @@ static void println(std::string_view msg) { println(color::standard, msg); }
   return count;
 }
 
-[[nodiscard]] inline void print(
+inline void print(
     const std::unordered_map<return_code, std::size_t>& results)
 {
   bool need_comma = false;
