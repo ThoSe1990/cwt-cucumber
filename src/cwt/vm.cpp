@@ -108,6 +108,7 @@ void vm::reset()
   after().clear();
   before_step().clear();
   after_step().clear();
+  results().clear();
 }
 std::vector<step>& vm::steps()
 {
@@ -150,10 +151,9 @@ std::vector<std::vector<return_code>>& vm::results()
   static std::vector<std::vector<return_code>> instance;
   return instance;
 }
-void vm::push_scenario_to_result() { results().push_back({}); }
-void vm::push_step_result(return_code result)
+void vm::current_step_failed()
 {
-  results().back().push_back(result);
+  results().back().back() = return_code::failed;
 }
 
 void vm::runtime_error(std::string_view msg)
@@ -351,7 +351,7 @@ return_code vm::run()
 
       case op_code::init_scenario:
       {
-        vm::push_scenario_to_result();
+        results().push_back({});
       }
       break;
       case op_code::func_return:

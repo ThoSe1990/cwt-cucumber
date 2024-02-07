@@ -11,6 +11,8 @@ class vm_run_scenarios : public ::testing::Test
   {
     test_vm = vm();
     test_vm.push_step(step([](argc, argv) {}, "A Step with {int}"));
+    test_vm.push_step(
+        step([](argc, argv) { cuke::is_true(false); }, "This fails"));
   }
 
   void TearDown() override { test_vm.reset(); }
@@ -31,6 +33,17 @@ TEST_F(vm_run_scenarios, run_simple_scenario)
   // EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
   //           testing::internal::GetCapturedStderr());
   // testing::internal::GetCapturedStdout();
+}
+TEST_F(vm_run_scenarios, run_simple_scenario_fails)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step with 123
+  Given This fails
+)*";
+
+  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
 }
 TEST_F(vm_run_scenarios, run_simple_scenario_outline)
 {
