@@ -66,6 +66,28 @@ TEST_F(vm_run_scenarios, run_simple_scenario_fails)
   EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
+TEST_F(vm_run_scenarios, simple_scenario_with_undefined_steps)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step with 123
+  * This is not implemented
+  * This throws
+)*";
+
+  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(1, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
+}
 TEST_F(vm_run_scenarios, run_simple_scenario_fails_steps_skipped_1)
 {
   const char* script = R"*(

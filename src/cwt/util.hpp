@@ -331,4 +331,20 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
   return result;
 }
 
+[[nodiscard]] inline std::string step_prefix(return_code rc)
+{
+  switch (rc)
+  {
+    case return_code::passed:
+      return std::string("[   PASSED    ]");
+    case return_code::failed:
+      return std::string("[   FAILED    ]");
+    case return_code::skipped:
+      return std::string("[   SKIPPED   ]");
+    case return_code::undefined:
+      return std::string("[  UNDEFINED  ]");
+    default:
+      return std::string("");
+  }
+}\
 }  // namespace cwt::details
