@@ -59,6 +59,7 @@ class chunk
     uint32_t next();
     op_code next_as_instruction();
     const_iterator& operator++();
+    chunk::const_iterator& operator+=(const int32_t n);
     bool operator==(const const_iterator& rhs) const;
     bool operator!=(const const_iterator& rhs) const;
 
@@ -68,6 +69,7 @@ class chunk
 
   std::size_t get_index(chunk::const_iterator iter) const;
   const_iterator cbegin() const;
+  const_iterator cbegin(uint32_t pos) const;
   const_iterator cend() const;
 
  private:

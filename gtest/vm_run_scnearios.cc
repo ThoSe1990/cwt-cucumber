@@ -11,6 +11,9 @@ class vm_run_scenarios : public ::testing::Test
   {
     test_vm = vm();
     test_vm.push_step(step([](argc, argv) {}, "A Step with {int}"));
+    test_vm.push_step(step(
+        [](argc, argv) { throw std::runtime_error("This shall not happen!"); },
+        "This throws"));
     test_vm.push_step(
         step([](argc, argv) { cuke::is_true(false); }, "This fails"));
   }
@@ -29,10 +32,18 @@ TEST_F(vm_run_scenarios, run_simple_scenario)
 )*";
 
   EXPECT_EQ(return_code::passed, test_vm.interpret(script));
-  // testing::internal::CaptureStderr();
-  // EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
-  //           testing::internal::GetCapturedStderr());
-  // testing::internal::GetCapturedStdout();
+
+  EXPECT_EQ(4, test_vm.scenario_results().size());
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(4, test_vm.step_results().size());
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
 TEST_F(vm_run_scenarios, run_simple_scenario_fails)
 {
@@ -44,6 +55,39 @@ TEST_F(vm_run_scenarios, run_simple_scenario_fails)
 )*";
 
   EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+
+  EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
+}
+TEST_F(vm_run_scenarios, run_simple_scenario_fails_steps_skipped_1)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step with 123
+  Given This fails
+  Given This throws
+  Given This throws
+)*";
+
+  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+
+  EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(2, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
 TEST_F(vm_run_scenarios, run_simple_scenario_outline)
 {
@@ -59,9 +103,14 @@ TEST_F(vm_run_scenarios, run_simple_scenario_outline)
 )*";
 
   EXPECT_EQ(return_code::passed, test_vm.interpret(script));
-  // testing::internal::CaptureStderr();
-  // EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
-  //           testing::internal::GetCapturedStderr());
-  // testing::internal::CaptureStdout();
-  // testing::internal::GetCapturedStdout();
+
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::undefined));
+  EXPECT_EQ(2, test_vm.scenario_results().at(return_code::passed));
+
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::failed));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::skipped));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::undefined));
+  EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
 }

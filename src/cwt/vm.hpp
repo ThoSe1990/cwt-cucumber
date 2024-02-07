@@ -36,6 +36,9 @@ class vm
 
   static void current_step_failed();
 
+  const std::unordered_map<return_code, std::size_t> scenario_results() const;
+  const std::unordered_map<return_code, std::size_t> step_results() const;
+
  private:
   [[nodiscard]] static std::vector<step>& steps();
   [[nodiscard]] static std::vector<hook>& before();

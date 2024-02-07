@@ -8,6 +8,7 @@
 #include "compiler/cucumber.hpp"
 #include "hooks.hpp"
 
+
 #ifdef PRINT_STACK
 #include "debug.hpp"
 #endif
@@ -30,7 +31,14 @@ return_code vm::interpret(std::string_view source)
     return return_code::compile_error;
   }
 }
-
+const std::unordered_map<return_code, std::size_t> vm::scenario_results() const
+{
+  return get_scenario_results(results());
+}
+const std::unordered_map<return_code, std::size_t> vm::step_results() const
+{
+  return get_step_results(results());
+}
 return_code vm::final_result() const noexcept
 {
   println();
@@ -323,7 +331,14 @@ return_code vm::run()
       case op_code::jump_if_failed:
       {
         uint32_t target = frame->it.next();
-        // if so: results().back().push_back(return_code::skipped);
+        if (!results().back().empty() &&
+            results().back().back() != return_code::passed)
+        {
+          results().back().push_back(return_code::skipped);
+          // TODO if compiler already has the target as difference 
+          // we don't need to calculate this at runtime
+          frame->it += target - frame->chunk_ptr->get_index(frame->it);
+        }
       }
       break;
       case op_code::print:

@@ -60,6 +60,10 @@ chunk::const_iterator chunk::cbegin() const
 {
   return chunk::const_iterator(m_code.cbegin());
 }
+chunk::const_iterator chunk::cbegin(uint32_t pos) const
+{
+  return chunk::const_iterator(m_code.cbegin() + pos);
+}
 chunk::const_iterator chunk::cend() const
 {
   return chunk::const_iterator(m_code.cend());
@@ -77,7 +81,6 @@ uint32_t chunk::operator[](std::size_t index) const
     throw std::out_of_range("Chunk Operator[]: Byte out of range");
   }
 }
-
 std::size_t chunk::get_index(chunk::const_iterator iter) const
 {
   return std::distance(cbegin(), iter);
@@ -95,6 +98,12 @@ chunk::const_iterator& chunk::const_iterator::operator++()
   ++m_current;
   return *this;
 }
+chunk::const_iterator& chunk::const_iterator::operator+=(const int32_t n)
+{
+  m_current += n;
+  return *this;
+}
+
 bool chunk::const_iterator::operator==(const chunk::const_iterator& rhs) const
 {
   return m_current == rhs.m_current;
