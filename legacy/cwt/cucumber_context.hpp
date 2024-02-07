@@ -113,7 +113,7 @@ namespace cuke {
       return sc;
     }
   
-    inline void reset_scenario_context(int, cuke_value*)
+    inline void reset_context(int, cuke_value*)
     {
       get_context().clear();
     }

@@ -4,9 +4,10 @@
 #include "vm.hpp"
 #include "util.hpp"
 #include "chunk.hpp"
+#include "hooks.hpp"
+#include "context.hpp"
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
-#include "hooks.hpp"
 
 
 #ifdef PRINT_STACK
@@ -117,6 +118,7 @@ void vm::reset()
   before_step().clear();
   after_step().clear();
   results().clear();
+  reset_context();
 }
 std::vector<step>& vm::steps()
 {
@@ -271,6 +273,7 @@ return_code vm::run()
       break;
       case op_code::reset_context:
       {
+        reset_context();
       }
       break;
       case op_code::call_step:

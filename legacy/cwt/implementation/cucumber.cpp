@@ -48,7 +48,7 @@ namespace cuke::details
     {
         cuke_hook(h.name, h.function, h.tag_expression);
     }
-    cuke_hook("reset_context", reset_scenario_context, "");
+    cuke_hook("reset_context", reset_context, "");
   }
 
   cuke_result runner::run(int argc, const char* argv[])

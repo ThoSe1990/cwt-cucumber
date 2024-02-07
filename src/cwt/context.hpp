@@ -98,7 +98,7 @@ inline scenario_context& get_context()
   return sc;
 }
 
-inline void reset_scenario_context() { get_context().clear(); }
+inline void reset_context() { get_context().clear(); }
 
 }  // namespace cwt::details
 
