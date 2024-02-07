@@ -32,6 +32,23 @@ class parser
   {
     return !check(type) && !check(args...);
   }
+
+  template <typename... Args>
+  void advance_until_line_starts_with(Args... args)
+  {
+    while (!check(token_type::eof))
+    {
+      advance_to(token_type::linebreak, token_type::eof);
+      if (match(token_type::linebreak))
+      {
+        if (check(std::forward<Args>(args)...))
+        {
+          return;
+        }
+      }
+    }
+  }
+
   template <typename... Args>
   [[nodiscard]] bool match(token_type type, Args... args) noexcept
   {

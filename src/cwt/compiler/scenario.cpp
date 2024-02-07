@@ -21,7 +21,7 @@ void scenario::init()
   auto [name_idx, location_idx] = create_name_and_location();
   emit_byte(op_code::print_linebreak);
   print_name_and_location(name_idx, location_idx);
-  m_parser->advance();
+  m_parser->advance_until_line_starts_with(token_type::step);
   emit_byte(op_code::init_scenario);
 }
 
@@ -52,6 +52,7 @@ void scenario::compile()
     else
     {
       m_parser->error_at(m_parser->current(), "Expect StepLine");
+      return;
     }
     m_parser->skip_linebreaks();
   } while (m_parser->is_none_of(token_type::scenario,

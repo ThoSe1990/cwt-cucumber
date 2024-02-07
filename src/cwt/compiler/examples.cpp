@@ -7,8 +7,8 @@ namespace cwt::details::compiler
 examples::examples(feature* f, const value_array& tags)
     : m_feature(f), m_tags(tags)
 {
-  m_feature->get_parser().advance();
-  m_feature->get_parser().skip_linebreaks();
+  m_feature->get_parser().advance_until_line_starts_with(token_type::vertical,
+                                                         token_type::eof);
 }
 void examples::header()
 {
@@ -83,9 +83,10 @@ void examples::create_call(std::size_t scenario_idx)
                   m_header.end.value.data() + m_header.end.value.length()}));
   m_feature->emit_bytes(op_code::print, to_uint(color::standard));
 
-  m_feature->emit_constant(std::format("  {}",std::string{
-      m_current_row.begin.value.data(),
-      m_current_row.end.value.data() + m_current_row.end.value.length()}));
+  m_feature->emit_constant(
+      std::format("  {}", std::string{m_current_row.begin.value.data(),
+                                      m_current_row.end.value.data() +
+                                          m_current_row.end.value.length()}));
   m_feature->emit_bytes(op_code::println, to_uint(color::standard));
 
   m_feature->emit_byte(op_code::scenario_result);

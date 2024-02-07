@@ -22,11 +22,12 @@ TEST(compiler_ignore_descriptions, feature_description)
   compiler::cucumber cuke(script);
   cuke.compile();
 
-  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get(); 
+  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get();
   disassemble_chunk(cuke.get_chunk(), "script");
   disassemble_chunk(*feature_chunk, "feature");
+  EXPECT_TRUE(cuke.no_error());
 }
-TEST(compiler_ignore_descriptions, sccenario_description)
+TEST(compiler_ignore_descriptions, scenario_description)
 {
   const char* script = R"*(
   Feature: Hello World
@@ -43,11 +44,12 @@ TEST(compiler_ignore_descriptions, sccenario_description)
   compiler::cucumber cuke(script);
   cuke.compile();
 
-  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get(); 
+  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get();
   disassemble_chunk(cuke.get_chunk(), "script");
   disassemble_chunk(*feature_chunk, "feature");
+  EXPECT_TRUE(cuke.no_error());
 }
-TEST(compiler_ignore_descriptions, sccenario_outline_description)
+TEST(compiler_ignore_descriptions, scenario_outline_description)
 {
   const char* script = R"*(
   Feature: Hello World
@@ -57,16 +59,22 @@ TEST(compiler_ignore_descriptions, sccenario_outline_description)
     Some Scenario Description here ... 
   Scenario Outline: A Scenario
     Some teext here 
-    with keywords too: Given When 
-  Given A step
+    with keywords too: Given When and some other stuff...
+  Given A step with a <value> here 
 )*";
+
+  testing::internal::CaptureStderr();
 
   compiler::cucumber cuke(script);
   cuke.compile();
 
-  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get(); 
-  disassemble_chunk(cuke.get_chunk(), "script");
-  disassemble_chunk(*feature_chunk, "feature");
+  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get();
+
+  EXPECT_TRUE(cuke.error());
+  EXPECT_EQ(
+      std::string("[line 11] Error at end: Expect StepLine, Tags or "
+                  "Examples\n[line 11] Error at end: Expect Examples table\n"),
+      testing::internal::GetCapturedStderr());
 }
 
 TEST(compiler_ignore_descriptions, examples_description)
@@ -92,7 +100,8 @@ TEST(compiler_ignore_descriptions, examples_description)
   compiler::cucumber cuke(script);
   cuke.compile();
 
-  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get(); 
+  chunk* feature_chunk = cuke.get_chunk().constant(0).as<function>().get();
   disassemble_chunk(cuke.get_chunk(), "script");
   disassemble_chunk(*feature_chunk, "feature");
+  EXPECT_TRUE(cuke.no_error());
 }
