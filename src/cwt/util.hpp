@@ -265,34 +265,27 @@ inline void print(
   println(")");
 }
 
-struct results_count
-{
-  long long passed;
-  long long failed;
-  long long skipped;
-  long long undefined;
-};
 
-[[nodiscard]] inline results_count count_results(
+[[nodiscard]] inline auto count_results(
     const std::vector<return_code>& scenario)
 {
-  return {std::count(scenario.begin(), scenario.end(), return_code::passed),
+  return std::make_tuple(std::count(scenario.begin(), scenario.end(), return_code::passed),
           std::count(scenario.begin(), scenario.end(), return_code::failed),
           std::count(scenario.begin(), scenario.end(), return_code::skipped),
-          std::count(scenario.begin(), scenario.end(), return_code::undefined)};
+          std::count(scenario.begin(), scenario.end(), return_code::undefined));
 }
 
-[[nodiscard]] inline return_code scenario_result(const results_count r)
+[[nodiscard]] inline return_code scenario_result(std::size_t passed, std::size_t failed, std::size_t skipped, std::size_t undefined)
 {
-  if (r.failed > 0)
+  if (failed > 0)
   {
     return return_code::failed;
   }
-  else if (r.skipped > 0)
+  else if (skipped > 0)
   {
     return return_code::skipped;
   }
-  else if (r.undefined > 0)
+  else if (undefined > 0)
   {
     return return_code::undefined;
   }
@@ -313,7 +306,7 @@ get_scenario_results(const std::vector<std::vector<return_code>>& scenarios)
   for (const std::vector<return_code>& s : scenarios)
   {
     auto [passed, failed, skipped, undefined] = count_results(s);
-    return_code current = scenario_result({passed, failed, skipped, undefined});
+    return_code current = scenario_result(passed, failed, skipped, undefined);
     result[current]++;
   }
   return result;
