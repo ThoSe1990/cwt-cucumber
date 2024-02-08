@@ -55,14 +55,13 @@ enum class color
   black
 };
 
-} // namespace cwt::details
+}  // namespace cwt::details
 
 #include "token.hpp"
 #include "value.hpp"
 
 namespace cwt::details
 {
-
 
 template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
@@ -376,7 +375,7 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
 }
 
 [[nodiscard]] inline std::pair<std::string, std::vector<unsigned long>>
-filepath_and_lines(const std::string& str)
+filepath_and_lines(std::string_view str)
 {
   std::vector<unsigned long> lines;
   long pos = str.size();
@@ -384,20 +383,19 @@ filepath_and_lines(const std::string& str)
   while (pos > 0)
   {
     pos = str.rfind(':', pos);
-    const std::string substr = str.substr(pos+1, last_pos - pos); 
+    std::string_view substr = str.substr(pos + 1, last_pos - pos);
     if (is_number(substr))
     {
-      lines.push_back(std::stoul(substr));
+      lines.push_back(std::stoul(substr.data()));
     }
-    else 
+    else
     {
       break;
     }
     --pos;
     last_pos = pos;
   }
-  return std::make_pair(str.substr(0, last_pos+1), lines);
+  return std::make_pair(std::string{str.substr(0, last_pos + 1)}, lines);
 }
-
 
 }  // namespace cwt::details
