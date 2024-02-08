@@ -5,7 +5,7 @@
 namespace cwt::details
 {
 
-template <typename T>
+template <typename T, typename = void>
 struct conversion_impl
 {
 };
@@ -61,14 +61,61 @@ inline conversion get_arg(argc n, argv values, std::size_t idx,
   }
 }
 
-template <>
-struct conversion_impl<int>
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
 {
-  static int get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  {
+    static_assert(
+        !std::is_same_v<T, long long>,
+        "Value access: long long is not supported. Underlying type is long");
+    static_assert(
+        !std::is_same_v<T, unsigned long long>,
+        "Value access: long long is not supported. Underlying type is long");
+    if (v.type() == value_type::integral)
+    {
+      return v.copy_as<T>();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not an integral type", file, line));
+    }
+  }
+};
+
+template <>
+struct conversion_impl<std::size_t>
+{
+  static std::size_t get_arg(const value& v, std::string_view file,
+                             std::size_t line)
   {
     if (v.type() == value_type::integral)
     {
-      return v.copy_as<int>();
+      return v.copy_as<unsigned long>();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not an integral type", file, line));
+    }
+  }
+};
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T>>>
+{
+  static double get_arg(const value& v, std::string_view file, std::size_t line)
+  {
+    static_assert(
+        !std::is_same_v<T, long long>,
+        "Value access: long long is not supported. Underlying type is long");
+    static_assert(
+        !std::is_same_v<T, unsigned long long>,
+        "Value access: long long is not supported. Underlying type is long");
+    if (v.type() == value_type::floating)
+    {
+      return v.copy_as<double>();
     }
     else
     {
