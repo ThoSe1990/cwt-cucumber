@@ -375,18 +375,18 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
 }
 
 [[nodiscard]] inline std::pair<std::string, std::vector<unsigned long>>
-filepath_and_lines(std::string_view str)
+filepath_and_lines(std::string_view sv)
 {
   std::vector<unsigned long> lines;
-  long pos = str.size();
+  long pos = sv.size();
   long last_pos = pos;
   while (pos > 0)
   {
-    pos = str.rfind(':', pos);
-    std::string_view substr = str.substr(pos + 1, last_pos - pos);
-    if (is_number(substr))
+    pos = sv.rfind(':', pos);
+    const std::string_view sub = sv.substr(pos + 1, last_pos - pos);
+    if (is_number(sub))
     {
-      lines.push_back(std::stoul(substr.data()));
+      lines.push_back(std::stoul(sub.data()));
     }
     else
     {
@@ -395,7 +395,7 @@ filepath_and_lines(std::string_view str)
     --pos;
     last_pos = pos;
   }
-  return std::make_pair(std::string{str.substr(0, last_pos + 1)}, lines);
+  return std::make_pair(std::string{sv.substr(0, last_pos + 1)}, lines);
 }
 
 }  // namespace cwt::details
