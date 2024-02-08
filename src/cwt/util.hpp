@@ -5,9 +5,6 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "token.hpp"
-#include "value.hpp"
-
 namespace cwt::details
 {
 
@@ -57,6 +54,15 @@ enum class color
   blue,
   black
 };
+
+} // namespace cwt::details
+
+#include "token.hpp"
+#include "value.hpp"
+
+namespace cwt::details
+{
+
 
 template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
@@ -356,4 +362,42 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
       return std::string("");
   }
 }
+
+[[nodiscard]] inline bool is_number(std::string_view sv)
+{
+  for (const char& c : sv)
+  {
+    if (c < '0' || c > '9')
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+[[nodiscard]] inline std::pair<std::string, std::vector<unsigned long>>
+filepath_and_lines(const std::string& str)
+{
+  std::vector<unsigned long> lines;
+  long pos = str.size();
+  long last_pos = pos;
+  while (pos > 0)
+  {
+    pos = str.rfind(':', pos);
+    const std::string substr = str.substr(pos+1, last_pos - pos); 
+    if (is_number(substr))
+    {
+      lines.push_back(std::stoul(substr));
+    }
+    else 
+    {
+      break;
+    }
+    --pos;
+    last_pos = pos;
+  }
+  return std::make_pair(str.substr(0, last_pos+1), lines);
+}
+
+
 }  // namespace cwt::details
