@@ -16,6 +16,7 @@ class step_finder
   void reset_with_next_step(std::string_view defined) noexcept;
   [[nodiscard]] bool step_matches();
   [[nodiscard]] std::size_t values_count() const noexcept;
+  [[nodiscard]] value& get_value(std::size_t idx); 
   template <typename Callback>
   void for_each_value(Callback&& cb)
   {

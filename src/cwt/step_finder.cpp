@@ -17,6 +17,19 @@ std::size_t step_finder::values_count() const noexcept
 {
   return m_values.size();
 }
+
+value& step_finder::get_value(std::size_t idx) 
+{
+  if (idx < m_values.size())
+  {
+    return m_values[idx];
+  }
+  else 
+  {
+    throw std::out_of_range("step_finder::get_value: Index out of range");
+  }
+}
+
 void step_finder::reset_with_next_step(std::string_view defined) noexcept
 {
   m_feature.reset();
@@ -50,11 +63,21 @@ bool step_finder::step_matches()
         return false;
       }
     }
+    else if (is_at_end(defined) && feature.type == token_type::linebreak)
+    {
+      feature = m_feature.scan_token();
+      if (feature.type == token_type::doc_string)
+      {
+        m_values.push_back(token_to_value(feature, false));
+      }
+      feature = m_feature.scan_token();
+    }
     else if (is_not_equal(defined, feature))
     {
       return false;
     }
-    else if (is_at_end(defined) && is_at_end(feature))
+    
+    if (is_at_end(defined) && is_at_end(feature))
     {
       return true;
     }

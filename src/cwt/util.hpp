@@ -159,6 +159,7 @@ static void println(std::string_view msg) { println(color::standard, msg); }
       return value(v);
     }
     break;
+    case token_type::doc_string:
     case token_type::string_value:
     {
       if (t.value.starts_with('"') && t.value.ends_with('"'))
