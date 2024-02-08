@@ -19,8 +19,8 @@ TEST(token, token_2)
   token t = scanner("\"\"\"\nhello doc string\n   \"\"\"").scan_token();
   EXPECT_EQ(t.type, token_type::doc_string);
   EXPECT_EQ(t.line, 2);
-  EXPECT_EQ(t.value.size(), std::string_view("hello doc string").size());
-  EXPECT_EQ(t.value, std::string_view("hello doc string"));
+  EXPECT_EQ(t.value.size(), std::string_view("\"\"\"\nhello doc string\n   \"\"\"").size());
+  EXPECT_EQ(t.value, std::string_view("\"\"\"\nhello doc string\n   \"\"\""));
 }
 
 TEST(scanner, scan_vertical) { token t = scanner("|").scan_token(); }

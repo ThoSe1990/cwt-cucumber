@@ -135,6 +135,17 @@ static void println(color c, std::string_view mgs)
 static void println() { std::cout << '\n'; }
 static void println(std::string_view msg) { println(color::standard, msg); }
 
+static constexpr std::string replace(const token& t, std::string_view r)
+{
+  std::string str{t.value};
+  size_t pos;
+  while ((pos = str.find(r)) != std::string::npos)
+  {
+    str.replace(pos, r.size(), "");
+  }
+  return str;
+}
+
 [[nodiscard]] static value token_to_value(const token& t, bool negative)
 {
   switch (t.type)
@@ -160,18 +171,13 @@ static void println(std::string_view msg) { println(color::standard, msg); }
     }
     break;
     case token_type::doc_string:
+    {
+      return value(replace(t, "\"\"\""));
+    }
+    break;
     case token_type::string_value:
     {
-      if (t.value.starts_with('"') && t.value.ends_with('"'))
-      {
-        const auto without_quotes = [&t]()
-        { return value(std::string(t.value.substr(1, t.value.size() - 2))); };
-        return without_quotes();
-      }
-      else
-      {
-        return value(std::string(t.value));
-      }
+      return value(replace(t, "\""));
     }
     break;
     default:
@@ -245,8 +251,7 @@ static void println(std::string_view msg) { println(color::standard, msg); }
   return count;
 }
 
-inline void print(
-    const std::unordered_map<return_code, std::size_t>& results)
+inline void print(const std::unordered_map<return_code, std::size_t>& results)
 {
   bool need_comma = false;
   print(" (");
@@ -266,17 +271,20 @@ inline void print(
   println(")");
 }
 
-
 [[nodiscard]] inline auto count_results(
     const std::vector<return_code>& scenario)
 {
-  return std::make_tuple(std::count(scenario.begin(), scenario.end(), return_code::passed),
-          std::count(scenario.begin(), scenario.end(), return_code::failed),
-          std::count(scenario.begin(), scenario.end(), return_code::skipped),
-          std::count(scenario.begin(), scenario.end(), return_code::undefined));
+  return std::make_tuple(
+      std::count(scenario.begin(), scenario.end(), return_code::passed),
+      std::count(scenario.begin(), scenario.end(), return_code::failed),
+      std::count(scenario.begin(), scenario.end(), return_code::skipped),
+      std::count(scenario.begin(), scenario.end(), return_code::undefined));
 }
 
-[[nodiscard]] inline return_code scenario_result(std::size_t passed, std::size_t failed, std::size_t skipped, std::size_t undefined)
+[[nodiscard]] inline return_code scenario_result(std::size_t passed,
+                                                 std::size_t failed,
+                                                 std::size_t skipped,
+                                                 std::size_t undefined)
 {
   if (failed > 0)
   {
@@ -347,5 +355,5 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
     default:
       return std::string("");
   }
-}\
+}
 }  // namespace cwt::details

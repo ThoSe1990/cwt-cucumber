@@ -27,6 +27,12 @@ class step
     advance_to_linebreak();
     token end = m_parent->get_parser().previous();
 
+    m_parent->get_parser().skip_linebreaks();
+    if (m_parent->get_parser().match(token_type::doc_string))
+    {
+      end = m_parent->get_parser().previous();
+    }
+    
     std::size_t name_idx =
         m_parent->get_chunk().make_constant(create_string(m_begin, end));
 

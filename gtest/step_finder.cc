@@ -150,7 +150,7 @@ which just follows after the step!
   ASSERT_TRUE(sf.step_matches());
   EXPECT_EQ(
       sf.get_value(0).as<std::string>(),
-      std::string("this is a doc string\nwhich just follows after the step!"));
+      std::string("\nthis is a doc string\nwhich just follows after the step!\n"));
 }
 TEST(step_finder, multiple_values)
 {
@@ -171,5 +171,5 @@ seven
 """)*";
   step_finder sf("{int} and {double} and {float} and {byte} and {string} and {short}", doc_string_step);
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(6).as<std::string>(), std::string("seven"));
+  EXPECT_EQ(sf.get_value(6).as<std::string>(), std::string("\nseven\n"));
 }

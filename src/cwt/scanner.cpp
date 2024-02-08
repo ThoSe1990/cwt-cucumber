@@ -113,9 +113,7 @@ char scanner::peek_next() const
 }
 bool scanner::is_alpha(char c) const noexcept
 {
-  return  (c >= 'a' && c <= 'z') ||
-          (c >= 'A' && c <= 'Z') ||
-          c == '_';
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 bool scanner::is_at_end() const { return m_pos >= m_source.size(); }
 bool scanner::tripple_quotes() const
@@ -254,14 +252,14 @@ token scanner::string()
 }
 token scanner::doc_string()
 {
-  const std::size_t start = m_pos;
-  std::size_t end = m_pos;
+  const std::size_t start = m_start;
+  advance();
+  advance();
+  advance();
   while (!tripple_quotes())
   {
     if (end_of_line())
     {
-      end = m_pos;
-      if (peek() == '\r') end--;
       m_line++;
     }
     advance();
@@ -276,6 +274,7 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
+  const std::size_t end = m_pos;
   return make_token(token_type::doc_string, start, end);
 }
 
@@ -379,9 +378,6 @@ token scanner::scan_token()
     {
       if (peek() == '"' && peek_next() == '"')
       {
-        advance();
-        advance();
-        advance();
         return doc_string();
       }
       else
@@ -409,10 +405,11 @@ token scanner::scan_token()
     }
   }
 
-  auto [identifier, length] = m_identifiers->get_token(m_source.substr(m_pos - 1));
+  auto [identifier, length] =
+      m_identifiers->get_token(m_source.substr(m_pos - 1));
   if (identifier != token_type::none)
   {
-    m_pos += length-1;
+    m_pos += length - 1;
     return make_token(identifier);
   }
 

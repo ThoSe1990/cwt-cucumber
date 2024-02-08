@@ -105,14 +105,8 @@ struct conversion_impl<std::size_t>
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
-  static double get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const value& v, std::string_view file, std::size_t line)
   {
-    static_assert(
-        !std::is_same_v<T, long long>,
-        "Value access: long long is not supported. Underlying type is long");
-    static_assert(
-        !std::is_same_v<T, unsigned long long>,
-        "Value access: long long is not supported. Underlying type is long");
     if (v.type() == value_type::floating)
     {
       return v.copy_as<double>();
@@ -120,7 +114,25 @@ struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T>>>
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not an integral type", file, line));
+          std::format("{}:{}: Value is not a floating point type", file, line));
+    }
+  }
+};
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
+                                    std::is_convertible_v<T, std::string_view>>>
+{
+  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  {
+    if (v.type() == value_type::string)
+    {
+      return v.as<std::string>();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not an string type", file, line));
     }
   }
 };
