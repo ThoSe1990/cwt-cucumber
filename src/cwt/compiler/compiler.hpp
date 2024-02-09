@@ -39,6 +39,7 @@ class compiler
   [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
 
   void set_options(const options& opts);
+  const options& get_options() const;
 
   void read_tags();
   [[nodiscard]] value_array take_latest_tags();

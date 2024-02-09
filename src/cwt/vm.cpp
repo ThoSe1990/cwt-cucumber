@@ -17,10 +17,16 @@
 
 namespace cwt::details
 {
-vm::vm(const options& opts) : m_options(opts) {}
-vm::vm(int argc, const char* argv[])
-    : m_options(terminal_arguments(argc, argv).get_options())
+options vm::m_options{};
+
+vm::vm(const options& opts)  // : m_options(opts)
 {
+  m_options = opts;
+}
+vm::vm(int argc, const char* argv[])
+// : m_options(terminal_arguments(argc, argv).get_options())
+{
+  m_options = terminal_arguments(argc, argv).get_options();
 }
 
 return_code vm::run() { return run(m_options.files); }
@@ -42,6 +48,7 @@ return_code vm::run(const std::vector<cwt::details::feature_file>& files)
   return result;
 }
 void vm::set_options(const options& opts) { m_options = opts; }
+const options& vm::get_options() { return m_options; }
 return_code vm::interpret(std::string_view source)
 {
   compiler::cucumber c(source);
@@ -145,6 +152,7 @@ void vm::pop(std::size_t count)
     m_stack.pop_back();
   }
 }
+// TODO call reset in destructor? 
 void vm::reset()
 {
   steps().clear();
@@ -155,6 +163,7 @@ void vm::reset()
   results().clear();
   reset_context();
   failed_scenarios().clear();
+  m_options = options{};
 }
 std::vector<step>& vm::steps()
 {

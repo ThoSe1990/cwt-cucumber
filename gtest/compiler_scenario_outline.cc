@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "../src/cwt/compiler/scenario_outline.hpp"
-#define PRINT_STACK 1 
+#define PRINT_STACK 1
 #include "../src/cwt/debug.hpp"
-
-
 
 using namespace cwt::details;
 
@@ -29,7 +27,7 @@ TEST(compiler_scenario_outline, scenarios_code)
   compiler::scenario_outline s(&f);
   s.compile();
   ASSERT_EQ(s.get_chunk().size(), 27);
-  
+
   std::size_t i = 0;
 
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_linebreak));
@@ -71,7 +69,8 @@ TEST(compiler_scenario_outline, scenarios_constants)
   EXPECT_EQ(s.get_chunk().constant(0).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(0).as<std::string>(), ":3");
   EXPECT_EQ(s.get_chunk().constant(1).type(), value_type::string);
-  EXPECT_EQ(s.get_chunk().constant(1).as<std::string>(), "Scenario Outline: A Scenario");
+  EXPECT_EQ(s.get_chunk().constant(1).as<std::string>(),
+            "Scenario Outline: A Scenario");
   EXPECT_EQ(s.get_chunk().constant(2).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(2).as<std::string>(), ":4");
   EXPECT_EQ(s.get_chunk().constant(3).type(), value_type::string);
@@ -79,7 +78,8 @@ TEST(compiler_scenario_outline, scenarios_constants)
   EXPECT_EQ(s.get_chunk().constant(4).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(4).as<std::string>(), "second var");
   EXPECT_EQ(s.get_chunk().constant(5).type(), value_type::string);
-  EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(), "A Step with <first var> and <second var>");
+  EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(),
+            "A Step with <first var> and <second var>");
 }
 
 TEST(compiler_scenario_outline, parent_feature_code)
@@ -91,9 +91,9 @@ TEST(compiler_scenario_outline, parent_feature_code)
 
   disassemble_chunk(f.get_chunk(), "scenario");
 
-  ASSERT_EQ(f.get_chunk().size(), 69);
+  ASSERT_EQ(f.get_chunk().size(), 72);
 
-  std::size_t i = 13;  
+  std::size_t i = 14;
 
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(i++), 5);
@@ -111,6 +111,7 @@ TEST(compiler_scenario_outline, parent_feature_code)
   EXPECT_EQ(f.get_chunk().at(i++), 9);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::set_var));
   EXPECT_EQ(f.get_chunk().at(i++), 6);
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::reset_context));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_before));
   EXPECT_EQ(f.get_chunk().at(i++), 0);
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::get_var));
@@ -147,7 +148,8 @@ TEST(compiler_scenario_outline, parent_feature_constants)
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(), "Feature: Hello World");
+  EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
+            "Feature: Hello World");
   EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
   EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), ":3");
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);

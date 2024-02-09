@@ -23,6 +23,7 @@ compiler::compiler(std::string_view source, std::string_view filename)
       m_chunk("script")
 {
 }
+const options& compiler::get_options() const { return *m_options.get(); }
 void compiler::set_options(const options& opts)
 {
   m_options = std::make_shared<options>(opts);
@@ -41,7 +42,6 @@ void compiler::finish_chunk() noexcept
   }
 #endif
 }
-
 
 value_array compiler::take_latest_tags()
 {
@@ -79,12 +79,15 @@ std::pair<std::size_t, std::size_t> compiler::create_name_and_location()
 void compiler::print_name_and_location(std::size_t name_idx,
                                        std::size_t location_idx)
 {
-  
-  emit_bytes(op_code::constant, name_idx);
-  emit_bytes(op_code::print, to_uint(color::standard));
-  emit_byte(op_code::print_indent);
-  emit_bytes(op_code::constant, location_idx);
-  emit_bytes(op_code::println, to_uint(color::black));
+  if (!m_options->quiet)
+  {
+    emit_byte(op_code::print_linebreak);
+    emit_bytes(op_code::constant, name_idx);
+    emit_bytes(op_code::print, to_uint(color::standard));
+    emit_byte(op_code::print_indent);
+    emit_bytes(op_code::constant, location_idx);
+    emit_bytes(op_code::println, to_uint(color::black));
+  }
 }
 
 void compiler::emit_byte(uint32_t byte)

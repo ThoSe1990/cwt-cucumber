@@ -13,9 +13,11 @@ TEST(compiler_feature, chunk_size_wo_scenario)
   compiler::cucumber cuke("Feature: Hello World");
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 9);
+  EXPECT_EQ(f.get_chunk().size(), 10);
   EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
             testing::internal::GetCapturedStderr());
+
+  disassemble_chunk(f.get_chunk(), "feature");
 }
 TEST(compiler_feature, chunk_size)
 {
@@ -27,7 +29,7 @@ TEST(compiler_feature, chunk_size)
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   f.compile();
-  EXPECT_EQ(f.get_chunk().size(), 22);
+  EXPECT_EQ(f.get_chunk().size(), 23);
   EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
             testing::internal::GetCapturedStderr());
 }
@@ -44,6 +46,7 @@ TEST(compiler_feature, feature_chunk_code)
 
   std::size_t i = 0;
 
+  EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::print_linebreak));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(f.get_chunk().at(i++), 1);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::print));
@@ -53,7 +56,6 @@ TEST(compiler_feature, feature_chunk_code)
   EXPECT_EQ(f.get_chunk().at(i++), 0);  // idx to string value to print
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::println));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(color::black));
-  
 
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::reset_context));
   EXPECT_EQ(f.get_chunk().at(i++), to_uint(op_code::hook_before));

@@ -19,7 +19,6 @@ void scenario::init()
 {
   m_parser->advance();
   auto [name_idx, location_idx] = create_name_and_location();
-  emit_byte(op_code::print_linebreak);
   print_name_and_location(name_idx, location_idx);
   m_parser->advance_until_line_starts_with(token_type::step);
   emit_byte(op_code::init_scenario);

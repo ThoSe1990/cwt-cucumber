@@ -30,7 +30,8 @@ class vm
   [[nodiscard]] const std::vector<call_frame>& frames() const;
   [[nodiscard]] value& global(const std::string& name);
 
-  void set_options(const options& opts);
+  static void set_options(const options& opts);
+  static const options& get_options();
 
   static void reset();
 
@@ -69,7 +70,7 @@ class vm
   std::vector<value> m_stack;
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
-  options m_options{};
+  static options m_options;
   static constexpr const std::size_t m_max_stack_size{256};
 };
 

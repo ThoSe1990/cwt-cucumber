@@ -12,7 +12,10 @@ inline void internal_assert(bool condition, std::string_view error_msg)
   if (condition == false)
   {
     vm::current_step_failed();
-    println(color::red, error_msg);
+    if (!vm::get_options().quiet)
+    {
+      println(color::red, error_msg);
+    }
   }
 }
 }  // namespace cwt::details

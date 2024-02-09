@@ -70,6 +70,7 @@ void examples::process_table_row()
 }
 void examples::create_call(std::size_t scenario_idx)
 {
+  m_feature->emit_byte(op_code::reset_context);
   m_feature->emit_tags(m_tags);
   m_feature->emit_bytes(op_code::hook_before, m_tags.size());
   m_feature->emit_bytes(op_code::get_var, scenario_idx);
@@ -77,18 +78,20 @@ void examples::create_call(std::size_t scenario_idx)
   m_feature->emit_tags(m_tags);
   m_feature->emit_bytes(op_code::hook_after, m_tags.size());
 
-  m_feature->emit_constant(std::format(
-      "  With Examples:\n  {}",
-      std::string{m_header.begin.value.data(),
-                  m_header.end.value.data() + m_header.end.value.length()}));
-  m_feature->emit_bytes(op_code::print, to_uint(color::standard));
+  if (!m_feature->get_options().quiet)
+  {
+    m_feature->emit_constant(std::format(
+        "  With Examples:\n  {}",
+        std::string{m_header.begin.value.data(),
+                    m_header.end.value.data() + m_header.end.value.length()}));
+    m_feature->emit_bytes(op_code::print, to_uint(color::standard));
 
-  m_feature->emit_constant(
-      std::format("  {}", std::string{m_current_row.begin.value.data(),
-                                      m_current_row.end.value.data() +
-                                          m_current_row.end.value.length()}));
-  m_feature->emit_bytes(op_code::println, to_uint(color::standard));
-
+    m_feature->emit_constant(
+        std::format("  {}", std::string{m_current_row.begin.value.data(),
+                                        m_current_row.end.value.data() +
+                                            m_current_row.end.value.length()}));
+    m_feature->emit_bytes(op_code::println, to_uint(color::standard));
+  }
 }
 
 }  // namespace cwt::details::compiler
