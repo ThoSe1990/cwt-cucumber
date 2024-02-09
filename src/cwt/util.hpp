@@ -30,7 +30,7 @@ enum class op_code : uint32_t
   println,
   print_linebreak,
   print_indent,
-  step_result,
+  print_step_result,
   init_scenario,
   scenario_result,
   jump_if_failed,

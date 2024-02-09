@@ -75,7 +75,7 @@ TEST(compiler_scenario_w_background, background_chunk)
   EXPECT_EQ(b->at(i++), 1);
   EXPECT_EQ(b->at(i++), to_uint(op_code::constant));
   EXPECT_EQ(b->at(i++), 0);
-  EXPECT_EQ(b->at(i++), to_uint(op_code::step_result));
+  EXPECT_EQ(b->at(i++), to_uint(op_code::print_step_result));
   EXPECT_EQ(b->at(i++), to_uint(op_code::jump_if_failed));
   EXPECT_EQ(b->at(i++), 17);
   EXPECT_EQ(b->at(i++), to_uint(op_code::hook_before_step));
@@ -86,6 +86,6 @@ TEST(compiler_scenario_w_background, background_chunk)
   EXPECT_EQ(b->at(i++), 3);
   EXPECT_EQ(b->at(i++), to_uint(op_code::constant));
   EXPECT_EQ(b->at(i++), 2);
-  EXPECT_EQ(b->at(i++), to_uint(op_code::step_result));
+  EXPECT_EQ(b->at(i++), to_uint(op_code::print_step_result));
   EXPECT_EQ(b->at(i++), to_uint(op_code::func_return));
 }

@@ -357,7 +357,7 @@ return_code vm::start()
         frame = &m_frames.back();
       }
       break;
-      case op_code::step_result:
+      case op_code::print_step_result:
       {
         std::string file_line = m_stack.back().copy_as<std::string>();
         pop();

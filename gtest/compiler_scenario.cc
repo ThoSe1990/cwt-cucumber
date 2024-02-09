@@ -74,7 +74,7 @@ const char* script = R"*(
   EXPECT_EQ(s.get_chunk().at(i++), 3);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(i++), 2);
-  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::step_result));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_step_result));
 }
 
 TEST(compiler_scenario, chunk_size_3_steps)

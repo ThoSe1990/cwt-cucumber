@@ -79,6 +79,7 @@ std::pair<std::size_t, std::size_t> compiler::create_name_and_location()
 void compiler::print_name_and_location(std::size_t name_idx,
                                        std::size_t location_idx)
 {
+  
   emit_bytes(op_code::constant, name_idx);
   emit_bytes(op_code::print, to_uint(color::standard));
   emit_byte(op_code::print_indent);

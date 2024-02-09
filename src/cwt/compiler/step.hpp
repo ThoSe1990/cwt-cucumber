@@ -48,7 +48,7 @@ class step
 
     m_parent->emit_bytes(op_code::constant, name_idx);
     m_parent->emit_bytes(op_code::constant, m_location_idx);
-    m_parent->emit_byte(op_code::step_result);
+    m_parent->emit_byte(op_code::print_step_result);
   }
 
  private:

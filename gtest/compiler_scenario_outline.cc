@@ -57,7 +57,7 @@ TEST(compiler_scenario_outline, scenarios_code)
   EXPECT_EQ(s.get_chunk().at(i++), 5);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(i++), 2);
-  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::step_result));
+  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_step_result));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::func_return));
 }
 
