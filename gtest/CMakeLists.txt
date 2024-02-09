@@ -9,6 +9,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/context.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_feature.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_quiet.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_w_background.cc
@@ -30,6 +31,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_asserts.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_get_args.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_quiet.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_run_w_background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
