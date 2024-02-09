@@ -5,11 +5,6 @@
 #include <string>
 #include <filesystem>
 
-#include "util.hpp"
-
-// TODO Remove
-#include <iostream>
-
 namespace cwt::details
 {
 
@@ -26,40 +21,21 @@ struct options
   std::string tag_expression{""};
 };
 
-static options terminal_options;
-
-inline void create_options(int argc, const char* argv[])
+class terminal_arguments
 {
-  std::span<const char*> arguments(argv, argc);
+ public:
+  terminal_arguments(int argc, const char* argv[]);
+  const options& get_options() const noexcept;
 
-  // Print out the arguments
-  std::cout << "Number of arguments: " << arguments.size() << std::endl;
-  for (const auto& arg : arguments)
-  {
-    std::string_view sv{arg};
-    if (sv.starts_with('-'))
-    {
-      // TODO 
-    }
-    else
-    {
-      auto [file, lines] = filepath_and_lines(sv);
-      namespace fs = std::filesystem;
-      fs::path path = file;
-      if (fs::exists(path)) 
-      {
-        if (fs::is_directory(path)) 
-        {
-          std::cout << "TODO: recursive file search" << std::endl;
-          // find_feature_in_dir(path);
-        } 
-        else if (path.extension() == ".feature") 
-        {
-          terminal_options.files.push_back(feature_file{file, lines});
-        }
-      }
-    }
-  }
-}
+ private:
+  void process();
+  void process_path(std::string_view sv);
+  void process_option(std::span<const char*>::iterator it);
+  void find_feature_in_dir(const std::filesystem::path& dir);
+
+ private:
+  std::span<const char*> m_args;
+  options m_options;
+};
 
 }  // namespace cwt::details

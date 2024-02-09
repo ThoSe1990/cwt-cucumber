@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "value.hpp"
-
+#include "options.hpp"
 namespace cwt::details
 {
 
@@ -17,8 +17,15 @@ struct call_frame
 class vm
 {
  public:
+  vm() = default;
+  vm(const options& opts);
+  vm(int argc, const char* argv[]);
+
+  [[nodiscard]] return_code run();
+  [[nodiscard]] return_code run(
+      const std::vector<cwt::details::feature_file>& files);
   [[nodiscard]] return_code interpret(std::string_view source);
-  [[nodiscard]] return_code run(function func);
+  [[nodiscard]] return_code execute_function(function func);
   [[nodiscard]] const std::vector<value>& stack() const;
   [[nodiscard]] const std::vector<call_frame>& frames() const;
   [[nodiscard]] value& global(const std::string& name);
@@ -53,7 +60,7 @@ class vm
   void pop(std::size_t count);
 
   void runtime_error(std::string_view msg);
-  [[nodiscard]] return_code run();
+  [[nodiscard]] return_code start();
   void call(const function& func);
   void run_hooks(const std::vector<hook>& hooks, uint32_t n) const;
   [[nodiscard]] return_code final_result() const noexcept;
@@ -63,6 +70,7 @@ class vm
   std::vector<call_frame> m_frames;
   std::unordered_map<std::string, value> m_globals;
   std::string m_tag_expression{""};
+  options m_options{};
   static constexpr const std::size_t m_max_stack_size{256};
 };
 

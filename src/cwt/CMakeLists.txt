@@ -1,6 +1,7 @@
 
 set(cucumber-src 
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/parser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp

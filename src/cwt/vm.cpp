@@ -1,4 +1,5 @@
 #include <format>
+#include <fstream>
 #include <algorithm>
 
 #include "vm.hpp"
@@ -6,6 +7,7 @@
 #include "chunk.hpp"
 #include "hooks.hpp"
 #include "context.hpp"
+#include "options.hpp"
 #include "step_finder.hpp"
 #include "compiler/cucumber.hpp"
 
@@ -15,6 +17,31 @@
 
 namespace cwt::details
 {
+vm::vm(const options& opts) : m_options(opts) {}
+vm::vm(int argc, const char* argv[])
+    : m_options(terminal_arguments(argc, argv).get_options())
+{
+}
+
+return_code vm::run() { return run(m_options.files); }
+return_code vm::run(const std::vector<cwt::details::feature_file>& files)
+{
+  return_code result = return_code::passed;
+  for (const auto& file : files)
+  {
+    std::ifstream in(file.path);
+    std::string script((std::istreambuf_iterator<char>(in)),
+                       std::istreambuf_iterator<char>());
+
+    return_code current = interpret(script);
+    if (current != return_code::passed)
+    {
+      result = return_code::failed;
+    }
+  }
+  return result;
+}
+
 void vm::set_tag_expression(const std::string& str) { m_tag_expression = str; }
 return_code vm::interpret(std::string_view source)
 {
@@ -24,7 +51,7 @@ return_code vm::interpret(std::string_view source)
 
   if (c.no_error())
   {
-    return run(c.make_function());
+    return execute_function(c.make_function());
   }
   else
   {
@@ -69,7 +96,7 @@ return_code vm::final_result() const noexcept
   return to_return_code(scenarios);
 }
 
-return_code vm::run(function func)
+return_code vm::execute_function(function func)
 {
   // FYI a call frame stores the current frame as raw pointer,
   //  pointing to the chunk_ptr / function on the stack
@@ -82,7 +109,7 @@ return_code vm::run(function func)
 
   push_value(std::move(func));
   call(m_stack.back().as<function>());
-  return run();
+  return start();
 }
 
 const std::vector<value>& vm::stack() const { return m_stack; }
@@ -199,7 +226,7 @@ void vm::call(const function& func)
   m_frames.push_back(call_frame{func.get(), func->cbegin()});
 }
 
-return_code vm::run()
+return_code vm::start()
 {
   call_frame* frame = &m_frames.back();
   while (frame->it != frame->chunk_ptr->cend())
