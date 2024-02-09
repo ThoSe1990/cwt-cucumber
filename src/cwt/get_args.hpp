@@ -138,3 +138,17 @@ struct conversion_impl<T, std::enable_if_t<std::is_convertible_v<T, std::string>
 };
 
 }  // namespace cwt::details
+
+
+/**
+ * @def CUKE_ARG(index)
+ * @brief Access variables from a step in the step body. ``CUKE_ARG`` starts at index 1 on the first value from the left side.
+ * 
+ * C++ auto type deduction does not work here. The underlying function is overloaded by return type.
+ * 
+ * @param index Variable index to access 
+ * @return The value from the index in the given step
+ */
+ 
+#define CUKE_ARG(index) cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
+

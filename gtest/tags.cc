@@ -257,12 +257,6 @@ TEST(tag_evaluation, empty_condition_not_is_true_1)
   compiler::tag_expression tc("not @tag1");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
-// TEST(tag_evaluation, empty_condition_not_is_true_2)
-// {
-//   value_array tags{std::string("@tag2")};
-//   compiler::tag_expression tc("not @tag1");
-//   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
-// }
 TEST(tag_evaluation, a_big_condition_true_1)
 {
   value_array tags{std::string("@tag1"), std::string("@tag2")};
