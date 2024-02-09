@@ -1,4 +1,5 @@
 #include "feature.hpp"
+#include "background.hpp"
 #include "scenario.hpp"
 #include "scenario_outline.hpp"
 
@@ -19,11 +20,7 @@ feature::feature(cucumber* enclosing, const value_array& tags)
 feature::~feature()
 {
   finish_chunk();
-  m_enclosing->emit_constant(std::make_unique<chunk>(get_chunk()));
-  m_enclosing->emit_constant(op_code::define_var, get_chunk().name());
-  m_enclosing->emit_bytes(op_code::get_var,
-                          m_enclosing->get_chunk().last_constant());
-  m_enclosing->emit_bytes(op_code::call, 0);
+  create_call(*m_enclosing, get_chunk());
 }
 
 void feature::init()
@@ -57,6 +54,21 @@ void feature::compile()
         do_compile<scenario_outline>();
       }
       break;
+      case token_type::background:
+      {
+        if (m_background.has_value())
+        {
+          m_parser->error_at(m_parser->current(), "Feature has already a background");
+          return; 
+        }
+        else
+        {
+          background b(this);
+          b.compile();
+          m_background = b.get_chunk();
+        }
+      }
+      break;
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
@@ -66,5 +78,14 @@ void feature::compile()
     m_parser->skip_linebreaks();
   } while (!m_parser->check(token_type::eof));
 }
+
+bool feature::has_background() const noexcept
+{
+  return m_background.has_value();
+}
+const chunk& feature::background_chunk() const noexcept
+{
+  return m_background.value();
+} 
 
 }  // namespace cwt::details::compiler

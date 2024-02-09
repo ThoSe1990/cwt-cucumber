@@ -26,6 +26,12 @@ void scenario_outline::init()
   print_name_and_location(name_idx, location_idx);
   m_parser->advance_until_line_starts_with(token_type::step);
   emit_byte(op_code::init_scenario);
+
+  if (m_enclosing->has_background())
+  {
+    create_call(*this, m_enclosing->background_chunk());
+  }
+
 }
 
 void scenario_outline::compile()

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <optional>
+
 #include "cucumber.hpp"
+#include "../value.hpp"
 
 namespace cwt::details::compiler
 {
@@ -13,6 +16,8 @@ class feature : public compiler
   ~feature();
 
   void compile();
+  bool has_background() const noexcept;
+  const chunk& background_chunk() const noexcept;
 
  private:
   void init();
@@ -37,6 +42,7 @@ class feature : public compiler
  private:
   cucumber* m_enclosing;
   value_array m_tags;
+  std::optional<chunk> m_background;
 };
 
 }  // namespace cwt::details::compiler

@@ -36,7 +36,6 @@ enum class op_code : uint32_t
   jump_if_failed,
   call,
   call_step,
-  call_step_with_doc_string,
   hook_before,
   hook_before_step,
   hook_after,

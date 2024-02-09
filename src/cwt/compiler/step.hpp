@@ -2,6 +2,7 @@
 
 #include <type_traits>
 
+#include "background.hpp"
 #include "scenario.hpp"
 #include "scenario_outline.hpp"
 
@@ -10,7 +11,7 @@ namespace cwt::details::compiler
 
 template <typename Parent,
           typename = std::enable_if_t<std::is_same_v<Parent, scenario> ||
-                                      std::is_same_v<Parent, scenario_outline>>>
+                                      std::is_same_v<Parent, background> || std::is_same_v<Parent, scenario_outline>>>
 class step
 {
  public:
