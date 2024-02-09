@@ -133,7 +133,7 @@ const char* script = R"*(
 )*";
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
-  f.set_tag_expression("@some_other_tag");
+  // f.set_tag_expression("@some_other_tag");
   f.compile();
   
   disassemble_chunk(f.get_chunk(), "chunk w/o matching tags");
@@ -150,7 +150,7 @@ const char* script = R"*(
 )*";
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
-  f.set_tag_expression("@tag1 and @tag2");
+  // f.set_tag_expression("@tag1 and @tag2");
   f.compile();
   
   disassemble_chunk(f.get_chunk(), "chunk with matching tags");

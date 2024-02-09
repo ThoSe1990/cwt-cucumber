@@ -41,12 +41,11 @@ return_code vm::run(const std::vector<cwt::details::feature_file>& files)
   }
   return result;
 }
-
-void vm::set_tag_expression(const std::string& str) { m_tag_expression = str; }
+void vm::set_options(const options& opts) { m_options = opts; }
 return_code vm::interpret(std::string_view source)
 {
   compiler::cucumber c(source);
-  c.set_tag_expression(m_tag_expression);
+  c.set_options(m_options);
   c.compile();
 
   if (c.no_error())

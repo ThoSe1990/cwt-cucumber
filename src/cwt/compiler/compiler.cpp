@@ -11,19 +11,22 @@ namespace cwt::details::compiler
 
 compiler::compiler(std::string_view source)
     : m_parser(std::make_shared<parser>(source)),
-      m_tag_expression(std::make_shared<tag_expression>()),
+      m_options(std::make_shared<options>()),
       m_filename(std::string("")),
       m_chunk("script")
 {
 }
 compiler::compiler(std::string_view source, std::string_view filename)
     : m_parser(std::make_shared<parser>(source)),
-      m_tag_expression(std::make_shared<tag_expression>()),
+      m_options(std::make_shared<options>()),
       m_filename(filename),
       m_chunk("script")
 {
 }
-
+void compiler::set_options(const options& opts)
+{
+  m_options = std::make_shared<options>(opts);
+}
 bool compiler::error() const noexcept { return m_parser->error(); }
 bool compiler::no_error() const noexcept { return !error(); }
 chunk& compiler::get_chunk() noexcept { return m_chunk; }
@@ -39,10 +42,7 @@ void compiler::finish_chunk() noexcept
 #endif
 }
 
-void compiler::set_tag_expression(std::string_view expression)
-{
-  m_tag_expression = std::make_shared<tag_expression>(expression);
-}
+
 value_array compiler::take_latest_tags()
 {
   value_array result = *m_latest_tags.get();
@@ -51,7 +51,7 @@ value_array compiler::take_latest_tags()
 }
 bool compiler::tags_valid(const value_array& tags)
 {
-  return m_tag_expression->evaluate(tags.size(), tags.rbegin());
+  return m_options->tags.evaluate(tags.size(), tags.rbegin());
 }
 void compiler::read_tags()
 {

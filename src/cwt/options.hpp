@@ -5,6 +5,8 @@
 #include <string>
 #include <filesystem>
 
+#include "compiler/tags.hpp"
+
 namespace cwt::details
 {
 
@@ -18,7 +20,7 @@ struct options
 {
   bool quiet{false};
   std::vector<feature_file> files;
-  std::string tag_expression{""};
+  compiler::tag_expression tags;
 };
 
 class terminal_arguments

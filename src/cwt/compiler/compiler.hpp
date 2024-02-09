@@ -7,6 +7,7 @@
 #include "../token.hpp"
 #include "../chunk.hpp"
 #include "../parser.hpp"
+#include "../options.hpp"
 
 #include "tags.hpp"
 
@@ -37,7 +38,8 @@ class compiler
   [[nodiscard]] chunk& get_chunk() noexcept;
   [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
 
-  void set_tag_expression(std::string_view expression);
+  void set_options(const options& opts);
+
   void read_tags();
   [[nodiscard]] value_array take_latest_tags();
   [[nodiscard]] bool tags_valid(const value_array& tags);
@@ -72,7 +74,7 @@ class compiler
             typename = std::enable_if_t<std::is_base_of_v<compiler, Other>>>
   compiler(const Other& other)
       : m_parser(other.m_parser),
-        m_tag_expression(other.m_tag_expression),
+        m_options(other.m_options),
         m_filename(other.m_filename),
         m_chunk(location()),
         m_latest_tags(other.m_latest_tags)
@@ -81,7 +83,7 @@ class compiler
 
  protected:
   std::shared_ptr<parser> m_parser;
-  std::shared_ptr<tag_expression> m_tag_expression;
+  std::shared_ptr<options> m_options;
 
  private:
   std::string m_filename;

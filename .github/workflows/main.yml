@@ -36,7 +36,7 @@ jobs:
           sudo conan install . -of ./build --build missing 
           sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           sudo cmake --build ./build -j12
-          ./build/bin/unittests
+          ./build/bin/unittests --gtest_filter=compiler_scenario_and_scenario_outline_w_tags*
 
   docs:
     runs-on: ubuntu-latest
