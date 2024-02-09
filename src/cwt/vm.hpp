@@ -4,7 +4,6 @@
 #include <unordered_map>
 
 #include "value.hpp"
-#include "chunk.hpp"
 
 namespace cwt::details
 {

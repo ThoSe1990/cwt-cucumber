@@ -31,7 +31,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src/cwt)
-# add_subdirectory(${PROJECT_SOURCE_DIR}/examples/c)
-# add_subdirectory(${PROJECT_SOURCE_DIR}/examples/cpp)
+add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
+
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)

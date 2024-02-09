@@ -8,18 +8,19 @@
 #define CONCAT(a, b) _CONCAT_(a, b)
 
 #define _STEP(function_name, step_definition)                              \
-  void function_name(argc n, argv values);                             \
+  void function_name(::cwt::details::argc n, ::cwt::details::argv values); \
   namespace                                                                \
   {                                                                        \
   struct CONCAT(function_name, _t)                                         \
   {                                                                        \
     CONCAT(function_name, _t)()                                            \
     {                                                                      \
-      ::cwt::details::vm::push_step(step(function_name, step_definition)); \
+      ::cwt::details::vm::push_step(                                       \
+          ::cwt::details::step(function_name, step_definition));           \
     }                                                                      \
   } CONCAT(g_, function_name);                                             \
   }                                                                        \
-  void function_name(argc n, argv values)
+  void function_name(::cwt::details::argc n, ::cwt::details::argv values)
 
 /**
  * @def STEP(function_name, step_definition)
@@ -56,20 +57,20 @@
 #define THEN(function_name, step_definition) \
   STEP(function_name, step_definition)
 
-#define _BEFORE(function_name, tag_expression)  \
-  void function_name();                         \
-  namespace                                     \
-  {                                             \
-  struct CONCAT(function_name, _t)              \
-  {                                             \
-    CONCAT(function_name, _t)()                 \
-    {                                           \
-      ::cwt::details::vm::push_hook_before(     \
-          hook(function_name, tag_expression)); \
-    }                                           \
-                                                \
-  } CONCAT(g_, function_name);                  \
-  }                                             \
+#define _BEFORE(function_name, tag_expression)                  \
+  void function_name();                                         \
+  namespace                                                     \
+  {                                                             \
+  struct CONCAT(function_name, _t)                              \
+  {                                                             \
+    CONCAT(function_name, _t)()                                 \
+    {                                                           \
+      ::cwt::details::vm::push_hook_before(                     \
+          ::cwt::details::hook(function_name, tag_expression)); \
+    }                                                           \
+                                                                \
+  } CONCAT(g_, function_name);                                  \
+  }                                                             \
   void function_name()
 
 /**
@@ -96,20 +97,20 @@
 #define BEFORE_T(function_name, tag_expression) \
   _BEFORE(function_name, tag_expression)
 
-#define _AFTER(function_name, tag_expression)   \
-  void function_name();                         \
-  namespace                                     \
-  {                                             \
-  struct CONCAT(function_name, _t)              \
-  {                                             \
-    CONCAT(function_name, _t)()                 \
-    {                                           \
-      ::cwt::details::vm::push_hook_after(      \
-          hook(function_name, tag_expression)); \
-    }                                           \
-                                                \
-  } CONCAT(g_, function_name);                  \
-  }                                             \
+#define _AFTER(function_name, tag_expression)                   \
+  void function_name();                                         \
+  namespace                                                     \
+  {                                                             \
+  struct CONCAT(function_name, _t)                              \
+  {                                                             \
+    CONCAT(function_name, _t)()                                 \
+    {                                                           \
+      ::cwt::details::vm::push_hook_after(                      \
+          ::cwt::details::hook(function_name, tag_expression)); \
+    }                                                           \
+                                                                \
+  } CONCAT(g_, function_name);                                  \
+  }                                                             \
   void function_name()
 
 /**
@@ -136,19 +137,20 @@
 #define AFTER_T(function_name, tag_expression) \
   _AFTER(function_name, tag_expression)
 
-#define _BEFORE_STEP(function_name)                                   \
-  void function_name();                                               \
-  namespace                                                           \
-  {                                                                   \
-  struct CONCAT(function_name, _t)                                    \
-  {                                                                   \
-    CONCAT(function_name, _t)()                                       \
-    {                                                                 \
-      ::cwt::details::vm::push_hook_before_step(hook(function_name)); \
-    }                                                                 \
-                                                                      \
-  } CONCAT(g_, function_name);                                        \
-  }                                                                   \
+#define _BEFORE_STEP(function_name)              \
+  void function_name();                          \
+  namespace                                      \
+  {                                              \
+  struct CONCAT(function_name, _t)               \
+  {                                              \
+    CONCAT(function_name, _t)()                  \
+    {                                            \
+      ::cwt::details::vm::push_hook_before_step( \
+          ::cwt::details::hook(function_name));  \
+    }                                            \
+                                                 \
+  } CONCAT(g_, function_name);                   \
+  }                                              \
   void function_name()
 
 /**
@@ -160,19 +162,20 @@
  */
 #define BEFORE_STEP(function_name) _BEFORE_STEP(function_name)
 
-#define _AFTER_STEP(function_name)                                   \
-  void function_name();                                              \
-  namespace                                                          \
-  {                                                                  \
-  struct CONCAT(function_name, _t)                                   \
-  {                                                                  \
-    CONCAT(function_name, _t)()                                      \
-    {                                                                \
-      ::cwt::details::vm::push_hook_after_step(hook(function_name)); \
-    }                                                                \
-                                                                     \
-  } CONCAT(g_, function_name);                                       \
-  }                                                                  \
+#define _AFTER_STEP(function_name)              \
+  void function_name();                         \
+  namespace                                     \
+  {                                             \
+  struct CONCAT(function_name, _t)              \
+  {                                             \
+    CONCAT(function_name, _t)()                 \
+    {                                           \
+      ::cwt::details::vm::push_hook_after_step( \
+          ::cwt::details::hook(function_name)); \
+    }                                           \
+                                                \
+  } CONCAT(g_, function_name);                  \
+  }                                             \
   void function_name()
 
 /**
