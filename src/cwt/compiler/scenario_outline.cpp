@@ -31,7 +31,6 @@ void scenario_outline::init()
   {
     create_call(*this, m_enclosing->background_chunk());
   }
-
 }
 
 void scenario_outline::compile()

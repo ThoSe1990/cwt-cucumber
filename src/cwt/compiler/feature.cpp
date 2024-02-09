@@ -58,8 +58,9 @@ void feature::compile()
       {
         if (m_background.has_value())
         {
-          m_parser->error_at(m_parser->current(), "Feature has already a background");
-          return; 
+          m_parser->error_at(m_parser->current(),
+                             "Feature has already a background");
+          return;
         }
         else
         {
@@ -86,6 +87,6 @@ bool feature::has_background() const noexcept
 const chunk& feature::background_chunk() const noexcept
 {
   return m_background.value();
-} 
+}
 
 }  // namespace cwt::details::compiler

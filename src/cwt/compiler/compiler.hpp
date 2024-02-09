@@ -36,12 +36,11 @@ class compiler
   void finish_chunk() noexcept;
   [[nodiscard]] chunk& get_chunk() noexcept;
   [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
-  
+
   void set_tag_expression(std::string_view expression);
   void read_tags();
   [[nodiscard]] value_array take_latest_tags();
   [[nodiscard]] bool tags_valid(const value_array& tags);
-
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);

@@ -15,8 +15,10 @@ class vm_run_w_background : public ::testing::Test
     call_count = 0;
     test_vm = vm();
     test_vm.push_step(step([](argc, argv) { ++call_count; }, "Call me"));
-    test_vm.push_step(step([](argc, argv) { ++call_count; }, "Call me with {int}"));
-    test_vm.push_step(step([](argc, argv) { cuke::is_true(false); }, "This fails"));
+    test_vm.push_step(
+        step([](argc, argv) { ++call_count; }, "Call me with {int}"));
+    test_vm.push_step(
+        step([](argc, argv) { cuke::is_true(false); }, "This fails"));
   }
 
   void TearDown() override { test_vm.reset(); }

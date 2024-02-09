@@ -10,7 +10,7 @@ class scenario_outline : public compiler
  public:
   scenario_outline(feature* enclosing);
   scenario_outline(feature* enclosing, const value_array& tags);
-  
+
   void compile();
 
  private:
@@ -23,7 +23,6 @@ class scenario_outline : public compiler
  private:
   feature* m_enclosing;
   value_array m_tags;
-
 };
 
 }  // namespace cwt::details::compiler

@@ -44,7 +44,6 @@ scenario::~scenario()
 }
 void scenario::compile()
 {
-
   do
   {
     if (m_parser->match(token_type::step))

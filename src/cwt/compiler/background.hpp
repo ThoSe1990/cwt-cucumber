@@ -11,7 +11,6 @@ class background : public compiler
  public:
   background(feature* enclosing);
   void compile();
-
 };
 
 }  // namespace cwt::details::compiler

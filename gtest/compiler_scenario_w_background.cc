@@ -19,16 +19,16 @@ const char* script = R"*(
   Scenario: First Scenario
   * Call me
 )*";
-}  // namespace compiler_scenario_and_scenario_outline_w_tags
+}  // namespace compiler_scenario_w_background
 
 TEST(compiler_scenario_w_background, scenario_chunk)
 {
   compiler::cucumber cuke(compiler_scenario_w_background::script);
-  
+
   cuke.compile();
   disassemble_chunk(cuke.get_chunk(), "script");
 
-  chunk* f = cuke.get_chunk().constant(0).as<function>().get(); 
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
   disassemble_chunk(*f, "feature");
 
   chunk* s = f->constant(2).as<function>().get();
@@ -49,11 +49,11 @@ TEST(compiler_scenario_w_background, scenario_chunk)
 TEST(compiler_scenario_w_background, background_chunk)
 {
   compiler::cucumber cuke(compiler_scenario_w_background::script);
-  
+
   cuke.compile();
   disassemble_chunk(cuke.get_chunk(), "script");
 
-  chunk* f = cuke.get_chunk().constant(0).as<function>().get(); 
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
   disassemble_chunk(*f, "feature");
 
   chunk* s = f->constant(2).as<function>().get();

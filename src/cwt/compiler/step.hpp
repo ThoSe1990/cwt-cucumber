@@ -11,7 +11,8 @@ namespace cwt::details::compiler
 
 template <typename Parent,
           typename = std::enable_if_t<std::is_same_v<Parent, scenario> ||
-                                      std::is_same_v<Parent, background> || std::is_same_v<Parent, scenario_outline>>>
+                                      std::is_same_v<Parent, background> ||
+                                      std::is_same_v<Parent, scenario_outline>>>
 class step
 {
  public:
@@ -33,7 +34,7 @@ class step
     {
       end = m_parent->get_parser().previous();
     }
-    
+
     std::size_t name_idx =
         m_parent->get_chunk().make_constant(create_string(m_begin, end));
 

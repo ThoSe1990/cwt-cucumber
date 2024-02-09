@@ -20,7 +20,8 @@ void background::compile()
     }
     else
     {
-      m_parser->error_at(m_parser->current(), "Expect StepLine, Scenario or ScenarioOutline");
+      m_parser->error_at(m_parser->current(),
+                         "Expect StepLine, Scenario or ScenarioOutline");
       return;
     }
     m_parser->skip_linebreaks();

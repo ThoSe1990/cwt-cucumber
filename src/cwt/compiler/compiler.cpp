@@ -122,16 +122,15 @@ void compiler::emit_table_value()
   emit_constant(token_to_value(m_parser->current(), negative));
 }
 
-void compiler::emit_tags(const value_array& tags) 
-{ 
+void compiler::emit_tags(const value_array& tags)
+{
   // TODO: if we introduce a find function for constants in chunk
-  // we can avoid pushing redundand tags, which always happens in 
+  // we can avoid pushing redundand tags, which always happens in
   // before and after because all tags are pushed twice (at least...)
   for (const auto t : tags)
   {
     emit_constant(t.as<std::string>());
   }
 }
-
 
 }  // namespace cwt::details::compiler
