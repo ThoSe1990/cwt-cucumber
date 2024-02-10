@@ -44,5 +44,5 @@ class scenario_outline_tests : public ::testing::Test
 
 TEST_F(scenario_outline_tests, check_args)
 {
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
 }

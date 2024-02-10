@@ -39,7 +39,7 @@ TEST_F(vm_get_args_integral, value_char)
       },
       "This is ninetynine: {byte}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_integral, value_unsigned_char)
@@ -54,7 +54,7 @@ TEST_F(vm_get_args_integral, value_unsigned_char)
       },
       "This is ninetynine: {byte}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -69,7 +69,7 @@ TEST_F(vm_get_args_integral, value_short)
       },
       "This is ninetynine: {short}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_integral, value_unsigned_short)
@@ -84,7 +84,7 @@ TEST_F(vm_get_args_integral, value_unsigned_short)
       },
       "This is ninetynine: {short}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -99,7 +99,7 @@ TEST_F(vm_get_args_integral, value_int)
       },
       "This is ninetynine: {int}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_integral, value_unsigned_int)
@@ -114,7 +114,7 @@ TEST_F(vm_get_args_integral, value_unsigned_int)
       },
       "This is ninetynine: {int}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -129,7 +129,7 @@ TEST_F(vm_get_args_integral, value_long)
       },
       "This is ninetynine: {long}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_integral, value_unsigned_long)
@@ -144,7 +144,7 @@ TEST_F(vm_get_args_integral, value_unsigned_long)
       },
       "This is ninetynine: {long}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -159,7 +159,7 @@ TEST_F(vm_get_args_integral, value_size_t)
       },
       "This is ninetynine: {long}"));
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -195,7 +195,7 @@ TEST_F(vm_get_args_floating, value_float)
         called = true;
       },
       "This is ninetynine point ninetynine: {float}"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_floating, value_double)
@@ -208,7 +208,7 @@ TEST_F(vm_get_args_floating, value_double)
         called = true;
       },
       "This is ninetynine point ninetynine: {double}"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 
@@ -245,7 +245,7 @@ TEST_F(vm_get_args_strings, value_string)
         called = true;
       },
       "This is {string}"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_strings, value_string_view)
@@ -258,7 +258,7 @@ TEST_F(vm_get_args_strings, value_string_view)
         called = true;
       },
       "This is {string}"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 class vm_get_args_doc_strings : public ::testing::Test
@@ -302,7 +302,7 @@ TEST_F(vm_get_args_doc_strings, value_string)
         called = true;
       },
       "Here is a doc string attached"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
 TEST_F(vm_get_args_doc_strings, value_string_view)
@@ -315,6 +315,6 @@ TEST_F(vm_get_args_doc_strings, value_string_view)
         called = true;
       },
       "Here is a doc string attached"));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }

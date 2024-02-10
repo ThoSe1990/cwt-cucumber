@@ -8,7 +8,7 @@ TEST(vm, init_obj) { vm test_vm; }
 TEST(vm, run_chunk)
 {
   vm test_vm;
-  [[maybe_unused]] return_code result = test_vm.interpret("Feature:");
+  [[maybe_unused]] return_code result = test_vm.run("Feature:");
 }
 
 TEST(vm, op_code_constant)
@@ -85,47 +85,3 @@ TEST(vm, op_code_get_var)
   EXPECT_EQ(test_vm.stack().back().as<std::string>(),
             std::string("some initial value"));
 }
-//  TEST(vm, op_code_print)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_println)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_step_result)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_init_scenario)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_scenario_result)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_jump_if_failed)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_call)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_call_step)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_call_step_with_doc_string)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_hook)
-//  {
-//   vm test_vm;
-//  }
-//  TEST(vm, op_code_func_return)
-//  {
-//   vm test_vm;
-//  }

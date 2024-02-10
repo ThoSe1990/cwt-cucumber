@@ -28,7 +28,7 @@ TEST_F(vm_asserts_is_true, pass)
   Given Is true
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -41,7 +41,7 @@ TEST_F(vm_asserts_is_true, fail)
   Given Is not true
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -71,7 +71,7 @@ TEST_F(vm_asserts_is_false, pass)
   Given Is false
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -84,7 +84,7 @@ TEST_F(vm_asserts_is_false, fail)
   Given Is not false
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -119,7 +119,7 @@ TEST_F(vm_asserts_equal, pass)
   Given 12 and 12 are equal
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -132,7 +132,7 @@ TEST_F(vm_asserts_equal, fail)
   Given 12 and 15 are equal
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -166,7 +166,7 @@ TEST_F(vm_asserts_not_equal, pass)
   Given 99 and 12 are not equal
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -179,7 +179,7 @@ TEST_F(vm_asserts_not_equal, fail)
   Given 15 and 15 are not equal
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -214,7 +214,7 @@ TEST_F(vm_asserts_greater_than, pass)
   Given 20 is greater than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -227,7 +227,7 @@ TEST_F(vm_asserts_greater_than, fail)
   Given 10 is greater than 20
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -261,7 +261,7 @@ TEST_F(vm_asserts_greater_or_equal_than, pass_1)
   Given 10 is greater or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -273,7 +273,7 @@ TEST_F(vm_asserts_greater_or_equal_than, pass_2)
   Given 15 is greater or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -286,7 +286,7 @@ TEST_F(vm_asserts_greater_or_equal_than, fail)
   Given 9 is greater or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -321,7 +321,7 @@ TEST_F(vm_asserts_less_than, pass)
   Given 5 is less than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -334,7 +334,7 @@ TEST_F(vm_asserts_less_than, fail)
   Given 30 is less than 20
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }
@@ -369,7 +369,7 @@ TEST_F(vm_asserts_less_or_equal_than, pass_1)
   Given 10 is less or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -381,7 +381,7 @@ TEST_F(vm_asserts_less_or_equal_than, pass_2)
   Given 5 is less or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -394,7 +394,7 @@ TEST_F(vm_asserts_less_or_equal_than, fail)
   Given 12 is less or equal than 10
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::failed));
 }

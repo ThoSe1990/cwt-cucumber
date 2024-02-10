@@ -31,7 +31,7 @@ TEST_F(vm_check_results, run_simple_scenario)
   Given A Step with 123
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
 
   EXPECT_EQ(4, test_vm.scenario_results().size());
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
@@ -54,7 +54,7 @@ TEST_F(vm_check_results, run_simple_scenario_fails)
   Given This fails
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
 
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
@@ -76,7 +76,7 @@ TEST_F(vm_check_results, simple_scenario_with_undefined_steps)
   * This throws
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
 
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::skipped));
@@ -99,7 +99,7 @@ TEST_F(vm_check_results, run_simple_scenario_fails_steps_skipped_1)
   Given This throws
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
 
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
@@ -128,7 +128,7 @@ TEST_F(vm_check_results, run_simple_scenario_fails_steps_skipped_2)
   Given This throws
 )*";
 
-  EXPECT_EQ(return_code::failed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::failed, test_vm.run(script));
 
   EXPECT_EQ(2, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));
@@ -153,7 +153,7 @@ TEST_F(vm_check_results, run_simple_scenario_outline)
   | 456   |
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
 
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::failed));
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::skipped));

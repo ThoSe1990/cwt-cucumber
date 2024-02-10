@@ -32,7 +32,7 @@ const char* script = R"*(
   Given A Step
 )*";
   test_vm.set_options(options{.tags=compiler::tag_expression("@tag1")});
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
 }
@@ -49,7 +49,7 @@ const char* script = R"*(
   Given A Step
 )*";
   test_vm.set_options(options{.tags=compiler::tag_expression("@tag1")});
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(2, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
 }
@@ -66,7 +66,7 @@ const char* script = R"*(
   Given A Step
 )*";
 
-  EXPECT_EQ(return_code::passed, test_vm.interpret(script));
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(2, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
 }

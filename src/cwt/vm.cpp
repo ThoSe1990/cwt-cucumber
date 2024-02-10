@@ -29,17 +29,16 @@ vm::vm(int argc, const char* argv[])
   m_options = terminal_arguments(argc, argv).get_options();
 }
 
-return_code vm::run() { return run(m_options.files); }
-return_code vm::run(const std::vector<cwt::details::feature_file>& files)
+return_code vm::run()
 {
   return_code result = return_code::passed;
-  for (const auto& file : files)
+  for (const auto& file : m_options.files)
   {
     std::ifstream in(file.path);
     std::string script((std::istreambuf_iterator<char>(in)),
                        std::istreambuf_iterator<char>());
 
-    return_code current = interpret(script);
+    return_code current = run(script);
     if (current != return_code::passed)
     {
       result = return_code::failed;
@@ -49,7 +48,7 @@ return_code vm::run(const std::vector<cwt::details::feature_file>& files)
 }
 void vm::set_options(const options& opts) { m_options = opts; }
 const options& vm::get_options() { return m_options; }
-return_code vm::interpret(std::string_view source)
+return_code vm::run(std::string_view source)
 {
   compiler::cucumber c(source);
   c.set_options(m_options);

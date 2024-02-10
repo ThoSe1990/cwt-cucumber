@@ -57,13 +57,13 @@ TEST_F(hooks_scenario_outline, before_call_hook)
 {
   test_vm.push_hook_before(
       hook([]() { ++hooks_scenario_outline_call_count::value; }));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_EQ(hooks_scenario_outline_call_count::value, 4);
 }
 TEST_F(hooks_scenario_outline, after_call_hook)
 {
   test_vm.push_hook_before(
       hook([]() { ++hooks_scenario_outline_call_count::value; }));
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_EQ(hooks_scenario_outline_call_count::value, 4);
 }

@@ -40,7 +40,7 @@ TEST_F(vm_run_w_background, scenario_calls)
   * Call me
 )*";
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_EQ(vm_run_w_background::call_count, 3);
   EXPECT_EQ(test_vm.scenario_results().at(return_code::passed), 1);
   EXPECT_EQ(test_vm.step_results().at(return_code::passed), 3);
@@ -58,7 +58,7 @@ TEST_F(vm_run_w_background, background_fails)
   * Call me
 )*";
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::failed);
+  EXPECT_EQ(test_vm.run(script), return_code::failed);
   EXPECT_EQ(vm_run_w_background::call_count, 0);
   EXPECT_EQ(test_vm.scenario_results().at(return_code::failed), 1);
   EXPECT_EQ(test_vm.step_results().at(return_code::failed), 1);
@@ -77,7 +77,7 @@ TEST_F(vm_run_w_background, background_undefined_step)
   * Call me
 )*";
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::failed);
+  EXPECT_EQ(test_vm.run(script), return_code::failed);
   EXPECT_EQ(vm_run_w_background::call_count, 0);
   EXPECT_EQ(test_vm.scenario_results().at(return_code::skipped), 1);
   EXPECT_EQ(test_vm.step_results().at(return_code::undefined), 1);
@@ -99,7 +99,7 @@ TEST_F(vm_run_w_background, scenario_calls_with_description)
   * Call me
 )*";
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_EQ(vm_run_w_background::call_count, 3);
   EXPECT_EQ(test_vm.scenario_results().at(return_code::passed), 1);
   EXPECT_EQ(test_vm.step_results().at(return_code::passed), 3);
@@ -122,7 +122,7 @@ TEST_F(vm_run_w_background, scenario_outline_calls)
   | 123   |
 )*";
 
-  EXPECT_EQ(test_vm.interpret(script), return_code::passed);
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_EQ(vm_run_w_background::call_count, 6);
   EXPECT_EQ(test_vm.scenario_results().at(return_code::passed), 2);
   EXPECT_EQ(test_vm.step_results().at(return_code::passed), 6);

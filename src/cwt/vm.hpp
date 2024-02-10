@@ -22,9 +22,8 @@ class vm
   vm(int argc, const char* argv[]);
 
   [[nodiscard]] return_code run();
-  [[nodiscard]] return_code run(
-      const std::vector<cwt::details::feature_file>& files);
-  [[nodiscard]] return_code interpret(std::string_view source);
+  [[nodiscard]] return_code run(std::string_view source);
+  
   [[nodiscard]] return_code execute_function(function func);
   [[nodiscard]] const std::vector<value>& stack() const;
   [[nodiscard]] const std::vector<call_frame>& frames() const;
