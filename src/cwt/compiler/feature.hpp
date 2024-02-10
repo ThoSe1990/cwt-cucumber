@@ -16,8 +16,8 @@ class feature : public compiler
   ~feature();
 
   void compile();
-  bool has_background() const noexcept;
-  const chunk& background_chunk() const noexcept;
+  [[nodiscard]] bool has_background() const noexcept;
+  [[nodiscard]] const chunk& background_chunk() const noexcept;
 
  private:
   void init();
@@ -25,21 +25,6 @@ class feature : public compiler
   
   void compile_scenario(const value_array &tags);
   void compile_scenario_outline(const value_array &tags);
-
-  template <typename S>
-  void do_compile()
-  {
-    value_array all_tags = combine(m_tags, take_latest_tags());
-    if (tags_valid(all_tags) && lines_match())
-    {
-      S s(this, all_tags);
-      s.compile();
-    }
-    else
-    {
-      next();
-    }
-  }
 
  private:
   cucumber* m_enclosing;

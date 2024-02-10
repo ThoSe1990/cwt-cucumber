@@ -40,6 +40,7 @@ class compiler
 
   void set_options(const options& opts);
   const options& get_options() const;
+  [[nodiscard]] bool lines_match() const noexcept;
 
   void read_tags();
   [[nodiscard]] value_array take_latest_tags();
@@ -82,9 +83,6 @@ class compiler
         m_latest_tags(other.m_latest_tags)
   {
   }
-
- protected:
-  [[nodiscard]] bool lines_match() const noexcept;
 
  protected:
   std::shared_ptr<parser> m_parser;

@@ -37,8 +37,16 @@ void examples::body(std::size_t scenario_idx)
   while (p.is_none_of(token_type::scenario, token_type::scenario_outline,
                       token_type::examples, token_type::tag, token_type::eof))
   {
-    process_table_row();
-    create_call(scenario_idx);
+    if (m_feature->lines_match())
+    {
+      process_table_row();
+      create_call(scenario_idx);
+    }
+    else
+    {
+      p.advance_to(token_type::linebreak);
+    }
+    p.consume(token_type::linebreak, "Expect linebreak after table row.");
     p.skip_linebreaks();
   }
 }
@@ -66,7 +74,6 @@ void examples::process_table_row()
     p.consume(token_type::vertical, "Expect '|' after value in table.");
   }
   m_current_row.end = p.previous();
-  p.consume(token_type::linebreak, "Expect linebreak after table row.");
 }
 void examples::create_call(std::size_t scenario_idx)
 {

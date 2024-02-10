@@ -57,7 +57,8 @@ void feature::compile_scenario_outline(const value_array& tags)
 {
   if (tags_valid(tags))
   {
-    scenario_outline(this, tags).compile();
+    scenario_outline s(this, tags);
+    s.compile();
   }
   else
   {
@@ -78,14 +79,12 @@ void feature::compile()
       break;
       case token_type::scenario:
       {
-        // compile_scenario(combine(m_tags, take_latest_tags()));
-        do_compile<scenario>();
+        compile_scenario(combine(m_tags, take_latest_tags()));
       }
       break;
       case token_type::scenario_outline:
       {
-        // compile_scenario_outline(combine(m_tags, take_latest_tags()));
-        do_compile<scenario_outline>();
+        compile_scenario_outline(combine(m_tags, take_latest_tags()));
       }
       break;
       case token_type::background:

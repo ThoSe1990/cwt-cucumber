@@ -98,7 +98,7 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
 void scenario_outline::compile_examples(std::size_t scenario_idx)
 {
   const value_array all_tags = combine(m_tags, take_latest_tags());
-  if (tags_valid(all_tags) && lines_match())
+  if (tags_valid(all_tags))
   {
     examples e(m_enclosing, all_tags);
     e.header();
