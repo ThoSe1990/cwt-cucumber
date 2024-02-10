@@ -1,7 +1,6 @@
 trigger:
 - '*'
 
-
 jobs:
   - job: WindowsBuild
     pool:
