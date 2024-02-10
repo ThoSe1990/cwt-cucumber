@@ -10,16 +10,16 @@
 namespace cwt::details
 {
 
-struct feature_file
+struct file
 {
   std::string path;
   std::vector<unsigned long> lines;
 };
+using feature_files = std::vector<file>;
 
 struct options
 {
   bool quiet{false};
-  std::vector<feature_file> files;
   compiler::tag_expression tags;
 };
 
@@ -28,7 +28,8 @@ class terminal_arguments
  public:
   terminal_arguments(int argc, const char* argv[]);
   const options& get_options() const noexcept;
-
+  const feature_files& get_files() const noexcept;
+  
  private:
   void process();
   void process_path(std::string_view sv);
@@ -38,6 +39,7 @@ class terminal_arguments
  private:
   std::span<const char*> m_args;
   options m_options;
+  feature_files m_feature_files;
 };
 
 }  // namespace cwt::details

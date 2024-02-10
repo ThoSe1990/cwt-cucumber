@@ -13,6 +13,10 @@ const options& terminal_arguments::get_options() const noexcept
 {
   return m_options;
 }
+const feature_files& terminal_arguments::get_files() const noexcept
+{
+  return m_feature_files;
+}
 
 void terminal_arguments::process_option(std::span<const char*>::iterator it)
 {
@@ -39,7 +43,7 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
     }
     else if (entry.path().extension() == ".feature")
     {
-      m_options.files.push_back(feature_file{entry.path().string(), {}});
+      m_feature_files.push_back(file{entry.path().string(), {}});
     }
   }
 }
@@ -47,7 +51,7 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
 void terminal_arguments::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
-  auto [file, lines] = filepath_and_lines(sv);
+  auto [feature_file, lines] = filepath_and_lines(sv);
   fs::path path = sv;
   if (fs::exists(path))
   {
@@ -57,7 +61,7 @@ void terminal_arguments::process_path(std::string_view sv)
     }
     else if (path.extension() == ".feature")
     {
-      m_options.files.push_back(feature_file{file, lines});
+      m_feature_files.push_back(file{feature_file, lines});
     }
   }
 }

@@ -18,8 +18,12 @@ inline void create_call(C& caller, const chunk& callee_chunk)
 class cucumber : public compiler
 {
  public:
+
   cucumber(std::string_view source);
+  cucumber(std::string_view source, const std::vector<unsigned long>& lines);
   cucumber(std::string_view source, std::string_view filename);
+  cucumber(std::string_view source, std::string_view filename, const std::vector<unsigned long>& lines);
+  
   void compile();
   function make_function() noexcept;
 

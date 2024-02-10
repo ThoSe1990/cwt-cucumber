@@ -24,15 +24,16 @@ vm::vm(const options& opts)  // : m_options(opts)
   m_options = opts;
 }
 vm::vm(int argc, const char* argv[])
-// : m_options(terminal_arguments(argc, argv).get_options())
 {
-  m_options = terminal_arguments(argc, argv).get_options();
+  terminal_arguments terminal_args(argc, argv);
+  m_options = terminal_args.get_options();
+  m_files = terminal_args.get_files();
 }
 
 return_code vm::run()
 {
   return_code result = return_code::passed;
-  for (const auto& file : m_options.files)
+  for (const auto& file : m_files)
   {
     std::ifstream in(file.path);
     std::string script((std::istreambuf_iterator<char>(in)),
