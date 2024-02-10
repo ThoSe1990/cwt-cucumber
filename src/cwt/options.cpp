@@ -53,7 +53,7 @@ void terminal_arguments::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
   auto [feature_file, lines] = filepath_and_lines(sv);
-  fs::path path = sv;
+  fs::path path = feature_file;
   if (fs::exists(path))
   {
     if (fs::is_directory(path))
@@ -69,7 +69,7 @@ void terminal_arguments::process_path(std::string_view sv)
 }
 void terminal_arguments::process()
 {
-  for (auto it = m_args.begin(); it != m_args.end(); ++it)
+  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {
     std::string_view sv{*it};
     if (sv.starts_with('-'))

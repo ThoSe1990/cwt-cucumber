@@ -7,64 +7,148 @@
 
 using namespace cwt::details;
 
-// TEST(compiler_single_line, feature_chunk_1_scenario)
+TEST(compiler_single_line, feature_chunk_1_scenario)
+{
+  const char* script = R"*(
+  Feature: Hello World
+  
+  Scenario: A Scenario
+  Given A Step
+
+  Scenario: Another Scenario
+  Given A Step
+)*";
+  file test_file{"", script, {7}};
+  compiler::cucumber cuke(test_file);
+  cuke.set_options(options{.quiet = true});
+  cuke.compile();
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
+  
+  ASSERT_EQ(f->size(), 14);
+  
+  std::size_t i = 0;
+  EXPECT_EQ(f->at(i++), to_uint(op_code::reset_context));
+  EXPECT_EQ(f->at(i++), to_uint(op_code::hook_before));
+  EXPECT_EQ(f->at(i++), 0);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::constant));
+  EXPECT_EQ(f->at(i++), 2);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::define_var));
+  EXPECT_EQ(f->at(i++), 3);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::get_var));
+  EXPECT_EQ(f->at(i++), 3);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::call));
+  EXPECT_EQ(f->at(i++), 0);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::hook_after));
+  EXPECT_EQ(f->at(i++), 0);
+  EXPECT_EQ(f->at(i++), to_uint(op_code::func_return));
+
+  disassemble_chunk(*f, "feature");
+}
+TEST(compiler_single_line, feature_chunk_3_scenarios)
+{
+  const char* script = R"*(
+  Feature: Hello World
+  
+  Scenario: A Scenario
+  Given A Step
+
+  Scenario: Another Scenario
+  Given A Step
+  Scenario: Another Scenario
+  Given A Step
+  Scenario: Another Scenario
+  Given A Step
+)*";
+  file test_file{"", script, {9,11,4}};
+  compiler::cucumber cuke(test_file);
+  cuke.set_options(options{.quiet = true});
+  cuke.compile();
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
+  
+  ASSERT_EQ(f->size(), 40);
+  
+  std::size_t i = 0;
+  for ([[maybe_unused]] std::size_t const_idx : {2,4,6})
+  {
+    EXPECT_EQ(f->at(i++), to_uint(op_code::reset_context));
+    EXPECT_EQ(f->at(i++), to_uint(op_code::hook_before));
+    EXPECT_EQ(f->at(i++), 0);
+    EXPECT_EQ(f->at(i++), to_uint(op_code::constant));
+    EXPECT_EQ(f->at(i++), const_idx);
+    EXPECT_EQ(f->at(i++), to_uint(op_code::define_var));
+    EXPECT_EQ(f->at(i++), const_idx+1);
+    EXPECT_EQ(f->at(i++), to_uint(op_code::get_var));
+    EXPECT_EQ(f->at(i++), const_idx+1);
+    EXPECT_EQ(f->at(i++), to_uint(op_code::call));
+    EXPECT_EQ(f->at(i++), 0);
+    EXPECT_EQ(f->at(i++), to_uint(op_code::hook_after));
+    EXPECT_EQ(f->at(i++), 0);
+  }
+  EXPECT_EQ(f->at(i++), to_uint(op_code::func_return));
+
+  disassemble_chunk(*f, "feature");
+}
+
+TEST(compiler_single_line, feature_chunk_0_scenarios)
+{
+  const char* script = R"*(
+  Feature: Hello World
+  
+  Scenario: A Scenario
+  Given A Step
+
+  Scenario: Another Scenario
+  Given A Step
+)*";
+  file test_file{"", script, {3}};
+  compiler::cucumber cuke(test_file);
+  cuke.set_options(options{.quiet = true});
+  cuke.compile();
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
+  
+  ASSERT_EQ(f->size(), 1);
+  EXPECT_EQ(f->at(0), to_uint(op_code::func_return));
+
+  disassemble_chunk(*f, "feature");
+}
+
+// TEST(compiler_single_line, feature_chunk_single_examples)
 // {
 //   const char* script = R"*(
 //   Feature: Hello World
   
-//   Scenario: A Scenario
-//   Given A Step
+//   Scenario Outline: A Scenario
+//   Given A Step with <value>
 
-//   Scenario: Another Scenario
-//   Given A Step
+//   Examples:
+//   | value |
+//   | 1     |
+//   | 2     |
+//   | 3     |
 // )*";
-//   compiler::cucumber cuke(script,{7});
+//   file test_file{"", script, {9}};
+//   compiler::cucumber cuke(test_file);
 //   cuke.set_options(options{.quiet = true});
 //   cuke.compile();
 //   chunk* f = cuke.get_chunk().constant(0).as<function>().get();
-//   EXPECT_EQ(f->size(), 10);
-
-//   disassemble_chunk(*f, "feature");
-// }
-// TEST(compiler_single_line, feature_chunk_3_scenarios)
-// {
-//   const char* script = R"*(
-//   Feature: Hello World
   
-//   Scenario: A Scenario
-//   Given A Step
-
-//   Scenario: Another Scenario
-//   Given A Step
-//   Scenario: Another Scenario
-//   Given A Step
-//   Scenario: Another Scenario
-//   Given A Step
-// )*";
-//   compiler::cucumber cuke(script,{7,4,11});
-//   cuke.set_options(options{.quiet = true});
-//   cuke.compile();
-//   chunk* f = cuke.get_chunk().constant(0).as<function>().get();
-//   EXPECT_EQ(f->size(), 10);
-
-//   disassemble_chunk(*f, "feature");
-// }
-// TEST(compiler_single_line, feature_chunk_0_scenarios)
-// {
-//   const char* script = R"*(
-//   Feature: Hello World
+//   ASSERT_EQ(f->size(), 40);
   
-//   Scenario: A Scenario
-//   Given A Step
-
-//   Scenario: Another Scenario
-//   Given A Step
-// )*";
-//   compiler::cucumber cuke(script,{3});
-//   cuke.set_options(options{.quiet = true});
-//   cuke.compile();
-//   chunk* f = cuke.get_chunk().constant(0).as<function>().get();
-//   EXPECT_EQ(f->size(), 10);
+//   std::size_t i = 0;
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::reset_context));
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::hook_before));
+//   EXPECT_EQ(f->at(i++), 0);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::constant));
+//   EXPECT_EQ(f->at(i++), 2);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::define_var));
+//   EXPECT_EQ(f->at(i++), 3);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::get_var));
+//   EXPECT_EQ(f->at(i++), 3);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::call));
+//   EXPECT_EQ(f->at(i++), 0);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::hook_after));
+//   EXPECT_EQ(f->at(i++), 0);
+//   EXPECT_EQ(f->at(i++), to_uint(op_code::func_return));
 
 //   disassemble_chunk(*f, "feature");
 // }

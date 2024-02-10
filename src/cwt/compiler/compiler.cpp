@@ -140,4 +140,19 @@ void compiler::emit_tags(const value_array& tags)
   }
 }
 
+bool compiler::lines_match() const noexcept
+{
+  if (m_lines.empty())
+  {
+    return true;
+  }
+  else
+  {
+    std::size_t current_line = m_parser->current().line;
+    return std::any_of(m_lines.begin(), m_lines.end(),
+                       [&current_line](std::size_t line)
+                       { return current_line == line; });
+  }
+}
+
 }  // namespace cwt::details::compiler

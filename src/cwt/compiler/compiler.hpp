@@ -84,6 +84,9 @@ class compiler
   }
 
  protected:
+  [[nodiscard]] bool lines_match() const noexcept;
+
+ protected:
   std::shared_ptr<parser> m_parser;
   std::shared_ptr<options> m_options;
 

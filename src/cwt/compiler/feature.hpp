@@ -21,21 +21,23 @@ class feature : public compiler
 
  private:
   void init();
+  void next();
+  
+  void compile_scenario(const value_array &tags);
+  void compile_scenario_outline(const value_array &tags);
+
   template <typename S>
   void do_compile()
   {
     value_array all_tags = combine(m_tags, take_latest_tags());
-    if (tags_valid(all_tags))
+    if (tags_valid(all_tags) && lines_match())
     {
       S s(this, all_tags);
       s.compile();
     }
     else
     {
-      m_parser->advance();
-      m_parser->advance_to(token_type::feature, token_type::tag,
-                           token_type::scenario, token_type::scenario_outline,
-                           token_type::eof);
+      next();
     }
   }
 
