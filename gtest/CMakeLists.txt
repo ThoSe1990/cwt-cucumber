@@ -33,6 +33,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_get_args.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_quiet.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_line.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_run_w_background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_context.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
