@@ -103,7 +103,7 @@ TEST(compiler, feature_chunk)
   c.compile();
   function main = c.make_function();
   const function& feature = main->constant(0).as<function>();
-  EXPECT_EQ(feature->name(), std::string(":1"));
+  EXPECT_EQ(feature->name(), std::string("line:1"));
   EXPECT_EQ(feature->back(), to_uint(op_code::func_return));
 }
 TEST(compiler, regular_scenario)

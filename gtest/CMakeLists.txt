@@ -20,6 +20,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_and_scenario_w_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_ignore_descriptions.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_tagged_feature.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_single_lines.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc

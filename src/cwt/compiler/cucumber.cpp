@@ -4,12 +4,12 @@
 
 namespace cwt::details::compiler
 {
-cucumber::cucumber(std::string_view source) : compiler(source, "") { init(); }
-cucumber::cucumber(std::string_view source, std::string_view filename)
-    : compiler(source, filename)
+cucumber::cucumber(std::string_view source) : compiler(source) { init(); }
+cucumber::cucumber(const file& feature_file) : compiler(feature_file)
 {
   init();
 }
+
 function cucumber::make_function() noexcept
 {
   return std::make_unique<chunk>(get_chunk());

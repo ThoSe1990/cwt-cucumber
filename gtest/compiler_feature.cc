@@ -85,16 +85,16 @@ TEST(compiler_feature, feature_constants)
   f.compile();
 
   ASSERT_EQ(f.get_chunk().constants_count(), 4);
-  EXPECT_EQ(f.get_chunk().name(), ":2");
+  EXPECT_EQ(f.get_chunk().name(), "line:2");
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
+  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), "line:2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
             "Feature: Hello World");
   EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
-  EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), ":3");
+  EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), "line:3");
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), ":3");
+  EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), "line:3");
 }
 
 TEST(compiler_feature, chunk_with_tags_1)
@@ -140,34 +140,3 @@ TEST(compiler_feature, chunk_with_tags_3)
   EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
             testing::internal::GetCapturedStderr());
 }
-
-// TEST(compiler_feature, chunk_with_tags_4)
-// {
-//   const char* script = R"*(
-//   @tag1 @tag2
-//   Feature: Hello World
-// )*";
-//   testing::internal::CaptureStderr();
-
-//   compiler::cucumber cuke(script);
-//   cuke.set_tag_expression("@tag1 or @tag2");
-//   cuke.compile();
-
-//   EXPECT_EQ(cuke.get_chunk().size(), 9);
-//   EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
-//             testing::internal::GetCapturedStderr());
-// }
-// TEST(compiler_feature, chunk_with_tags_5)
-// {
-//   const char* script = R"*(
-//   @tag1 @tag2
-//   Feature: Hello World
-// )*";
-
-//   compiler::cucumber cuke(script);
-//   cuke.set_tag_expression("not @tag1 and not @tag2");
-//   cuke.compile();
-
-//   EXPECT_EQ(cuke.get_chunk().size(), 1);
-//   EXPECT_EQ(cuke.get_chunk().at(0), to_uint(op_code::func_return));
-// }

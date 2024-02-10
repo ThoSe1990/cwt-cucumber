@@ -12,17 +12,20 @@ namespace cwt::details::compiler
 compiler::compiler(std::string_view source)
     : m_parser(std::make_shared<parser>(source)),
       m_options(std::make_shared<options>()),
-      m_filename(std::string("")),
+      m_lines({}),
+      m_filename("line"),
       m_chunk("script")
 {
 }
-compiler::compiler(std::string_view source, std::string_view filename)
-    : m_parser(std::make_shared<parser>(source)),
+compiler::compiler(const file& feature_file)
+    : m_parser(std::make_shared<parser>(feature_file.content)),
       m_options(std::make_shared<options>()),
-      m_filename(filename),
+      m_lines(feature_file.lines),
+      m_filename(feature_file.path),
       m_chunk("script")
 {
 }
+
 const options& compiler::get_options() const { return *m_options.get(); }
 void compiler::set_options(const options& opts)
 {

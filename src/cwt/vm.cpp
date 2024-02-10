@@ -9,7 +9,6 @@
 #include "context.hpp"
 #include "options.hpp"
 #include "step_finder.hpp"
-#include "compiler/cucumber.hpp"
 
 #ifdef PRINT_STACK
 #include "debug.hpp"
@@ -19,10 +18,7 @@ namespace cwt::details
 {
 options vm::m_options{};
 
-vm::vm(const options& opts)  // : m_options(opts)
-{
-  m_options = opts;
-}
+vm::vm(const options& opts) { m_options = opts; }
 vm::vm(int argc, const char* argv[])
 {
   terminal_arguments terminal_args(argc, argv);
@@ -30,16 +26,15 @@ vm::vm(int argc, const char* argv[])
   m_files = terminal_args.get_files();
 }
 
+void vm::set_options(const options& opts) { m_options = opts; }
+const options& vm::get_options() { return m_options; }
+
 return_code vm::run()
 {
   return_code result = return_code::passed;
-  for (const auto& file : m_files)
+  for (const auto& f : m_files)
   {
-    std::ifstream in(file.path);
-    std::string script((std::istreambuf_iterator<char>(in)),
-                       std::istreambuf_iterator<char>());
-
-    return_code current = run(script);
+    return_code current = run(f);
     if (current != return_code::passed)
     {
       result = return_code::failed;
@@ -47,11 +42,18 @@ return_code vm::run()
   }
   return result;
 }
-void vm::set_options(const options& opts) { m_options = opts; }
-const options& vm::get_options() { return m_options; }
+return_code vm::run(const file& f)
+{
+  compiler::cucumber c(f);
+  return run(c);
+}
 return_code vm::run(std::string_view source)
 {
   compiler::cucumber c(source);
+  return run(c);
+}
+return_code vm::run(compiler::cucumber& c)
+{
   c.set_options(m_options);
   c.compile();
 
@@ -152,7 +154,7 @@ void vm::pop(std::size_t count)
     m_stack.pop_back();
   }
 }
-// TODO call reset in destructor? 
+// TODO call reset in destructor?
 void vm::reset()
 {
   steps().clear();

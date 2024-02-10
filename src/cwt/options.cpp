@@ -43,7 +43,8 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
     }
     else if (entry.path().extension() == ".feature")
     {
-      m_feature_files.push_back(file{entry.path().string(), {}});
+      m_feature_files.push_back(
+          file{entry.path().string(), read_file(entry.path().string()), {}});
     }
   }
 }
@@ -61,7 +62,8 @@ void terminal_arguments::process_path(std::string_view sv)
     }
     else if (path.extension() == ".feature")
     {
-      m_feature_files.push_back(file{feature_file, lines});
+      m_feature_files.push_back(
+          file{feature_file, read_file(feature_file), lines});
     }
   }
 }

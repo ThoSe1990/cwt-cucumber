@@ -13,6 +13,7 @@ namespace cwt::details
 struct file
 {
   std::string path;
+  std::string content;
   std::vector<unsigned long> lines;
 };
 using feature_files = std::vector<file>;
@@ -29,7 +30,7 @@ class terminal_arguments
   terminal_arguments(int argc, const char* argv[]);
   const options& get_options() const noexcept;
   const feature_files& get_files() const noexcept;
-  
+
  private:
   void process();
   void process_path(std::string_view sv);

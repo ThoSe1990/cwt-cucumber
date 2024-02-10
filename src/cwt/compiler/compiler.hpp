@@ -69,13 +69,14 @@ class compiler
 
  protected:
   compiler(std::string_view source);
-  compiler(std::string_view source, std::string_view filename);
+  compiler(const file& feature_file);
 
   template <typename Other,
             typename = std::enable_if_t<std::is_base_of_v<compiler, Other>>>
   compiler(const Other& other)
       : m_parser(other.m_parser),
         m_options(other.m_options),
+        m_lines(other.m_lines),
         m_filename(other.m_filename),
         m_chunk(location()),
         m_latest_tags(other.m_latest_tags)
@@ -87,6 +88,7 @@ class compiler
   std::shared_ptr<options> m_options;
 
  private:
+  std::vector<unsigned long> m_lines;
   std::string m_filename;
   chunk m_chunk;
   std::shared_ptr<value_array> m_latest_tags = std::make_unique<value_array>();

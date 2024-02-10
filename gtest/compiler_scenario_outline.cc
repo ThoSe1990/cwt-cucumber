@@ -67,12 +67,12 @@ TEST(compiler_scenario_outline, scenarios_constants)
   s.compile();
   ASSERT_EQ(s.get_chunk().constants_count(), 6);
   EXPECT_EQ(s.get_chunk().constant(0).type(), value_type::string);
-  EXPECT_EQ(s.get_chunk().constant(0).as<std::string>(), ":3");
+  EXPECT_EQ(s.get_chunk().constant(0).as<std::string>(), "line:3");
   EXPECT_EQ(s.get_chunk().constant(1).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(1).as<std::string>(),
             "Scenario Outline: A Scenario");
   EXPECT_EQ(s.get_chunk().constant(2).type(), value_type::string);
-  EXPECT_EQ(s.get_chunk().constant(2).as<std::string>(), ":4");
+  EXPECT_EQ(s.get_chunk().constant(2).as<std::string>(), "line:4");
   EXPECT_EQ(s.get_chunk().constant(3).type(), value_type::string);
   EXPECT_EQ(s.get_chunk().constant(3).as<std::string>(), "first var");
   EXPECT_EQ(s.get_chunk().constant(4).type(), value_type::string);
@@ -146,14 +146,14 @@ TEST(compiler_scenario_outline, parent_feature_constants)
 
   ASSERT_EQ(f.get_chunk().constants_count(), 16);
   EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), ":2");
+  EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), "line:2");
   EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
             "Feature: Hello World");
   EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
-  EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), ":3");
+  EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), "line:3");
   EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), ":3");
+  EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), "line:3");
   EXPECT_EQ(f.get_chunk().constant(4).type(), value_type::string);
   EXPECT_EQ(f.get_chunk().constant(4).as<std::string>(), "first var");
   EXPECT_EQ(f.get_chunk().constant(5).type(), value_type::nil);

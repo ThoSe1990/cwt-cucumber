@@ -5,6 +5,8 @@
 
 #include "value.hpp"
 #include "options.hpp"
+#include "compiler/cucumber.hpp"
+
 namespace cwt::details
 {
 
@@ -22,8 +24,9 @@ class vm
   vm(int argc, const char* argv[]);
 
   [[nodiscard]] return_code run();
+  [[nodiscard]] return_code run(const file& f);
   [[nodiscard]] return_code run(std::string_view source);
-  
+
   [[nodiscard]] return_code execute_function(function func);
   [[nodiscard]] const std::vector<value>& stack() const;
   [[nodiscard]] const std::vector<call_frame>& frames() const;
@@ -46,6 +49,8 @@ class vm
   const std::unordered_map<return_code, std::size_t> step_results() const;
 
  private:
+  [[nodiscard]] return_code run(compiler::cucumber& c);
+
   [[nodiscard]] static std::vector<step>& steps();
   [[nodiscard]] static std::vector<hook>& before();
   [[nodiscard]] static std::vector<hook>& after();

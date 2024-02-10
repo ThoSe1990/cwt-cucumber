@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <fstream>
 #include <iostream>
 #include <algorithm>
 #include <unordered_map>
@@ -395,6 +396,14 @@ filepath_and_lines(std::string_view sv)
     last_pos = pos;
   }
   return std::make_pair(std::string{sv.substr(0, last_pos + 1)}, lines);
+}
+
+[[nodiscard]] inline std::string read_file(const std::string& path)
+{
+  std::ifstream in(path);
+  std::string script((std::istreambuf_iterator<char>(in)),
+                     std::istreambuf_iterator<char>());
+  return script;
 }
 
 }  // namespace cwt::details
