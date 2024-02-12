@@ -8,11 +8,23 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
 
 ## Getting Started
 
-Find the full documentation [on GitHub Pages](https://those1990.github.io/cucumber-cpp-docs).
-If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cucumber-cpp-conan).
+Find the full documentation [on GitHub Pages](https://those1990.github.io/cucumber-cpp-docs).  
+If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cucumber-cpp-conan).  
+
+In the first example we just place an items into a box:
+
+```gherkin
+Feature: My first feature
+  This is my cucumber-cpp hello world
+
+  Scenario: First Scenario
+    Given An empty box
+    When I place 2 x "apple" in it
+    Then The box contains 2 item(s)
+```
 
 
-In the `./examples` directory there are several examples for `cucumber-cpp`. So let's build the interpreter and run the first scenario:
+So lets do a regular cmake build and run the `box` executable: 
 
 ```shell
 cmake -S . -B ./build
@@ -26,6 +38,8 @@ Scenario: First Scenario  ./examples/features/1_first_scenario.feature:5
 [   PASSED    ] I place 2 x "apple" in it  ./examples/features/1_first_scenario.feature:7
 [   PASSED    ] The box contains 2 item(s)  ./examples/features/1_first_scenario.feature:8
 
+1 Scenarios (1 passed)
+3 Steps (3 passed)
 ```
 
 ## Implementing Steps
@@ -62,19 +76,6 @@ GIVEN(check_box_size, "The box contains {int} item(s)")
   cuke::equal(my_box.items_count(), items_count);
 }
 ```
-
-And after the build, when we run the following feature file, we get the according output from above. 
-
-```gherkin
-Feature: My first feature
-  This is my cucumber-cpp hello world
-
-  Scenario: First Scenario
-    Given An empty box
-    When I place 2 x "apple" in it
-    Then The box contains 2 item(s)
-```
-
 
 ### Steps / Value Access
 
@@ -339,12 +340,12 @@ If you want to execute all feature files in a directory (and subdirectory), just
 
 
 ## Found A Bug? 
-Don't hesitate and open an Issue.
+Don't hesitate and open an Issue.  
 
   
+    
+
+Cheers 🍻  
   
-
-Cheers 🍻
-
-2024 Coding with Thomas
-https://www.codingwiththomas.com/
+2024 Coding with Thomas  
+https://www.codingwiththomas.com/  
