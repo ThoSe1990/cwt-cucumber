@@ -322,7 +322,7 @@ The box is shipped!
 
 ### Single Scenarios / Directories
 
-If you want to just run single scenarios, you can append the according line to the feature file:
+If you only want to run single scenarios, you can append the appropriate line to the feature file:
 
 This runs a Scenario in Line 6:
 ```shell
