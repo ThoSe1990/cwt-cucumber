@@ -20,7 +20,7 @@
     }                                                                      \
   } CONCAT(g_, function_name);                                             \
   }                                                                        \
-  void function_name(::cwt::details::argc n, ::cwt::details::argv values)
+  void function_name([[maybe_unused]] ::cwt::details::argc n, [[maybe_unused]] ::cwt::details::argv values)
 
 /**
  * @def STEP(function_name, step_definition)
