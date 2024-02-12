@@ -1,90 +1,80 @@
-[![CI](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/main.yml) [![Build Status](https://dev.azure.com/thomassedlmair/cwt-cucumber/_apis/build/status%2FThoSe1990.cwt-cucumber?branchName=main)](https://dev.azure.com/thomassedlmair/cwt-cucumber/_build/latest?definitionId=14&branchName=main)
+[![CI](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml) [![Build Status](https://dev.azure.com/thomassedlmair/cucumber-cpp/_apis/build/status%2FThoSe1990.cucumber-cpp?branchName=main)](https://dev.azure.com/thomassedlmair/cucumber-cpp/_build/latest?definitionId=15&branchName=main)
 
 
-Find the full documentation for cwt-cucumber on <a href="https://those1990.github.io/cwt-cucumber/" target=_blank>GitHub Pages</a>.
-  
-I put a conan recipe to create the conan package in <a href="https://github.com/ThoSe1990/cwt-cucumber-conan" target=_blank>another GitHub repository</a>. To demonstrate how to integrate cwt-cucumber into your projects, there are the same examples from this repository.
- 
-# Coding With Thomas: Cucumber
-This is a Cucumber interpreter written in C with C++ (17 or higher) bindings for ease of use. So my main goal was to have the basic implementation in C and an easy to use API for C++.
-  
-## Disclaimer
-This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seemed like a good project.
-  
+👋 Hello and Welcome to my C++ Cucumber interpreter 🥒🚀✨
 
-## CWT Cucumber for C++
-The C++ API compiles its own `main`, which means you only need to implement the step definitions. I use a simple `box` class for demsontration (the `box` related methods should be self-explanatory). 
+This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me.
 
-### Implementing Steps - First Example
-Include the `cwt/cucumber.hpp` header and give each step a function name and a step name. The details (assertions, scenario context, defines) <a href="https://those1990.github.io/cwt-cucumber/" target="_blank">GitHub Pages</a>.
+
+## Getting Started
+
+Find the full documentation [on GitHub Pages](https://those1990.github.io/cucumber-cpp-docs).
+If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cucumber-cpp-conan).
+
+
+In the `./examples` directory there are several examples for `cucumber-cpp`. So let's build the interpreter and run the first scenario:
+
+```shell
+cmake -S . -B ./build
+cmake --build ./build
+./build/bin/box ./examples/features/1_first_scenario.feature
+
+Feature: My first feature  ./examples/features/1_first_scenario.feature:2
+
+Scenario: First Scenario  ./examples/features/1_first_scenario.feature:5
+[   PASSED    ] An empty box  ./examples/features/1_first_scenario.feature:6
+[   PASSED    ] I place 2 x "apple" in it  ./examples/features/1_first_scenario.feature:7
+[   PASSED    ] The box contains 2 item(s)  ./examples/features/1_first_scenario.feature:8
+
+```
+
+## Implementing Steps
+
+Include `cucumber.hpp` and start implementing your steps. In this example, we will use a simple box class, which should be self-explanatory:
+
 
 ```cpp 
-#include "cwt/cucumber.hpp"
+#include "cucumber.hpp"
 #include "box.hpp"
 
-GIVEN(box_init, "A box with {int} x {int} x {int}")
-{
-  const unsigned int w = CUKE_ARG(1);
-  const unsigned int l = CUKE_ARG(2);
-  const unsigned int h = CUKE_ARG(3);
 
-  cuke::context<box>(w,l,h);
+GIVEN(init_box, "An empty box")
+{
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), 0);
 }
 
-WHEN(box_open, "I open the box")
+GIVEN(add_item, "I place {int} x {string} in it")
 {
-  cuke::context<box>().open(); 
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
+
+  for ([[maybe_unused]] int i = 0; i < count; i++)
+  {
+    cuke::context<box>().add_item(item);
+  }
 }
 
-THEN(box_is_open, "The box is open")
+GIVEN(check_box_size, "The box contains {int} item(s)")
 {
-  cuke::is_true(cuke::context<box>().is_open());
-}
-
-THEN(box_volume, "The volume is {long}")
-{
-  const std::size_t volume = CUKE_ARG(1);
-  cuke::equal(volume, cuke::context<box>().volume());  
+  const int items_count = CUKE_ARG(1);
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), items_count);
 }
 ```
 
-And with this first feature file:
+And after the build, when we run the following feature file, we get the according output from above. 
 
 ```gherkin
-# ./examples/features/first_examples.feature
+Feature: My first feature
+  This is my cucumber-cpp hello world
 
-Feature: My First Feature File
-  Just for demonstration
-
-  Scenario: An arbitrary box
-    Given A box with 2 x 2 x 2
-    When I open the box
-    Then The box is open 
-    And The volume is 8 
+  Scenario: First Scenario
+    Given An empty box
+    When I place 2 x "apple" in it
+    Then The box contains 2 item(s)
 ```
 
-Build the examples with CMake: 
-```
-cmake -S . -B ./build 
-cmake --build ./build
-```
-
-We are ready to run this example:
-
-```
-$ ./build/bin/box ./examples/features/first_example.feature 
-
-  Feature: My First Feature File  ./examples/features/first_example.feature:3
-
-  Scenario: An arbitrary box  ./examples/features/first_example.feature:6
-[   PASSED    ] A box with 2 x 2 x 2  ./examples/features/first_example.feature:7
-[   PASSED    ] I open the box  ./examples/features/first_example.feature:8
-[   PASSED    ] The box is open   ./examples/features/first_example.feature:9
-
-
-1 Scenarios (1 passed)
-3 Steps (3 passed)
-```
 
 ### Steps / Value Access
 
@@ -94,10 +84,10 @@ To implement a step, use a define with a function name and a step name. There is
 - `THEN(function_name, "your step goes here")` 
 - Alternatively just use `STEP(function_name, "your step goes here")` 
 
-Use `CUKE_ARG(..)` to access a value in a step. Start with index `1` for the first value. Use the corresponding type when you access the value, for instance:
+Use `CUKE_ARG(..)` to access a value in a step. Start with index `1` for the first value. I have overloaded the underlying function with the implicit conversion operator. So always declare a variable to access values:
 
 ```cpp
-STEP(some_step, "A {string}, an {int} and a {float}")
+STEP(your_function, "A {string}, an {int} and a {float}")
 {
   std::string str = CUKE_ARG(1);
   int i = CUKE_ARG(2);
@@ -108,249 +98,253 @@ STEP(some_step, "A {string}, an {int} and a {float}")
 
 The values are implemted as [Cucumber expressions](https://github.com/cucumber/cucumber-expressions) and currently supported are: `{byte}`, `{short}`, `{int}`, `{long}`, `{float}`, `{double}`, `{string}`. 
 
-Note: Use unsigned or const values in your implementation, if you need them:
-```cpp
-const unsigned int i = CUKE_ARG(2);
-```
-
 ### Scenario Context
 
-The scenario context or `cuke::context` stores an object for the duration of a scenario. After the scenario is finished, the object is destroyed. 
+The scenario context or `cuke::context` stores an object for the duration of a scenario. After the scenario is finished, the object is destroyed. One instance of each type can be stored in the scenario context.
 
 Recall these steps from the first example:
 
 ```cpp
-GIVEN(box_init, "A box with {int} x {int} x {int}")
+GIVEN(add_item, "I place {int} x {string} in it")
 {
-  const unsigned int w = CUKE_ARG(1);
-  const unsigned int l = CUKE_ARG(2);
-  const unsigned int h = CUKE_ARG(3);
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
 
-  cuke::context<box>(w,l,h);
+  for ([[maybe_unused]] int i = 0; i < count; i++)
+  {
+    cuke::context<box>().add_item(item);
+  }
 }
-WHEN(box_open, "I open the box")
+
+GIVEN(check_box_size, "The box contains {int} item(s)")
 {
-  cuke::context<box>().open(); 
+  const int items_count = CUKE_ARG(1);
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), items_count);
 }
 ```
 
-We create in the given-step the `box` and forward all arguments to the constructor and in the when-step we modify the object to call the `open()` method from box. After the scenario the box is destroyed. 
-  
-This means: 
+When initializing your object, you can pass all arguments to the context: 
 
-```cpp 
-// this returns a reference to box
-// if no box is in the context, the default constructor is called
-cuke::context<box>();
-
-// when you pass in arguments, and no box is in the context
-// all values are forwarded to its constructor. 
-// if a box already exists, the arguments are ignored.
-cuke::context<box>(w,l,h);
+```cpp
+// forwards 1,2,3 to your object: 
+cuke::context<some_object>(1,2,3);
+// access or default initialize your object: 
+cuke::context<some_object>();
 ```
 
-In `cuke::context` you can put from each type one instance.
 
-### Tags 
-
-You can add tags to your Scenarios (and Scenario Outlines) as following:
-
-```gherkin
-# ./examples/features/tags.feature
-
-Feature: Tags
-
-  @small_boxes
-  Scenario: An arbitrary box
-    Given A box with 1 x 1 x 1
-    Then The volume is 1
-
-  @mid_sized_boxes
-  Scenario: An arbitrary box
-    Given A box with 10 x 15 x 12
-    Then The volume is 1800
-
-  @big_boxes
-  Scenario: An arbitrary box
-    Given A box with 90 x 80 x 70
-    Then The volume is 504000
-```
-
-Now you can control the execution with `-t` or `--tags` with a tag expression (bool condition) inside the quotes and the corresponding tags:
-
-```
-$ ./build/bin/box ./examples/features/tags.feature -t "@small_boxes or @big_boxes"
-```
-
-The rules / syntax keywords are: 
-- Write the tags with `@` symbol
-- Logical operators: `and`, `or`, `xor`, `not`
-- Parentheses `(`, `)`
-
-So for instance this would be a valid statement: `"(@small_boxes and @big_boxes) or @mid_sized_boxes"`
-
-If you don't pass `-t` or `--tags` to the program options, all Scenarios are executed.
 
 ### Scenario Outline
 In a scenario outline you can define variables and run a scenario with different values:
 
-```gherkin 
-# ./examples/features/scenario_outline.feature
+```gherkin
+Feature: My first feature
 
-Feature: Scenario Outline 
-
-  Scenario Outline: A lot of boxes 
-    Given A box with <width> x <height> x <depth>
-    Then The volume is <volume>
+  Scenario Outline: First Scenario Outline
+    Given An empty box
+    When I place <count> x <item> in it
+    Then The box contains <count> item(s)
 
     Examples:
-      | width | height | depth | volume |
-      | 1     | 1      | 1     | 1      |
-      | 1     | 2      | 3     | 6      |
-      | 2     | 2      | 4     | 16     |
+      | count | item      |
+      | 1     | "apple"   |
+      | 2     | "bananas" |
 ```
 
-This Scenario is now executed three times, with each row of values. 
-  
-You can also add tags to examples. Begin a new table with the tag, followed by `Examples:` in the next line:
+Which gives this output:
+
+```shell
+./build/bin/box ./examples/features/2_scenario_outline.feature
+
+Feature: My first feature  ./examples/features/2_scenario_outline.feature:2
+
+Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
+[   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
+[   PASSED    ] I place <count> x <item> in it  ./examples/features/2_scenario_outline.feature:7
+[   PASSED    ] The box contains <count> item(s)  ./examples/features/2_scenario_outline.feature:8
+  With Examples:
+  | count | item      |
+  | 1     | "apple"   |
+
+Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
+[   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
+[   PASSED    ] I place <count> x <item> in it  ./examples/features/2_scenario_outline.feature:7
+[   PASSED    ] The box contains <count> item(s)  ./examples/features/2_scenario_outline.feature:8
+  With Examples:
+  | count | item      |
+  | 2     | "bananas" |
+
+
+2 Scenarios (2 passed)
+6 Steps (6 passed)
+```
+
+### Background
+A background is a set of steps (or a single step) which are the first steps of every `Scenario` in a `Feature`. After the feature definition add `Background`, see `./examples/features/3_background.feature`:
 
 ```gherkin
-# ./examples/features/scenario_outline.feature
-# ... 
-  
-  @mid_sized_boxes
-  Examples:
-    | width | height | depth | volume |
-    | 10    | 5      | 10    | 500    |
-    | 20    | 2      | 9     | 360    |
-  
-  @big_boxes
-  Examples:
-    | width | height | depth | volume  |
-    | 200   | 99     | 150   | 2970000 |
-    | 120   | 55     | 30    | 198000  |
+Feature: We always need apples!
+
+  Background: Add an apple 
+    Given An empty box
+    When I place 1 x "apple" in it
+
+  Scenario: Apples Apples Apples
+    When I place 1 x "apple" in it
+    Then The box contains 2 item(s)
+
+  Scenario: Apples and Bananas
+    When I place 1 x "apple" in it
+    And I place 1 x "banana" in it
+    Then The box contains 3 item(s)
 ```
 
-The program option `-t` / `--tags` works exactly as before. Pass tags to execute the tags, without tags all examples/scenarios are executed. 
+
+### Tags 
+
+Use the terminal option `-t` or `--tags` to provide tags. This will then check the given condition with tagged scenario and execute them accordingly. Consider this feature file: 
+
+
+```gherkin
+Feature: Scenarios with tags
+
+  @apples
+  Scenario: Apple
+    Given An empty box
+    When I place 2 x "apple" in it
+    Then The box contains 2 item(s)
+
+  @apples @bananas
+  Scenario: Apples and Bananas
+    Given An empty box
+    When I place 2 x "apple" in it
+    And I place 2 x "banana" in it
+    Then The box contains 4 item(s)
+```
+
+And when we run this with tags, we can control which scenarios are executed.
+
+This executes both scenarios:
+```shell
+./build/bin/box ./examples/features/4_tags.feature -t "@apples or @bananas"
+```
+And this would just execute the second scenario due to the `and` condition:
+```shell
+./build/bin/box ./examples/features/4_tags.feature -t "@apples and @bananas"
+```
+
+Note: Tags can be applied to `Feature:`, `Scenario:`, `Scenario Outline:` and `Examples:`.
 
 ### Hooks 
 
-Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. Just use the dedicated hook defines and give the hook a unique function name (in the current examples I commented the prints, uncomment them if you want to see):
+Hooks are executed before and after each scenario or step. The implementation is pretty straightforward. You can have multiple hooks of the same type. All of them are executed at their time. 
 
 ```cpp
-// ./examples/cpp/step_definition.cpp: 
-
+// ./examples/hooks.cpp: 
 BEFORE(before)
 {
-  std::puts("this runs before every scenario");
+  // this runs before every scenario
 }
 AFTER(after)
 {
-  std::puts("this runs after every scenario");
+  // this runs after every scenario
 }
 BEFORE_STEP(before_step)
 {
-  std::puts("this runs before every step");
+  // this runs before every step
 }
 AFTER_STEP(after_step)
 {
-  std::puts("this runs after every step");
+  // this runs after every step
 }
 ```
 
 
 ### Tagged Hooks
 
-You can add a tag expression to your hooks (similar to `-t`/`--tags`). Use  
-- `BEFORE_T(name, "tags come here")` for a hook before a scenrio
-- `AFTER_T(name, "tags come here")` for a hook after a scenario
+You can add a tag expression to your hook. Use  
+- `BEFORE_T(name, "tags come here")` for a tagged hook before a scenrio
+- `AFTER_T(name, "tags come here")` for a tagged hook after a scenario
   
-For example if we want to execute a hook only when it has the tags `@small_boxes` and `@open` we'd do this:
+This means a tagged hook is executed, when a scenario fulfills the given condition. You can pass in any logical expression to a tagged hook:
 
 ```cpp
-// ./examples/cpp/step_definition.cpp: 
+// ./examples/hooks.cpp
 
-// a function name and tag expression (same for AFTER_T):
-BEFORE_T(open_small_boxes, "@small_boxes and @open")
+AFTER_T(dispatch_box, "@ship or @important")
 {
-  // we create a box with some default values
-  // and then we call immediately open()
-  cuke::context<box>(1u,1u,1u).open();
+  std::cout << "The box is shipped!" << std::endl;
 }
 ```
 
-Which means all scenarios with theses tags contain an opened box by default and this passes:
-
 ```gherkin
-# ./examples/features/tags.feature
-# ... 
+Feature: Scenarios with tags
 
-  @small_boxes @open
-  Scenario: An opened box
-    Then The box is open 
+  @ship 
+  Scenario: We want to ship cucumbers
+    Given An empty box
+    When I place 1 x "cucumber" in it
+    Then The box contains 1 item(s)
+
+  @important
+  Scenario: Important items must be shipped immediately
+    Given An empty box
+    When I place 2 x "important items" in it
+    Then The box contains 2 item(s)
 ```
 
-### Background
+And now we can see that our box was shipped:
 
-A background is a set of steps (or a single step) which are the first steps of every `Scenario` in a `Feature`. After the feature definition add `Background`:
+```shell
+./build/bin/box ./examples/features/5_tagged_hooks.feature
 
-```gherkin
-# ./examples/features/background.feature
+Feature: Scenarios with tags  ./examples/features/5_tagged_hooks.feature:1
 
-Feature: We want default open boxes!
+Scenario: We want to ship cucumbers  ./examples/features/5_tagged_hooks.feature:4
+[   PASSED    ] An empty box  ./examples/features/5_tagged_hooks.feature:5
+[   PASSED    ] I place 1 x "cucumber" in it  ./examples/features/5_tagged_hooks.feature:6
+[   PASSED    ] The box contains 1 item(s)  ./examples/features/5_tagged_hooks.feature:7
+The box is shipped!
 
-  Background: create an opened the box!
-    Given A box with 2 x 2 x 2
-    When I open the box
+Scenario: Important items must be shipped immediately  ./examples/features/5_tagged_hooks.feature:10
+[   PASSED    ] An empty box  ./examples/features/5_tagged_hooks.feature:11
+[   PASSED    ] I place 2 x "important items" in it  ./examples/features/5_tagged_hooks.feature:12
+[   PASSED    ] The box contains 2 item(s)  ./examples/features/5_tagged_hooks.feature:13
+The box is shipped!
 
-  Scenario: An opened box
-    Then The box is open 
+
+2 Scenarios (2 passed)
+6 Steps (6 passed)
 ```
 
-### Single Scenarios 
 
-If you want to execute only single Scenarios, use the `-l` or `--line` program option after the feature filepath. Run multiple feature files and append one or more lines: 
+### Single Scenarios / Directories
 
+If you want to just run single scenarios, you can append the according line to the feature file:
+
+This runs a Scenario in Line 6:
+```shell
+./build/bin/box ./examples/features/box.feature:6
 ```
-$ ./build/bin/box ./examples/features/box.feature -l 6
-$ ./build/bin/box ./examples/features/box.feature -l 6 -l 18
-$ ./build/bin/box ./examples/features/box.feature -l 6 -l 18 ./examples/features/scenario_outline.feature -l 12
-```
-
-### Executing All Files From A Directory
-
-In the C++ implementation you can execute all feature files from a directory. Pass the directory as program option and all feature files in there are executed:
-
-```
-$ ./build/bin/box ./examples/features
+This runs each Scenario in line 6, 11, 14:
+```shell
+./build/bin/box ./examples/features/box.feature:6:11:14
 ```
 
-### Use Your Own Main
-There is also a `cucumber-no-main` target if you need your own main and implement more to you program. To execute the cucumber test you have to call the `init()` and `run()` method. The standard main looks like this:
-
-```cpp
-// ./src/cwt/implementation/main.cpp
-#include "cwt/cucumber.hpp"
-
-int main(int argc, const char* argv[])
-{
-  cuke::details::init(); 
-  return cuke::details::run(argc, argv);
-}
+If you want to execute all feature files in a directory (and subdirectory), just pass the directory as argument:
+```shell
+./build/bin/box ./examples/features
 ```
 
-## Whats Missing
 
-So what is missing? By now I can think of is:
-- Comprehensive documentation (I'm working on that)
-- Conan recipe (after first version tag)
-- `-h` / `--help` option 
-- Languages (currently only english keywords are implemented)
-- Rules 
-- Reports (json, ...) 
-- ...
+## Found A Bug? 
+Don't hesitate and open an Issue.
 
-If you have anything or in case I missed something, just reach out to me in any form. 
+  
+  
 
-## And Finally ... 
-... This is a fun and educational project for me. I am not getting paid for this and I am doing this on my own time, so if there are any problems it will depend on how busy I am to fix them. But I'll always answer as soon as I can.
+Cheers 🍻
+
+2024 Coding with Thomas
+https://www.codingwiththomas.com/
