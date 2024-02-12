@@ -12,7 +12,7 @@ GIVEN(add_item, "I place {int} x {string} in it")
   const std::size_t count = CUKE_ARG(1);
   const std::string item = CUKE_ARG(2);
 
-  for (int i = 0; i < count; i++)
+  for ([[maybe_unused]] int i = 0; i < count; i++)
   {
     cuke::context<box>().add_item(item);
   }
