@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler/cucumber.hpp"
+#include "../src/compiler/cucumber.hpp"
 
 using namespace cwt::details;
 

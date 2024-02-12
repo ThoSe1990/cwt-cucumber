@@ -340,3 +340,11 @@ If you want to execute all feature files in a directory (and subdirectory), just
 
 ## Found A Bug? 
 Don't hesitate and open an Issue.
+
+  
+  
+
+Cheers 🍻
+
+2024 Coding with Thomas
+https://www.codingwiththomas.com/

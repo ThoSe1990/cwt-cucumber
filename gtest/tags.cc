@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler/tags.hpp"
+#include "../src/compiler/tags.hpp"
 
 using namespace cwt::details;
 

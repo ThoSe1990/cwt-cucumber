@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/util.hpp"
+#include "../src/util.hpp"
 
 using namespace cwt::details;
 

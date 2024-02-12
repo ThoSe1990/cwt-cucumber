@@ -23,9 +23,12 @@ class vm
   vm(const options& opts);
   vm(int argc, const char* argv[]);
 
-  [[nodiscard]] return_code run();
+  void run();
+  
   [[nodiscard]] return_code run(const file& f);
   [[nodiscard]] return_code run(std::string_view source);
+
+  [[nodiscard]] return_code final_result() const noexcept;
 
   [[nodiscard]] return_code execute_function(function func);
   [[nodiscard]] const std::vector<value>& stack() const;
@@ -49,7 +52,7 @@ class vm
   const std::unordered_map<return_code, std::size_t> step_results() const;
 
  private:
-  [[nodiscard]] return_code run(compiler::cucumber& c);
+  [[nodiscard]] return_code internal_run(compiler::cucumber& c);
 
   [[nodiscard]] static std::vector<step>& steps();
   [[nodiscard]] static std::vector<hook>& before();
@@ -68,7 +71,6 @@ class vm
   [[nodiscard]] return_code start();
   void call(const function& func);
   void run_hooks(const std::vector<hook>& hooks, uint32_t n) const;
-  [[nodiscard]] return_code final_result() const noexcept;
 
  private:
   std::vector<value> m_stack;

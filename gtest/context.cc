@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/context.hpp"
+#include "../src/context.hpp"
 
 class context : public ::testing::Test
 {

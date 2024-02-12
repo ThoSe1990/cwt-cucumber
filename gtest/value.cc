@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/value.hpp"
-#include "../src/cwt/chunk.hpp"
+#include "../src/value.hpp"
+#include "../src/chunk.hpp"
 
 using namespace cwt::details;
 

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/compiler/feature.hpp"
+#include "../src/compiler/feature.hpp"
 
 #define PRINT_STACK 1
-#include "../src/cwt/debug.hpp"
+#include "../src/debug.hpp"
 
 using namespace cwt::details;
 

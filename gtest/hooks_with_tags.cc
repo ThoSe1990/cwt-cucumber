@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/cucumber.hpp"
-#include "../src/cwt/hooks.hpp"
+#include "../src/cucumber.hpp"
+#include "../src/hooks.hpp"
 
 using namespace cwt::details;
 

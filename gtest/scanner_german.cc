@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/scanner.hpp"
+#include "../src/scanner.hpp"
 
 using namespace cwt::details;
 

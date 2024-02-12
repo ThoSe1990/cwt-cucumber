@@ -1,7 +1,7 @@
 #include <iterator>
 #include <gtest/gtest.h>
 
-#include "../src/cwt/chunk.hpp"
+#include "../src/chunk.hpp"
 
 using namespace cwt::details;
 

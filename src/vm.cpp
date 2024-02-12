@@ -29,30 +29,24 @@ vm::vm(int argc, const char* argv[])
 void vm::set_options(const options& opts) { m_options = opts; }
 const options& vm::get_options() { return m_options; }
 
-return_code vm::run()
+void vm::run()
 {
-  return_code result = return_code::passed;
   for (const auto& f : m_files)
   {
-    return_code current = run(f);
-    if (current != return_code::passed)
-    {
-      result = return_code::failed;
-    }
+    [[maybe_unused]] return_code current = run(f);
   }
-  return result;
 }
 return_code vm::run(const file& f)
 {
   compiler::cucumber c(f);
-  return run(c);
+  return internal_run(c);
 }
 return_code vm::run(std::string_view source)
 {
   compiler::cucumber c(source);
-  return run(c);
+  return internal_run(c);
 }
-return_code vm::run(compiler::cucumber& c)
+return_code vm::internal_run(compiler::cucumber& c)
 {
   c.set_options(m_options);
   c.compile();
@@ -98,8 +92,6 @@ return_code vm::final_result() const noexcept
       get_step_results(results());
   print(std::format("{} Steps", count_values(steps)));
   print(steps);
-
-  // TODO Failed Scenarios:
 
   return to_return_code(scenarios);
 }
@@ -427,7 +419,7 @@ return_code vm::start()
         m_frames.pop_back();
         if (m_frames.empty())
         {
-          return final_result();
+          return to_return_code(get_scenario_results(results()));
         }
         else
         {

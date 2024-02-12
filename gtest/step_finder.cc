@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/cwt/step_finder.hpp"
+#include "../src/step_finder.hpp"
 
 using namespace cwt::details;
 
