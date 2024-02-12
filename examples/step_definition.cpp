@@ -1,4 +1,4 @@
-#include "../src/cwt/cucumber.hpp"
+#include "cucumber.hpp"
 #include "box.hpp"
 
 GIVEN(init_box, "An empty box")
@@ -18,7 +18,7 @@ GIVEN(add_item, "I place {int} x {string} in it")
   }
 }
 
-GIVEN(with_value, "The box contains {int} item(s)")
+GIVEN(check_box_size, "The box contains {int} item(s)")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();

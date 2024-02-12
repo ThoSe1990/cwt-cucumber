@@ -9,10 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 - No C API anymore (project is re-implmented in C++20)
-- Cucumber Loclization: Localization is ready to extend. Languages implemented: 
+- Cucumber Loclization. Languages implemented: 
   ✅ English (default)
   ✅ German
-
+  ✅ Spanish
+- Moved docs to it's own repository
 
 ## [1.0.0] 2023-11-10
 
