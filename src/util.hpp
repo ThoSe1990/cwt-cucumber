@@ -286,7 +286,7 @@ inline void print(const std::unordered_map<return_code, std::size_t>& results)
       std::count(scenario.begin(), scenario.end(), return_code::undefined));
 }
 
-[[nodiscard]] inline return_code scenario_result(std::size_t passed,
+[[nodiscard]] inline return_code scenario_result(std::size_t /*passed*/,
                                                  std::size_t failed,
                                                  std::size_t skipped,
                                                  std::size_t undefined)
@@ -378,11 +378,11 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
 filepath_and_lines(std::string_view sv)
 {
   std::vector<unsigned long> lines;
-  long pos = sv.size();
+  long pos = static_cast<long>(sv.size());
   long last_pos = pos;
   while (pos > 0)
   {
-    pos = sv.rfind(':', pos);
+    pos = static_cast<long>(sv.rfind(':', pos));
     const std::string_view sub = sv.substr(pos + 1, last_pos - pos);
     if (is_number(sub))
     {
