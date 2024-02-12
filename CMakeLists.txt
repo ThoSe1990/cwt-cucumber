@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 3.16)
-project(cwt-cucumber VERSION 1.0.0)
+project(cucumber-cpp VERSION 1.1.0)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -32,6 +32,5 @@ endif()
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
-
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)
