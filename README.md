@@ -106,7 +106,7 @@ The scenario context or `cuke::context` stores an object for the duration of a s
 Recall these steps from the first example:
 
 ```cpp
-GIVEN(add_item, "I place {int} x {string} in it")
+WHEN(add_item, "I place {int} x {string} in it")
 {
   const std::size_t count = CUKE_ARG(1);
   const std::string item = CUKE_ARG(2);
@@ -117,7 +117,7 @@ GIVEN(add_item, "I place {int} x {string} in it")
   }
 }
 
-GIVEN(check_box_size, "The box contains {int} item(s)")
+THEN(check_box_size, "The box contains {int} item(s)")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
