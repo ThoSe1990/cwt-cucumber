@@ -1,5 +1,6 @@
 #include "scanner.hpp"
 #include "identifiers/german.hpp"
+#include "identifiers/spanish.hpp"
 
 namespace cwt::details
 {
@@ -14,6 +15,10 @@ static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 scanner::scanner(std::string_view source) : m_source(source)
 {
   find_language();
+}
+scanner::scanner(std::string_view source, bool_operators)
+    : m_source(source), m_identifiers(std::make_shared<bool_operators>())
+{
 }
 void scanner::find_language()
 {

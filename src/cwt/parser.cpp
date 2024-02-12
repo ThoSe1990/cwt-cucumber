@@ -5,6 +5,7 @@
 namespace cwt::details
 {
 parser::parser(std::string_view source) : m_scanner(source) {}
+parser::parser(std::string_view source, bool_operators) : m_scanner(source, bool_operators{}) {}
 
 const token& parser::current() const noexcept { return m_current; }
 const token& parser::previous() const noexcept { return m_previous; }

@@ -23,7 +23,7 @@ class tag_expression
   tag_expression();
   tag_expression(std::string_view expression);
 
-  void set(std::string_view expression);
+  // void set(std::string_view expression);
   [[nodiscard]] bool evaluate(argc n, argv tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] bool empty() const noexcept;

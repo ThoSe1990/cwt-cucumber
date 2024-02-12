@@ -6,7 +6,8 @@
 #include "token.hpp"
 #include "identifiers/identifier.hpp"
 #include "identifiers/english.hpp"
-#include "identifiers/spanish.hpp"
+#include "identifiers/bool_operators.hpp"
+
 
 namespace cwt::details
 {
@@ -15,6 +16,7 @@ class scanner
 {
  public:
   scanner(std::string_view source);
+  scanner(std::string_view source, bool_operators);
   [[nodiscard]] token scan_token();
   void reset();
   

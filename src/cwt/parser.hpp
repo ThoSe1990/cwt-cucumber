@@ -8,6 +8,8 @@ class parser
 {
  public:
   parser(std::string_view source);
+  parser(std::string_view source, bool_operators);
+  
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;

@@ -42,19 +42,19 @@ TEST(scanner, right_paren)
 }
 TEST(scanner, and_token)
 {
-  EXPECT_EQ(scanner("and").scan_token().type, token_type::_and);
+  EXPECT_EQ(scanner("and", bool_operators{}).scan_token().type, token_type::_and);
 }
 TEST(scanner, or_token)
 {
-  EXPECT_EQ(scanner("or").scan_token().type, token_type::_or);
+  EXPECT_EQ(scanner("or", bool_operators{}).scan_token().type, token_type::_or);
 }
 TEST(scanner, not_token)
 {
-  EXPECT_EQ(scanner("not").scan_token().type, token_type::_not);
+  EXPECT_EQ(scanner("not", bool_operators{}).scan_token().type, token_type::_not);
 }
 TEST(scanner, xor_token)
 {
-  EXPECT_EQ(scanner("xor").scan_token().type, token_type::_xor);
+  EXPECT_EQ(scanner("xor", bool_operators{}).scan_token().type, token_type::_xor);
 }
 
 TEST(scanner, tag_paren_token)
@@ -69,7 +69,7 @@ TEST(scanner, word_paren_token)
   scanner s("hello world and ()");
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
-  EXPECT_EQ(s.scan_token().type, token_type::_and);
+  EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::left_paren);
   EXPECT_EQ(s.scan_token().type, token_type::right_paren);
 }
@@ -186,7 +186,7 @@ TEST(scanner, statement_1)
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::variable);
-  EXPECT_EQ(s.scan_token().type, token_type::_and);
+  EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::long_value);
 }
 
@@ -197,7 +197,7 @@ TEST(scanner, statement_2)
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::string_value);
-  EXPECT_EQ(s.scan_token().type, token_type::_and);
+  EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::double_value);
 }
 TEST(scanner, table_header)
