@@ -67,6 +67,10 @@ void scanner::set_language(std::string_view country)
   {
     m_identifiers = std::make_shared<german>();
   }
+  else if (country == "es")
+  {
+    m_identifiers = std::make_shared<spanish>();
+  }
 }
 
 char scanner::advance()

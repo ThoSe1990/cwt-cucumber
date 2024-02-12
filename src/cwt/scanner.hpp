@@ -6,6 +6,7 @@
 #include "token.hpp"
 #include "identifiers/identifier.hpp"
 #include "identifiers/english.hpp"
+#include "identifiers/spanish.hpp"
 
 namespace cwt::details
 {

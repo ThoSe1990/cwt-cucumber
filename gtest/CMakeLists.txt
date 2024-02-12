@@ -42,6 +42,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_english.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_german.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner_spanish.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scenario_outline.cc
   )
   target_link_libraries(${target} cucumber-no-main GTest::gtest_main)
