@@ -1,25 +1,26 @@
 #include "../src/cwt/cucumber.hpp"
+#include "box.hpp"
 
-BEFORE_T(tag_1, "@tag1")
+GIVEN(init_box, "An empty box")
 {
-  std::cout << "tag1" << std::endl;
-}
-BEFORE_T(tag_2_3, "not @tag1 and (@tag2 or @tag3)")
-{
-  std::cout << "tag_2_3 tag" << std::endl;
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), 0);
 }
 
-GIVEN(first_step, "Hello World")
+GIVEN(add_item, "I place {int} x {string} in it")
 {
-  std::cout << "this is my first step" << std::endl;
-}
-GIVEN(will_fail, "This fails")
-{
-  cuke::is_true(false);
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
+
+  for (int i = 0; i < count; i++)
+  {
+    cuke::context<box>().add_item(item);
+  }
 }
 
-GIVEN(with_value, "{int} is greater 15")
+GIVEN(with_value, "The box contains {int} item(s)")
 {
-  int i = CUKE_ARG(1);
-  cuke::greater(i, 15);
+  const int items_count = CUKE_ARG(1);
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), items_count);
 }
