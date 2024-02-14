@@ -10,8 +10,8 @@ This is a fun/educational project for me. After reading "Crafting Interpreters" 
 
 ## Getting Started
 
-Find the full documentation [on GitHub Pages](https://those1990.github.io/cucumber-cpp-docs).  
-If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cucumber-cpp-conan).  
+Find the full documentation [on GitHub Pages](https://those1990.github.io/cwt-cucumber-docs).  
+If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cwt-cucumber-conan).  
 
 In the first example we just place an items into a box:
 
