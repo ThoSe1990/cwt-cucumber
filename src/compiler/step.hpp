@@ -30,8 +30,14 @@ class step
     token end = m_parent->get_parser().previous();
 
     m_parent->get_parser().skip_linebreaks();
+
     if (m_parent->get_parser().match(token_type::doc_string))
     {
+      end = m_parent->get_parser().previous();
+    }
+    else if (m_parent->get_parser().check(token_type::vertical))
+    {
+      process_datatable();
       end = m_parent->get_parser().previous();
     }
 
@@ -86,6 +92,44 @@ class step
   {
     return m_parent->get_parser().is_none_of(token_type::linebreak,
                                              token_type::eof);
+  }
+
+  void process_datatable() const
+  {
+    const std::size_t elements_in_row = process_datatable_row();
+    std::size_t rows_count = 1;
+
+    parser& p = m_parent->get_parser();
+    while (p.is_none_of(token_type::scenario, token_type::scenario_outline,
+                        token_type::examples, token_type::tag, token_type::eof))
+    {
+      if (process_datatable_row() != elements_in_row)
+      {
+        p.error_at(p.current(), "Inconsistent cell count within data table");
+        return; 
+      }
+      ++rows_count;
+      p.skip_linebreaks();
+    }
+    
+    m_parent->emit_byte(op_code::create_datatable);
+    m_parent->emit_byte(rows_count);
+    m_parent->emit_byte(elements_in_row);
+  }
+
+  std::size_t process_datatable_row() const
+  {
+    std::size_t element_count = 0;
+    parser& p = m_parent->get_parser();
+    p.consume(token_type::vertical, "Expect '|' at table row begin.");
+    while (!p.match(token_type::linebreak))
+    {
+      m_parent->emit_table_value();
+      ++element_count;
+      p.advance();
+      p.consume(token_type::vertical, "Expect '|' after value in data table.");
+    }
+    return element_count;
   }
 
  private:

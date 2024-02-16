@@ -64,8 +64,9 @@ static std::size_t byte_instruction(std::string_view name, const chunk& c,
   for (std::size_t i = 1 ; i <= byte_count ; i++)
   {
     uint32_t idx = c[offset + i];
-    std::cout << '\t' << idx << '\n';
+    std::cout << ' ' << idx;
   }
+  std::cout << '\n';
   return offset + byte_count;
 }
 
@@ -106,7 +107,7 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
     case op_code::define_var:
       return constant_instruction("op_code::define_var", c, offset);
     case op_code::create_datatable:
-      return byte_instruction("op_code::create_datatable", c, offset, 3);
+      return byte_instruction("op_code::create_datatable", c, offset, 2);
     case op_code::print_linebreak:
       return simple_instruction("op_code::print_linebreak", offset);
     case op_code::print_indent:
