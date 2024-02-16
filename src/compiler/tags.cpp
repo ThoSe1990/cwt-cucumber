@@ -12,11 +12,6 @@ tag_expression::tag_expression(std::string_view expression)
 {
   compile();
 }
-// void tag_expression::set(std::string_view expression)
-// {
-//   m_parser = parser(expression);
-//   compile();
-// }
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 bool tag_expression::empty() const noexcept { return m_out.empty(); }
 bool tag_expression::evaluate(argc n, argv tags) const

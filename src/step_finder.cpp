@@ -55,8 +55,10 @@ bool step_finder::step_matches()
       }
       else if (feature.type == token_type::variable)
       {
-        m_values.push_back(nil_value{});
-        // nothing value already on the stack
+        auto use_nil_as_placeholder = [this](){
+          m_values.push_back(nil_value{});
+        };
+        use_nil_as_placeholder();
       }
       else
       {
