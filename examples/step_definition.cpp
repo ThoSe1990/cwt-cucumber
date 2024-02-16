@@ -24,3 +24,9 @@ THEN(check_box_size, "The box contains {int} item(s)")
   const box& my_box = cuke::context<box>();
   cuke::equal(my_box.items_count(), items_count);
 }
+
+STEP(doc, "doc string:")
+{
+  std::string s = CUKE_ARG(1);
+  std::cout << s << std::endl;
+}

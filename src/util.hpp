@@ -177,7 +177,10 @@ static constexpr std::string replace(const token& t, std::string_view r)
     break;
     case token_type::doc_string:
     {
-      return value(replace(t, "\"\"\""));
+      auto rm_3_at_start_and_end = [](const token& t){
+        return value(std::string(t.value.substr(3, t.value.size()-6)));
+      };
+      return rm_3_at_start_and_end(t);
     }
     break;
     case token_type::string_value:

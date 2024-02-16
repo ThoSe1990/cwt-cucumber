@@ -125,7 +125,7 @@ bool scanner::is_alpha(char c) const noexcept
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 bool scanner::is_at_end() const { return m_pos >= m_source.size(); }
-bool scanner::tripple_quotes() const
+bool scanner::three_consecutive(const char c) const
 {
   if (chars_left() < 2)
   {
@@ -133,8 +133,8 @@ bool scanner::tripple_quotes() const
   }
   else
   {
-    return m_source[m_pos] == '"' && m_source[m_pos + 1] == '"' &&
-           m_source[m_pos + 2] == '"';
+    return m_source[m_pos] == c && m_source[m_pos + 1] == c &&
+           m_source[m_pos + 2] == c;
   }
 }
 std::size_t scanner::chars_left() const
@@ -261,11 +261,10 @@ token scanner::string()
 }
 token scanner::doc_string()
 {
-  const std::size_t start = m_start;
   advance();
   advance();
   advance();
-  while (!tripple_quotes())
+  while (!three_consecutive('"') && !three_consecutive('`'))
   {
     if (end_of_line())
     {
@@ -283,8 +282,7 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
-  const std::size_t end = m_pos;
-  return make_token(token_type::doc_string, start, end);
+  return make_token(token_type::doc_string, m_start, m_pos);
 }
 
 token scanner::word()
@@ -383,6 +381,17 @@ token scanner::scan_token()
       return tag();
     case '<':
       return variable();
+    case '`':
+    {
+      if (peek() == '`' && peek_next() == '`')
+      {
+        return doc_string();
+      }
+      else 
+      {
+        return error_token("Expect doc string after '`'.");
+      }
+    }
     case '"':
     {
       if (peek() == '"' && peek_next() == '"')

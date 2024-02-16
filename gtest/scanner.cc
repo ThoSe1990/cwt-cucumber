@@ -16,11 +16,22 @@ TEST(token, token_1)
 }
 TEST(token, token_2)
 {
+  const std::string_view expected = "\"\"\"\nhello doc string\n   \"\"\"";
   token t = scanner("\"\"\"\nhello doc string\n   \"\"\"").scan_token();
   EXPECT_EQ(t.type, token_type::doc_string);
   EXPECT_EQ(t.line, 2);
-  EXPECT_EQ(t.value.size(), std::string_view("\"\"\"\nhello doc string\n   \"\"\"").size());
-  EXPECT_EQ(t.value, std::string_view("\"\"\"\nhello doc string\n   \"\"\""));
+  EXPECT_EQ(t.value.size(), expected.size());
+  EXPECT_EQ(t.value, expected);
+}
+
+TEST(token, token_3)
+{
+  const std::string_view expected = "```\nhello doc string\n   ```";
+  token t = scanner("```\nhello doc string\n   ```").scan_token();
+  EXPECT_EQ(t.type, token_type::doc_string);
+  EXPECT_EQ(t.line, 2);
+  EXPECT_EQ(t.value.size(), expected.size());
+  EXPECT_EQ(t.value, expected);
 }
 
 TEST(scanner, scan_vertical) { token t = scanner("|").scan_token(); }
@@ -133,9 +144,14 @@ TEST(scanner, string_missing_closing)
 {
   EXPECT_EQ(scanner("\"some string").scan_token().type, token_type::error);
 }
-TEST(scanner, doc_string)
+TEST(scanner, doc_string_1)
 {
   EXPECT_EQ(scanner("\"\"\"\nhello doc string\n\"\"\"").scan_token().type,
+            token_type::doc_string);
+}
+TEST(scanner, doc_string_2)
+{
+  EXPECT_EQ(scanner("```\nhello doc string\n```").scan_token().type,
             token_type::doc_string);
 }
 TEST(scanner, unterminated_doc_string_1)
@@ -151,6 +167,11 @@ TEST(scanner, unterminated_doc_string_2)
 TEST(scanner, unterminated_doc_string_3)
 {
   EXPECT_EQ(scanner("\"\"\"\nhello doc string\n\"").scan_token().type,
+            token_type::error);
+}
+TEST(scanner, unterminated_doc_string_4)
+{
+  EXPECT_EQ(scanner("```\nhello doc string\n\"").scan_token().type,
             token_type::error);
 }
 TEST(scanner, long_value)

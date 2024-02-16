@@ -138,13 +138,27 @@ TEST(step_finder, value_string)
   EXPECT_TRUE(sf.step_matches());
   EXPECT_EQ(sf.get_value(0).as<std::string>(), std::string("hello world"));
 }
-TEST(step_finder, step_with_doc_string)
+TEST(step_finder, step_with_doc_string_1)
 {
   const char* doc_string_step = R"*(this is an arbitrary step with a doc string
 """
 this is a doc string
 which just follows after the step!
 """)*";
+  step_finder sf("this is an arbitrary step with a doc string",
+                 doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+  EXPECT_EQ(
+      sf.get_value(0).as<std::string>(),
+      std::string("\nthis is a doc string\nwhich just follows after the step!\n"));
+}
+TEST(step_finder, step_with_doc_string_2)
+{
+  const char* doc_string_step = R"*(this is an arbitrary step with a doc string
+```
+this is a doc string
+which just follows after the step!
+```)*";
   step_finder sf("this is an arbitrary step with a doc string",
                  doc_string_step);
   ASSERT_TRUE(sf.step_matches());
