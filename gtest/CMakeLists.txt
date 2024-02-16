@@ -11,6 +11,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_quiet.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_datatables.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_w_background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_tags.cc

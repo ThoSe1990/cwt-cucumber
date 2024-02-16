@@ -35,6 +35,7 @@ enum class op_code : uint32_t
   init_scenario,
   scenario_result,
   jump_if_failed,
+  create_datatable,
   call,
   call_step,
   hook_before,
