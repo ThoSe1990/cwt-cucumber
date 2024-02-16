@@ -49,7 +49,26 @@ void parser::advance_to(token_type type)
   while (!check(type))
   {
     advance();
+    if (check(token_type::eof))
+    {
+      error_at(m_current, "Unexpected end of file.");
+    }
   }
+}
+
+std::vector<token> parser::collect_tokens_to(token_type type) 
+{
+  std::vector<token> result;
+  while (!check(type))
+  {
+    result.push_back(m_current);
+    advance();
+    if (check(token_type::eof))
+    {
+      error_at(m_current, "Unexpected end of file.");
+    }
+  }
+  return result;
 }
 
 void parser::consume(token_type type, std::string_view msg)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "scanner.hpp"
 
 namespace cwt::details
@@ -13,6 +15,7 @@ class parser
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;
+  [[nodiscard]] std::vector<token> collect_tokens_to(token_type type);
   void advance();
   void advance_to(token_type type);
   template <typename... Args>

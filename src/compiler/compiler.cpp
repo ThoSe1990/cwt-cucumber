@@ -125,8 +125,25 @@ void compiler::patch_jump(uint32_t offset)
 
 void compiler::emit_table_value()
 {
-  bool negative = m_parser->match(token_type::minus);
-  emit_constant(token_to_value(m_parser->current(), negative));
+  std::vector<token> tokens = m_parser->collect_tokens_to(token_type::vertical);
+  if (tokens.size() == 1)
+  {
+    emit_constant(token_to_value(tokens[0], false));
+  }
+  else if (tokens.size() == 2 && tokens[0].type == token_type::minus &&
+           (tokens[1].type == token_type::long_value ||
+            tokens[1].type == token_type::double_value))
+  {
+    emit_constant(token_to_value(tokens[1], true));
+  }
+  else if (tokens.size() == 0)
+  {
+    m_parser->error_at(m_parser->current(), "Expected value");
+  }
+  else
+  {
+    emit_constant(create_string(tokens[0].value, tokens.back().value));
+  }
 }
 
 void compiler::emit_tags(const value_array& tags)

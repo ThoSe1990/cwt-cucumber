@@ -126,7 +126,6 @@ class step
     {
       m_parent->emit_table_value();
       ++element_count;
-      p.advance();
       p.consume(token_type::vertical, "Expect '|' after value in data table.");
     }
     return element_count;

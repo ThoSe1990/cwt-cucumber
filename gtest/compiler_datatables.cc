@@ -15,7 +15,7 @@ const char* script = R"*(
   Scenario: A Scenario
   Given A Step with a datatable
   | "v1" | "v2" |
-  | 1  | 2  |
+  | 1    | 2    |
 )*";
 
   compiler::cucumber cuke(script);
@@ -62,4 +62,25 @@ const char* script = R"*(
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(i++), 2);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_step_result));
+}
+TEST(compiler_datatables, chunk_w_datatable_2_2_no_quotes)
+{
+const char* script = R"*(
+  Feature: Hello World
+  Scenario: A Scenario
+  Given A Step with a datatable
+  | v1 | v2 |
+  | 1  | 2  |
+)*";
+
+  compiler::cucumber cuke(script);
+  compiler::feature f(&cuke);
+  compiler::scenario s(&f);
+  s.compile();
+
+  disassemble_chunk(s.get_chunk(), "scenario");
+
+  ASSERT_TRUE(s.no_error());
+  ASSERT_EQ(s.get_chunk().size(), 33);
+
 }

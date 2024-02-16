@@ -70,7 +70,6 @@ void examples::process_table_row()
   {
     m_feature->emit_table_value();
     m_feature->emit_bytes(op_code::set_var, variable_index);
-    p.advance();
     p.consume(token_type::vertical, "Expect '|' after value in table.");
   }
   m_current_row.end = p.previous();
