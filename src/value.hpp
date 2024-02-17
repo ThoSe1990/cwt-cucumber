@@ -17,13 +17,18 @@ enum class value_type
   boolean,
   string,
   function,
+  table,
   nil
 };
 
 class chunk;
+using function = std::unique_ptr<chunk>;
+
+class table;
+using table_ptr = std::unique_ptr<table>;
+
 class value;
 using value_array = std::vector<value>;
-using function = std::unique_ptr<chunk>;
 struct nil_value
 {
 };
@@ -80,6 +85,12 @@ template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
 {
   static constexpr value_type tag = value_type::function;
+};
+
+template <typename T>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, table_ptr>>>
+{
+  static constexpr value_type tag = value_type::table;
 };
 
 template <typename T>
@@ -194,6 +205,13 @@ class value
               function{std::make_unique<chunk>(*func)});
         }
         break;
+        case value_type::table:
+        {
+          const auto& t = other.as<table_ptr>();
+          m_value = std::make_unique<value_model<table_ptr>>(
+              table_ptr{std::make_unique<table>(*t)});
+        }
+        break;
         default:
           m_type = value_type::nil;
       }
@@ -233,3 +251,4 @@ using value_array = std::vector<value>;
 }  // namespace cwt::details
 
 #include "chunk.hpp"
+#include "table.hpp"
