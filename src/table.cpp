@@ -3,25 +3,19 @@
 namespace cuke
 {
 
-void table::append_row(value_array values)
-{
-  if (m_data.empty())
-  {
-    m_row_length = values.size();
-  }
+table::table(value_array data, std::size_t row_length) : m_data(std::move(data)), m_row_length(row_length) {}
 
-  if (values.size() == m_row_length)
-  {
-    for (const value& v : values)
-    {
-      m_data.push_back(v);
-    }
-  }
-  else
-  {
-    throw std::runtime_error(
-        "Can not append values, values size and row length are not equal");
-  }
+[[nodiscard]] std::size_t table::rows_count() const noexcept
+{
+  return m_data.size() / m_row_length;
+}
+[[nodiscard]] std::size_t table::row_length() const noexcept
+{
+  return m_row_length;
+}
+[[nodiscard]] std::size_t table::cells_count() const noexcept
+{
+  return m_data.size();
 }
 
 }  // namespace cuke

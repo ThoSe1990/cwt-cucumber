@@ -9,22 +9,19 @@ step_finder::step_finder(std::string_view defined, std::string_view feature)
     : m_defined(defined), m_feature(feature)
 {
 }
-step_finder::step_finder(std::string_view feature)
-    : m_feature(feature)
-{
-}
+step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
 std::size_t step_finder::values_count() const noexcept
 {
   return m_values.size();
 }
 
-cuke::value& step_finder::get_value(std::size_t idx) 
+cuke::value& step_finder::get_value(std::size_t idx)
 {
   if (idx < m_values.size())
   {
     return m_values[idx];
   }
-  else 
+  else
   {
     throw std::out_of_range("step_finder::get_value: Index out of range");
   }
@@ -55,9 +52,8 @@ bool step_finder::step_matches()
       }
       else if (feature.type == token_type::variable)
       {
-        auto use_nil_as_placeholder = [this](){
-          m_values.push_back(nil_value{});
-        };
+        auto use_nil_as_placeholder = [this]()
+        { m_values.push_back(nil_value{}); };
         use_nil_as_placeholder();
       }
       else
@@ -72,13 +68,18 @@ bool step_finder::step_matches()
       {
         m_values.push_back(token_to_value(feature, false));
       }
+      else if (feature.type == token_type::vertical)
+      {
+        cuke::value v = create_table();
+        m_values.push_back(v);
+      }
       feature = m_feature.scan_token();
     }
     else if (is_not_equal(defined, feature))
     {
       return false;
     }
-    
+
     if (is_at_end(defined) && is_at_end(feature))
     {
       return true;
@@ -86,8 +87,37 @@ bool step_finder::step_matches()
   }
 }
 
-bool step_finder::parameter_matches_value(token_type parameter,
-                                          token_type type)
+cuke::value step_finder::create_table()
+{
+  cuke::value_array values;
+  std::size_t row_length = 0;
+
+  for (;;)
+  {
+    token current = m_feature.scan_token();
+    row_length = 0;
+    while (current.type != token_type::linebreak)
+    {
+      std::vector<token> tokens;
+      while (current.type != token_type::vertical)
+      {
+        tokens.push_back(current);
+        current = m_feature.scan_token();
+      }
+      values.push_back(tokens_to_value(tokens));
+      current = m_feature.scan_token();
+      ++row_length;
+    }
+    current = m_feature.scan_token();
+
+    if (is_at_end(current))
+    {
+      return cuke::value(make_table_ptr(std::move(values), row_length));;
+    }
+  }
+}
+
+bool step_finder::parameter_matches_value(token_type parameter, token_type type)
 {
   switch (parameter)
   {
@@ -107,10 +137,10 @@ bool step_finder::parameter_matches_value(token_type parameter,
       return type == token_type::long_value;
     case token_type::parameter_long:
       return type == token_type::long_value;
-    default: 
+    default:
     {
-      println(color::red,
-              std::format("step_finder: Invaklid token_type: '{}'", to_uint(parameter)));
+      println(color::red, std::format("step_finder: Invaklid token_type: '{}'",
+                                      to_uint(parameter)));
       return false;
     }
   }

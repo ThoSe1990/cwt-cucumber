@@ -187,3 +187,35 @@ seven
   EXPECT_TRUE(sf.step_matches());
   EXPECT_EQ(sf.get_value(6).as<std::string>(), std::string("\nseven\n"));
 }
+
+TEST(step_finder, step_w_table_as_const_ref)
+{
+  const char* doc_string_step = R"*(A datatable:
+  | v1 | v2 |
+  | 1  | 2  |
+  | 3  | 4  |
+)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+
+  const cuke::table& t = *sf.get_value(0).as<table_ptr>().get();
+  EXPECT_EQ(t.cells_count(), 6);
+  EXPECT_EQ(t.rows_count(), 3);
+  EXPECT_EQ(t.row_length(), 2);
+}
+
+TEST(step_finder, step_w_table_as_copy)
+{
+  const char* doc_string_step = R"*(A datatable:
+  | v1 | v2 |
+  | 1  | 2  |
+  | 3  | 4  |
+)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+
+  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+  EXPECT_EQ(t.cells_count(), 6);
+  EXPECT_EQ(t.rows_count(), 3);
+  EXPECT_EQ(t.row_length(), 2);
+}

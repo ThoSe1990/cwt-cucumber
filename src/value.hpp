@@ -21,7 +21,6 @@ enum class value_type
 };
 
 class table;
-using table_ptr = std::unique_ptr<cuke::table>;
 
 class value;
 using value_array = std::vector<value>;
@@ -30,6 +29,7 @@ using value_array = std::vector<value>;
 
 namespace cwt::details
 {
+using table_ptr = std::unique_ptr<cuke::table>;
 
 class chunk;
 using function = std::unique_ptr<chunk>;
@@ -88,13 +88,14 @@ struct value_trait<T,
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, cwt::details::function>>>
+struct value_trait<T,
+                   std::enable_if_t<std::is_same_v<T, cwt::details::function>>>
 {
   static constexpr cuke::value_type tag = cuke::value_type::function;
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, cuke::table_ptr>>>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, table_ptr>>>
 {
   static constexpr cuke::value_type tag = cuke::value_type::table;
 };
@@ -118,6 +119,12 @@ class value
       : m_type(value_type::function),
         m_value(std::make_unique<value_model<cwt::details::function>>(
             std::move(func)))
+  {
+  }
+  value(cwt::details::table_ptr t)
+      : m_type(value_type::table),
+        m_value(std::make_unique<value_model<cwt::details::table_ptr>>(
+            std::move(t)))
   {
   }
 
@@ -220,9 +227,9 @@ class value
         break;
         case value_type::table:
         {
-          const auto& t = other.as<table_ptr>();
-          m_value = std::make_unique<value_model<table_ptr>>(
-              table_ptr{std::make_unique<cuke::table>(*t)});
+          const auto& t = other.as<cwt::details::table_ptr>();
+          m_value = std::make_unique<value_model<cwt::details::table_ptr>>(
+              cwt::details::table_ptr{std::make_unique<table>(*t)});
         }
         break;
         default:

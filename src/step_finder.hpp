@@ -33,7 +33,7 @@ class step_finder
   [[nodiscard]] bool is_at_end(const token& t);
   [[nodiscard]] bool is_not_equal(const token& lhs, const token& rhs);
   [[nodiscard]] std::pair<token, token> next();
-
+  [[nodiscard]] cuke::value create_table();
  private:
   scanner m_defined{""};
   scanner m_feature{""};

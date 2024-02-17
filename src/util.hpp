@@ -446,4 +446,9 @@ filepath_and_lines(std::string_view sv)
   return script;
 }
 
+[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values, std::size_t row_length)
+{
+  return std::make_unique<cuke::table>(std::move(values), row_length);
+} 
+
 }  // namespace cwt::details
