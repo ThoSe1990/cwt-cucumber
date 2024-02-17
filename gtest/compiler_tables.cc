@@ -26,7 +26,7 @@ const char* script = R"*(
   disassemble_chunk(s.get_chunk(), "scenario");
 
   ASSERT_TRUE(s.no_error());
-  ASSERT_EQ(s.get_chunk().size(), 24);
+  ASSERT_EQ(s.get_chunk().size(), 22);
 
   std::size_t i = 0;
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_linebreak));
@@ -40,16 +40,14 @@ const char* script = R"*(
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::println));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(color::black));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::init_scenario));
-  EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(i++), 3);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::jump_if_failed));
-  EXPECT_EQ(s.get_chunk().at(i++), 19);
+  EXPECT_EQ(s.get_chunk().at(i++), 17);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::hook_before_step));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::call_step));
-  EXPECT_EQ(s.get_chunk().at(i++), 4);
+  EXPECT_EQ(s.get_chunk().at(i++), 3);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::hook_after_step));
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
-  EXPECT_EQ(s.get_chunk().at(i++), 4);
+  EXPECT_EQ(s.get_chunk().at(i++), 3);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::constant));
   EXPECT_EQ(s.get_chunk().at(i++), 2);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::print_step_result));
@@ -72,6 +70,6 @@ const char* script = R"*(
   disassemble_chunk(s.get_chunk(), "scenario");
 
   ASSERT_TRUE(s.no_error());
-  ASSERT_EQ(s.get_chunk().size(), 24);
+  ASSERT_EQ(s.get_chunk().size(), 22);
 
 }

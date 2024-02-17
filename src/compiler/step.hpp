@@ -37,7 +37,7 @@ class step
     }
     else if (m_parent->get_parser().check(token_type::vertical))
     {
-      process_datatable();
+      datatable();
       end = m_parent->get_parser().previous();
     }
 
@@ -94,33 +94,24 @@ class step
                                              token_type::eof);
   }
 
-  void process_datatable() const
+  void datatable() const
   {
-    const std::size_t elements_in_row = process_datatable_row();
-    std::size_t rows_count = 1;
+    const std::size_t elements_in_row = datatable_row();
 
     parser& p = m_parent->get_parser();
     while (p.is_none_of(token_type::scenario, token_type::scenario_outline,
                         token_type::examples, token_type::tag, token_type::eof))
     {
-      if (process_datatable_row() != elements_in_row)
+      if (datatable_row() != elements_in_row)
       {
         p.error_at(p.current(), "Inconsistent cell count within data table");
         return;
       }
-      ++rows_count;
       p.skip_linebreaks();
     }
-
-    // m_parent->emit_byte(op_code::create_datatable);
-    // m_parent->emit_byte(rows_count);
-    // m_parent->emit_byte(elements_in_row);
-
-    cuke::table t;
-    m_parent->emit_constant(std::make_unique<cuke::table>(std::move(t)));
   }
 
-  std::size_t process_datatable_row() const
+  std::size_t datatable_row() const
   {
     std::size_t element_count = 0;
     parser& p = m_parent->get_parser();
@@ -129,7 +120,7 @@ class step
     {
       const std::vector<token> tokens =
           p.collect_tokens_to(token_type::vertical);
-      // m_parent->emit_constant(tokens_to_value(tokens));
+      p.advance_to(token_type::vertical);
       ++element_count;
       p.consume(token_type::vertical, "Expect '|' after value in data table.");
     }
