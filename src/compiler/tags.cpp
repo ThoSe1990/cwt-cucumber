@@ -82,8 +82,8 @@ bool tag_expression::contains(const std::string& tag, argc n, argv tags) const
 {
   for (std::size_t i = 0; i < n; ++i)
   {
-    const value& current = to_value(tags, i);
-    if (current.type() == value_type::string &&
+    const cuke::value& current = to_value(tags, i);
+    if (current.type() == cuke::value_type::string &&
         current.as<std::string>() == tag)
     {
       return true;

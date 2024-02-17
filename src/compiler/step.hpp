@@ -116,8 +116,8 @@ class step
     // m_parent->emit_byte(rows_count);
     // m_parent->emit_byte(elements_in_row);
 
-    table t;
-    m_parent->emit_constant(std::make_unique<table>(std::move(t)));
+    cuke::table t;
+    m_parent->emit_constant(std::make_unique<cuke::table>(std::move(t)));
   }
 
   std::size_t process_datatable_row() const

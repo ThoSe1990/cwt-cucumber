@@ -20,8 +20,8 @@ TEST(vm, op_code_constant)
 
   ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
   EXPECT_EQ(test_vm.stack().size(), 2);
-  EXPECT_EQ(test_vm.stack().at(0).type(), value_type::function);
-  EXPECT_EQ(test_vm.stack().at(1).type(), value_type::integral);
+  EXPECT_EQ(test_vm.stack().at(0).type(), cuke::value_type::function);
+  EXPECT_EQ(test_vm.stack().at(1).type(), cuke::value_type::integral);
   EXPECT_EQ(test_vm.stack().at(1).as<int>(), 123);
   EXPECT_EQ(test_vm.frames().size(), 1);
   EXPECT_EQ(test_vm.frames().at(0).chunk_ptr,
@@ -41,7 +41,7 @@ TEST(vm, op_code_define_var)
 
   ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
   EXPECT_EQ(test_vm.stack().size(), 1);
-  EXPECT_EQ(test_vm.global(name).type(), value_type::nil);
+  EXPECT_EQ(test_vm.global(name).type(), cuke::value_type::nil);
 }
 TEST(vm, op_code_set_var)
 {
@@ -61,7 +61,7 @@ TEST(vm, op_code_set_var)
   f->push_byte(idx, 0);
 
   ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
-  ASSERT_EQ(test_vm.global(name).type(), value_type::floating);
+  ASSERT_EQ(test_vm.global(name).type(), cuke::value_type::floating);
   EXPECT_EQ(test_vm.global(name).as<double>(), 99.99);
 }
 TEST(vm, op_code_get_var)
@@ -81,7 +81,7 @@ TEST(vm, op_code_get_var)
 
   ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
   ASSERT_EQ(test_vm.stack().size(), 2);
-  EXPECT_EQ(test_vm.stack().back().type(), value_type::string);
+  EXPECT_EQ(test_vm.stack().back().type(), cuke::value_type::string);
   EXPECT_EQ(test_vm.stack().back().as<std::string>(),
             std::string("some initial value"));
 }

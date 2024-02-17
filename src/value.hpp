@@ -7,9 +7,8 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace cwt::details
+namespace cuke
 {
-
 enum class value_type
 {
   integral,
@@ -21,18 +20,24 @@ enum class value_type
   nil
 };
 
-class chunk;
-using function = std::unique_ptr<chunk>;
-
 class table;
-using table_ptr = std::unique_ptr<table>;
+using table_ptr = std::unique_ptr<cuke::table>;
 
 class value;
 using value_array = std::vector<value>;
+
+}  // namespace cuke
+
+namespace cwt::details
+{
+
+class chunk;
+using function = std::unique_ptr<chunk>;
+
 struct nil_value
 {
 };
-using argv = const std::reverse_iterator<value_array::const_iterator>&;
+using argv = const std::reverse_iterator<cuke::value_array::const_iterator>&;
 using argc = std::size_t;
 using step_callback = void (*)(argc, argv);
 class step
@@ -57,20 +62,21 @@ struct hook;
 template <typename T, typename = void>
 struct value_trait
 {
-  static constexpr value_type tag = value_type::nil;
+  static constexpr cuke::value_type tag = cuke::value_type::nil;
 };
 
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_integral_v<T>>>
 {
-  static constexpr value_type tag =
-      std::is_same_v<T, bool> ? value_type::boolean : value_type::integral;
+  static constexpr cuke::value_type tag = std::is_same_v<T, bool>
+                                              ? cuke::value_type::boolean
+                                              : cuke::value_type::integral;
 };
 
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
-  static constexpr value_type tag = value_type::floating;
+  static constexpr cuke::value_type tag = cuke::value_type::floating;
 };
 
 template <typename T>
@@ -78,34 +84,40 @@ struct value_trait<T,
                    std::enable_if_t<std::is_convertible_v<T, std::string> ||
                                     std::is_convertible_v<T, std::string_view>>>
 {
-  static constexpr value_type tag = value_type::string;
+  static constexpr cuke::value_type tag = cuke::value_type::string;
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, cwt::details::function>>>
 {
-  static constexpr value_type tag = value_type::function;
+  static constexpr cuke::value_type tag = cuke::value_type::function;
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, table_ptr>>>
+struct value_trait<T, std::enable_if_t<std::is_same_v<T, cuke::table_ptr>>>
 {
-  static constexpr value_type tag = value_type::table;
+  static constexpr cuke::value_type tag = cuke::value_type::table;
 };
 
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, nil_value>>>
 {
-  static constexpr value_type tag = value_type::nil;
+  static constexpr cuke::value_type tag = cuke::value_type::nil;
 };
+
+}  // namespace cwt::details
+
+namespace cuke
+{
 
 class value
 {
  public:
   value() = default;
-  value(function&& func)
+  value(cwt::details::function&& func)
       : m_type(value_type::function),
-        m_value(std::make_unique<value_model<function>>(std::move(func)))
+        m_value(std::make_unique<value_model<cwt::details::function>>(
+            std::move(func)))
   {
   }
 
@@ -119,7 +131,7 @@ class value
   template <typename T, typename = std::enable_if_t<
                             !std::is_same_v<std::remove_reference_t<T>, value>>>
   value(T&& value)
-      : m_type(value_trait<std::remove_reference_t<T>>::tag),
+      : m_type(cwt::details::value_trait<std::remove_reference_t<T>>::tag),
         m_value(std::make_unique<value_model<std::remove_reference_t<T>>>(
             std::forward<T>(value)))
   {
@@ -128,7 +140,7 @@ class value
   template <typename T, typename = std::enable_if_t<
                             !std::is_same_v<std::decay_t<T>, value>>>
   value(const T& value)
-      : m_type(value_trait<T>::tag),
+      : m_type(cwt::details::value_trait<T>::tag),
         m_value(std::make_unique<value_model<T>>(value))
   {
   }
@@ -144,7 +156,7 @@ class value
   template <typename T>
   const T& as() const
   {
-    if (m_type == value_trait<T>::tag) [[likely]]
+    if (m_type == cwt::details::value_trait<T>::tag) [[likely]]
     {
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
@@ -156,7 +168,7 @@ class value
   template <typename T>
   T copy_as() const
   {
-    if (m_type == value_trait<T>::tag) [[likely]]
+    if (m_type == cwt::details::value_trait<T>::tag) [[likely]]
     {
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
@@ -172,7 +184,7 @@ class value
     std::unique_ptr<value_concept> new_value =
         std::make_unique<value_model<T>>(std::forward<T>(value));
     m_value.swap(new_value);
-    m_type = value_trait<T>::tag;
+    m_type = cwt::details::value_trait<T>::tag;
   }
 
   value_type type() const noexcept { return m_type; }
@@ -200,16 +212,17 @@ class value
           break;
         case value_type::function:
         {
-          const auto& func = other.as<function>();
-          m_value = std::make_unique<value_model<function>>(
-              function{std::make_unique<chunk>(*func)});
+          const auto& func = other.as<cwt::details::function>();
+          m_value = std::make_unique<value_model<cwt::details::function>>(
+              cwt::details::function{
+                  std::make_unique<cwt::details::chunk>(*func)});
         }
         break;
         case value_type::table:
         {
           const auto& t = other.as<table_ptr>();
           m_value = std::make_unique<value_model<table_ptr>>(
-              table_ptr{std::make_unique<table>(*t)});
+              table_ptr{std::make_unique<cuke::table>(*t)});
         }
         break;
         default:
@@ -242,13 +255,13 @@ class value
   };
 
  private:
-  value_type m_type{value_type::nil};
+  cuke::value_type m_type{cuke::value_type::nil};
   std::unique_ptr<value_concept> m_value;
 };
 
 using value_array = std::vector<value>;
 
-}  // namespace cwt::details
+}  // namespace cuke
 
 #include "chunk.hpp"
 #include "table.hpp"

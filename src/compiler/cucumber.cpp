@@ -49,7 +49,7 @@ void cucumber::compile()
 
 void cucumber::compile_feature()
 {
-  const value_array tags = take_latest_tags();
+  const cuke::value_array tags = take_latest_tags();
   if (tags_valid(tags))
   {
     feature f(this, tags);

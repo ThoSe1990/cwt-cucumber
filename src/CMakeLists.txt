@@ -13,6 +13,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario_outline.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/table.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/vm.cpp
 )
 

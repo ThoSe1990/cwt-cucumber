@@ -86,14 +86,14 @@ TEST(compiler_feature, feature_constants)
 
   ASSERT_EQ(f.get_chunk().constants_count(), 4);
   EXPECT_EQ(f.get_chunk().name(), "line:2");
-  EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(0).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), "line:2");
-  EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(1).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
             "Feature: Hello World");
-  EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
+  EXPECT_EQ(f.get_chunk().constant(2).type(), cuke::value_type::function);
   EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), "line:3");
-  EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(3).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), "line:3");
 }
 

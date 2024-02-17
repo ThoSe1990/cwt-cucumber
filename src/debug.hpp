@@ -11,29 +11,29 @@
 namespace cwt::details
 {
 
-static void print_value(const value& v)
+static void print_value(const cuke::value& v)
 {
   switch (v.type())
   {
-    case value_type::integral:
+    case cuke::value_type::integral:
       std::cout << v.as<long>();
       break;
-    case value_type::floating:
+    case cuke::value_type::floating:
       std::cout << v.as<double>();
       break;
-    case value_type::boolean:
+    case cuke::value_type::boolean:
       std::cout << v.as<bool>();
       break;
-    case value_type::string:
+    case cuke::value_type::string:
       std::cout << v.as<std::string>();
       break;
-    case value_type::function:
+    case cuke::value_type::function:
       std::cout << '<' << v.as<function>()->name() << '>';
       break;
-    case value_type::table:
+    case cuke::value_type::table:
       std::cout << "< datatable >";
       break;
-    case value_type::nil:
+    case cuke::value_type::nil:
       std::cout << "nil";
   }
 }
@@ -53,18 +53,6 @@ static std::size_t byte_instruction(std::string_view name, const chunk& c,
   uint32_t idx = c[offset + 1];
   std::cout << ' ' << name << '\t' << idx << '\n';
   return offset + 2;
-}
-static std::size_t byte_instruction(std::string_view name, const chunk& c,
-                                    std::size_t offset, std::size_t byte_count)
-{
-  std::cout << ' ' << name;
-  for (std::size_t i = 1 ; i <= byte_count ; i++)
-  {
-    uint32_t idx = c[offset + i];
-    std::cout << ' ' << idx;
-  }
-  std::cout << '\n';
-  return offset + byte_count;
 }
 
 static std::size_t simple_instruction(std::string_view name, std::size_t offset)

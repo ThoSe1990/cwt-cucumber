@@ -18,7 +18,7 @@ std::size_t step_finder::values_count() const noexcept
   return m_values.size();
 }
 
-value& step_finder::get_value(std::size_t idx) 
+cuke::value& step_finder::get_value(std::size_t idx) 
 {
   if (idx < m_values.size())
   {
@@ -87,26 +87,26 @@ bool step_finder::step_matches()
 }
 
 bool step_finder::parameter_matches_value(token_type parameter,
-                                          token_type value)
+                                          token_type type)
 {
   switch (parameter)
   {
     case token_type::parameter_int:
-      return value == token_type::long_value;
+      return type == token_type::long_value;
     case token_type::parameter_float:
-      return value == token_type::double_value;
+      return type == token_type::double_value;
     case token_type::parameter_word:
-      return value == token_type::string_value;
+      return type == token_type::string_value;
     case token_type::parameter_string:
-      return value == token_type::string_value;
+      return type == token_type::string_value;
     case token_type::parameter_double:
-      return value == token_type::double_value;
+      return type == token_type::double_value;
     case token_type::parameter_byte:
-      return value == token_type::long_value;
+      return type == token_type::long_value;
     case token_type::parameter_short:
-      return value == token_type::long_value;
+      return type == token_type::long_value;
     case token_type::parameter_long:
-      return value == token_type::long_value;
+      return type == token_type::long_value;
     default: 
     {
       println(color::red,

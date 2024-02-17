@@ -34,7 +34,7 @@ static constexpr bool has_conversion_v =
 
 struct conversion
 {
-  const value& v;
+  const cuke::value& v;
   std::string_view file;
   std::size_t line;
 
@@ -64,7 +64,7 @@ inline conversion get_arg(argc n, argv values, std::size_t idx,
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const cuke::value& v, std::string_view file, std::size_t line)
   {
     static_assert(
         !std::is_same_v<T, long long>,
@@ -72,7 +72,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
     static_assert(
         !std::is_same_v<T, unsigned long long>,
         "Value access: long long is not supported. Underlying type is long");
-    if (v.type() == value_type::integral)
+    if (v.type() == cuke::value_type::integral)
     {
       return v.copy_as<T>();
     }
@@ -87,10 +87,10 @@ struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
 template <>
 struct conversion_impl<std::size_t>
 {
-  static std::size_t get_arg(const value& v, std::string_view file,
+  static std::size_t get_arg(const cuke::value& v, std::string_view file,
                              std::size_t line)
   {
-    if (v.type() == value_type::integral)
+    if (v.type() == cuke::value_type::integral)
     {
       return v.copy_as<unsigned long>();
     }
@@ -105,9 +105,9 @@ struct conversion_impl<std::size_t>
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const cuke::value& v, std::string_view file, std::size_t line)
   {
-    if (v.type() == value_type::floating)
+    if (v.type() == cuke::value_type::floating)
     {
       return v.copy_as<double>();
     }
@@ -123,9 +123,9 @@ template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
                                     std::is_convertible_v<T, std::string_view>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const cuke::value& v, std::string_view file, std::size_t line)
   {
-    if (v.type() == value_type::string)
+    if (v.type() == cuke::value_type::string)
     {
       return v.as<std::string>();
     }

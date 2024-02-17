@@ -1,7 +1,6 @@
 #include <stdexcept>
 
 #include "chunk.hpp"
-#include "value.hpp"
 
 namespace cwt::details
 {
@@ -18,7 +17,7 @@ std::size_t chunk::last_constant() const noexcept
 }
 
 const uint32_t& chunk::back() const noexcept { return m_code.back(); }
-const value& chunk::constant(std::size_t index) const
+const cuke::value& chunk::constant(std::size_t index) const
 {
   if (index < m_constants.size()) [[likely]]
   {
@@ -29,7 +28,7 @@ const value& chunk::constant(std::size_t index) const
     throw std::out_of_range("Chunk: Constants out of range");
   }
 }
-const value& chunk::constants_back() const noexcept
+const cuke::value& chunk::constants_back() const noexcept
 {
   return m_constants.back();
 }

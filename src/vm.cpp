@@ -112,10 +112,10 @@ return_code vm::execute_function(function func)
   return start();
 }
 
-const std::vector<value>& vm::stack() const { return m_stack; }
+const std::vector<cuke::value>& vm::stack() const { return m_stack; }
 const std::vector<call_frame>& vm::frames() const { return m_frames; }
 
-value& vm::global(const std::string& name)
+cuke::value& vm::global(const std::string& name)
 {
   if (m_globals.contains(name)) [[likely]]
   {
@@ -127,7 +127,7 @@ value& vm::global(const std::string& name)
   }
 }
 
-void vm::push_value(const value& v)
+void vm::push_value(const cuke::value& v)
 {
   if (m_stack.size() < m_max_stack_size)
   {
@@ -331,9 +331,9 @@ return_code vm::start()
         {
           results().back().push_back(return_code::passed);
           finder.for_each_value(
-              [this](const value& v)
+              [this](const cuke::value& v)
               {
-                if (v.type() != value_type::nil)
+                if (v.type() != cuke::value_type::nil)
                 {
                   push_value(v);
                 }

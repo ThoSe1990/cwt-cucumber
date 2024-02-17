@@ -16,11 +16,11 @@ class step_finder
   void reset_with_next_step(std::string_view defined) noexcept;
   [[nodiscard]] bool step_matches();
   [[nodiscard]] std::size_t values_count() const noexcept;
-  [[nodiscard]] value& get_value(std::size_t idx); 
+  [[nodiscard]] cuke::value& get_value(std::size_t idx); 
   template <typename Callback>
   void for_each_value(Callback&& cb)
   {
-    for (const value& v : m_values)
+    for (const cuke::value& v : m_values)
     {
       cb(v);
     }
@@ -37,7 +37,7 @@ class step_finder
  private:
   scanner m_defined{""};
   scanner m_feature{""};
-  value_array m_values;
+  cuke::value_array m_values;
 };
 
 }  // namespace cwt::details

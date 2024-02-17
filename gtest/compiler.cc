@@ -94,8 +94,8 @@ TEST(compiler, main_chunk_constants)
   function main = c.make_function();
 
   EXPECT_EQ(main->constants_count(), 2);
-  EXPECT_EQ(main->constant(0).type(), value_type::function);
-  EXPECT_EQ(main->constant(1).type(), value_type::string);
+  EXPECT_EQ(main->constant(0).type(), cuke::value_type::function);
+  EXPECT_EQ(main->constant(1).type(), cuke::value_type::string);
 }
 TEST(compiler, feature_chunk)
 {

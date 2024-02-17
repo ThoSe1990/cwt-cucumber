@@ -66,18 +66,18 @@ TEST(compiler_scenario_outline, scenarios_constants)
   compiler::scenario_outline s(&f);
   s.compile();
   ASSERT_EQ(s.get_chunk().constants_count(), 6);
-  EXPECT_EQ(s.get_chunk().constant(0).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(0).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(0).as<std::string>(), "line:3");
-  EXPECT_EQ(s.get_chunk().constant(1).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(1).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(1).as<std::string>(),
             "Scenario Outline: A Scenario");
-  EXPECT_EQ(s.get_chunk().constant(2).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(2).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(2).as<std::string>(), "line:4");
-  EXPECT_EQ(s.get_chunk().constant(3).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(3).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(3).as<std::string>(), "first var");
-  EXPECT_EQ(s.get_chunk().constant(4).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(4).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(4).as<std::string>(), "second var");
-  EXPECT_EQ(s.get_chunk().constant(5).type(), value_type::string);
+  EXPECT_EQ(s.get_chunk().constant(5).type(), cuke::value_type::string);
   EXPECT_EQ(s.get_chunk().constant(5).as<std::string>(),
             "A Step with <first var> and <second var>");
 }
@@ -145,29 +145,29 @@ TEST(compiler_scenario_outline, parent_feature_constants)
   s.compile();
 
   ASSERT_EQ(f.get_chunk().constants_count(), 16);
-  EXPECT_EQ(f.get_chunk().constant(0).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(0).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(0).as<std::string>(), "line:2");
-  EXPECT_EQ(f.get_chunk().constant(1).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(1).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(1).as<std::string>(),
             "Feature: Hello World");
-  EXPECT_EQ(f.get_chunk().constant(2).type(), value_type::function);
+  EXPECT_EQ(f.get_chunk().constant(2).type(), cuke::value_type::function);
   EXPECT_EQ(f.get_chunk().constant(2).as<function>()->name(), "line:3");
-  EXPECT_EQ(f.get_chunk().constant(3).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(3).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(3).as<std::string>(), "line:3");
-  EXPECT_EQ(f.get_chunk().constant(4).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(4).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(4).as<std::string>(), "first var");
-  EXPECT_EQ(f.get_chunk().constant(5).type(), value_type::nil);
-  EXPECT_EQ(f.get_chunk().constant(6).type(), value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(5).type(), cuke::value_type::nil);
+  EXPECT_EQ(f.get_chunk().constant(6).type(), cuke::value_type::string);
   EXPECT_EQ(f.get_chunk().constant(6).as<std::string>(), "second var");
-  EXPECT_EQ(f.get_chunk().constant(7).type(), value_type::nil);
-  EXPECT_EQ(f.get_chunk().constant(8).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(7).type(), cuke::value_type::nil);
+  EXPECT_EQ(f.get_chunk().constant(8).type(), cuke::value_type::integral);
   EXPECT_EQ(f.get_chunk().constant(8).as<long>(), 1);
-  EXPECT_EQ(f.get_chunk().constant(9).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(9).type(), cuke::value_type::integral);
   EXPECT_EQ(f.get_chunk().constant(9).as<long>(), 2);
-  EXPECT_EQ(f.get_chunk().constant(10).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(11).type(), value_type::string);
-  EXPECT_EQ(f.get_chunk().constant(12).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(10).type(), cuke::value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(11).type(), cuke::value_type::string);
+  EXPECT_EQ(f.get_chunk().constant(12).type(), cuke::value_type::integral);
   EXPECT_EQ(f.get_chunk().constant(12).as<long>(), 3);
-  EXPECT_EQ(f.get_chunk().constant(13).type(), value_type::integral);
+  EXPECT_EQ(f.get_chunk().constant(13).type(), cuke::value_type::integral);
   EXPECT_EQ(f.get_chunk().constant(13).as<long>(), 4);
 }

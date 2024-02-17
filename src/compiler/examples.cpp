@@ -4,7 +4,7 @@
 namespace cwt::details::compiler
 {
 
-examples::examples(feature* f, const value_array& tags)
+examples::examples(feature* f, const cuke::value_array& tags)
     : m_feature(f), m_tags(tags)
 {
   m_feature->get_parser().advance_until_line_starts_with(token_type::vertical,
