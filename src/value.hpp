@@ -17,8 +17,6 @@ enum class value_type
   boolean,
   string,
   function,
-  step,
-  hook,
   nil
 };
 
@@ -84,11 +82,6 @@ struct value_trait<T, std::enable_if_t<std::is_same_v<T, function>>>
   static constexpr value_type tag = value_type::function;
 };
 
-template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_same_v<T, step>>>
-{
-  static constexpr value_type tag = value_type::step;
-};
 template <typename T>
 struct value_trait<T, std::enable_if_t<std::is_same_v<T, nil_value>>>
 {
@@ -201,9 +194,6 @@ class value
               function{std::make_unique<chunk>(*func)});
         }
         break;
-        case value_type::step:
-          m_value = std::make_unique<value_model<step>>(other.as<step>());
-          break;
         default:
           m_type = value_type::nil;
       }

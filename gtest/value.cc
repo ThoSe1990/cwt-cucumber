@@ -76,19 +76,6 @@ TEST(value, function_value)
   EXPECT_EQ(v.type(), value_type::function);
   EXPECT_EQ(v.as<function>()->name(), "some name");
 }
-TEST(value, native_value)
-{
-  auto test_func = [](argc n, argv v)
-  {
-    ASSERT_EQ(n, 1);
-    EXPECT_EQ(v->as<int>(), 99);
-  };
-  value v(step(test_func, "some step ..."));
-  value_array arr;
-  arr.emplace_back(99);
-  v.as<step>().call(arr.size(), arr.rbegin());
-  EXPECT_EQ(v.type(), value_type::step);
-}
 
 TEST(value, nil_value)
 {
@@ -198,17 +185,4 @@ TEST(value, move_function_object)
   EXPECT_EQ(v2.as<function>()->constant(0).as<std::string>(),
             std::string("some value"));
   EXPECT_EQ(v2.as<function>()->constant(1).as<int>(), 123);
-}
-TEST(value, copy_native)
-{
-  value_array arr;
-  auto test_func = [](argc, argv)
-  { throw std::runtime_error("only in this test..."); };
-  value v1(step(test_func, "some step ..."));
-  value v2(v1);
-
-  EXPECT_EQ(v2.type(), value_type::step);
-  EXPECT_EQ(v2.type(), v1.type());
-  EXPECT_THROW(v1.as<step>().call(arr.size(), arr.rbegin()), std::runtime_error);
-  EXPECT_THROW(v2.as<step>().call(arr.size(), arr.rbegin()), std::runtime_error);
 }
