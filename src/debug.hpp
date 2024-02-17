@@ -30,6 +30,9 @@ static void print_value(const value& v)
     case value_type::function:
       std::cout << '<' << v.as<function>()->name() << '>';
       break;
+    case value_type::table:
+      std::cout << "< datatable >";
+      break;
     case value_type::nil:
       std::cout << "nil";
   }
@@ -100,8 +103,6 @@ static std::size_t disassemble_instruction(const chunk& c, std::size_t offset)
       return constant_instruction("op_code::set_var", c, offset);
     case op_code::define_var:
       return constant_instruction("op_code::define_var", c, offset);
-    case op_code::create_datatable:
-      return byte_instruction("op_code::create_datatable", c, offset, 2);
     case op_code::print_linebreak:
       return simple_instruction("op_code::print_linebreak", offset);
     case op_code::print_indent:

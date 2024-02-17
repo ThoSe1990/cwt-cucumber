@@ -13,18 +13,6 @@
 
 namespace cwt::details::compiler
 {
-inline std::string create_string(std::string_view sv)
-{
-  return std::string(sv);
-}
-inline std::string create_string(std::string_view begin, std::string_view end)
-{
-  return std::string(begin.data(), end.data() + end.size());
-}
-inline std::string create_string(const token& begin, const token& end)
-{
-  return create_string(begin.value, end.value);
-}
 
 class compiler
 {
@@ -51,7 +39,6 @@ class compiler
   void emit_bytes(op_code code, uint32_t byte);
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
-  void emit_table_value();
   void emit_tags(const value_array& tags);
 
   template <typename Arg>

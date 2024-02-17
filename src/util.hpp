@@ -35,7 +35,6 @@ enum class op_code : uint32_t
   init_scenario,
   scenario_result,
   jump_if_failed,
-  create_datatable,
   call,
   call_step,
   hook_before,
@@ -63,6 +62,21 @@ enum class color
 
 namespace cwt::details
 {
+
+[[nodiscard]] inline std::string create_string(std::string_view sv)
+{
+  return std::string(sv);
+}
+[[nodiscard]] inline std::string create_string(std::string_view begin,
+                                               std::string_view end)
+{
+  return std::string(begin.data(), end.data() + end.size());
+}
+[[nodiscard]] inline std::string create_string(const token& begin,
+                                               const token& end)
+{
+  return create_string(begin.value, end.value);
+}
 
 template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
@@ -178,9 +192,8 @@ static constexpr std::string replace(const token& t, std::string_view r)
     break;
     case token_type::doc_string:
     {
-      auto rm_3_at_start_and_end = [](const token& t){
-        return value(std::string(t.value.substr(3, t.value.size()-6)));
-      };
+      auto rm_3_at_start_and_end = [](const token& t)
+      { return value(std::string(t.value.substr(3, t.value.size() - 6))); };
       return rm_3_at_start_and_end(t);
     }
     break;
@@ -195,6 +208,28 @@ static constexpr std::string replace(const token& t, std::string_view r)
                                       "is invalid to create a value",
                                       t.value));
       return value{nil_value{}};
+  }
+}
+[[nodiscard]] inline value tokens_to_value(const std::vector<token>& tokens)
+{
+  if (tokens.size() == 1)
+  {
+    return token_to_value(tokens[0], false);
+  }
+  else if (tokens.size() == 2 && tokens[0].type == token_type::minus &&
+           (tokens[1].type == token_type::long_value ||
+            tokens[1].type == token_type::double_value))
+  {
+    return token_to_value(tokens[1], true);
+  }
+  else if (tokens.size() == 0)
+  {
+    println(color::red, "Unexpected nil value");
+    return value(nil_value{});
+  }
+  else
+  {
+    return value(create_string(tokens[0].value, tokens.back().value));
   }
 }
 
@@ -410,8 +445,5 @@ filepath_and_lines(std::string_view sv)
                      std::istreambuf_iterator<char>());
   return script;
 }
-
-
-
 
 }  // namespace cwt::details

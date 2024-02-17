@@ -68,7 +68,8 @@ void examples::process_table_row()
   m_current_row.begin = p.previous();
   for (const std::size_t variable_index : m_variables)
   {
-    m_feature->emit_table_value();
+    const std::vector<token> tokens = p.collect_tokens_to(token_type::vertical);
+    m_feature->emit_constant(tokens_to_value(tokens));
     m_feature->emit_bytes(op_code::set_var, variable_index);
     p.consume(token_type::vertical, "Expect '|' after value in table.");
   }

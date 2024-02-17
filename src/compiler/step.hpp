@@ -106,15 +106,18 @@ class step
       if (process_datatable_row() != elements_in_row)
       {
         p.error_at(p.current(), "Inconsistent cell count within data table");
-        return; 
+        return;
       }
       ++rows_count;
       p.skip_linebreaks();
     }
-    
-    m_parent->emit_byte(op_code::create_datatable);
-    m_parent->emit_byte(rows_count);
-    m_parent->emit_byte(elements_in_row);
+
+    // m_parent->emit_byte(op_code::create_datatable);
+    // m_parent->emit_byte(rows_count);
+    // m_parent->emit_byte(elements_in_row);
+
+    table t;
+    m_parent->emit_constant(std::make_unique<table>(std::move(t)));
   }
 
   std::size_t process_datatable_row() const
@@ -124,7 +127,9 @@ class step
     p.consume(token_type::vertical, "Expect '|' at table row begin.");
     while (!p.match(token_type::linebreak))
     {
-      m_parent->emit_table_value();
+      const std::vector<token> tokens =
+          p.collect_tokens_to(token_type::vertical);
+      // m_parent->emit_constant(tokens_to_value(tokens));
       ++element_count;
       p.consume(token_type::vertical, "Expect '|' after value in data table.");
     }
