@@ -4,29 +4,61 @@
 
 using namespace cwt::details;
 
-TEST(table, init_table)
+cuke::value_array make_matrix(std::size_t dim)
 {
-  cuke::table t;
+  cuke::value_array values;
+  std::size_t cells = dim * dim;
+  for (std::size_t i = 0; i < cells; ++i)
+  {
+    values.push_back(cuke::value(i));
+  }
+  return values;
 }
-TEST(table, init_obj_ptr)
+
+TEST(table, init_table) { cuke::table t; }
+TEST(table, init_obj_ptr) { table_ptr t = std::make_unique<cuke::table>(); }
+TEST(table, inconsisten_table)
 {
-  table_ptr t = std::make_unique<cuke::table>();
+  cuke::value_array data{cuke::value(1), cuke::value(2), cuke::value(3),
+                         cuke::value(4), cuke::value(5)};
+  EXPECT_THROW({ cuke::table t(data, 2); }, std::invalid_argument);
 }
-// TEST(table, add_data)
-// {
-//   cuke::value_array values{cuke::value(1), cuke::value(std::string("a string")), cuke::value(1.123)};
-//   cuke::table t;
-//   t.m_data = std::move(values);
-//   EXPECT_EQ(t.m_data.size(), 3);
-//   EXPECT_EQ(values.size(), 0);
-// }
-// TEST(table, value_as_table)
-// {
-//   cuke::value_array values{cuke::value(1), cuke::value(std::string("a string")), cuke::value(1.123)};
-//   cuke::table t;
-//   t.m_data = std::move(values);
- 
-//   cuke::value v(std::move(t));
-//   EXPECT_EQ(t.m_data.size(), 0);
-//   EXPECT_EQ(v.as<cuke::table>().m_data.size(), 3);
-// }
+TEST(table, size)
+{
+  std::size_t dim = 3;
+  cuke::table t(make_matrix(dim), dim);
+  EXPECT_EQ(t.row_count(), dim);
+  EXPECT_EQ(t.col_count(), dim);
+  EXPECT_EQ(t.cells_count(), dim * dim);
+}
+TEST(table, raw_access)
+{
+  std::size_t dim = 3;
+  cuke::table t(make_matrix(dim), dim);
+
+  EXPECT_EQ(t[0][0].as<int>(), 0);
+  EXPECT_EQ(t[0][1].as<int>(), 1);
+  EXPECT_EQ(t[0][2].as<int>(), 2);
+  EXPECT_EQ(t[1][0].as<int>(), 3);
+  EXPECT_EQ(t[1][1].as<int>(), 4);
+  EXPECT_EQ(t[1][2].as<int>(), 5);
+  EXPECT_EQ(t[2][0].as<int>(), 6);
+  EXPECT_EQ(t[2][1].as<int>(), 7);
+  EXPECT_EQ(t[2][2].as<int>(), 8);
+}
+TEST(table, invalid_row_access)
+{
+  std::size_t dim = 3;
+  cuke::table t(make_matrix(dim), dim);
+
+  EXPECT_THROW({ [[maybe_unused]] auto row = t[3]; }, std::invalid_argument);
+  EXPECT_THROW({ [[maybe_unused]] auto row = t[4]; }, std::invalid_argument);
+}
+TEST(table, invalid_column_access)
+{
+  std::size_t dim = 3;
+  cuke::table t(make_matrix(dim), dim);
+
+  EXPECT_THROW({ [[maybe_unused]] auto v = t[2][3]; }, std::invalid_argument);
+  EXPECT_THROW({ [[maybe_unused]] const auto& v = t[1][4]; }, std::invalid_argument);
+}

@@ -13,6 +13,7 @@ enum class value_type
 {
   integral,
   floating,
+  _double,
   boolean,
   string,
   function,
@@ -74,9 +75,17 @@ struct value_trait<T, std::enable_if_t<std::is_integral_v<T>>>
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T>>>
+struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                       std::is_same_v<T, float>>>
 {
   static constexpr cuke::value_type tag = cuke::value_type::floating;
+};
+
+template <typename T>
+struct value_trait<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                       std::is_same_v<T, double>>>
+{
+  static constexpr cuke::value_type tag = cuke::value_type::_double;
 };
 
 template <typename T>
@@ -196,6 +205,27 @@ class value
 
   value_type type() const noexcept { return m_type; }
 
+  [[nodiscard]] std::string to_string()
+  {
+    switch (m_type)
+    {
+      case value_type::integral:
+        return std::to_string(copy_as<long>());
+      case value_type::_double:
+        return std::to_string(copy_as<double>());
+      case value_type::floating:
+        return std::to_string(copy_as<float>());
+      case value_type::boolean:
+        return std::to_string(copy_as<bool>());
+      case value_type::string:
+        return copy_as<std::string>();
+      default:
+        throw std::runtime_error(
+            std::format("cuke::value: Can not create string from value_type {}",
+                        static_cast<std::size_t>(m_type)));
+    }
+  }
+
  private:
   void clone(const value& other)
   {
@@ -208,6 +238,9 @@ class value
           m_value = std::make_unique<value_model<long>>(other.as<long>());
           break;
         case value_type::floating:
+          m_value = std::make_unique<value_model<float>>(other.as<float>());
+          break;
+        case value_type::_double:
           m_value = std::make_unique<value_model<double>>(other.as<double>());
           break;
         case value_type::boolean:

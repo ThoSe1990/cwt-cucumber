@@ -125,12 +125,7 @@ TEST(step_finder, value_float)
 {
   step_finder sf("{float} a step", "1.1 a step");
   EXPECT_TRUE(sf.step_matches());
-  // TODO underlying type of {float} or {double} is always a double
-  // since the underlying type is always double, the casting to
-  // a 32 bit float does not work by now. as workaround accessing
-  // a double with an implicit cast works.
-  float f = sf.get_value(0).as<double>();
-  EXPECT_EQ(f, 1.1f);
+  EXPECT_EQ(sf.get_value(0).as<float>(), 1.1f);
 }
 TEST(step_finder, value_string)
 {
@@ -150,7 +145,8 @@ which just follows after the step!
   ASSERT_TRUE(sf.step_matches());
   EXPECT_EQ(
       sf.get_value(0).as<std::string>(),
-      std::string("\nthis is a doc string\nwhich just follows after the step!\n"));
+      std::string(
+          "\nthis is a doc string\nwhich just follows after the step!\n"));
 }
 TEST(step_finder, step_with_doc_string_2)
 {
@@ -164,15 +160,18 @@ which just follows after the step!
   ASSERT_TRUE(sf.step_matches());
   EXPECT_EQ(
       sf.get_value(0).as<std::string>(),
-      std::string("\nthis is a doc string\nwhich just follows after the step!\n"));
+      std::string(
+          "\nthis is a doc string\nwhich just follows after the step!\n"));
 }
 TEST(step_finder, multiple_values)
 {
-  step_finder sf("{int} and {double} and {float} and {byte} and {string} and {short}", "1 and 2.2 and 3.3 and 4 and \"five\" and 6");
+  step_finder sf(
+      "{int} and {double} and {float} and {byte} and {string} and {short}",
+      "1 and 2.2 and 3.3 and 4 and \"five\" and 6");
   EXPECT_TRUE(sf.step_matches());
   EXPECT_EQ(sf.get_value(0).as<int>(), 1);
   EXPECT_EQ(sf.get_value(1).as<double>(), 2.2);
-  EXPECT_EQ(sf.get_value(2).as<double>(), 3.3);
+  EXPECT_EQ(sf.get_value(2).as<float>(), 3.3f);
   EXPECT_EQ(sf.get_value(3).as<char>(), 4);
   EXPECT_EQ(sf.get_value(4).as<std::string>(), std::string("five"));
   EXPECT_EQ(sf.get_value(5).as<short>(), 6);
@@ -183,7 +182,9 @@ TEST(step_finder, multiple_values_with_doc_string)
 """
 seven
 """)*";
-  step_finder sf("{int} and {double} and {float} and {byte} and {string} and {short}", doc_string_step);
+  step_finder sf(
+      "{int} and {double} and {float} and {byte} and {string} and {short}",
+      doc_string_step);
   EXPECT_TRUE(sf.step_matches());
   EXPECT_EQ(sf.get_value(6).as<std::string>(), std::string("\nseven\n"));
 }
@@ -200,8 +201,8 @@ TEST(step_finder, step_w_table_as_const_ref)
 
   const cuke::table& t = *sf.get_value(0).as<table_ptr>().get();
   EXPECT_EQ(t.cells_count(), 6);
-  EXPECT_EQ(t.rows_count(), 3);
-  EXPECT_EQ(t.row_length(), 2);
+  EXPECT_EQ(t.row_count(), 3);
+  EXPECT_EQ(t.col_count(), 2);
 }
 
 TEST(step_finder, step_w_table_as_copy)
@@ -216,6 +217,44 @@ TEST(step_finder, step_w_table_as_copy)
 
   cuke::table t = *sf.get_value(0).as<table_ptr>().get();
   EXPECT_EQ(t.cells_count(), 6);
-  EXPECT_EQ(t.rows_count(), 3);
-  EXPECT_EQ(t.row_length(), 2);
+  EXPECT_EQ(t.row_count(), 3);
+  EXPECT_EQ(t.col_count(), 2);
+}
+
+TEST(step_finder, step_w_strings_in_table_dims)
+{
+  const char* doc_string_step = R"*(A datatable:
+| NAME              | EMAIL          | CITY      | DOB        |
+| Lauriane Mosciski | lm@example.com | Bismarck  | 1954-04-10 |
+| Valentin Schultz  | vs@example.com | Lynchburg | 1950-01-01 |
+| Shea Ziemann      | sz@example.com | Medford   | 1982-06-19 |
+)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+
+  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+  EXPECT_EQ(t.cells_count(), 16);
+  EXPECT_EQ(t.row_count(), 4);
+  EXPECT_EQ(t.col_count(), 4);
+}
+TEST(step_finder, step_w_strings_in_table_element_type)
+{
+  const char* doc_string_step = R"*(A datatable:
+| NAME              | EMAIL          | CITY      | DOB        |
+| Lauriane Mosciski | lm@example.com | Bismarck  | 1954-04-10 |
+| Valentin Schultz  | vs@example.com | Lynchburg | 1950-01-01 |
+| Shea Ziemann      | sz@example.com | Medford   | 1982-06-19 |
+)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+
+  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+
+  for (std::size_t row = 0; row < 4; ++row)
+  {
+    for (std::size_t col = 0; col < 4; ++col)
+    {
+      EXPECT_EQ(t[row][col].type(), cuke::value_type::string);
+    }
+  }
 }

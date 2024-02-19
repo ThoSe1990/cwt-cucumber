@@ -55,7 +55,7 @@ TEST(value, float_value)
 TEST(value, double_value)
 {
   cuke::value v{1.1};
-  EXPECT_EQ(v.type(), cuke::value_type::floating);
+  EXPECT_EQ(v.type(), cuke::value_type::_double);
   EXPECT_EQ(v.as<double>(), 1.1);
 }
 TEST(value, string_value)
@@ -117,7 +117,7 @@ TEST(value, copy_double)
   cuke::value v2(v1);
   EXPECT_EQ(v2.as<double>(), v1.as<double>());
   EXPECT_EQ(v2.as<double>(), 2.2);
-  EXPECT_EQ(v2.type(), cuke::value_type::floating);
+  EXPECT_EQ(v2.type(), cuke::value_type::_double);
 }
 TEST(value, copy_boolean)
 {
@@ -185,4 +185,30 @@ TEST(value, move_function_object)
   EXPECT_EQ(v2.as<function>()->constant(0).as<std::string>(),
             std::string("some value"));
   EXPECT_EQ(v2.as<function>()->constant(1).as<int>(), 123);
+}
+
+TEST(value, to_string_integral)
+{
+  cuke::value v(55);
+  EXPECT_EQ(v.to_string(), std::string("55"));
+}
+TEST(value, to_string_floating)
+{
+  cuke::value v(55.55f);
+  EXPECT_EQ(v.to_string(), std::to_string(55.55f));
+}
+TEST(value, to_string_double)
+{
+  cuke::value v(55.55);
+  EXPECT_EQ(v.to_string(), std::to_string(55.55));
+}
+TEST(value, to_string_bool)
+{
+  cuke::value v(true);
+  EXPECT_EQ(v.to_string(), std::string("1"));
+}
+TEST(value, to_string_string)
+{
+  cuke::value v(std::string("hello world"));
+  EXPECT_EQ(v.to_string(), std::string("hello world"));
 }

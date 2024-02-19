@@ -6,6 +6,7 @@
 
 namespace cuke
 {
+
 class table
 {
  public:
@@ -14,18 +15,30 @@ class table
   table(table&&) = default;
   table& operator=(const table&) = default;
   table& operator=(table&&) = default;
+  table(value_array data, std::size_t col_count);
 
-  table(value_array data, std::size_t row_length);
+  class row
+  {
+   public:
+    row(value_array::const_iterator it, std::size_t col_count);
+    [[nodiscard]] const cuke::value& operator[](std::size_t idx) const;
 
-  [[nodiscard]] std::size_t rows_count() const noexcept;
-  [[nodiscard]] std::size_t row_length() const noexcept;
+   private:
+    value_array::const_iterator m_it;
+    std::size_t m_col_count;
+  };
+
+
+
+  [[nodiscard]] std::size_t row_count() const noexcept;
+  [[nodiscard]] std::size_t col_count() const noexcept;
   [[nodiscard]] std::size_t cells_count() const noexcept;
 
-
+  [[nodiscard]] row operator[](std::size_t idx) const;
 
  private:
   value_array m_data;
-  std::size_t m_row_length{0};
+  std::size_t m_col_count{0};
 };
 
 }  // namespace cuke

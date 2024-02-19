@@ -30,6 +30,7 @@ enum class token_type
   doc_string,
   long_value,
   double_value,
+  float_value,
   string_value,
 
   word,

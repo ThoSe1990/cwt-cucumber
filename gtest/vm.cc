@@ -43,7 +43,7 @@ TEST(vm, op_code_define_var)
   EXPECT_EQ(test_vm.stack().size(), 1);
   EXPECT_EQ(test_vm.global(name).type(), cuke::value_type::nil);
 }
-TEST(vm, op_code_set_var)
+TEST(vm, op_code_set_var_double)
 {
   vm test_vm;
   const std::string name{"foo"};
@@ -61,8 +61,29 @@ TEST(vm, op_code_set_var)
   f->push_byte(idx, 0);
 
   ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
-  ASSERT_EQ(test_vm.global(name).type(), cuke::value_type::floating);
+  ASSERT_EQ(test_vm.global(name).type(), cuke::value_type::_double);
   EXPECT_EQ(test_vm.global(name).as<double>(), 99.99);
+}
+TEST(vm, op_code_set_var_float)
+{
+  vm test_vm;
+  const std::string name{"foo"};
+  function f = std::make_unique<chunk>();
+  std::size_t idx = f->make_constant(name);
+
+  f->push_byte(op_code::constant, 0);
+  f->push_byte(f->make_constant(nil_value{}), 0);
+  f->push_byte(op_code::define_var, 0);
+  f->push_byte(idx, 0);
+
+  f->push_byte(op_code::constant, 0);
+  f->push_byte(f->make_constant(99.99f), 0);
+  f->push_byte(op_code::set_var, 0);
+  f->push_byte(idx, 0);
+
+  ASSERT_EQ(test_vm.execute_function(std::move(f)), return_code::runtime_error);
+  ASSERT_EQ(test_vm.global(name).type(), cuke::value_type::floating);
+  EXPECT_EQ(test_vm.global(name).as<float>(), 99.99f);
 }
 TEST(vm, op_code_get_var)
 {

@@ -190,6 +190,16 @@ inline constexpr std::string replace(const token& t, std::string_view r)
       return cuke::value(v);
     }
     break;
+    case token_type::float_value:
+    {
+      float v = std::stof(t.value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      return cuke::value(v);
+    }
+    break;
     case token_type::doc_string:
     {
       auto rm_3_at_start_and_end = [](const token& t)
@@ -446,9 +456,9 @@ filepath_and_lines(std::string_view sv)
   return script;
 }
 
-[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values, std::size_t row_length)
+[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values, std::size_t cols_count)
 {
-  return std::make_unique<cuke::table>(std::move(values), row_length);
+  return std::make_unique<cuke::table>(std::move(values), cols_count);
 } 
 
 }  // namespace cwt::details
