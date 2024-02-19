@@ -67,11 +67,37 @@ TEST(table, raw_iterator)
 {
   std::size_t dim = 3;
   cuke::table t(make_matrix(dim), dim);
-  for (const cuke::table::row& element : t.raw())
+  
+  std::size_t expected = 0;
+  for (const cuke::table::row& data : t.raw())
   {
-    std::cout << element[0].to_string() 
-    << element[1].to_string()
-    << element[2].to_string()
-    << std::endl;
+    EXPECT_EQ(data[0].as<int>(), expected++);
+    EXPECT_EQ(data[1].as<int>(), expected++);
+    EXPECT_EQ(data[2].as<int>(), expected++);
+  }
+}
+
+TEST(table, hashes)
+{
+  cuke::value_array values; 
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+  
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value(34));
+
+  values.push_back(cuke::value(std::string("Theodor")));
+  values.push_back(cuke::value(std::string("Wonderland")));
+  values.push_back(cuke::value(999));
+  
+  cuke::table t(values, 3);
+  
+  for (const cuke::table::row& data : t.hashes())
+  {
+    std::cout << data["NAME"].to_string() << 
+     data["CITY"].to_string() << 
+     data["AGE"].to_string() << std::endl;
   }
 }
