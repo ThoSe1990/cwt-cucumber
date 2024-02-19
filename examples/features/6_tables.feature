@@ -5,7 +5,7 @@ Feature: This represents tables
   - rows hash
   - key/value pairs
 
-  Scenario: Adding items with raw()
+  Scenario: Adding items with raw
     Given An empty box
     When I add all items with raw():
       | apple      | 2 |
@@ -22,7 +22,7 @@ Feature: This represents tables
     Then The box contains 9 item(s)
 
 
-  Scenario: Adding items with rows_hash()
+  Scenario: Adding items with rows_hash
     Given An empty box
     When I add the following item with rows_hash():
       | ITEM     | really good apples |
