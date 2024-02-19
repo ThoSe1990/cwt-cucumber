@@ -20,15 +20,8 @@ class table
   class row
   {
    public:
-    row(value_array::const_iterator it, std::size_t row_idx,
-        std::size_t col_count);
-    row(value_array::const_iterator begin, value_array::const_iterator end,
-        std::size_t col_count)
-        : m_begin(begin), m_end(end), m_col_count(col_count)
-    {
-    }
-
-    [[nodiscard]] const cuke::value& operator[](std::size_t idx) const;
+    row(const value_array& data, std::size_t row_idx, std::size_t col_count);
+    row(value_array::const_iterator current, std::size_t col_count);
 
     class raw_iterator
     {
@@ -39,16 +32,15 @@ class table
       using pointer = const row*;
       using reference = const row&;
 
-      explicit raw_iterator(const value_array::const_iterator it,
+      explicit raw_iterator(value_array::const_iterator it,
                             std::size_t col_count)
-          : m_current(it), m_begin(it), m_col_count(col_count)
+          : m_current(it), m_col_count(col_count)
       {
       }
-      row operator*() const { return row(m_begin, m_row_idx, m_col_count); }
+      row operator*() const { return row(m_current, m_col_count); }
       raw_iterator& operator++()
       {
         m_current += m_col_count;
-        ++m_row_idx;
         return *this;
       }
       bool operator!=(const raw_iterator& rhs) const
@@ -58,18 +50,18 @@ class table
 
      private:
       value_array::const_iterator m_current;
-      value_array::const_iterator m_begin;
       std::size_t m_col_count;
-      std::size_t m_row_idx{0};
     };
+
+    [[nodiscard]] const cuke::value& operator[](std::size_t idx) const;
 
     raw_iterator begin() const { return raw_iterator(m_begin, m_col_count); }
     raw_iterator end() const { return raw_iterator(m_end, m_col_count); }
 
    private:
+    value_array::const_iterator m_current;
     value_array::const_iterator m_begin;
     value_array::const_iterator m_end;
-    std::size_t m_row_idx;
     std::size_t m_col_count;
   };
 
@@ -81,7 +73,7 @@ class table
 
   [[nodiscard]] row raw() const
   {
-    return row(m_data.begin(), m_data.end(), m_col_count);
+    return row(m_data, 0, m_col_count);
   }
 
  private:

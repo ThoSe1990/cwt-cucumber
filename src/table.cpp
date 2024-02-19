@@ -26,7 +26,7 @@ table::row table::operator[](std::size_t idx) const
 {
   if (idx < row_count())
   {
-    return row(m_data.begin(), idx, m_col_count);
+    return row(m_data.begin() + idx * m_col_count, m_col_count);
   }
   else
   {
@@ -36,18 +36,23 @@ table::row table::operator[](std::size_t idx) const
   }
 }
 
-table::row::row(value_array::const_iterator it, std::size_t row_idx,
+table::row::row(const value_array& data, std::size_t row_idx,
                 std::size_t col_count)
-    : m_begin(it), m_row_idx(row_idx), m_col_count(col_count)
+    : m_current(data.begin() + row_idx),
+      m_begin(data.begin()),
+      m_end(data.end()),
+      m_col_count(col_count)
 {
 }
-
+table::row::row(value_array::const_iterator current, std::size_t col_count)
+    : m_current(current), m_col_count(col_count)
+{
+}
 const cuke::value& table::row::operator[](std::size_t idx) const
 {
   if (idx < m_col_count)
   {
-    const std::size_t cell_idx = m_row_idx * m_col_count + idx;
-    return *(m_begin + cell_idx);
+    return *(m_current + idx);
   }
   else
   {
@@ -57,6 +62,5 @@ const cuke::value& table::row::operator[](std::size_t idx) const
                     idx, m_col_count));
   }
 }
-
 
 }  // namespace cuke
