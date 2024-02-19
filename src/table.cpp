@@ -39,8 +39,8 @@ table::row table::operator[](std::size_t idx) const
 table::row::row(const value_array& data, std::size_t row_idx,
                 std::size_t col_count)
     : m_current(data.begin() + row_idx),
-      m_begin(data.begin()),
-      m_end(data.end()),
+      // m_begin(data.begin()),
+      // m_end(data.end()),
       m_col_count(col_count)
 {
 }

@@ -23,47 +23,48 @@ class table
     row(const value_array& data, std::size_t row_idx, std::size_t col_count);
     row(value_array::const_iterator current, std::size_t col_count);
 
-    class raw_iterator
-    {
-     public:
-      using iterator_category = std::forward_iterator_tag;
-      using value_type = const row;
-      using difference_type = std::ptrdiff_t;
-      using pointer = const row*;
-      using reference = const row&;
-
-      explicit raw_iterator(value_array::const_iterator it,
-                            std::size_t col_count)
-          : m_current(it), m_col_count(col_count)
-      {
-      }
-      row operator*() const { return row(m_current, m_col_count); }
-      raw_iterator& operator++()
-      {
-        m_current += m_col_count;
-        return *this;
-      }
-      bool operator!=(const raw_iterator& rhs) const
-      {
-        return rhs.m_current != m_current;
-      }
-
-     private:
-      value_array::const_iterator m_current;
-      std::size_t m_col_count;
-    };
-
     [[nodiscard]] const cuke::value& operator[](std::size_t idx) const;
-
-    raw_iterator begin() const { return raw_iterator(m_begin, m_col_count); }
-    raw_iterator end() const { return raw_iterator(m_end, m_col_count); }
 
    private:
     value_array::const_iterator m_current;
-    value_array::const_iterator m_begin;
-    value_array::const_iterator m_end;
+    // value_array::const_iterator m_begin;
+    // value_array::const_iterator m_end;
     std::size_t m_col_count;
   };
+
+  
+
+  class raw_iterator
+  {
+   public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = const row;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const row*;
+    using reference = const row&;
+
+    explicit raw_iterator(value_array::const_iterator it, std::size_t col_count)
+        : m_current(it), m_col_count(col_count)
+    {
+    }
+    row operator*() const { return row(m_current, m_col_count); }
+    raw_iterator& operator++()
+    {
+      m_current += m_col_count;
+      return *this;
+    }
+    bool operator!=(const raw_iterator& rhs) const
+    {
+      return rhs.m_current != m_current;
+    }
+
+   private:
+    value_array::const_iterator m_current;
+    std::size_t m_col_count;
+  };
+
+  raw_iterator begin() const { return raw_iterator(m_data.begin(), m_col_count); }
+  raw_iterator end() const { return raw_iterator(m_data.end(), m_col_count); }
 
   [[nodiscard]] std::size_t row_count() const noexcept;
   [[nodiscard]] std::size_t col_count() const noexcept;
@@ -71,10 +72,7 @@ class table
 
   [[nodiscard]] row operator[](std::size_t idx) const;
 
-  [[nodiscard]] row raw() const
-  {
-    return row(m_data, 0, m_col_count);
-  }
+  [[nodiscard]] const table& raw() const { return *this; }
 
  private:
   value_array m_data;
