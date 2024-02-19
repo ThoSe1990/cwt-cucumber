@@ -20,11 +20,12 @@ class table
   class row
   {
    public:
-    row(value_array::const_iterator it, std::size_t col_count);
+    row(value_array::const_iterator it, std::size_t row_idx, std::size_t col_count);
     [[nodiscard]] const cuke::value& operator[](std::size_t idx) const;
 
    private:
     value_array::const_iterator m_it;
+    std::size_t m_row_idx;
     std::size_t m_col_count;
   };
 
