@@ -67,7 +67,7 @@ TEST(table, raw_iterator)
 {
   std::size_t dim = 3;
   cuke::table t(make_matrix(dim), dim);
-  
+
   std::size_t expected = 0;
   for (const cuke::table::row& data : t.raw())
   {
@@ -79,11 +79,11 @@ TEST(table, raw_iterator)
 
 TEST(table, hashes)
 {
-  cuke::value_array values; 
+  cuke::value_array values;
   values.push_back(cuke::value(std::string("NAME")));
   values.push_back(cuke::value(std::string("CITY")));
   values.push_back(cuke::value(std::string("AGE")));
-  
+
   values.push_back(cuke::value(std::string("Thomas")));
   values.push_back(cuke::value(std::string("Augsburg")));
   values.push_back(cuke::value(34));
@@ -91,13 +91,55 @@ TEST(table, hashes)
   values.push_back(cuke::value(std::string("Theodor")));
   values.push_back(cuke::value(std::string("Wonderland")));
   values.push_back(cuke::value(999));
-  
+
   cuke::table t(values, 3);
-  
+
+  std::size_t i = 1;
   for (const cuke::table::row& data : t.hashes())
   {
-    std::cout << data["NAME"].to_string() << 
-     data["CITY"].to_string() << 
-     data["AGE"].to_string() << std::endl;
+    EXPECT_EQ(data["NAME"].to_string(), values[i * 3 + 0].to_string());
+    EXPECT_EQ(data["CITY"].to_string(), values[i * 3 + 1].to_string());
+    EXPECT_EQ(data["AGE"].to_string(), values[i * 3 + 2].to_string());
+    ++i;
   }
+  EXPECT_EQ(i, 3);
+}
+
+TEST(table, rows_hash)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value(std::string("AGE")));
+  values.push_back(cuke::value(34));
+
+  cuke::table t(values, 2);
+  std::unordered_map<std::string, cuke::value> data = t.rows_hash();
+
+  EXPECT_EQ(data["NAME"].to_string(), std::string("Thomas"));
+  EXPECT_EQ(data["CITY"].to_string(), std::string("Augsburg"));
+  EXPECT_EQ(data["AGE"].as<int>(), 34);
+}
+TEST(table, rows_hash_more_than_2_cols)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value(34));
+
+  values.push_back(cuke::value(std::string("Theodor")));
+  values.push_back(cuke::value(std::string("Wonderland")));
+  values.push_back(cuke::value(999));
+
+  cuke::table t(values, 3);
+  EXPECT_THROW(
+    { [[maybe_unused]] auto data = t.rows_hash(); },
+    std::runtime_error
+  );
 }

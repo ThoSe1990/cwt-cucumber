@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <unordered_map>
 
 #include "value.hpp"
 
@@ -35,7 +36,7 @@ class table
     std::optional<value_array::const_iterator> m_header{std::nullopt};
   };
 
-  class raw_iterator
+  class row_iterator
   {
    public:
     using iterator_category = std::forward_iterator_tag;
@@ -44,23 +45,23 @@ class table
     using pointer = const row*;
     using reference = const row&;
 
-    explicit raw_iterator(value_array::const_iterator it, std::size_t col_count)
+    explicit row_iterator(value_array::const_iterator it, std::size_t col_count)
         : m_current(it), m_col_count(col_count)
     {
     }
-    explicit raw_iterator(value_array::const_iterator it,
+    explicit row_iterator(value_array::const_iterator it,
                           value_array::const_iterator begin,
                           std::size_t col_count)
         : m_current(it), m_col_count(col_count), m_header(begin)
     {
     }
     row operator*() const { return row(m_current, m_col_count, m_header); }
-    raw_iterator& operator++()
+    row_iterator& operator++()
     {
       m_current += m_col_count;
       return *this;
     }
-    bool operator!=(const raw_iterator& rhs) const
+    bool operator!=(const row_iterator& rhs) const
     {
       return rhs.m_current != m_current;
     }
@@ -79,8 +80,8 @@ class table
         : m_begin(begin), m_end(end), m_col_count(col_count)
     {
     }
-    raw_iterator begin() const { return raw_iterator(m_begin, m_col_count); }
-    raw_iterator end() const { return raw_iterator(m_end, m_col_count); }
+    row_iterator begin() const { return row_iterator(m_begin, m_col_count); }
+    row_iterator end() const { return row_iterator(m_end, m_col_count); }
 
    private:
     value_array::const_iterator m_begin;
@@ -96,11 +97,11 @@ class table
         : m_begin(begin), m_end(end), m_col_count(col_count)
     {
     }
-    raw_iterator begin() const
+    row_iterator begin() const
     {
-      return raw_iterator(m_begin + m_col_count, m_begin, m_col_count);
+      return row_iterator(m_begin + m_col_count, m_begin, m_col_count);
     }
-    raw_iterator end() const { return raw_iterator(m_end, m_col_count); }
+    row_iterator end() const { return row_iterator(m_end, m_col_count); }
 
    private:
     value_array::const_iterator m_begin;
@@ -116,6 +117,7 @@ class table
 
   [[nodiscard]] raw_access raw() const;
   [[nodiscard]] hash_access hashes() const;
+  [[nodiscard]] std::unordered_map<std::string, cuke::value> rows_hash() const;
 
  private:
   value_array m_data;

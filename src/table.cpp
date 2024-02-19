@@ -71,7 +71,8 @@ const cuke::value& table::row::operator[](std::string_view key) const
   }
 
   auto value = m_current;
-  for (auto it = m_header.value(); it != (m_current + m_col_count); ++it, ++value)
+  for (auto it = m_header.value(); it != (m_current + m_col_count);
+       ++it, ++value)
   {
     if (it->to_string() == key)
     {
@@ -91,12 +92,24 @@ table::hash_access table::hashes() const
   return hash_access(m_data.begin(), m_data.end(), m_col_count);
 }
 
-}  // namespace cuke
+std::unordered_map<std::string, cuke::value> table::rows_hash() const
+{
+  if (m_col_count == 2)
+  {
+    std::unordered_map<std::string, cuke::value> result;
+    std::transform(m_data.begin(), m_data.end() - 1, m_data.begin() + 1,
+                   std::inserter(result, result.begin()),
+                   [](const cuke::value& k, const cuke::value& v)
+                   { return std::make_pair(k.to_string(), v); });
+    return result;
+  }
+  else
+  {
+    throw std::runtime_error(std::format(
+        "table::rows_hash: Can only create hash rows with two columns, "
+        "this table has {} columns",
+        m_col_count));
+  }
+}
 
-// else
-// {
-//   throw std::runtime_error(
-//       std::format("table::hashes: Can only create hashes with two columns, "
-//                   "this table has {} columns",
-//                   m_col_count));
-// }
+}  // namespace cuke
