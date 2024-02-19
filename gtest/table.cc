@@ -60,5 +60,18 @@ TEST(table, invalid_column_access)
   cuke::table t(make_matrix(dim), dim);
 
   EXPECT_THROW({ [[maybe_unused]] auto v = t[2][3]; }, std::invalid_argument);
-  EXPECT_THROW({ [[maybe_unused]] const auto& v = t[1][4]; }, std::invalid_argument);
+  EXPECT_THROW({ [[maybe_unused]] const auto& v = t[1][4]; },
+               std::invalid_argument);
+}
+TEST(table, raw_iterator)
+{
+  std::size_t dim = 3;
+  cuke::table t(make_matrix(dim), dim);
+  for (const cuke::table::row& element : t.raw())
+  {
+    std::cout << element[0].to_string() 
+    << element[1].to_string()
+    << element[2].to_string()
+    << std::endl;
+  }
 }

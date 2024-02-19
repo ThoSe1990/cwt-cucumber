@@ -205,7 +205,7 @@ class value
 
   value_type type() const noexcept { return m_type; }
 
-  [[nodiscard]] std::string to_string()
+  [[nodiscard]] std::string to_string() const
   {
     switch (m_type)
     {

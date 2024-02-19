@@ -38,7 +38,7 @@ table::row table::operator[](std::size_t idx) const
 
 table::row::row(value_array::const_iterator it, std::size_t row_idx,
                 std::size_t col_count)
-    : m_it(it), m_row_idx(row_idx), m_col_count(col_count)
+    : m_begin(it), m_row_idx(row_idx), m_col_count(col_count)
 {
 }
 
@@ -47,7 +47,7 @@ const cuke::value& table::row::operator[](std::size_t idx) const
   if (idx < m_col_count)
   {
     const std::size_t cell_idx = m_row_idx * m_col_count + idx;
-    return *(m_it + cell_idx);
+    return *(m_begin + cell_idx);
   }
   else
   {
@@ -58,27 +58,5 @@ const cuke::value& table::row::operator[](std::size_t idx) const
   }
 }
 
-/*
-pairs: 
-
-[[nodiscard]] const cuke::value& operator[](const char* key) const;
-
-const cuke::value& table::row::operator[](const char* key) const
-{
-  if (m_col_count == 2)
-  {
-    
-  }
-  else
-  {
-    throw std::runtime_error(std::format(
-        "table::row::operator[](const char* key): Can only access values for "
-        "tables with column count == 2, column count is: {}",
-        m_col_count));
-  }
-}
-
-
-*/
 
 }  // namespace cuke
