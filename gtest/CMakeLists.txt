@@ -38,6 +38,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_line.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_run_w_background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_context.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/vm_tables.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc

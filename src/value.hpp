@@ -67,7 +67,8 @@ struct value_trait
 };
 
 template <typename T>
-struct value_trait<T, std::enable_if_t<std::is_integral_v<T>>>
+struct value_trait<T, std::enable_if_t<std::is_integral_v<T> ||
+                                       std::is_same_v<T, std::size_t>>>
 {
   static constexpr cuke::value_type tag = std::is_same_v<T, bool>
                                               ? cuke::value_type::boolean
@@ -169,7 +170,22 @@ class value
 
   ~value() = default;
 
-  template <typename T>
+  template <typename T,
+            std::enable_if_t<std::is_same_v<T, std::size_t>, bool> = true>
+  T as() const
+  {
+    if (m_type == cwt::details::value_trait<long>::tag) [[likely]]
+    {
+      return static_cast<value_model<long>*>(m_value.get())->m_value;
+    }
+    else [[unlikely]]
+    {
+      throw std::runtime_error("cwt::value: Invalid value type");
+    }
+  }
+
+  template <typename T,
+            std::enable_if_t<!std::is_same_v<T, std::size_t>, bool> = true>
   const T& as() const
   {
     if (m_type == cwt::details::value_trait<T>::tag) [[likely]]

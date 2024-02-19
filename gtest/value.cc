@@ -40,6 +40,18 @@ TEST(value, long_value_1)
   EXPECT_EQ(v.as<long>(), 123);
   EXPECT_EQ(v.as<unsigned long>(), 123);
 }
+TEST(value, std_size_t)
+{
+  std::size_t i = 234;
+  cuke::value v(i);
+  EXPECT_EQ(v.as<std::size_t>(), i);
+}
+TEST(value, int_as_std_size_t)
+{
+  int i = 234;
+  cuke::value v(i);
+  EXPECT_EQ(v.as<std::size_t>(), i);
+}
 TEST(value, long_value_2)
 {
   long number = 99;

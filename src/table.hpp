@@ -11,6 +11,8 @@ namespace cuke
 class table
 {
  public:
+  using pair = std::unordered_map<std::string, cuke::value>;
+
   table() = default;
   table(const table&) = default;
   table(table&&) = default;
@@ -117,7 +119,7 @@ class table
 
   [[nodiscard]] raw_access raw() const;
   [[nodiscard]] hash_access hashes() const;
-  [[nodiscard]] std::unordered_map<std::string, cuke::value> rows_hash() const;
+  [[nodiscard]] cuke::table::pair rows_hash() const;
 
  private:
   value_array m_data;

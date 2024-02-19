@@ -97,15 +97,17 @@ class step
   void datatable() const
   {
     const std::size_t elements_in_row = datatable_row();
-
     parser& p = m_parent->get_parser();
-    while (p.is_none_of(token_type::scenario, token_type::scenario_outline,
-                        token_type::examples, token_type::tag, token_type::eof))
+    p.skip_linebreaks();
+
+    while (p.is_none_of(token_type::step, token_type::scenario,
+                        token_type::scenario_outline, token_type::examples,
+                        token_type::tag, token_type::eof))
     {
       if (datatable_row() != elements_in_row)
       {
         p.error_at(p.current(), "Inconsistent cell count within data table");
-        return;
+        return ;
       }
       p.skip_linebreaks();
     }

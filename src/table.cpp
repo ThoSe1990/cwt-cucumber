@@ -92,7 +92,7 @@ table::hash_access table::hashes() const
   return hash_access(m_data.begin(), m_data.end(), m_col_count);
 }
 
-std::unordered_map<std::string, cuke::value> table::rows_hash() const
+cuke::table::pair table::rows_hash() const
 {
   if (m_col_count == 2)
   {

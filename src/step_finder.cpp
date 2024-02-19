@@ -5,9 +5,11 @@
 namespace cwt::details
 {
 
-[[nodiscard]] static void correct_floating_point_types(token& defined, token& feature)
+[[nodiscard]] static void correct_floating_point_types(token& defined,
+                                                       token& feature)
 {
-  if (feature.type == token_type::double_value && defined.type == token_type::parameter_float)
+  if (feature.type == token_type::double_value &&
+      defined.type == token_type::parameter_float)
   {
     feature.type = token_type::float_value;
   }
@@ -71,7 +73,11 @@ bool step_finder::step_matches()
     }
     else if (is_at_end(defined) && feature.type == token_type::linebreak)
     {
-      feature = m_feature.scan_token();
+      while (feature.type == token_type::linebreak)
+      {
+        feature = m_feature.scan_token();
+      }
+      
       if (feature.type == token_type::doc_string)
       {
         m_values.push_back(token_to_value(feature, false));
@@ -116,11 +122,16 @@ cuke::value step_finder::create_table()
       current = m_feature.scan_token();
       ++cols_count;
     }
-    current = m_feature.scan_token();
+
+    while (current.type == token_type::linebreak)
+    {
+      current = m_feature.scan_token();
+    }
 
     if (is_at_end(current))
     {
-      return cuke::value(make_table_ptr(std::move(values), cols_count));;
+      return cuke::value(make_table_ptr(std::move(values), cols_count));
+      ;
     }
   }
 }
@@ -143,7 +154,8 @@ bool step_finder::parameter_matches_value(token_type parameter, token_type type)
       return type == token_type::long_value;
     case token_type::parameter_float:
     case token_type::parameter_double:
-      return type == token_type::float_value || type == token_type::double_value;
+      return type == token_type::float_value ||
+             type == token_type::double_value;
     default:
     {
       println(color::red, std::format("step_finder: Invaklid token_type: '{}'",

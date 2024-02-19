@@ -108,7 +108,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
                                            std::is_same_v<T, double>>>
 {
   static double get_arg(const cuke::value& v, std::string_view file,
-                   std::size_t line)
+                        std::size_t line)
   {
     if (v.type() == cuke::value_type::_double)
     {
@@ -126,7 +126,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
                                            std::is_same_v<T, float>>>
 {
   static float get_arg(const cuke::value& v, std::string_view file,
-                   std::size_t line)
+                       std::size_t line)
   {
     if (v.type() == cuke::value_type::floating)
     {
@@ -145,12 +145,30 @@ struct conversion_impl<
     T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
                         std::is_convertible_v<T, std::string_view>>>
 {
-  static T get_arg(const cuke::value& v, std::string_view file,
-                   std::size_t line)
+  static const std::string& get_arg(const cuke::value& v, std::string_view file,
+                                    std::size_t line)
   {
     if (v.type() == cuke::value_type::string)
     {
       return v.as<std::string>();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not an string type", file, line));
+    }
+  }
+};
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
+{
+  static const cuke::table& get_arg(const cuke::value& v, std::string_view file,
+                                    std::size_t line)
+  {
+    if (v.type() == cuke::value_type::table)
+    {
+      return *v.as<table_ptr>().get();
     }
     else
     {
@@ -176,3 +194,28 @@ struct conversion_impl<
 
 #define CUKE_ARG(index) \
   cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
+
+/**
+ * @def CUKE_DOC_STRING()
+ * @brief Access a doc string in a step. Use std::string as type here, e.g.:
+ * 
+ * ``std::string doc = CUKE_DOC_STRING();`` or
+ * ``std::string_view doc = CUKE_DOC_STRING();``
+ *
+ * C++ auto type deduction does not work here. It's essentially the same as
+ * CUKE_ARG(..), with index == last.
+ *
+ */
+#define CUKE_DOC_STRING() \
+  cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+/**
+ * @def CUKE_TABLE()
+ * @brief Access a table in a step. Use cuke::table (or const cuke::table&) as
+ * type, e.g. ``const cuke::table& my_table = CUKE_TABLE();``
+ *
+ *
+ * C++ auto type deduction does not work here. It's essentially the same as
+ * CUKE_ARG(..), with index == last.
+ *
+ */
+#define CUKE_TABLE() cwt::details::get_arg(n, values, n, __FILE__, __LINE__)

@@ -11,7 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - MSVC build shared: Toggle with cmake's BUILD_SHARED_LIBS
 - Doc Strings: Backticks (`) as delimiter
-
+- #define CUKE_DOC_STRING()
+- Support for tables / datatables in step
+- #define CUKE_TABLE()
+- cuke::value added to_string() member function
 
 ## [1.1.0] 2024-02-12
 

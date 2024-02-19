@@ -354,7 +354,7 @@ TEST_F(vm_get_args_doc_strings_2, value_string)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string v = CUKE_DOC_STRING();
         ASSERT_EQ(v, vm_get_args_doc_strings_2::expected);
         called = true;
       },
@@ -367,7 +367,7 @@ TEST_F(vm_get_args_doc_strings_2, value_string_view)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string_view v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string_view v = CUKE_DOC_STRING();
         ASSERT_STREQ(v.data(), vm_get_args_doc_strings_2::expected.data());
         called = true;
       },
