@@ -126,10 +126,33 @@ TEST(tag_expression, tags_3_tags_2_brackets)
   EXPECT_EQ(tc[5].token, token_type::_or);
   EXPECT_EQ(tc[6].token, token_type::_or);
 }
+TEST(tag_expression, tags_3_tags_2_brackets_invalid_1)
+{
+  compiler::tag_expression tc("@tag1 or (((@tag2 and @tag3) or @tag4)");
+  ASSERT_EQ(tc.size(), 0);
+}
+TEST(tag_expression, tags_3_tags_2_brackets_invalid_2)
+{
+  compiler::tag_expression tc("@tag1 or ((@tag2 and @tag3)) or @tag4)");
+  ASSERT_EQ(tc.size(), 0);
+}
 
 TEST(tag_expression, tags_3_tags_3_brackets)
 {
-  compiler::tag_expression tc("(@tag1 or ((@tag2 and @tag3) or @tag4)");
+  compiler::tag_expression tc("@tag1 or ((@tag2 and @tag3) or @tag4)");
+  ASSERT_EQ(tc.size(), 7);
+  EXPECT_EQ(tc[0].value, "@tag1");
+  EXPECT_EQ(tc[1].value, "@tag2");
+  EXPECT_EQ(tc[2].value, "@tag3");
+  EXPECT_EQ(tc[3].token, token_type::_and);
+  EXPECT_EQ(tc[4].value, "@tag4");
+  EXPECT_EQ(tc[5].token, token_type::_or);
+  EXPECT_EQ(tc[6].token, token_type::_or);
+}
+
+TEST(tag_expression, tags_3_tags_3_brackets_invalid)
+{
+  compiler::tag_expression tc("@tag1 or ((@tag2 and @tag3) or @tag4)");
   ASSERT_EQ(tc.size(), 7);
   EXPECT_EQ(tc[0].value, "@tag1");
   EXPECT_EQ(tc[1].value, "@tag2");
@@ -184,6 +207,13 @@ TEST(tag_expression, tags_3_tags_x_brackets_2)
   EXPECT_EQ(tc[12].token, token_type::_and);
   EXPECT_EQ(tc[13].token, token_type::_and);
   EXPECT_EQ(tc[14].token, token_type::_or);
+}
+TEST(tag_expression, tags_3_tags_x_brackets_2_invalid)
+{
+  compiler::tag_expression tc(
+      "@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) and @tag7) and (@tag8 "
+      "and @tag9)");
+  ASSERT_TRUE(tc.empty());
 }
 
 TEST(tag_expression, some_more_spaces)
@@ -248,7 +278,7 @@ TEST(tag_evaluation, _4_tags_false)
 {
   cuke::value_array tags{std::string("@tag5"), std::string("@not_there"),
                    std::string("@anything")};
-  compiler::tag_expression tc("(@tag1 or ((@tag2 and @tag3) or @tag4)");
+  compiler::tag_expression tc("@tag1 or ((@tag2 and @tag3) or @tag4)");
   EXPECT_FALSE(tc.evaluate(tags.size(), tags.rbegin()));
 }
 TEST(tag_evaluation, empty_condition_not_is_true_1)

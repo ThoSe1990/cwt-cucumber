@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - cuke::value added to_string() member function
 - Quotes for string values in tables aren't required anymore
 
+### Fixed
+- Detect too many / too less parenthesis in tag expression 
+
 ## [1.1.0] 2024-02-12
 
 ### Added

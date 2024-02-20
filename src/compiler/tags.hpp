@@ -47,6 +47,7 @@ class tag_expression
   std::vector<tag_token> m_out;
   std::vector<tag_token> m_operators;
   parser m_parser;
+  int m_open_parens{0};
 };
 
 }  // namespace cwt::details::compiler

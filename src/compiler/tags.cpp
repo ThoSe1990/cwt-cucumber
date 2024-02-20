@@ -127,6 +127,12 @@ void tag_expression::compile()
     m_operators.clear();
     m_out.clear();
   }
+  else if (m_open_parens != 0)
+  {
+    println(color::red, "Not all groupings closed or at least one grouping closed too much");
+    m_operators.clear();
+    m_out.clear();
+  }
   else
   {
     push_remaining_operators();
@@ -206,13 +212,19 @@ void tag_expression::and_or_xor()
 
 void tag_expression::grouping()
 {
+  ++m_open_parens;
   m_operators.push_back(make_token());
   expression();
 }
 void tag_expression::close_grouping()
 {
+  --m_open_parens;
   for (;;)
   {
+    if (m_operators.empty())
+    {
+      return; 
+    }
     tag_token back = m_operators.back();
     m_operators.pop_back();
     if (back.token == token_type::left_paren)
