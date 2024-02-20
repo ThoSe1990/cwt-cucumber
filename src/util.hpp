@@ -78,6 +78,15 @@ namespace cwt::details
   return create_string(begin.value, end.value);
 }
 
+[[nodiscard]] inline std::pair<std::string, std::string> split_on_first_linebreak(const std::string& str) {
+    std::size_t pos = str.find('\n');
+    if (pos != std::string::npos) {
+        return { str.substr(0, pos), str.substr(pos + 1) };
+    } else {
+        return { str, "" };
+    }
+}
+
 template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
 {

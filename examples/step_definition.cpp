@@ -14,7 +14,13 @@ WHEN(add_item, "I place {int} x {string} in it")
 
   cuke::context<box>().add_items(item, count);
 }
-
+WHEN(doc_string, "There is a doc string:")
+{
+  const std::string& str = CUKE_DOC_STRING();
+  std::cout << "-------- Print from step definition: -----" << '\n';
+  std::cout << str << '\n';
+  std::cout << "------------------------------------------" << '\n';
+}
 WHEN(add_table_raw, "I add all items with raw():")
 {
   const cuke::table& t = CUKE_TABLE();

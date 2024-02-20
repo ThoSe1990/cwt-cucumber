@@ -364,13 +364,19 @@ return_code vm::start()
       {
         std::string file_line = m_stack.back().copy_as<std::string>();
         pop();
-        std::string step = m_stack.back().copy_as<std::string>();
+        // std::string step = m_stack.back().copy_as<std::string>();
+        auto [step, doc_string_or_table] =
+            split_on_first_linebreak(m_stack.back().copy_as<std::string>());
         pop();
         const return_code step_result = results().back().back();
         print(to_color(step_result),
               std::format("{} {}", step_prefix(step_result), step));
         print("  ");
         println(color::black, file_line);
+        if (doc_string_or_table.size())
+        {
+          print(doc_string_or_table);
+        }
       }
       break;
       case op_code::jump_if_failed:
