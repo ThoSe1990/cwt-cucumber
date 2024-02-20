@@ -9,6 +9,9 @@
 
 namespace cuke
 {
+/**
+ * @brief This enum class represents the cuke::value_type for cuke::value
+*/
 enum class value_type
 {
   integral,
@@ -178,6 +181,14 @@ class value
 
   ~value() = default;
 
+  /**
+   * @brief Retrieve a const reference to the underlying value.
+   * @tparam T Return type / target type
+   * @return Constant reference to the underlying value
+   * 
+   * @details This function returns a const reference to the underlying value. It casts to the given template parameter T. If this results in a bad cast, this function throws a std::runtime_error. 
+   * Note: It creates a copy for std::size_t
+  */  
   template <typename T,
             std::enable_if_t<std::is_same_v<T, std::size_t>, bool> = true>
   T as() const
@@ -249,6 +260,11 @@ class value
     m_type = cwt::details::value_trait<T>::tag;
   }
 
+  /**
+   * @brief Type info for the underlying value
+   * @return Returns cuke::value_type of the underlying value
+   * 
+  */  
   value_type type() const noexcept { return m_type; }
 
   /**
