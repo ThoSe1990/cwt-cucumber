@@ -1,3 +1,5 @@
+
+@all
 Feature: Scenarios with tags
 
   @apples
