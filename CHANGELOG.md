@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for tables / datatables in step
 - #define CUKE_TABLE()
 - cuke::value added to_string() member function
+- Quotes for string values in tables aren't required anymore
 
 ## [1.1.0] 2024-02-12
 

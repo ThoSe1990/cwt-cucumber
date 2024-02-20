@@ -5,8 +5,21 @@
 
 👋 Hello and Welcome to my C++ Cucumber interpreter 🥒🚀✨
 
-This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me.
 
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+1. [Implementing Steps](#implementing-steps)
+    1. [Steps and Value Access](#steps-and-value-access)
+    1. [Scenario Context](#scenario-context)
+    1. [Scenario Outline](#scenario-outline)
+    1. [Background](#background)
+    1. [Tags](#tags)
+    1. [Hooks](#hooks)
+    1. [Tagged Hooks](#tagged-hooks)
+    1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+1. [Disclaimer](#disclaimer)
+1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
 ## Getting Started
 
@@ -79,7 +92,7 @@ THEN(check_box_size, "The box contains {int} item(s)")
 }
 ```
 
-### Steps / Value Access
+### Steps and Value Access
 
 To implement a step, use a define with a function name and a step name. There is no technical difference between these definitions:
 - `GIVEN(function_name, "your step goes here")` 
@@ -322,7 +335,7 @@ The box is shipped!
 ```
 
 
-### Single Scenarios / Directories
+### Run Single Scenarios / Directories
 
 If you only want to run single scenarios, you can append the appropriate line to the feature file:
 
@@ -341,7 +354,11 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```
 
 
-## Found A Bug? 
+## Disclaimer
+
+This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me. I'm not getting paid for this and I do all the implementation in my free time aside from work. 
+
+## Found A Bug? Need A Feature?
 Don't hesitate and open an Issue.  
 
   
