@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- MSVC build shared: Toggle with cmake's BUILD_SHARED_LIBS
 - Doc Strings: Backticks (`) as delimiter
-- #define CUKE_DOC_STRING()
-- Support for tables / datatables in step
-- #define CUKE_TABLE()
-- cuke::value added to_string() member function
+- Macro for doc string access `CUKE_DOC_STRING()`
+- Support for Datables and `cuke::table` for  
+  - Raw access
+  - Rows hash access
+  - Key/Value pairs or hash pairs
+- Macro to create `cuke::table` in step definition `CUKE_TABLE()`
+- `cuke::value` added `to_string()` member function
 - Quotes for string values in tables aren't required anymore
 
 ### Fixed
