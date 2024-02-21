@@ -1,4 +1,4 @@
-#include "cucumber.hpp"
+#include "../src/cucumber.hpp"
 #include "box.hpp"
 
 GIVEN(init_box, "An empty box")
@@ -24,7 +24,7 @@ WHEN(doc_string, "There is a doc string:")
 WHEN(add_table_raw, "I add all items with raw():")
 {
   const cuke::table& t = CUKE_TABLE();
-  for (const auto& row : t.raw())
+  for (const cuke::table::row& row : t.raw())
   {
     cuke::context<box>().add_items(row[0].to_string(), row[1].copy_as<long>());
   }

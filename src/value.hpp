@@ -9,16 +9,22 @@
 
 namespace cuke
 {
+/**
+ * @brief This enum class represents the cuke::value_type for cuke::value
+ */
 enum class value_type
 {
-  integral,
-  floating,
-  _double,
-  boolean,
-  string,
-  function,
-  table,
-  nil
+  integral,  ///< Represents an integer value
+  floating,  ///< Represents a float value
+  _double,   ///< Represents a double value
+  boolean,   ///< Represents a boolean value
+  string,    ///< Represents a string value
+  function,  ///< Represents a chunk of byte code to execute in the cuke vm.
+             ///< Those types are only created by the compiler, in general they
+             ///< aren't necessary for the user.
+  table,     ///< Represents a table
+  nil  ///< Represents a nil value, in general they aren't necessary for the
+       ///< user.
 };
 
 class table;
@@ -121,6 +127,13 @@ struct value_trait<T, std::enable_if_t<std::is_same_v<T, nil_value>>>
 namespace cuke
 {
 
+/**
+ * @class value
+ * @brief The value type for all values in CWT Cucumber
+ *
+ * @details cuke::value uses type erasure to store all possible types.
+ *
+ */
 class value
 {
  public:
@@ -170,6 +183,16 @@ class value
 
   ~value() = default;
 
+  /**
+   * @brief Retrieve a const reference to the underlying value.
+   * @tparam T Return type / target type
+   * @return Constant reference to the underlying value
+   *
+   * @details This function returns a const reference to the underlying value.
+   * It casts to the given template parameter T. If this results in a bad cast,
+   * this function throws a std::runtime_error. Note: It creates a copy for
+   * std::size_t
+   */
   template <typename T,
             std::enable_if_t<std::is_same_v<T, std::size_t>, bool> = true>
   T as() const
@@ -184,6 +207,16 @@ class value
     }
   }
 
+  /**
+   * @brief Retrieve a const reference to the underlying value.
+   * @tparam T Return type / target type
+   * @return Constant reference to the underlying value
+   *
+   * @details This function returns a const reference to the underlying value.
+   * It casts to the given template parameter T. If this results in a bad cast,
+   * this function throws a std::runtime_error. Note: It creates a copy for
+   * std::size_t
+   */
   template <typename T,
             std::enable_if_t<!std::is_same_v<T, std::size_t>, bool> = true>
   const T& as() const
@@ -197,6 +230,15 @@ class value
       throw std::runtime_error("cwt::value: Invalid value type");
     }
   }
+  /**
+   * @brief Retrieve a copy of the underlying value.
+   * @tparam T Return type / target type
+   * @return Copy of the underlying value
+   *
+   * @details This function returns a copye of the underlying value. It casts to
+   * the given template parameter T. If this results in a bad cast, this
+   * function throws a std::runtime_error.
+   */
   template <typename T>
   T copy_as() const
   {
@@ -210,6 +252,12 @@ class value
     }
   }
 
+  /**
+   * @brief Emplace or replace a value
+   * @param value The value to store
+   *
+   * @details Constructs or replaces the value in a given cuke::value.
+   */
   template <typename T>
   void emplace_or_replace(T&& value)
   {
@@ -219,8 +267,17 @@ class value
     m_type = cwt::details::value_trait<T>::tag;
   }
 
+  /**
+   * @brief Type info for the underlying value
+   * @return Returns cuke::value_type of the underlying value
+   *
+   */
   value_type type() const noexcept { return m_type; }
 
+  /**
+   * @brief Converts the underlying value to a string. If not possible, this
+   * function throws a std::runtime_error
+   */
   [[nodiscard]] std::string to_string() const
   {
     switch (m_type)
