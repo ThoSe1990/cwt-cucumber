@@ -264,7 +264,8 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
-  do 
+
+  while (!three_consecutive('"') && !three_consecutive('`'))
   {
     if (end_of_line())
     {
@@ -276,14 +277,21 @@ token scanner::doc_string()
     {
       return error_token("Unterminated doc string.");
     }
-  } while (!three_consecutive('"') && !three_consecutive('`'));
+  }
 
   skip();
   advance();
   advance();
   advance();
-
-  return make_token(token_type::doc_string, m_start, m_pos);
+  if (end_of_line() || is_at_end())
+  {
+    m_line++;
+    return make_token(token_type::doc_string, m_start, m_pos);
+  }
+  else
+  {
+    return error_token("Expect eof or linebreak after doc string");
+  }
 }
 
 token scanner::word()

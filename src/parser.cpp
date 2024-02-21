@@ -20,18 +20,19 @@ bool parser::error() const noexcept { return m_error; }
 
 void parser::error_at(const token& t, std::string_view msg) noexcept
 {
+  std::string prefix("");
   if (m_filepath.empty())
   {
-    print(color::red, std::format("[line {}] Error ", t.line));
+    prefix += std::format("[line {}] Error ", t.line);
   }
   else
   {
-    print(color::red, std::format("{}:{}: Error ", m_filepath, t.line));
+    prefix += std::format("{}:{}: Error ", m_filepath, t.line);
   }
 
   if (t.type == token_type::eof)
   {
-    print(color::red, "at end");
+    prefix += "at end";
   }
   else if (t.type == token_type::error)
   {
@@ -39,9 +40,10 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   }
   else
   {
-    print(color::red, std::format(" at '{}'", t.value));
+    prefix += std::format("at '{}'", t.value);
   }
-  println(color::red, std::format(": {}", msg));
+  
+  println(color::red, std::format("{}: {}", prefix, msg));
   m_error = true;
 }
 
