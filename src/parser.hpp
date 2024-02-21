@@ -3,12 +3,14 @@
 #include <vector>
 
 #include "scanner.hpp"
+#include "file.hpp"
 
 namespace cwt::details
 {
 class parser
 {
  public:
+  parser(const file& f);
   parser(std::string_view source);
   parser(std::string_view source, bool_operators);
   
@@ -70,6 +72,7 @@ class parser
   token m_current;
   token m_previous;
   bool m_error{false};
+  std::string m_filepath{""};
 };
 
 }  // namespace cwt::details

@@ -6,8 +6,12 @@
 
 namespace cwt::details
 {
+parser::parser(const file& f) : m_scanner(f.content), m_filepath(f.path) {}
 parser::parser(std::string_view source) : m_scanner(source) {}
-parser::parser(std::string_view source, bool_operators) : m_scanner(source, bool_operators{}) {}
+parser::parser(std::string_view source, bool_operators)
+    : m_scanner(source, bool_operators{})
+{
+}
 
 const token& parser::current() const noexcept { return m_current; }
 const token& parser::previous() const noexcept { return m_previous; }
@@ -16,8 +20,15 @@ bool parser::error() const noexcept { return m_error; }
 
 void parser::error_at(const token& t, std::string_view msg) noexcept
 {
-  print(color::red, std::format("[line {}] Error ", t.line));
-  
+  if (m_filepath.empty())
+  {
+    print(color::red, std::format("[line {}] Error ", t.line));
+  }
+  else
+  {
+    print(color::red, std::format("{}:{}: Error ", m_filepath, t.line));
+  }
+
   if (t.type == token_type::eof)
   {
     print(color::red, "at end");
@@ -28,13 +39,16 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   }
   else
   {
-    print(color::red, std::format(" at '{}'", t.value)); 
+    print(color::red, std::format(" at '{}'", t.value));
   }
   println(color::red, std::format(": {}", msg));
   m_error = true;
 }
 
-bool parser::check(token_type type) const noexcept { return m_current.type == type; }
+bool parser::check(token_type type) const noexcept
+{
+  return m_current.type == type;
+}
 bool parser::match(token_type type) noexcept
 {
   if (check(type))
@@ -59,7 +73,7 @@ void parser::advance_to(token_type type)
   }
 }
 
-std::vector<token> parser::collect_tokens_to(token_type type) 
+std::vector<token> parser::collect_tokens_to(token_type type)
 {
   std::vector<token> result;
   while (!check(type))

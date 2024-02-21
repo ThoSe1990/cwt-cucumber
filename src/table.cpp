@@ -8,7 +8,7 @@ table::table(value_array data, std::size_t col_count)
 {
   if ((m_data.size() % m_col_count) != 0)
   {
-    throw std::invalid_argument(
+    throw std::runtime_error(
         std::format("cuke::table: Inconsisten table size with cells count: {}, "
                     "and columns count: {}",
                     m_data.size(), m_col_count));
@@ -30,7 +30,7 @@ table::row table::operator[](std::size_t idx) const
   }
   else
   {
-    throw std::invalid_argument(
+    throw std::runtime_error(
         std::format("table::operator[]: Can not access row {}, row count = {}",
                     idx, row_count()));
   }
@@ -57,7 +57,7 @@ const cuke::value& table::row::operator[](std::size_t idx) const
   }
   else
   {
-    throw std::invalid_argument(
+    throw std::runtime_error(
         std::format("cuke::table::row: Can not access value at column {}, "
                     "column size is: {}",
                     idx, m_col_count));

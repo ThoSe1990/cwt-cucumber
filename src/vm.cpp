@@ -33,11 +33,11 @@ void vm::run()
 {
   for (const auto& f : m_files)
   {
-    return_code current = run(f);
-    if (current == return_code::compile_error ||
-        current == return_code::runtime_error)
+    return_code result = run(f);
+    if (result == return_code::compile_error ||
+        result == return_code::runtime_error)
     {
-      break;
+      throw std::runtime_error("");
     }
   }
 }

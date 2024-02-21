@@ -21,7 +21,7 @@ TEST(table, inconsisten_table)
 {
   cuke::value_array data{cuke::value(1), cuke::value(2), cuke::value(3),
                          cuke::value(4), cuke::value(5)};
-  EXPECT_THROW({ cuke::table t(data, 2); }, std::invalid_argument);
+  EXPECT_THROW({ cuke::table t(data, 2); }, std::runtime_error);
 }
 TEST(table, size)
 {
@@ -51,17 +51,17 @@ TEST(table, invalid_row_access)
   std::size_t dim = 3;
   cuke::table t(make_matrix(dim), dim);
 
-  EXPECT_THROW({ [[maybe_unused]] auto row = t[3]; }, std::invalid_argument);
-  EXPECT_THROW({ [[maybe_unused]] auto row = t[4]; }, std::invalid_argument);
+  EXPECT_THROW({ [[maybe_unused]] auto row = t[3]; }, std::runtime_error);
+  EXPECT_THROW({ [[maybe_unused]] auto row = t[4]; }, std::runtime_error);
 }
 TEST(table, invalid_column_access)
 {
   std::size_t dim = 3;
   cuke::table t(make_matrix(dim), dim);
 
-  EXPECT_THROW({ [[maybe_unused]] auto v = t[2][3]; }, std::invalid_argument);
+  EXPECT_THROW({ [[maybe_unused]] auto v = t[2][3]; }, std::runtime_error);
   EXPECT_THROW({ [[maybe_unused]] const auto& v = t[1][4]; },
-               std::invalid_argument);
+               std::runtime_error);
 }
 TEST(table, raw_iterator)
 {
