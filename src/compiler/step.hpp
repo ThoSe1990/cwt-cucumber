@@ -118,13 +118,18 @@ class step
     std::size_t element_count = 0;
     parser& p = m_parent->get_parser();
     p.consume(token_type::vertical, "Expect '|' at table row begin.");
-    while (!p.match(token_type::linebreak))
+    while (!p.match(token_type::linebreak) && !p.match(token_type::eof))
     {
       const std::vector<token> tokens =
           p.collect_tokens_to(token_type::vertical);
       p.advance_to(token_type::vertical);
       ++element_count;
-      p.consume(token_type::vertical, "Expect '|' after value in data table.");
+      if (!p.match(token_type::vertical))
+      {
+        p.error_at(p.current(), "Expect '|' after value in data table.");
+        break;
+      }
+      // p.consume(token_type::vertical, "Expect '|' after value in data table.");
     }
     return element_count;
   }

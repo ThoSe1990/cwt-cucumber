@@ -258,3 +258,35 @@ TEST(step_finder, step_w_strings_in_table_element_type)
     }
   }
 }
+
+TEST(step_finder, linebreak_eof_after_table)
+{
+  const char* doc_string_step = R"*(A datatable:
+| NAME              | EMAIL          | CITY      | DOB        |
+| Lauriane Mosciski | lm@example.com | Bismarck  | 1954-04-10 |
+| Valentin Schultz  | vs@example.com | Lynchburg | 1950-01-01 |
+| Shea Ziemann      | sz@example.com | Medford   | 1982-06-19 |
+)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+}
+TEST(step_finder, eof_after_table)
+{
+  const char* doc_string_step = R"*(A datatable:
+| NAME              | EMAIL          | CITY      | DOB        |
+| Lauriane Mosciski | lm@example.com | Bismarck  | 1954-04-10 |
+| Valentin Schultz  | vs@example.com | Lynchburg | 1950-01-01 |
+| Shea Ziemann      | sz@example.com | Medford   | 1982-06-19 |)*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+}
+TEST(step_finder, spaces_after_table)
+{
+  const char* doc_string_step = R"*(A datatable:
+| NAME              | EMAIL          | CITY      | DOB        |
+| Lauriane Mosciski | lm@example.com | Bismarck  | 1954-04-10 |
+| Valentin Schultz  | vs@example.com | Lynchburg | 1950-01-01 |
+| Shea Ziemann      | sz@example.com | Medford   | 1982-06-19 |   )*";
+  step_finder sf("A datatable:", doc_string_step);
+  ASSERT_TRUE(sf.step_matches());
+}

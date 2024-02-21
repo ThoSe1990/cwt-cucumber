@@ -283,15 +283,23 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
-  if (end_of_line() || is_at_end())
+
+  auto token_until_quotes_and_skip_spaces_to_eof_or_linebreak =
+      [this](std::size_t start, std::size_t end)
   {
-    m_line++;
-    return make_token(token_type::doc_string, m_start, m_pos);
-  }
-  else
-  {
-    return error_token("Expect eof or linebreak after doc string");
-  }
+    skip();
+    if (end_of_line() || is_at_end())
+    {
+      m_line++;
+      return make_token(token_type::doc_string, start, end);
+    }
+    else
+    {
+      return error_token("Expect eof or linebreak after doc string");
+    }
+  };
+
+  return token_until_quotes_and_skip_spaces_to_eof_or_linebreak(m_start, m_pos);
 }
 
 token scanner::word()

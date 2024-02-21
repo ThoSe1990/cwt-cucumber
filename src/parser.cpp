@@ -42,7 +42,7 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   {
     prefix += std::format("at '{}'", t.value);
   }
-  
+
   println(color::red, std::format("{}: {}", prefix, msg));
   m_error = true;
 }
@@ -71,6 +71,7 @@ void parser::advance_to(token_type type)
     if (check(token_type::eof))
     {
       error_at(m_current, "Unexpected end of file.");
+      return;
     }
   }
 }
@@ -85,6 +86,7 @@ std::vector<token> parser::collect_tokens_to(token_type type)
     if (check(token_type::eof))
     {
       error_at(m_current, "Unexpected end of file.");
+      break;
     }
   }
   return result;

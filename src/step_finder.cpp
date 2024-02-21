@@ -77,7 +77,7 @@ bool step_finder::step_matches()
       {
         feature = m_feature.scan_token();
       }
-      
+
       if (feature.type == token_type::doc_string)
       {
         m_values.push_back(token_to_value(feature, false));
@@ -110,7 +110,7 @@ cuke::value step_finder::create_table()
   {
     token current = m_feature.scan_token();
     cols_count = 0;
-    while (current.type != token_type::linebreak)
+    while (current.type != token_type::linebreak && !is_at_end(current))
     {
       std::vector<token> tokens;
       while (current.type != token_type::vertical)
@@ -131,7 +131,6 @@ cuke::value step_finder::create_table()
     if (is_at_end(current))
     {
       return cuke::value(make_table_ptr(std::move(values), cols_count));
-      ;
     }
   }
 }
