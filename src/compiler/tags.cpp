@@ -22,7 +22,7 @@ bool tag_expression::evaluate(argc n, argv tags) const
   }
 
   std::stack<bool> stack;
-  auto pop_top = [](std::stack<bool>& stack)
+  auto pop_top = [&stack]()
   {
     bool value = stack.top();
     stack.pop();
@@ -40,27 +40,28 @@ bool tag_expression::evaluate(argc n, argv tags) const
       break;
       case token_type::_not:
       {
-        stack.push(!pop_top(stack));
+        bool v = !pop_top();
+        stack.push(v);
       }
       break;
       case token_type::_or:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs || rhs);
       }
       break;
       case token_type::_and:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs && rhs);
       }
       break;
       case token_type::_xor:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs != rhs);
       }
       break;

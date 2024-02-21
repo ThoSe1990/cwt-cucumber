@@ -17,5 +17,14 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/vm.cpp
 )
 
-add_library(cucumber STATIC ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-add_library(cucumber-no-main STATIC ${cucumber-src})
+add_library(cucumber ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
+add_library(cucumber-no-main ${cucumber-src})
+
+if (BUILD_SHARED_LIBS)
+    set_target_properties(cucumber PROPERTIES
+                          POSITION_INDEPENDENT_CODE ON
+                          )
+    set_target_properties(cucumber-no-main PROPERTIES
+                          POSITION_INDEPENDENT_CODE ON
+                          )
+endif()

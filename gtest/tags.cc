@@ -256,6 +256,12 @@ TEST(tag_evaluation, two_tags_and_true)
   compiler::tag_expression tc("@tag1 and @tag2");
   EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
 }
+TEST(tag_evaluation, not_two_tags_and_true)
+{
+  cuke::value_array tags{std::string("@tag1"), std::string("@tag4")};
+  compiler::tag_expression tc("not (@tag1 and @tag2)");
+  EXPECT_TRUE(tc.evaluate(tags.size(), tags.rbegin()));
+}
 TEST(tag_evaluation, two_tags_and_false)
 {
   cuke::value_array tags{std::string("@tag1"), std::string("@tag2")};
