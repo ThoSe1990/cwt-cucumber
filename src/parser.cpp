@@ -2,6 +2,8 @@
 
 #include "parser.hpp"
 
+#include "util.hpp"
+
 namespace cwt::details
 {
 parser::parser(std::string_view source) : m_scanner(source) {}
@@ -14,10 +16,11 @@ bool parser::error() const noexcept { return m_error; }
 
 void parser::error_at(const token& t, std::string_view msg) noexcept
 {
-  std::cerr << "[line " << t.line << "] Error ";
+  print(color::red, std::format("[line {}] Error ", t.line));
+  
   if (t.type == token_type::eof)
   {
-    std::cerr << "at end";
+    print(color::red, "at end");
   }
   else if (t.type == token_type::error)
   {
@@ -25,9 +28,9 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   }
   else
   {
-    std::cerr << " at '" << t.value << '\'';
+    print(color::red, std::format(" at '{}'", t.value)); 
   }
-  std::cerr << ": " << msg << '\n';
+  println(color::red, std::format(": {}", msg));
   m_error = true;
 }
 
