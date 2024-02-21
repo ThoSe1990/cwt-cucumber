@@ -33,7 +33,12 @@ void vm::run()
 {
   for (const auto& f : m_files)
   {
-    [[maybe_unused]] return_code current = run(f);
+    return_code current = run(f);
+    if (current == return_code::compile_error ||
+        current == return_code::runtime_error)
+    {
+      break;
+    }
   }
 }
 return_code vm::run(const file& f)
@@ -364,7 +369,6 @@ return_code vm::start()
       {
         std::string file_line = m_stack.back().copy_as<std::string>();
         pop();
-        // std::string step = m_stack.back().copy_as<std::string>();
         auto [step, doc_string_or_table] =
             split_on_first_linebreak(m_stack.back().copy_as<std::string>());
         pop();
@@ -375,7 +379,7 @@ return_code vm::start()
         println(color::black, file_line);
         if (doc_string_or_table.size())
         {
-          print(doc_string_or_table);
+          println(doc_string_or_table);
         }
       }
       break;

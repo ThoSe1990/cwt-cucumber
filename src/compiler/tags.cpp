@@ -76,7 +76,7 @@ bool tag_expression::evaluate(argc n, argv tags) const
   }
   else [[unlikely]]
   {
-    throw std::runtime_error("Shunting Yard Error: To many values in stack");
+    throw std::runtime_error("Shunting Yard Error: Too many values in stack");
   }
 }
 bool tag_expression::contains(const std::string& tag, argc n, argv tags) const

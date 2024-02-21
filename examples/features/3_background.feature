@@ -7,7 +7,7 @@ Feature: We always need apples!
   Scenario: Apples Apples Apples
     When I place 1 x "apple" in it
     Then The box contains 2 item(s)
-
+asdfasdf
   Scenario: Apples and Bananas
     When I place 1 x "apple" in it
     And I place 1 x "banana" in it

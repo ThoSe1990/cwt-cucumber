@@ -22,7 +22,7 @@ TEST(compiler, invalid_begin)
   compiler::cucumber c("asdfsadf");
   c.compile();
   EXPECT_TRUE(c.error());
-  EXPECT_EQ(std::string("[line 1] Error  at 'asdfsadf': Expect FeatureLine\n"),
+  EXPECT_EQ(std::string("[line 1] Error at 'asdfsadf': Expect FeatureLine\n"),
             testing::internal::GetCapturedStderr());
 }
 

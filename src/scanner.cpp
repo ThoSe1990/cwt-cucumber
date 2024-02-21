@@ -264,7 +264,7 @@ token scanner::doc_string()
   advance();
   advance();
   advance();
-  while (!three_consecutive('"') && !three_consecutive('`'))
+  do 
   {
     if (end_of_line())
     {
@@ -276,12 +276,13 @@ token scanner::doc_string()
     {
       return error_token("Unterminated doc string.");
     }
-  }
+  } while (!three_consecutive('"') && !three_consecutive('`'));
 
   skip();
   advance();
   advance();
   advance();
+
   return make_token(token_type::doc_string, m_start, m_pos);
 }
 
@@ -340,7 +341,7 @@ token scanner::parameter()
   }
   else
   {
-    return error_token("Unknown parameter");
+    return make_token(token_type::parameter_unknown);
   }
 }
 void scanner::reset()
@@ -387,7 +388,7 @@ token scanner::scan_token()
       {
         return doc_string();
       }
-      else 
+      else
       {
         return error_token("Expect doc string after '`'.");
       }

@@ -158,7 +158,7 @@ bool step_finder::parameter_matches_value(token_type parameter, token_type type)
              type == token_type::double_value;
     default:
     {
-      println(color::red, std::format("step_finder: Invaklid token_type: '{}'",
+      println(color::red, std::format("step_finder: Invalid token_type: '{}'",
                                       to_uint(parameter)));
       return false;
     }
