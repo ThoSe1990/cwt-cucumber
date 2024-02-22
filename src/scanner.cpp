@@ -263,7 +263,6 @@ token scanner::doc_string()
 {
   advance();
   advance();
-  advance();
 
   while (!three_consecutive('"') && !three_consecutive('`'))
   {
@@ -284,22 +283,7 @@ token scanner::doc_string()
   advance();
   advance();
 
-  auto token_until_quotes_and_skip_spaces_to_eof_or_linebreak =
-      [this](std::size_t start, std::size_t end)
-  {
-    skip();
-    if (end_of_line() || is_at_end())
-    {
-      m_line++;
-      return make_token(token_type::doc_string, start, end);
-    }
-    else
-    {
-      return error_token("Expect eof or linebreak after doc string");
-    }
-  };
-
-  return token_until_quotes_and_skip_spaces_to_eof_or_linebreak(m_start, m_pos);
+  return make_token(token_type::doc_string, m_start, m_pos);
 }
 
 token scanner::word()
