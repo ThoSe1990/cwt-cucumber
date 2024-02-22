@@ -13,18 +13,6 @@
 
 namespace cwt::details::compiler
 {
-inline std::string create_string(std::string_view sv)
-{
-  return std::string(sv);
-}
-inline std::string create_string(std::string_view begin, std::string_view end)
-{
-  return std::string(begin.data(), end.data() + end.size());
-}
-inline std::string create_string(const token& begin, const token& end)
-{
-  return create_string(begin.value, end.value);
-}
 
 class compiler
 {
@@ -43,16 +31,15 @@ class compiler
   [[nodiscard]] bool lines_match() const noexcept;
 
   void read_tags();
-  [[nodiscard]] value_array take_latest_tags();
-  [[nodiscard]] bool tags_valid(const value_array& tags);
+  [[nodiscard]] cuke::value_array take_latest_tags();
+  [[nodiscard]] bool tags_valid(const cuke::value_array& tags);
 
   void emit_byte(uint32_t byte);
   void emit_byte(op_code code);
   void emit_bytes(op_code code, uint32_t byte);
   uint32_t emit_jump();
   void patch_jump(uint32_t offset);
-  void emit_table_value();
-  void emit_tags(const value_array& tags);
+  void emit_tags(const cuke::value_array& tags);
 
   template <typename Arg>
   void emit_constant(op_code code, Arg&& arg)
@@ -92,7 +79,8 @@ class compiler
   std::vector<unsigned long> m_lines;
   std::string m_filename;
   chunk m_chunk;
-  std::shared_ptr<value_array> m_latest_tags = std::make_unique<value_array>();
+  std::shared_ptr<cuke::value_array> m_latest_tags =
+      std::make_unique<cuke::value_array>();
 };
 
 }  // namespace cwt::details::compiler

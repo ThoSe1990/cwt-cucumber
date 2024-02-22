@@ -12,7 +12,7 @@ namespace cwt::details::compiler
 class examples
 {
  public:
-  examples(feature* f, const value_array& tags);
+  examples(feature* f, const cuke::value_array& tags);
   void header();
   void body(std::size_t scenario_idx);
 
@@ -24,7 +24,7 @@ class examples
  private:
   feature* m_feature;
   std::vector<std::size_t> m_variables;
-  value_array m_tags;
+  cuke::value_array m_tags;
   
   struct row
   {

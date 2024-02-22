@@ -11,32 +11,29 @@
 namespace cwt::details
 {
 
-static void print_value(const value& v)
+static void print_value(const cuke::value& v)
 {
   switch (v.type())
   {
-    case value_type::integral:
+    case cuke::value_type::integral:
       std::cout << v.as<long>();
       break;
-    case value_type::floating:
+    case cuke::value_type::floating:
       std::cout << v.as<double>();
       break;
-    case value_type::boolean:
+    case cuke::value_type::boolean:
       std::cout << v.as<bool>();
       break;
-    case value_type::string:
+    case cuke::value_type::string:
       std::cout << v.as<std::string>();
       break;
-    case value_type::function:
+    case cuke::value_type::function:
       std::cout << '<' << v.as<function>()->name() << '>';
       break;
-    case value_type::step:
-      std::cout << "step function";
+    case cuke::value_type::table:
+      std::cout << "< datatable >";
       break;
-    case value_type::hook:
-      std::cout << "hook";
-      break;
-    case value_type::nil:
+    case cuke::value_type::nil:
       std::cout << "nil";
   }
 }

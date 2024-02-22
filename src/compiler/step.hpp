@@ -30,8 +30,14 @@ class step
     token end = m_parent->get_parser().previous();
 
     m_parent->get_parser().skip_linebreaks();
+
     if (m_parent->get_parser().match(token_type::doc_string))
     {
+      end = m_parent->get_parser().previous();
+    }
+    else if (m_parent->get_parser().check(token_type::vertical))
+    {
+      datatable();
       end = m_parent->get_parser().previous();
     }
 
@@ -86,6 +92,46 @@ class step
   {
     return m_parent->get_parser().is_none_of(token_type::linebreak,
                                              token_type::eof);
+  }
+
+  void datatable() const
+  {
+    const std::size_t elements_in_row = datatable_row();
+    parser& p = m_parent->get_parser();
+    p.skip_linebreaks();
+
+    while (p.is_none_of(token_type::step, token_type::scenario,
+                        token_type::scenario_outline, token_type::examples,
+                        token_type::tag, token_type::eof))
+    {
+      if (datatable_row() != elements_in_row)
+      {
+        p.error_at(p.current(), "Inconsistent cell count within data table");
+        return ;
+      }
+      p.skip_linebreaks();
+    }
+  }
+
+  std::size_t datatable_row() const
+  {
+    std::size_t element_count = 0;
+    parser& p = m_parent->get_parser();
+    p.consume(token_type::vertical, "Expect '|' at table row begin.");
+    while (!p.match(token_type::linebreak) && !p.match(token_type::eof))
+    {
+      const std::vector<token> tokens =
+          p.collect_tokens_to(token_type::vertical);
+      p.advance_to(token_type::vertical);
+      ++element_count;
+      if (!p.match(token_type::vertical))
+      {
+        p.error_at(p.current(), "Expect '|' after value in data table.");
+        break;
+      }
+      // p.consume(token_type::vertical, "Expect '|' after value in data table.");
+    }
+    return element_count;
   }
 
  private:

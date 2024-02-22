@@ -19,6 +19,8 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_w_examples_tags_2.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_and_scenario_w_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_ignore_descriptions.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_scenario_outline_strings.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/compiler_tables.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_tagged_feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_single_lines.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
@@ -34,9 +36,12 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_quiet.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_options_line.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/vm_run_scenarios.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_run_w_background.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm_context.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/vm_tables.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc

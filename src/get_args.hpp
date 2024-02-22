@@ -34,7 +34,7 @@ static constexpr bool has_conversion_v =
 
 struct conversion
 {
-  const value& v;
+  const cuke::value& v;
   std::string_view file;
   std::size_t line;
 
@@ -64,7 +64,8 @@ inline conversion get_arg(argc n, argv values, std::size_t idx,
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static T get_arg(const cuke::value& v, std::string_view file,
+                   std::size_t line)
   {
     static_assert(
         !std::is_same_v<T, long long>,
@@ -72,7 +73,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
     static_assert(
         !std::is_same_v<T, unsigned long long>,
         "Value access: long long is not supported. Underlying type is long");
-    if (v.type() == value_type::integral)
+    if (v.type() == cuke::value_type::integral)
     {
       return v.copy_as<T>();
     }
@@ -87,10 +88,10 @@ struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
 template <>
 struct conversion_impl<std::size_t>
 {
-  static std::size_t get_arg(const value& v, std::string_view file,
+  static std::size_t get_arg(const cuke::value& v, std::string_view file,
                              std::size_t line)
   {
-    if (v.type() == value_type::integral)
+    if (v.type() == cuke::value_type::integral)
     {
       return v.copy_as<unsigned long>();
     }
@@ -103,29 +104,51 @@ struct conversion_impl<std::size_t>
 };
 
 template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T>>>
+struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                           std::is_same_v<T, double>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static double get_arg(const cuke::value& v, std::string_view file,
+                        std::size_t line)
   {
-    if (v.type() == value_type::floating)
+    if (v.type() == cuke::value_type::_double)
     {
       return v.copy_as<double>();
     }
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not a floating point type", file, line));
+          std::format("{}:{}: Value is not a double", file, line));
+    }
+  }
+};
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                           std::is_same_v<T, float>>>
+{
+  static float get_arg(const cuke::value& v, std::string_view file,
+                       std::size_t line)
+  {
+    if (v.type() == cuke::value_type::floating)
+    {
+      return v.copy_as<float>();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not a float", file, line));
     }
   }
 };
 
 template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
-                                    std::is_convertible_v<T, std::string_view>>>
+struct conversion_impl<
+    T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
+                        std::is_convertible_v<T, std::string_view>>>
 {
-  static T get_arg(const value& v, std::string_view file, std::size_t line)
+  static const std::string& get_arg(const cuke::value& v, std::string_view file,
+                                    std::size_t line)
   {
-    if (v.type() == value_type::string)
+    if (v.type() == cuke::value_type::string)
     {
       return v.as<std::string>();
     }
@@ -137,18 +160,62 @@ struct conversion_impl<T, std::enable_if_t<std::is_convertible_v<T, std::string>
   }
 };
 
-}  // namespace cwt::details
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
+{
+  static const cuke::table& get_arg(const cuke::value& v, std::string_view file,
+                                    std::size_t line)
+  {
+    if (v.type() == cuke::value_type::table)
+    {
+      return *v.as<table_ptr>().get();
+    }
+    else
+    {
+      throw std::runtime_error(
+          std::format("{}:{}: Value is not an string type", file, line));
+    }
+  }
+};
 
+}  // namespace cwt::details
 
 /**
  * @def CUKE_ARG(index)
- * @brief Access variables from a step in the step body. ``CUKE_ARG`` starts at index 1 on the first value from the left side.
- * 
- * C++ auto type deduction does not work here. The underlying function is overloaded by return type.
- * 
- * @param index Variable index to access 
+ * @brief Access variables from a step in the step body. ``CUKE_ARG`` starts at
+ * index 1 on the first value from the left side.
+ *
+ * C++ auto type deduction does not work here. The underlying function is
+ * overloaded by return type.
+ *
+ * @param index Variable index to access
  * @return The value from the index in the given step
  */
- 
-#define CUKE_ARG(index) cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
 
+#define CUKE_ARG(index) \
+  cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
+
+/**
+ * @def CUKE_DOC_STRING()
+ * @brief Access a doc string in a step. Use std::string as type here, e.g.:
+ * 
+ * ``std::string doc = CUKE_DOC_STRING();`` or
+ * ``std::string_view doc = CUKE_DOC_STRING();``
+ *
+ * C++ auto type deduction does not work here. It's essentially the same as
+ * CUKE_ARG(..), with index == last.
+ *
+ */
+#define CUKE_DOC_STRING() \
+  cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+/**
+ * @def CUKE_TABLE()
+ * @brief Access a table in a step. Use cuke::table (or const cuke::table&) as
+ * type, e.g. ``const cuke::table& my_table = CUKE_TABLE();``
+ *
+ *
+ * C++ auto type deduction does not work here. It's essentially the same as
+ * CUKE_ARG(..), with index == last.
+ *
+ */
+#define CUKE_TABLE() cwt::details::get_arg(n, values, n, __FILE__, __LINE__)

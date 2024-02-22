@@ -12,7 +12,7 @@ feature::feature(cucumber* enclosing)
   init();
 }
 
-feature::feature(cucumber* enclosing, const value_array& tags)
+feature::feature(cucumber* enclosing, const cuke::value_array& tags)
     : m_enclosing(enclosing), m_tags(tags), compiler(*enclosing)
 {
   init();
@@ -41,7 +41,7 @@ void feature::init()
       token_type::background, token_type::eof);
 }
 
-void feature::compile_scenario(const value_array& tags)
+void feature::compile_scenario(const cuke::value_array& tags)
 {
   if (tags_valid(tags) && lines_match())
   {
@@ -53,7 +53,7 @@ void feature::compile_scenario(const value_array& tags)
     next();
   }
 }
-void feature::compile_scenario_outline(const value_array& tags)
+void feature::compile_scenario_outline(const cuke::value_array& tags)
 {
   if (tags_valid(tags))
   {

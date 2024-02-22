@@ -23,7 +23,6 @@ class tag_expression
   tag_expression();
   tag_expression(std::string_view expression);
 
-  // void set(std::string_view expression);
   [[nodiscard]] bool evaluate(argc n, argv tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] bool empty() const noexcept;
@@ -48,6 +47,7 @@ class tag_expression
   std::vector<tag_token> m_out;
   std::vector<tag_token> m_operators;
   parser m_parser;
+  int m_open_parens{0};
 };
 
 }  // namespace cwt::details::compiler

@@ -9,7 +9,7 @@ scenario::scenario(feature* enclosing)
 {
   init();
 }
-scenario::scenario(feature* enclosing, const value_array& tags)
+scenario::scenario(feature* enclosing, const cuke::value_array& tags)
     : m_enclosing(enclosing), m_tags(tags), compiler(*enclosing)
 {
   init();

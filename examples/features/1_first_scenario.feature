@@ -6,5 +6,4 @@ Feature: My first feature
     Given An empty box
     When I place 2 x "apple" in it
     Then The box contains 2 item(s)
-
-
+  

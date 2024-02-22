@@ -261,7 +261,7 @@ TEST_F(vm_get_args_strings, value_string_view)
   EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
-class vm_get_args_doc_strings : public ::testing::Test
+class vm_get_args_doc_strings_1 : public ::testing::Test
 {
  public:
   static bool called;
@@ -290,28 +290,85 @@ attached to a step
 "attached to a step\n"
 "  "};
 };
-bool vm_get_args_doc_strings::called;
+bool vm_get_args_doc_strings_1::called;
 
-TEST_F(vm_get_args_doc_strings, value_string)
+TEST_F(vm_get_args_doc_strings_1, value_string)
 {
   test_vm.push_step(step(
       [](argc n, argv values)
       {
         std::string v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
-        ASSERT_EQ(v, vm_get_args_doc_strings::expected);
+        ASSERT_EQ(v, vm_get_args_doc_strings_1::expected);
         called = true;
       },
       "Here is a doc string attached"));
   EXPECT_EQ(test_vm.run(script), return_code::passed);
   EXPECT_TRUE(called);
 }
-TEST_F(vm_get_args_doc_strings, value_string_view)
+TEST_F(vm_get_args_doc_strings_1, value_string_view)
 {
   test_vm.push_step(step(
       [](argc n, argv values)
       {
         std::string_view v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
-        ASSERT_STREQ(v.data(), vm_get_args_doc_strings::expected.data());
+        ASSERT_STREQ(v.data(), vm_get_args_doc_strings_1::expected.data());
+        called = true;
+      },
+      "Here is a doc string attached"));
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
+  EXPECT_TRUE(called);
+}
+class vm_get_args_doc_strings_2 : public ::testing::Test
+{
+ public:
+  static bool called;
+
+ protected:
+  void SetUp() override
+  {
+    called = false;
+    test_vm = vm();
+  }
+
+  void TearDown() override { test_vm.reset(); }
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  * Here is a doc string attached
+  ```
+This is a doc string
+attached to a step
+  ```
+)*";
+  vm test_vm;
+  static constexpr const std::string_view expected{
+"\n"
+"This is a doc string\n"
+"attached to a step\n"
+"  "};
+};
+bool vm_get_args_doc_strings_2::called;
+
+TEST_F(vm_get_args_doc_strings_2, value_string)
+{
+  test_vm.push_step(step(
+      [](argc n, argv values)
+      {
+        std::string v = CUKE_DOC_STRING();
+        ASSERT_EQ(v, vm_get_args_doc_strings_2::expected);
+        called = true;
+      },
+      "Here is a doc string attached"));
+  EXPECT_EQ(test_vm.run(script), return_code::passed);
+  EXPECT_TRUE(called);
+}
+TEST_F(vm_get_args_doc_strings_2, value_string_view)
+{
+  test_vm.push_step(step(
+      [](argc n, argv values)
+      {
+        std::string_view v = CUKE_DOC_STRING();
+        ASSERT_STREQ(v.data(), vm_get_args_doc_strings_2::expected.data());
         called = true;
       },
       "Here is a doc string attached"));

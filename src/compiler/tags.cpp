@@ -12,11 +12,6 @@ tag_expression::tag_expression(std::string_view expression)
 {
   compile();
 }
-// void tag_expression::set(std::string_view expression)
-// {
-//   m_parser = parser(expression);
-//   compile();
-// }
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 bool tag_expression::empty() const noexcept { return m_out.empty(); }
 bool tag_expression::evaluate(argc n, argv tags) const
@@ -27,7 +22,7 @@ bool tag_expression::evaluate(argc n, argv tags) const
   }
 
   std::stack<bool> stack;
-  auto pop_top = [](std::stack<bool>& stack)
+  auto pop_top = [&stack]()
   {
     bool value = stack.top();
     stack.pop();
@@ -45,27 +40,28 @@ bool tag_expression::evaluate(argc n, argv tags) const
       break;
       case token_type::_not:
       {
-        stack.push(!pop_top(stack));
+        bool v = !pop_top();
+        stack.push(v);
       }
       break;
       case token_type::_or:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs || rhs);
       }
       break;
       case token_type::_and:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs && rhs);
       }
       break;
       case token_type::_xor:
       {
-        bool rhs = pop_top(stack);
-        bool lhs = pop_top(stack);
+        bool rhs = pop_top();
+        bool lhs = pop_top();
         stack.push(lhs != rhs);
       }
       break;
@@ -80,15 +76,15 @@ bool tag_expression::evaluate(argc n, argv tags) const
   }
   else [[unlikely]]
   {
-    throw std::runtime_error("Shunting Yard Error: To many values in stack");
+    throw std::runtime_error("Shunting Yard Error: Too many values in stack");
   }
 }
 bool tag_expression::contains(const std::string& tag, argc n, argv tags) const
 {
   for (std::size_t i = 0; i < n; ++i)
   {
-    const value& current = to_value(tags, i);
-    if (current.type() == value_type::string &&
+    const cuke::value& current = to_value(tags, i);
+    if (current.type() == cuke::value_type::string &&
         current.as<std::string>() == tag)
     {
       return true;
@@ -129,6 +125,12 @@ void tag_expression::compile()
 
   if (m_parser.error())
   {
+    m_operators.clear();
+    m_out.clear();
+  }
+  else if (m_open_parens != 0)
+  {
+    println(color::red, "Not all groupings closed or at least one grouping closed too much");
     m_operators.clear();
     m_out.clear();
   }
@@ -211,13 +213,19 @@ void tag_expression::and_or_xor()
 
 void tag_expression::grouping()
 {
+  ++m_open_parens;
   m_operators.push_back(make_token());
   expression();
 }
 void tag_expression::close_grouping()
 {
+  --m_open_parens;
   for (;;)
   {
+    if (m_operators.empty())
+    {
+      return; 
+    }
     tag_token back = m_operators.back();
     m_operators.pop_back();
     if (back.token == token_type::left_paren)

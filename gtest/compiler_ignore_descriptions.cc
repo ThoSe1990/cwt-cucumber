@@ -63,7 +63,7 @@ TEST(compiler_ignore_descriptions, scenario_outline_description)
   Given A step with a <value> here 
 )*";
 
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
 
   compiler::cucumber cuke(script);
   cuke.compile();
@@ -72,11 +72,10 @@ TEST(compiler_ignore_descriptions, scenario_outline_description)
 
   EXPECT_TRUE(cuke.error());
   EXPECT_EQ(
-      std::string("[line 11] Error at end: Expect StepLine, Tags or "
-                  "Examples\n[line 11] Error at end: Expect Examples table\n"),
-      testing::internal::GetCapturedStderr());
+      std::string("\x1B[31m[line 11] Error at end: Expect StepLine, Tags or "
+                  "Examples\x1B[0m\n\x1B[31m[line 11] Error at end: Expect Examples table\x1B[0m\n"),
+      testing::internal::GetCapturedStdout());
 }
-
 TEST(compiler_ignore_descriptions, examples_description)
 {
   const char* script = R"*(

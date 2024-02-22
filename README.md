@@ -5,8 +5,26 @@
 
 👋 Hello and Welcome to my C++ Cucumber interpreter 🥒🚀✨
 
-This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me.
 
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+1. [Implementing Steps](#implementing-steps)
+    1. [Steps and Value Access](#steps-and-value-access)
+    1. [Scenario Context](#scenario-context)
+    1. [Scenario Outline](#scenario-outline)
+    1. [Background](#background)
+    1. [Doc Strings](#doc-strings)
+    1. [Tables](#tables)
+        1. [Option 1: Raw Access](#option-1-raw-access)
+        1. [Option 2: Hashes](#option-2-hashes)
+        1. [Option 3: Key/Value Pairs or Rows Hash](#option-3-keyvalue-pairs-or-rows-hash)
+    1. [Tags](#tags)
+    1. [Hooks](#hooks)
+    1. [Tagged Hooks](#tagged-hooks)
+    1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+1. [Disclaimer](#disclaimer)
+1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
 ## Getting Started
 
@@ -79,7 +97,7 @@ THEN(check_box_size, "The box contains {int} item(s)")
 }
 ```
 
-### Steps / Value Access
+### Steps and Value Access
 
 To implement a step, use a define with a function name and a step name. There is no technical difference between these definitions:
 - `GIVEN(function_name, "your step goes here")` 
@@ -203,6 +221,134 @@ Feature: We always need apples!
     Then The box contains 3 item(s)
 ```
 
+### Doc Strings
+
+Append a doc string to a defined step in your feature file: 
+
+```gherkin
+  Scenario: Doc string with quotes
+    When There is a doc string:
+    """
+    This is a docstring with quotes
+    after a step
+    """
+```
+
+There is no parameter in the step definition needed. 
+  
+To access a doc string use ``CUKE_DOC_STRING()``: 
+
+```cpp 
+// There is no parameter needed in your step
+WHEN(doc_string, "There is a doc string:")
+{
+  // and now you can use it here: 
+  const std::string& str = CUKE_DOC_STRING();
+  // .. 
+}
+```
+
+### Tables
+
+Similar to doc strings, you can append tables to a defined step. Then there are three different options to access the values. To create a table in your step definition use: 
+- `const cuke::table& t = CUKE_TABLE();` or as copy
+- `cuke::table t = CUKE_TABLE();`
+
+You can directly access the elements with the `operator[]`. But the underlying value is a `cuke::value` which you have to cast accordingly with `as` or `to _string`.
+
+```cpp 
+const cuke::table& t = CUKE_TABLE();
+t[0][0].to_string();
+t[0][1].as<int>();
+// ... 
+```
+
+#### Option 1: Raw Access
+
+First we look at a raw table. This means there is no header line or identifiers for the given values:
+
+```gherkin
+Scenario: Adding items with raw
+  Given An empty box
+  When I add all items with raw():
+    | apple      | 2 |
+    | strawberry | 3 |
+    | banana     | 5 |
+  Then The box contains 10 item(s)
+```
+
+You can iterate over this table with `raw()`:
+
+```cpp
+WHEN(add_table_raw, "I add all items with raw():")
+{
+  // create a table 
+  const cuke::table& t = CUKE_TABLE();
+
+  // with raw() you iterate over all rows 
+  for (const auto& row : t.raw())
+  {
+    // and with the operator[] you get access to each cell in each row
+    cuke::context<box>().add_items(row[0].to_string(), row[1].copy_as<long>());
+  }
+}
+```
+
+
+#### Option 2: Hashes
+
+With an additional header in the table we can make this table more descriptive:`:
+
+```gherkin
+Scenario: Adding items with hashes
+  Given An empty box
+  When I add all items with hashes():
+    | ITEM   | QUANTITY |
+    | apple  | 3        |
+    | banana | 6        |
+  Then The box contains 9 item(s)
+```
+
+You can now iterate over the table using `hashes()` and  access the elements with string literals:
+
+```cpp 
+WHEN(add_table_hashes, "I add all items with hashes():")
+{
+  const cuke::table& t = CUKE_TABLE();
+  for (const auto& row : t.hashes())
+  {
+    cuke::context<box>().add_items(row["ITEM"].to_string(), row["QUANTITY"].as<long>());
+  }
+}
+```
+
+
+#### Option 3: Key/Value Pairs or Rows Hash
+
+Another more descriptive way works for key value pairs, or rows hash. The first column describes the element, the second holds the element:
+
+```gherkin
+Scenario: Adding items with rows_hash
+  Given An empty box
+  When I add the following item with rows_hash():
+    | ITEM     | really good apples |
+    | QUANTITY | 3                  |
+  Then The box contains 3 item(s)
+```
+
+And with `cuke::table::pair hash_rows = t.rows_hash();` you can create this hash map. The access to each element is again by the string literal. 
+
+```cpp 
+WHEN(add_table_rows_hash, "I add the following item with rows_hash():") 
+{
+  const cuke::table& t = CUKE_TABLE();
+  // cuke::table::pair is just an alias for a std::unordered_map which gets created in rows.hash()
+  cuke::table::pair hash_rows = t.rows_hash();
+
+  cuke::context<box>().add_items(hash_rows["ITEM"].to_string(), hash_rows["QUANTITY"].as<long>());
+}
+```
+
 
 ### Tags 
 
@@ -322,7 +468,7 @@ The box is shipped!
 ```
 
 
-### Single Scenarios / Directories
+### Run Single Scenarios / Directories
 
 If you only want to run single scenarios, you can append the appropriate line to the feature file:
 
@@ -341,7 +487,11 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```
 
 
-## Found A Bug? 
+## Disclaimer
+
+This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me. I'm not getting paid for this and I do all the implementation in my free time aside from work. 
+
+## Found A Bug? Need A Feature?
 Don't hesitate and open an Issue.  
 
   

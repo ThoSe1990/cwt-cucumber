@@ -13,7 +13,7 @@ const char* script = R"*(
   Feature: Hello World
   Scenario: A Scenario
 )*";
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
   compiler::scenario s(&f);
@@ -34,8 +34,8 @@ const char* script = R"*(
   EXPECT_EQ(s.get_chunk().at(i++), 5);
   EXPECT_EQ(s.get_chunk().at(i++), to_uint(op_code::init_scenario));
 
-  EXPECT_EQ(std::string("[line 4] Error at end: Expect StepLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(std::string("\x1B[31m[line 4] Error at end: Expect StepLine\x1B[0m\n"),
+            testing::internal::GetCapturedStdout());
 }
 
 TEST(compiler_scenario, chunk_w_step)
@@ -157,3 +157,4 @@ const char* script = R"*(
 
   EXPECT_EQ(f.get_chunk().size(), 31);
 }
+

@@ -31,9 +31,9 @@ class vm
   [[nodiscard]] return_code final_result() const noexcept;
 
   [[nodiscard]] return_code execute_function(function func);
-  [[nodiscard]] const std::vector<value>& stack() const;
+  [[nodiscard]] const std::vector<cuke::value>& stack() const;
   [[nodiscard]] const std::vector<call_frame>& frames() const;
-  [[nodiscard]] value& global(const std::string& name);
+  [[nodiscard]] cuke::value& global(const std::string& name);
 
   static void set_options(const options& opts);
   static const options& get_options();
@@ -63,7 +63,7 @@ class vm
   [[nodiscard]] static std::vector<std::string>& failed_scenarios();
   [[nodiscard]] static std::vector<std::vector<return_code>>& results();
 
-  void push_value(const value& v);
+  void push_value(const cuke::value& v);
   void pop();
   void pop(std::size_t count);
 
@@ -73,9 +73,9 @@ class vm
   void run_hooks(const std::vector<hook>& hooks, uint32_t n) const;
 
  private:
-  std::vector<value> m_stack;
+  std::vector<cuke::value> m_stack;
   std::vector<call_frame> m_frames;
-  std::unordered_map<std::string, value> m_globals;
+  std::unordered_map<std::string, cuke::value> m_globals;
   feature_files m_files;
   static options m_options;
   static constexpr const std::size_t m_max_stack_size{256};

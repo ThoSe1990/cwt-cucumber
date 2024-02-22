@@ -4,42 +4,44 @@
 
 using namespace cwt::details;
 
-TEST(compiler, init_object) 
-{ compiler::cucumber c(""); }
+TEST(compiler, init_object) { compiler::cucumber c(""); }
 
 TEST(compiler, empty_script)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   compiler::cucumber c("");
   c.compile();
   EXPECT_TRUE(c.error());
-  EXPECT_EQ(std::string("[line 1] Error at end: Expect FeatureLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(
+      std::string("\x1B[31m[line 1] Error at end: Expect FeatureLine\x1B[0m\n"),
+      testing::internal::GetCapturedStdout());
 }
 TEST(compiler, invalid_begin)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   compiler::cucumber c("asdfsadf");
   c.compile();
   EXPECT_TRUE(c.error());
-  EXPECT_EQ(std::string("[line 1] Error  at 'asdfsadf': Expect FeatureLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(
+      std::string(
+          "\x1B[31m[line 1] Error at 'asdfsadf': Expect FeatureLine\x1B[0m\n"),
+      testing::internal::GetCapturedStdout());
 }
 
 TEST(compiler, main_chunk_name)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string("[line 1] Error at end: Expect ScenarioLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(std::string("\x1B[31m[line 1] Error at end: Expect ScenarioLine\x1B[0m\n"),
+            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_other_language)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   const char* script = R"*(
 
 # language: de
@@ -51,12 +53,13 @@ Funktion:
   function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string("[line 6] Error at end: Expect ScenarioLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(std::string(
+                "\x1B[31m[line 6] Error at end: Expect ScenarioLine\x1B[0m\n"),
+            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_ignore_linebreaks)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   const char* script = R"*(
   
   Feature:
@@ -66,8 +69,9 @@ TEST(compiler, main_chunk_ignore_linebreaks)
   function main = c.make_function();
   EXPECT_TRUE(c.error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string("[line 4] Error at end: Expect ScenarioLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(std::string(
+                "\x1B[31m[line 4] Error at end: Expect ScenarioLine\x1B[0m\n"),
+            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_code)
 {
@@ -94,8 +98,8 @@ TEST(compiler, main_chunk_constants)
   function main = c.make_function();
 
   EXPECT_EQ(main->constants_count(), 2);
-  EXPECT_EQ(main->constant(0).type(), value_type::function);
-  EXPECT_EQ(main->constant(1).type(), value_type::string);
+  EXPECT_EQ(main->constant(0).type(), cuke::value_type::function);
+  EXPECT_EQ(main->constant(1).type(), cuke::value_type::string);
 }
 TEST(compiler, feature_chunk)
 {
@@ -108,7 +112,7 @@ TEST(compiler, feature_chunk)
 }
 TEST(compiler, regular_scenario)
 {
-  testing::internal::CaptureStderr();
+  testing::internal::CaptureStdout();
   const char* script = R"*(
   Feature: A Fancy Feature
   Scenario: A Scenario)*";
@@ -117,7 +121,8 @@ TEST(compiler, regular_scenario)
   function main = c.make_function();
   EXPECT_EQ(main->name(), std::string{"script"});
   EXPECT_EQ(main->size(), 9);
-  EXPECT_EQ(std::string("[line 3] Error at end: Expect StepLine\n"),
-            testing::internal::GetCapturedStderr());
+  EXPECT_EQ(
+      std::string("\x1B[31m[line 3] Error at end: Expect StepLine\x1B[0m\n"),
+      testing::internal::GetCapturedStdout());
   EXPECT_TRUE(c.error());
 }

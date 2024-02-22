@@ -1,18 +1,23 @@
 #pragma once
 
+#include <vector>
+
 #include "scanner.hpp"
+#include "file.hpp"
 
 namespace cwt::details
 {
 class parser
 {
  public:
+  parser(const file& f);
   parser(std::string_view source);
   parser(std::string_view source, bool_operators);
   
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;
+  [[nodiscard]] std::vector<token> collect_tokens_to(token_type type);
   void advance();
   void advance_to(token_type type);
   template <typename... Args>
@@ -67,6 +72,7 @@ class parser
   token m_current;
   token m_previous;
   bool m_error{false};
+  std::string m_filepath{""};
 };
 
 }  // namespace cwt::details

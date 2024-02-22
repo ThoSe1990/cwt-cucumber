@@ -18,7 +18,7 @@ compiler::compiler(std::string_view source)
 {
 }
 compiler::compiler(const file& feature_file)
-    : m_parser(std::make_shared<parser>(feature_file.content)),
+    : m_parser(std::make_shared<parser>(feature_file)),
       m_options(std::make_shared<options>()),
       m_lines(feature_file.lines),
       m_filename(feature_file.path),
@@ -46,13 +46,13 @@ void compiler::finish_chunk() noexcept
 #endif
 }
 
-value_array compiler::take_latest_tags()
+cuke::value_array compiler::take_latest_tags()
 {
-  value_array result = *m_latest_tags.get();
+  cuke::value_array result = *m_latest_tags.get();
   m_latest_tags->clear();
   return result;
 }
-bool compiler::tags_valid(const value_array& tags)
+bool compiler::tags_valid(const cuke::value_array& tags)
 {
   return m_options->tags.evaluate(tags.size(), tags.rbegin());
 }
@@ -123,13 +123,8 @@ void compiler::patch_jump(uint32_t offset)
   m_chunk.at(offset) = m_chunk.size();
 }
 
-void compiler::emit_table_value()
-{
-  bool negative = m_parser->match(token_type::minus);
-  emit_constant(token_to_value(m_parser->current(), negative));
-}
 
-void compiler::emit_tags(const value_array& tags)
+void compiler::emit_tags(const cuke::value_array& tags)
 {
   // TODO: if we introduce a find function for constants in chunk
   // we can avoid pushing redundand tags, which always happens in

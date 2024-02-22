@@ -19,8 +19,8 @@ class chunk
 
   [[nodiscard]] std::size_t constants_count() const noexcept;
   [[nodiscard]] std::size_t last_constant() const noexcept;
-  [[nodiscard]] const value& constant(std::size_t index) const;
-  [[nodiscard]] const value& constants_back() const noexcept;
+  [[nodiscard]] const cuke::value& constant(std::size_t index) const;
+  [[nodiscard]] const cuke::value& constants_back() const noexcept;
 
   [[nodiscard]] uint32_t lines(const std::size_t index) const;
 
@@ -39,7 +39,7 @@ class chunk
   template <typename Arg>
   [[nodiscard]] std::size_t make_constant(const Arg& arg)
   {
-    m_constants.push_back(value{arg});
+    m_constants.push_back(cuke::value{arg});
     return m_constants.size() - 1;
   }
   class const_iterator
@@ -76,7 +76,7 @@ class chunk
   std::string m_name{""};
   std::vector<uint32_t> m_code;
   std::vector<std::size_t> m_lines;
-  value_array m_constants;
+  cuke::value_array m_constants;
 };
 
 }  // namespace cwt::details

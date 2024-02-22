@@ -9,7 +9,7 @@ class scenario : public compiler
 {
  public:
   scenario(feature* enclosing);
-  scenario(feature* enclosing, const value_array& tags);
+  scenario(feature* enclosing, const cuke::value_array& tags);
   ~scenario();
   void compile();
 
@@ -18,7 +18,7 @@ class scenario : public compiler
 
  private:
   feature* m_enclosing;
-  value_array m_tags;
+  cuke::value_array m_tags;
 };
 
 }  // namespace cwt::details::compiler

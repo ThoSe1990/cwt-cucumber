@@ -30,6 +30,7 @@ enum class token_type
   doc_string,
   long_value,
   double_value,
+  float_value,
   string_value,
 
   word,
@@ -43,6 +44,7 @@ enum class token_type
   parameter_byte,
   parameter_short,
   parameter_long,
+  parameter_unknown,
 
   error,
   eof,

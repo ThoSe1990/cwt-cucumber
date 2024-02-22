@@ -12,7 +12,7 @@ class feature : public compiler
 {
  public:
   feature(cucumber* enclosing);
-  feature(cucumber* enclosing, const value_array& tags);
+  feature(cucumber* enclosing, const cuke::value_array& tags);
   ~feature();
 
   void compile();
@@ -23,12 +23,12 @@ class feature : public compiler
   void init();
   void next();
   
-  void compile_scenario(const value_array &tags);
-  void compile_scenario_outline(const value_array &tags);
+  void compile_scenario(const cuke::value_array &tags);
+  void compile_scenario_outline(const cuke::value_array &tags);
 
  private:
   cucumber* m_enclosing;
-  value_array m_tags;
+  cuke::value_array m_tags;
   std::optional<chunk> m_background;
 };
 

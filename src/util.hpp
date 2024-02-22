@@ -63,6 +63,30 @@ enum class color
 namespace cwt::details
 {
 
+[[nodiscard]] inline std::string create_string(std::string_view sv)
+{
+  return std::string(sv);
+}
+[[nodiscard]] inline std::string create_string(std::string_view begin,
+                                               std::string_view end)
+{
+  return std::string(begin.data(), end.data() + end.size());
+}
+[[nodiscard]] inline std::string create_string(const token& begin,
+                                               const token& end)
+{
+  return create_string(begin.value, end.value);
+}
+
+[[nodiscard]] inline std::pair<std::string, std::string> split_on_first_linebreak(const std::string& str) {
+    std::size_t pos = str.find('\n');
+    if (pos != std::string::npos) {
+        return { str.substr(0, pos), str.substr(pos + 1) };
+    } else {
+        return { str, "" };
+    }
+}
+
 template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
 {
@@ -117,7 +141,7 @@ static const std::unordered_map<color, std::string> color_codes = {
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
     {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
 
-static void print(color c, std::string_view msg)
+inline void print(color c, std::string_view msg)
 {
   auto it = color_codes.find(c);
   if (it != color_codes.end())
@@ -130,17 +154,17 @@ static void print(color c, std::string_view msg)
   }
   std::cout << msg << "\x1b[0m";
 }
-static void print(std::string_view msg) { print(color::standard, msg); }
+inline void print(std::string_view msg) { print(color::standard, msg); }
 
-static void println(color c, std::string_view mgs)
+inline void println(color c, std::string_view mgs)
 {
   print(c, mgs);
   std::cout << '\n';
 }
-static void println() { std::cout << '\n'; }
-static void println(std::string_view msg) { println(color::standard, msg); }
+inline void println() { std::cout << '\n'; }
+inline void println(std::string_view msg) { println(color::standard, msg); }
 
-static constexpr std::string replace(const token& t, std::string_view r)
+inline constexpr std::string replace(const token& t, std::string_view r)
 {
   std::string str{t.value};
   size_t pos;
@@ -151,7 +175,7 @@ static constexpr std::string replace(const token& t, std::string_view r)
   return str;
 }
 
-[[nodiscard]] static value token_to_value(const token& t, bool negative)
+[[nodiscard]] inline cuke::value token_to_value(const token& t, bool negative)
 {
   switch (t.type)
   {
@@ -162,7 +186,7 @@ static constexpr std::string replace(const token& t, std::string_view r)
       {
         v *= -1;
       }
-      return value(v);
+      return cuke::value(v);
     }
     break;
     case token_type::double_value:
@@ -172,36 +196,71 @@ static constexpr std::string replace(const token& t, std::string_view r)
       {
         v *= -1;
       }
-      return value(v);
+      return cuke::value(v);
+    }
+    break;
+    case token_type::float_value:
+    {
+      float v = std::stof(t.value.data());
+      if (negative)
+      {
+        v *= -1;
+      }
+      return cuke::value(v);
     }
     break;
     case token_type::doc_string:
     {
-      return value(replace(t, "\"\"\""));
+      auto rm_3_at_start_and_end = [](const token& t)
+      { return cuke::value(std::string(t.value.substr(3, t.value.size() - 6))); };
+      return rm_3_at_start_and_end(t);
     }
     break;
     case token_type::string_value:
+    case token_type::word:
     {
-      return value(replace(t, "\""));
+      return cuke::value(replace(t, "\""));
     }
     break;
     default:
       println(color::red, std::format("util::token_to_value: Given token '{}' "
                                       "is invalid to create a value",
                                       t.value));
-      return value{nil_value{}};
+      return cuke::value{nil_value{}};
+  }
+}
+[[nodiscard]] inline cuke::value tokens_to_value(const std::vector<token>& tokens)
+{
+  if (tokens.size() == 1)
+  {
+    return token_to_value(tokens[0], false);
+  }
+  else if (tokens.size() == 2 && tokens[0].type == token_type::minus &&
+           (tokens[1].type == token_type::long_value ||
+            tokens[1].type == token_type::double_value))
+  {
+    return token_to_value(tokens[1], true);
+  }
+  else if (tokens.size() == 0)
+  {
+    println(color::red, "Unexpected nil value");
+    return cuke::value(nil_value{});
+  }
+  else
+  {
+    return cuke::value(create_string(tokens[0].value, tokens.back().value));
   }
 }
 
-[[nodiscard]] inline const value& to_value(argv values, std::size_t idx)
+[[nodiscard]] inline const cuke::value& to_value(argv values, std::size_t idx)
 {
   return *(values + idx);
 }
 
-[[nodiscard]] inline value_array combine(const value_array& v1,
-                                         const value_array& v2)
+[[nodiscard]] inline cuke::value_array combine(const cuke::value_array& v1,
+                                         const cuke::value_array& v2)
 {
-  value_array result;
+  cuke::value_array result;
   for (const auto& v : v1)
   {
     result.push_back(v);
@@ -405,5 +464,10 @@ filepath_and_lines(std::string_view sv)
                      std::istreambuf_iterator<char>());
   return script;
 }
+
+[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values, std::size_t cols_count)
+{
+  return std::make_unique<cuke::table>(std::move(values), cols_count);
+} 
 
 }  // namespace cwt::details
