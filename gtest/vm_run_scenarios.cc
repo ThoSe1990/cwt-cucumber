@@ -19,6 +19,23 @@ class vm_run_scenarios : public ::testing::Test
   vm test_vm;
 };
 
+TEST_F(vm_run_scenarios, run_no_scenario)
+{
+  const char* script = R"*(
+  Feature: First Feature
+        Following missbehavior during extension development
+        with extensions in plan, the stage transition 'tx = {50,60}' was triggered 
+        when we were in stage 4 (default stage in first transition)
+        This means transitions with extensions were triggered during plan running and forking.
+        Its a runtime problem, bc validation was good (as expected)
+
+)*";
+  file f{"no path", script, {}};
+  ASSERT_EQ(return_code::passed, test_vm.run(f));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::passed));
+}
+
 TEST_F(vm_run_scenarios, run_one_scenario)
 {
   const char* script = R"*(
@@ -154,16 +171,6 @@ An sed nullam moderatius percipitur, vel modus perfecto erroribus eu. His discer
   file f{"", script, {}};
   ASSERT_EQ(return_code::passed, test_vm.run(f));
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

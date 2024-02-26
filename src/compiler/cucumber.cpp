@@ -37,6 +37,11 @@ void cucumber::compile()
         compile_feature();
       }
       break;
+      case token_type::eof:
+      {
+        finish_chunk();
+        return;
+      }
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect FeatureLine");
@@ -50,16 +55,9 @@ void cucumber::compile()
 void cucumber::compile_feature()
 {
   const cuke::value_array tags = take_latest_tags();
-  if (tags_valid(tags))
-  {
-    feature f(this, tags);
-    f.compile();
-  }
-  else
-  {
-    m_parser->advance();
-    m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
-  }
+  feature f(this, tags);
+  f.compile();
+  m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
 }
 
 }  // namespace cwt::details::compiler

@@ -49,6 +49,32 @@ TEST(compiler_tagged_feature, scenarios_code_3)
   compiler::cucumber cuke(script);
   cuke.set_options(options{.tags = compiler::tag_expression("not @tag1")});
   cuke.compile();
-  EXPECT_EQ(cuke.get_chunk().size(), 1);
+  EXPECT_EQ(cuke.get_chunk().size(), 9);
+
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
+  EXPECT_EQ(f->size(), 11);
+
   disassemble_chunk(cuke.get_chunk(), "script");
+  disassemble_chunk(*f, "feature");
+}
+
+TEST(compiler_tagged_feature, scenarios_code_4)
+{
+  const char* script = R"*(
+  @tag1 
+  Feature: Hello World
+  @tag2 @tag3
+  Scenario: A Scenario
+  Given A Step
+)*";
+  compiler::cucumber cuke(script);
+  cuke.set_options(options{.tags = compiler::tag_expression("@tag2")});
+  cuke.compile();
+  EXPECT_EQ(cuke.get_chunk().size(), 9);
+
+  chunk* f = cuke.get_chunk().constant(0).as<function>().get();
+  EXPECT_EQ(f->size(), 36);
+
+  disassemble_chunk(cuke.get_chunk(), "script");
+  disassemble_chunk(*f, "feature");
 }

@@ -1,4 +1,3 @@
-
 @all
 Feature: Scenarios with tags
 

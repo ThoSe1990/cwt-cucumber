@@ -9,14 +9,11 @@ using namespace cwt::details;
 
 TEST(compiler_feature, chunk_size_wo_scenario)
 {
-  testing::internal::CaptureStdout();
   compiler::cucumber cuke("Feature: Hello World");
   compiler::feature f(&cuke);
   f.compile();
   EXPECT_EQ(f.get_chunk().size(), 10);
-  EXPECT_EQ(std::string("\x1B[31m[line 1] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
-
+  EXPECT_TRUE(f.no_error());
   disassemble_chunk(f.get_chunk(), "feature");
 }
 TEST(compiler_feature, chunk_size)
@@ -103,12 +100,10 @@ TEST(compiler_feature, chunk_with_tags_1)
   @tag1 @tag2
   Feature: Hello World
 )*";
-  testing::internal::CaptureStdout();
   compiler::cucumber cuke(script);
   cuke.compile();
   EXPECT_EQ(cuke.get_chunk().size(), 9);
-  EXPECT_EQ(std::string("\x1B[31m[line 4] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
+  EXPECT_TRUE(cuke.no_error());
 }
 TEST(compiler_feature, chunk_with_tags_2)
 {
@@ -118,12 +113,10 @@ TEST(compiler_feature, chunk_with_tags_2)
 
   Feature: Hello World
 )*";
-  testing::internal::CaptureStdout();
   compiler::cucumber cuke(script);
   cuke.compile();
   EXPECT_EQ(cuke.get_chunk().size(), 9);
-  EXPECT_EQ(std::string("\x1B[31m[line 6] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
+  EXPECT_TRUE(cuke.no_error());
 }
 TEST(compiler_feature, chunk_with_tags_3)
 {
@@ -133,10 +126,8 @@ TEST(compiler_feature, chunk_with_tags_3)
   # inbetween
   Feature: Hello World
 )*";
-  testing::internal::CaptureStdout();
   compiler::cucumber cuke(script);
   cuke.compile();
   EXPECT_EQ(cuke.get_chunk().size(), 9);
-  EXPECT_EQ(std::string("\x1B[31m[line 6] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
+  EXPECT_TRUE(cuke.no_error());
 }

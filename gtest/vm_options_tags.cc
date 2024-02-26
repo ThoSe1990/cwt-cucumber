@@ -70,3 +70,40 @@ const char* script = R"*(
   EXPECT_EQ(2, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
 }
+
+TEST_F(vm_options_tags, run_0_scenarios_w_feature_tag)
+{
+const char* script = R"*(
+  @tag1
+  Feature: First Feature
+
+  Scenario: First Scenario
+  Given A Step
+
+  
+  Scenario: First Scenario
+  Given A Step
+)*";
+  test_vm.set_options(options{.tags=compiler::tag_expression("@not_given")});
+
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
+  EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
+  EXPECT_EQ(0, test_vm.step_results().at(return_code::passed));
+}
+
+TEST_F(vm_options_tags, run_1_scenarios_w_feature_tag)
+{
+const char* script = R"*(
+  @tag1
+  Feature: First Feature
+
+  @tag2
+  Scenario: First Scenario
+  Given A Step
+)*";
+  test_vm.set_options(options{.tags=compiler::tag_expression("@tag2")});
+
+  EXPECT_EQ(return_code::passed, test_vm.run(script));
+  EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
+  EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
+}

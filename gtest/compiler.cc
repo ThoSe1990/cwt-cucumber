@@ -8,13 +8,9 @@ TEST(compiler, init_object) { compiler::cucumber c(""); }
 
 TEST(compiler, empty_script)
 {
-  testing::internal::CaptureStdout();
   compiler::cucumber c("");
   c.compile();
-  EXPECT_TRUE(c.error());
-  EXPECT_EQ(
-      std::string("\x1B[31m[line 1] Error at end: Expect FeatureLine\x1B[0m\n"),
-      testing::internal::GetCapturedStdout());
+  EXPECT_TRUE(c.no_error());
 }
 TEST(compiler, invalid_begin)
 {
@@ -30,18 +26,14 @@ TEST(compiler, invalid_begin)
 
 TEST(compiler, main_chunk_name)
 {
-  testing::internal::CaptureStdout();
   compiler::cucumber c("Feature:");
   c.compile();
   function main = c.make_function();
-  EXPECT_TRUE(c.error());
+  EXPECT_TRUE(c.no_error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string("\x1B[31m[line 1] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_other_language)
 {
-  testing::internal::CaptureStdout();
   const char* script = R"*(
 
 # language: de
@@ -51,15 +43,11 @@ Funktion:
   compiler::cucumber c(script);
   c.compile();
   function main = c.make_function();
-  EXPECT_TRUE(c.error());
+  EXPECT_TRUE(c.no_error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string(
-                "\x1B[31m[line 6] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_ignore_linebreaks)
 {
-  testing::internal::CaptureStdout();
   const char* script = R"*(
   
   Feature:
@@ -67,11 +55,8 @@ TEST(compiler, main_chunk_ignore_linebreaks)
   compiler::cucumber c(script);
   c.compile();
   function main = c.make_function();
-  EXPECT_TRUE(c.error());
+  EXPECT_TRUE(c.no_error());
   EXPECT_EQ(main->name(), std::string{"script"});
-  EXPECT_EQ(std::string(
-                "\x1B[31m[line 4] Error at end: Expect ScenarioLine\x1B[0m\n"),
-            testing::internal::GetCapturedStdout());
 }
 TEST(compiler, main_chunk_code)
 {

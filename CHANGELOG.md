@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] 2024-02-26
+
+### Changed
+- Empty `Feature` does not result in a compilation error 
+
+### Fixed
+- Tags are inherited incorrectly
+
 ## [1.2.0] 2024-02-22
 
 ### Added

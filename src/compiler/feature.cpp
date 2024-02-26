@@ -105,7 +105,7 @@ void feature::compile()
       break;
       default:
       {
-        m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
+        // m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
         return;
       }
     }
