@@ -297,7 +297,7 @@ WHEN(add_table_raw, "I add all items with raw():")
 
 #### Option 2: Hashes
 
-With an additional header in the table we can make this table more descriptive:`:
+With an additional header in the table we can make this table more descriptive:
 
 ```gherkin
 Scenario: Adding items with hashes
