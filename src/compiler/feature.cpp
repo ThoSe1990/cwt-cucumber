@@ -68,7 +68,7 @@ void feature::compile_scenario_outline(const cuke::value_array& tags)
 
 void feature::compile()
 {
-  do
+  while (!m_parser->check(token_type::eof))
   {
     switch (m_parser->current().type)
     {
@@ -105,12 +105,11 @@ void feature::compile()
       break;
       default:
       {
-        // m_parser->error_at(m_parser->current(), "Expect ScenarioLine");
         return;
       }
     }
     m_parser->skip_linebreaks();
-  } while (!m_parser->check(token_type::eof));
+  } 
 }
 
 bool feature::has_background() const noexcept

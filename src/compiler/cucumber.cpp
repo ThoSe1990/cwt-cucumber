@@ -22,7 +22,7 @@ void cucumber::init()
 
 void cucumber::compile()
 {
-  do
+  while (!m_parser->check(token_type::eof))
   {
     m_parser->skip_linebreaks();
     switch (m_parser->current().type)
@@ -37,18 +37,13 @@ void cucumber::compile()
         compile_feature();
       }
       break;
-      case token_type::eof:
-      {
-        finish_chunk();
-        return;
-      }
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect FeatureLine");
         return;
       }
     }
-  } while (!m_parser->check(token_type::eof));
+  }
   finish_chunk();
 }
 
