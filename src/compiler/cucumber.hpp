@@ -23,10 +23,14 @@ class cucumber : public compiler
 
   void compile();
   function make_function() noexcept;
+  [[nodiscard]] double compile_time() const noexcept;
 
  private:
   void init();
   void compile_feature();
+
+ private:
+  double m_compile_time{0.0};
 };
 
 }  // namespace cwt::details::compiler

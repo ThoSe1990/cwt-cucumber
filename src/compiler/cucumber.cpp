@@ -55,4 +55,9 @@ void cucumber::compile_feature()
   m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
 }
 
+double cucumber::compile_time() const noexcept
+{
+  return m_compile_time;
+}
+
 }  // namespace cwt::details::compiler
