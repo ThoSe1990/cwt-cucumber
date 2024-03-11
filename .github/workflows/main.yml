@@ -23,11 +23,11 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get install build-essential -y
-          sudo apt install gcc-12
           sudo apt-get remove gcc-11
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
+          sudo apt install gcc-13
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
           sudo update-alternatives --config gcc
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
           sudo update-alternatives --config g++
           sudo apt install python3-pip -y
           sudo pip3 install cmake 
