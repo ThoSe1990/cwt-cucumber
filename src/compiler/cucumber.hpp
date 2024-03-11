@@ -27,6 +27,7 @@ class cucumber : public compiler
 
  private:
   void init();
+  void internal_compile();
   void compile_feature();
 
  private:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -78,13 +79,18 @@ namespace cwt::details
   return create_string(begin.value, end.value);
 }
 
-[[nodiscard]] inline std::pair<std::string, std::string> split_on_first_linebreak(const std::string& str) {
-    std::size_t pos = str.find('\n');
-    if (pos != std::string::npos) {
-        return { str.substr(0, pos), str.substr(pos + 1) };
-    } else {
-        return { str, "" };
-    }
+[[nodiscard]] inline std::pair<std::string, std::string>
+split_on_first_linebreak(const std::string& str)
+{
+  std::size_t pos = str.find('\n');
+  if (pos != std::string::npos)
+  {
+    return {str.substr(0, pos), str.substr(pos + 1)};
+  }
+  else
+  {
+    return {str, ""};
+  }
 }
 
 template <typename T>
@@ -211,8 +217,9 @@ inline constexpr std::string replace(const token& t, std::string_view r)
     break;
     case token_type::doc_string:
     {
-      auto rm_3_at_start_and_end = [](const token& t)
-      { return cuke::value(std::string(t.value.substr(3, t.value.size() - 6))); };
+      auto rm_3_at_start_and_end = [](const token& t) {
+        return cuke::value(std::string(t.value.substr(3, t.value.size() - 6)));
+      };
       return rm_3_at_start_and_end(t);
     }
     break;
@@ -229,7 +236,8 @@ inline constexpr std::string replace(const token& t, std::string_view r)
       return cuke::value{nil_value{}};
   }
 }
-[[nodiscard]] inline cuke::value tokens_to_value(const std::vector<token>& tokens)
+[[nodiscard]] inline cuke::value tokens_to_value(
+    const std::vector<token>& tokens)
 {
   if (tokens.size() == 1)
   {
@@ -258,7 +266,7 @@ inline constexpr std::string replace(const token& t, std::string_view r)
 }
 
 [[nodiscard]] inline cuke::value_array combine(const cuke::value_array& v1,
-                                         const cuke::value_array& v2)
+                                               const cuke::value_array& v2)
 {
   cuke::value_array result;
   for (const auto& v : v1)
@@ -465,9 +473,44 @@ filepath_and_lines(std::string_view sv)
   return script;
 }
 
-[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values, std::size_t cols_count)
+[[nodiscard]] inline table_ptr make_table_ptr(cuke::value_array values,
+                                              std::size_t cols_count)
 {
   return std::make_unique<cuke::table>(std::move(values), cols_count);
-} 
+}
+
+template <typename T>
+struct result_and_time
+{
+  T return_value;
+  double execution_time;
+};
+
+// template<typename Func>
+// static constexpr bool return_type_is_void(Func&& func) {
+//     return std::is_same_v<decltype(func()), void>;
+// }
+
+template <typename Result, typename Func, typename... Args,
+          typename = std::enable_if_t<!std::is_same_v<void, Result>>>
+[[nodiscard]] result_and_time<Result> execute_and_count_time(Func&& func,
+                                                             Args&&... args)
+{
+  auto start = std::chrono::high_resolution_clock::now();
+  Result result = func(std::forward<Args>(args)...);
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = end - start;
+  return result_and_time{result, duration.count()};
+}
+
+template <typename Func, typename... Args>
+[[nodiscard]] double execute_and_count_time(Func&& func, Args&&... args)
+{
+  auto start = std::chrono::high_resolution_clock::now();
+  func(std::forward<Args>(args)...);
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> duration = end - start;
+  return duration.count();
+}
 
 }  // namespace cwt::details

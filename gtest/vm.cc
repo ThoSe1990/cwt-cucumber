@@ -106,3 +106,4 @@ TEST(vm, op_code_get_var)
   EXPECT_EQ(test_vm.stack().back().as<std::string>(),
             std::string("some initial value"));
 }
+

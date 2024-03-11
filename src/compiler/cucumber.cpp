@@ -1,6 +1,7 @@
-
 #include "cucumber.hpp"
 #include "feature.hpp"
+
+#include "../util.hpp"
 
 namespace cwt::details::compiler
 {
@@ -21,6 +22,12 @@ void cucumber::init()
 }
 
 void cucumber::compile()
+{
+  m_compile_time =
+      execute_and_count_time([this]() { this->internal_compile(); });
+}
+
+void cucumber::internal_compile()
 {
   while (!m_parser->check(token_type::eof))
   {
@@ -55,9 +62,6 @@ void cucumber::compile_feature()
   m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
 }
 
-double cucumber::compile_time() const noexcept
-{
-  return m_compile_time;
-}
+double cucumber::compile_time() const noexcept { return m_compile_time; }
 
 }  // namespace cwt::details::compiler

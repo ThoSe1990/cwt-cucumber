@@ -172,8 +172,6 @@ An sed nullam moderatius percipitur, vel modus perfecto erroribus eu. His discer
   ASSERT_EQ(return_code::passed, test_vm.run(f));
 }
 
-
-
 TEST_F(vm_run_scenarios, run_one_scenario_w_table)
 {
   const char* script = R"*(
@@ -240,4 +238,42 @@ TEST_F(vm_run_scenarios, whitespaces_after_table)
     | 3 | 4 |     )*";
   file f{"", script, {}};
   ASSERT_EQ(return_code::passed, test_vm.run(f));
+}
+
+TEST_F(vm_run_scenarios, compile_and_runtime_1)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step
+
+  Scenario: Second Scenario
+    Given A Step
+)*";
+  file f{"no path", script, {}};
+  ASSERT_EQ(return_code::passed, test_vm.run(f));
+
+  EXPECT_GT(test_vm.total_time(), 0.0);
+  EXPECT_GT(test_vm.run_time(), 0.0);
+  EXPECT_GT(test_vm.compile_time(), 0.0);
+  EXPECT_EQ(test_vm.total_time(), test_vm.run_time() + test_vm.compile_time());
+}
+TEST_F(vm_run_scenarios, compile_and_runtime_2)
+{
+  const char* script = R"*(
+  Feature: First Feature
+  Scenario: First Scenario
+  Given A Step
+
+  Scenario: Second Scenario
+    Given A Step
+)*";
+  file f{"no path", script, {}};
+
+  auto [result, exec_time] = execute_and_count_time<return_code>(
+      [this, &f]() { return this->test_vm.run(f); });
+  
+  ASSERT_EQ(return_code::passed, result);
+  const double difference = exec_time - test_vm.total_time();
+  EXPECT_LT(difference, 0.1);
 }

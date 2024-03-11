@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Run and compile time are measured and printed to final results 
+
 ## [1.2.1] 2024-02-26
 
 ### Changed
