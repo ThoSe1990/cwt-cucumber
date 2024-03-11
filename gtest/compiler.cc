@@ -111,3 +111,16 @@ TEST(compiler, regular_scenario)
       testing::internal::GetCapturedStdout());
   EXPECT_TRUE(c.error());
 }
+
+TEST(compiler, compile_time)
+{
+  const char* script = R"*(
+  Feature: Hello World
+  Scenario: A Scenario
+  Given A Step
+)*";
+
+  compiler::cucumber cuke(script);
+  cuke.compile();
+  EXPECT_GT(cuke.compile_time(), 0.0);
+}

@@ -1,6 +1,7 @@
-
 #include "cucumber.hpp"
 #include "feature.hpp"
+
+#include "../util.hpp"
 
 namespace cwt::details::compiler
 {
@@ -22,7 +23,13 @@ void cucumber::init()
 
 void cucumber::compile()
 {
-  do
+  m_compile_time =
+      execute_and_count_time([this]() { this->internal_compile(); });
+}
+
+void cucumber::internal_compile()
+{
+  while (!m_parser->check(token_type::eof))
   {
     m_parser->skip_linebreaks();
     switch (m_parser->current().type)
@@ -37,18 +44,13 @@ void cucumber::compile()
         compile_feature();
       }
       break;
-      case token_type::eof:
-      {
-        finish_chunk();
-        return;
-      }
       default:
       {
         m_parser->error_at(m_parser->current(), "Expect FeatureLine");
         return;
       }
     }
-  } while (!m_parser->check(token_type::eof));
+  }
   finish_chunk();
 }
 
@@ -59,5 +61,7 @@ void cucumber::compile_feature()
   f.compile();
   m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
 }
+
+double cucumber::compile_time() const noexcept { return m_compile_time; }
 
 }  // namespace cwt::details::compiler

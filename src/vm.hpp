@@ -24,9 +24,13 @@ class vm
   vm(int argc, const char* argv[]);
 
   void run();
-  
   [[nodiscard]] return_code run(const file& f);
   [[nodiscard]] return_code run(std::string_view source);
+
+  [[nodiscard]] double compile_time() const noexcept;
+  [[nodiscard]] double run_time() const noexcept;
+  [[nodiscard]] double total_time() const noexcept;
+
 
   [[nodiscard]] return_code final_result() const noexcept;
 
@@ -52,8 +56,6 @@ class vm
   const std::unordered_map<return_code, std::size_t> step_results() const;
 
  private:
-  [[nodiscard]] return_code internal_run(compiler::cucumber& c);
-
   [[nodiscard]] static std::vector<step>& steps();
   [[nodiscard]] static std::vector<hook>& before();
   [[nodiscard]] static std::vector<hook>& after();
@@ -79,6 +81,10 @@ class vm
   feature_files m_files;
   static options m_options;
   static constexpr const std::size_t m_max_stack_size{256};
+
+  double m_compile_time{0.0};
+  double m_run_time{0.0};
+
 };
 
 }  // namespace cwt::details

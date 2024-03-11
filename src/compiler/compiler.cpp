@@ -20,7 +20,7 @@ compiler::compiler(std::string_view source)
 compiler::compiler(const file& feature_file)
     : m_parser(std::make_shared<parser>(feature_file)),
       m_options(std::make_shared<options>()),
-      m_lines(feature_file.lines),
+      m_lines(feature_file.lines_to_compile),
       m_filename(feature_file.path),
       m_chunk("script")
 {

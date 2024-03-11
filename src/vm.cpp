@@ -31,6 +31,9 @@ const options& vm::get_options() { return m_options; }
 
 void vm::run()
 {
+  m_compile_time = 0.0;
+  m_run_time = 0.0;
+
   for (const auto& f : m_files)
   {
     return_code result = run(f);
@@ -41,24 +44,31 @@ void vm::run()
     }
   }
 }
+
+return_code vm::run(std::string_view source)
+{
+  m_compile_time = 0.0;
+  m_run_time = 0.0;
+
+  file f;
+  f.content = source;
+  return run(f);
+}
+
 return_code vm::run(const file& f)
 {
   compiler::cucumber c(f);
-  return internal_run(c);
-}
-return_code vm::run(std::string_view source)
-{
-  compiler::cucumber c(source);
-  return internal_run(c);
-}
-return_code vm::internal_run(compiler::cucumber& c)
-{
   c.set_options(m_options);
   c.compile();
 
+  m_compile_time += c.compile_time();
+
   if (c.no_error())
   {
-    return execute_function(c.make_function());
+    auto [result, exec_time] = execute_and_count_time<return_code>(
+        [this, &c]() { return this->execute_function(c.make_function()); });
+    m_run_time += exec_time;
+    return result;
   }
   else
   {
@@ -73,6 +83,11 @@ const std::unordered_map<return_code, std::size_t> vm::step_results() const
 {
   return get_step_results(results());
 }
+
+double vm::compile_time() const noexcept { return m_compile_time; }
+double vm::run_time() const noexcept { return m_run_time; }
+double vm::total_time() const noexcept { return m_compile_time + m_run_time; }
+
 return_code vm::final_result() const noexcept
 {
   println();
@@ -97,6 +112,10 @@ return_code vm::final_result() const noexcept
       get_step_results(results());
   print(std::format("{} Steps", count_values(steps)));
   print(steps);
+
+  println(std::format(
+      "Total time: {:.5f} sec. (Compile time: {:.5f} sec., Runtime: {:.5f} sec.)",
+      total_time(), compile_time(), run_time()));
 
   return to_return_code(scenarios);
 }
