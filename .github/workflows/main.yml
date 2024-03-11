@@ -51,6 +51,8 @@ jobs:
           sudo apt-get install -y clang-15 llvm-15
           sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
           sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+          sudo update-alternatives --config clang
+          sudo update-alternatives --config clang++
           clang --version
       - name: Install dependencies
         run: |
@@ -64,6 +66,7 @@ jobs:
           sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
           sudo sed -i -e 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' /root/.conan2/profiles/default
           sudo sed -i -e 's/compiler=gcc/compiler=clang/g' /root/.conan2/profiles/default
+          sudo conan profile show
       - name: Install dependencies with Conan
         run: sudo conan install . -of ./build_clang --build missing 
       - name: Build with CMake
