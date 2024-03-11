@@ -12,7 +12,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build-debug:
+  build-gcc:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
@@ -39,3 +39,34 @@ jobs:
           sudo cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           sudo cmake --build ./build -j12
           ./build/bin/unittests
+
+  build-clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Clang 14
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang-14 llvm-14
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-14 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 100
+          clang --version
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y python3-pip
+          sudo pip3 install cmake
+          sudo pip3 install conan
+      - name: Setup Conan profile
+        run: |
+          sudo conan profile detect
+          sudo conan profile show
+          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
+          sudo sed -i -e 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' /root/.conan2/profiles/default
+      - name: Install dependencies with Conan
+        run: sudo conan install . -of ./build --build missing 
+      - name: Build with CMake
+        run: |
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+          cmake --build ./build -j12
+      - name: Run unit tests
+        run: ./build/bin/unittests
