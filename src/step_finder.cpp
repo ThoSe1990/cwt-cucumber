@@ -5,7 +5,7 @@
 namespace cwt::details
 {
 
-[[nodiscard]] static void correct_floating_point_types(token& defined,
+static void correct_floating_point_types(token& defined,
                                                        token& feature)
 {
   if (feature.type == token_type::double_value &&
