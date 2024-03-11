@@ -488,7 +488,7 @@ struct result_and_time
 
 template <typename Result, typename Func, typename... Args,
           typename = std::enable_if_t<!std::is_same_v<void, Result>>>
-[[nodiscard]] constexpr result_and_time<Result> execute_and_count_time(Func&& func,
+[[nodiscard]] result_and_time<Result> execute_and_count_time(Func&& func,
                                                              Args&&... args)
 {
   auto start = std::chrono::high_resolution_clock::now();
@@ -499,7 +499,7 @@ template <typename Result, typename Func, typename... Args,
 }
 
 template <typename Func, typename... Args>
-[[nodiscard]] constexpr double execute_and_count_time(Func&& func, Args&&... args)
+[[nodiscard]] double execute_and_count_time(Func&& func, Args&&... args)
 {
   auto start = std::chrono::high_resolution_clock::now();
   func(std::forward<Args>(args)...);
