@@ -47,6 +47,7 @@ jobs:
       - name: Setup Clang 14
         run: |
           sudo apt-get update
+          sudo apt-get remove gcc-11
           sudo apt-get install -y clang-14 llvm-14
           sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-14 100
           sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-14 100
@@ -62,6 +63,7 @@ jobs:
           sudo conan profile show
           sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
           sudo sed -i -e 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' /root/.conan2/profiles/default
+          sudo sed -i -e 's/compiler=gcc/compiler=clang/g' /root/.conan2/profiles/default
       - name: Install dependencies with Conan
         run: sudo conan install . -of ./build --build missing 
       - name: Build with CMake
