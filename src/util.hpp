@@ -495,7 +495,7 @@ template <typename Result, typename Func, typename... Args,
   Result result = func(std::forward<Args>(args)...);
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration = end - start;
-  return result_and_time{result, duration.count()};
+  return result_and_time<Result>{result, duration.count()};
 }
 
 template <typename Func, typename... Args>
