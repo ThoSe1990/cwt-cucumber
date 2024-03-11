@@ -14,7 +14,7 @@ on:
 jobs:
   build-debug:
     # The type of runner that the job will run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
@@ -27,6 +27,8 @@ jobs:
           sudo apt-get remove gcc-11
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100
           sudo update-alternatives --config gcc
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 100
+          sudo update-alternatives --config g++
           sudo apt install python3-pip -y
           sudo pip3 install cmake 
           sudo pip3 install conan
