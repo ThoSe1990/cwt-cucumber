@@ -68,7 +68,7 @@ jobs:
         run: sudo conan install . -of ./build_clang --build missing 
       - name: Build with CMake
         run: |
-          cmake -S . -B ./build_clang -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake
-          cmake --build ./build_clang -j12
+          sudo cmake -S . -B ./build_clang -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake
+          sudo cmake --build ./build_clang -j12
       - name: Run unit tests
         run: ./build_clang/bin/unittests
