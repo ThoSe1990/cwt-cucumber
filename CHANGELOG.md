@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] 2024-03-12
+
 ### Added
 - Run and compile time are measured and printed to final results 
+- Command line option `-h` and `--help` print a help screen (if needed in own main use `cwt::details::print_help(int argc, const char* argv[])`)
 
 ## [1.2.1] 2024-02-26
 

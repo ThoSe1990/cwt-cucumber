@@ -1,0 +1,18 @@
+#pragma once
+
+/*
+  Auto generated version file - do not edit
+*/
+
+#include <string_view>
+
+namespace cuke::version 
+{
+
+[[nodiscard]] static constexpr std::string_view as_string()
+{
+  return std::string_view("${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}");
+}
+
+
+} // namespace cuke::version

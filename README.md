@@ -5,6 +5,10 @@
 
 👋 Hello and Welcome to my C++ Cucumber interpreter 🥒🚀✨
 
+CWT-Cucumber is implemented with C++20 and tested with:
+- MSVC 19 
+- Clang 15
+- GCC 13
 
 ## Table of Contents
 

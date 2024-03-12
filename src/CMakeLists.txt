@@ -1,4 +1,7 @@
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.template ${CMAKE_CURRENT_SOURCE_DIR}/version.hpp)
+
+
 set(cucumber-src 
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp

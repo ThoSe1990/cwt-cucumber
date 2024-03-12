@@ -6,3 +6,4 @@ gtest/paths.hpp
 CMakeUserPresets.json
 *.sh
 .DS_Store
+src/version.hpp

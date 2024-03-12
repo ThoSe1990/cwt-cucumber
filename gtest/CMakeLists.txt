@@ -24,6 +24,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_tagged_feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler_single_lines.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks_scenario_outline.cc
