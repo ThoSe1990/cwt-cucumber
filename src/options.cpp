@@ -1,5 +1,5 @@
 #include "options.hpp"
-#include "util.hpp"
+
 
 namespace cwt::details
 {
@@ -21,7 +21,6 @@ const feature_files& terminal_arguments::get_files() const noexcept
 void terminal_arguments::process_option(std::span<const char*>::iterator it)
 {
   std::string_view option(*it);
-
   if (option.starts_with("-t") || option.starts_with("--tags"))
   {
     std::string_view arg(*std::next(it));
