@@ -40,7 +40,7 @@ class terminal_arguments
 };
 
 static void do_print_help();
-static bool print_help(int argc, const char* argv[])
+[[nodiscard]] static bool print_help(int argc, const char* argv[])
 {
   std::span<const char*> terminal_args(argv, argc);
 
