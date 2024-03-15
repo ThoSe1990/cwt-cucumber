@@ -9,20 +9,13 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/context.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/hooks_scenario_outline.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/util_filepath.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/report.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scenario_outline.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scanner_english.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scanner_german.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scanner_spanish.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/scenario_outline.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/util_filepath.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/quiet.cc
@@ -39,6 +32,14 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tables.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tagged_feature.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/compiler/single_lines.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/hooks/hooks.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/hooks/hooks_with_tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/hooks/hooks_scenario_outline.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner/scanner.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner/set_langauge.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner/english.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner/german.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/scanner/spanish.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm/vm.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm/check_results.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/vm/asserts.cc
