@@ -23,6 +23,6 @@ jobs:
         set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.2\x64\Scripts
         conan install . -of build --build missing
         cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
-        cmake --build ./build --config Release -j6
+        cmake --build ./build --config Release -- /maxcpucount:12
         .\build\bin\Release\unittests.exe
       displayName: 'Win Release Build'

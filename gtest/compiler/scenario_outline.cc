@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/compiler/scenario_outline.hpp"
+#include "../../src/compiler/scenario_outline.hpp"
 #define PRINT_STACK 1
-#include "../src/debug.hpp"
+#include "../../src/debug.hpp"
 
 using namespace cwt::details;
 

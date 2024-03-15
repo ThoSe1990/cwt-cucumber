@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include "../src/compiler/cucumber.hpp"
+#include "../../src/compiler/cucumber.hpp"
 
 #define PRINT_STACK 1
-#include "../src/debug.hpp"
+#include "../../src/debug.hpp"
 
 using namespace cwt::details;
 
