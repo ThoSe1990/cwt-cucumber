@@ -32,8 +32,7 @@ name: Docker Container Example
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "**" ]
 
 jobs:
   build:
