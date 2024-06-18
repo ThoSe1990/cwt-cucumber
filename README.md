@@ -483,7 +483,12 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```shell
 ./build/bin/box ./examples/features
 ```
+## Docker 
 
+CI Build:
+```
+docker buildx build --platform linux/amd64 . -t those90/ci-image:1.0
+```
 
 ## Disclaimer
 
