@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-gcc:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu:24.04
     container:
       image: those90/dev-image:1.0
     steps:
