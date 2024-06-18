@@ -7,8 +7,7 @@ on:
 jobs:
   build-gcc:
     runs-on: ubuntu-latest
-    container:
-      image: those90/dev-image:1.0
+    container: those90/dev-image:1.0
     steps:
       - name: build
         run: |
@@ -20,8 +19,7 @@ jobs:
 
   build-clang:
     runs-on: ubuntu-latest
-    container:
-      image: those90/dev-image:1.0
+    container: those90/dev-image:1.0
     steps:
       - name: build
         run: |
