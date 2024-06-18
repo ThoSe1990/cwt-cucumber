@@ -7,7 +7,7 @@ on:
 jobs:
   build-gcc:
     runs-on: ubuntu-latest
-    container: those90/dev-image:1.0
+    container: those90/ci-image:1.0
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
 
   build-clang:
     runs-on: ubuntu-latest
-    container: those90/dev-image:1.0
+    container: those90/ci-image:1.0
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
