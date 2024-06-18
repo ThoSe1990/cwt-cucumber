@@ -42,7 +42,7 @@ jobs:
     container: those90/ci-image:1.0
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
       - name: Install dependencies
         run: conan --version
