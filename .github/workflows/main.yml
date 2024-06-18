@@ -7,8 +7,8 @@ on:
 jobs:
   build-gcc:
     runs-on: ubuntu-latest
-        container:
-          image: those90/dev-image:1.0
+    container:
+      image: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
       - name: build
