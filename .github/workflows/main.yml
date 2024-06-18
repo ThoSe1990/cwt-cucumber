@@ -1,30 +1,49 @@
-name: CI
+# name: CI
+
+# on:
+#   push:
+#     branches: [ "**" ]
+
+# jobs:
+#   build-gcc:
+#     runs-on: ubuntu-latest
+#     container: those90/dev-image:1.0
+#     steps:
+#       - name: build
+#         run: |
+#           conan install . -of ./build_gcc --build missing 
+#           cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
+#           cmake --build ./build_gcc -j12
+#       - name: unittests
+#         run: ./build_gcc/bin/unittests
+
+#   build-clang:
+#     runs-on: ubuntu-latest
+#     container: those90/dev-image:1.0
+#     steps:
+#       - name: build
+#         run: |
+#           conan install . -of ./build_clang --build missing -pr clang
+#           cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
+#           cmake --build ./build_clang -j12      
+#       - name: unittests
+#         run: ./build_clang/bin/unittests
+name: Docker Container Example
 
 on:
   push:
-    branches: [ "**" ]
+    branches:
+      - main
 
 jobs:
-  build-gcc:
+  build:
     runs-on: ubuntu-latest
-    container: those90/dev-image:1.0
-    steps:
-      - name: build
-        run: |
-          conan install . -of ./build_gcc --build missing 
-          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
-          cmake --build ./build_gcc -j12
-      - name: unittests
-        run: ./build_gcc/bin/unittests
+    container:
+      image: node:14  # Specify the Docker image from Docker Hub
 
-  build-clang:
-    runs-on: ubuntu-latest
-    container: those90/dev-image:1.0
     steps:
-      - name: build
-        run: |
-          conan install . -of ./build_clang --build missing -pr clang
-          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
-          cmake --build ./build_clang -j12      
-      - name: unittests
-        run: ./build_clang/bin/unittests
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm --version  # Example of running commands in the specified container
