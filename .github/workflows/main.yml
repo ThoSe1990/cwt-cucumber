@@ -6,7 +6,6 @@ on:
 
 jobs:
   build-gcc:
-    runs-on: ubuntu-latest
     container: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
@@ -19,7 +18,6 @@ jobs:
         run: ./build_gcc/bin/unittests
 
   build-clang:
-    runs-on: ubuntu-latest
     container: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
