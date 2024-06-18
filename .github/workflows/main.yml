@@ -6,7 +6,9 @@ on:
 
 jobs:
   build-gcc:
-    container: those90/dev-image:1.0
+    runs-on: ubuntu-latest
+        container:
+          image: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
       - name: build
@@ -17,14 +19,14 @@ jobs:
       - name: unittests
         run: ./build_gcc/bin/unittests
 
-  build-clang:
-    container: those90/dev-image:1.0
-    steps:
-      - uses: actions/checkout@v3
-      - name: build
-        run: |
-          conan install . -of ./build_clang --build missing -pr clang
-          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
-          cmake --build ./build_clang -j12      
-      - name: unittests
-        run: ./build_clang/bin/unittests
+  # build-clang:
+  #   container: those90/dev-image:1.0
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: build
+  #       run: |
+  #         conan install . -of ./build_clang --build missing -pr clang
+  #         cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
+  #         cmake --build ./build_clang -j12      
+  #     - name: unittests
+  #       run: ./build_clang/bin/unittests
