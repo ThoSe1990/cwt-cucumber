@@ -23,6 +23,15 @@ set(cucumber-src
 add_library(cucumber ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 add_library(cucumber-no-main ${cucumber-src})
 
+install(
+	TARGETS cucumber
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+install(
+	TARGETS cucumber-no-main
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+
 if (BUILD_SHARED_LIBS)
     set_target_properties(cucumber PROPERTIES
                           POSITION_INDEPENDENT_CODE ON
