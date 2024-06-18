@@ -1,79 +1,33 @@
-# This is a basic workflow to help you get started with Actions
 
 name: CI
 
-# Controls when the workflow will run
 on:
   push:
     branches: [ "**" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   build-gcc:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: those90/dev-image:1.0
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-      - name: build-debug
+      - name: build
         run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install build-essential -y
-          sudo apt-get remove gcc-11
-          sudo apt-get install -y software-properties-common 
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test 
-          sudo apt-get update 
-          sudo apt-get install -y g++-13 
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100 
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo apt install python3-pip -y
-          sudo pip3 install cmake 
-          sudo pip3 install conan
-          sudo conan profile detect
-          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
-          sudo sed -i -e 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' /root/.conan2/profiles/default
-          sudo conan install . -of ./build_gcc --build missing 
-          sudo cmake -S . -B ./build_gcc -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
-          sudo cmake --build ./build_gcc -j12
+          conan install . -of ./build_gcc --build missing 
+          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
+          cmake --build ./build_gcc -j12
+      - name: unittests
           ./build_gcc/bin/unittests
 
   build-clang:
-    runs-on: ubuntu-latest
+    runs-on: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Clang 15
+      - name: build
         run: |
-          sudo apt-get update
-          sudo apt-get remove gcc-11
-          sudo apt-get remove clang-14 llvm-14
-          sudo apt-get install -y clang-16 llvm-16
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
-          sudo update-alternatives --config clang
-          sudo update-alternatives --config clang++
-          clang --version
-      - name: Install dependencies
-        run: |
-          sudo apt-get install -y python3-pip
-          sudo pip3 install cmake
-          sudo pip3 install conan
-      - name: Setup Conan profile
-        run: |
-          sudo conan profile detect
-          sudo conan profile show
-          sudo sed -i -e 's/Release/Debug/g' /root/.conan2/profiles/default
-          sudo sed -i -e 's/compiler.cppstd=gnu17/compiler.cppstd=gnu20/g' /root/.conan2/profiles/default
-          sudo sed -i -e 's/compiler=gcc/compiler=clang/g' /root/.conan2/profiles/default
-          sudo conan profile show
-      - name: Install dependencies with Conan
-        run: sudo conan install . -of ./build_clang --build missing 
-      - name: Build with CMake
-        run: |
-          sudo cmake -S . -B ./build_clang -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake
-          sudo cmake --build ./build_clang -j12
-      - name: Run unit tests
+          conan install . -of ./build_clang --build missing -pr clang
+          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
+          cmake --build ./build_clang -j12      
+      - name: unittests
         run: ./build_clang/bin/unittests
