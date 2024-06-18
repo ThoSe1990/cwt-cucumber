@@ -24,11 +24,12 @@ jobs:
           sudo apt-get upgrade -y
           sudo apt-get install build-essential -y
           sudo apt-get remove gcc-11
-          sudo apt install gcc-13
+          sudo apt-get install -y software-properties-common 
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test 
+          sudo apt-get update 
+          sudo apt-get install -y g++-13 
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100 
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
-          sudo update-alternatives --config gcc
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
-          sudo update-alternatives --config g++
           sudo apt install python3-pip -y
           sudo pip3 install cmake 
           sudo pip3 install conan
@@ -49,9 +50,9 @@ jobs:
           sudo apt-get update
           sudo apt-get remove gcc-11
           sudo apt-get remove clang-14 llvm-14
-          sudo apt-get install -y clang-15 llvm-15
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
+          sudo apt-get install -y clang-16 llvm-16
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-16 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-16 100
           sudo update-alternatives --config clang
           sudo update-alternatives --config clang++
           clang --version
