@@ -1,4 +1,3 @@
-
 name: CI
 
 on:
@@ -7,7 +6,8 @@ on:
 
 jobs:
   build-gcc:
-    runs-on: those90/dev-image:1.0
+    runs-on: ubuntu-latest
+    container: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
       - name: build
@@ -16,10 +16,11 @@ jobs:
           cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
           cmake --build ./build_gcc -j12
       - name: unittests
-          ./build_gcc/bin/unittests
+        run: ./build_gcc/bin/unittests
 
   build-clang:
-    runs-on: those90/dev-image:1.0
+    runs-on: ubuntu-latest
+    container: those90/dev-image:1.0
     steps:
       - uses: actions/checkout@v3
       - name: build
