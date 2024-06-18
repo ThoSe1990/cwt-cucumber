@@ -5,8 +5,6 @@ on:
   push:
     branches: [ "**" ]
 
-  workflow_dispatch:
-
 jobs:
   build-gcc:
     runs-on: those90/dev-image:1.0
