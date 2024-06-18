@@ -39,11 +39,13 @@ jobs:
     runs-on: ubuntu-latest
     # container:
     #   image: node:14  # Specify the Docker image from Docker Hub
-    container: those90/dev-image:1.0
-    
+    # container: those90/dev-image:1.0
+    container:
+      image: those90/dev-image:1.0
+      platform: linux/amd64  # Specify the platform here
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install dependencies
         run: conan --version
