@@ -10,7 +10,6 @@ jobs:
     container:
       image: those90/dev-image:1.0
     steps:
-      - uses: actions/checkout@v3
       - name: build
         run: |
           conan install . -of ./build_gcc --build missing 
@@ -24,7 +23,6 @@ jobs:
     container:
       image: those90/dev-image:1.0
     steps:
-      - uses: actions/checkout@v3
       - name: build
         run: |
           conan install . -of ./build_clang --build missing -pr clang
