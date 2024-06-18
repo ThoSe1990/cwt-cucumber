@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-gcc:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
     container: those90/dev-image:1.0
     steps:
       - name: build
@@ -18,7 +18,7 @@ jobs:
         run: ./build_gcc/bin/unittests
 
   build-clang:
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
     container: those90/dev-image:1.0
     steps:
       - name: build
