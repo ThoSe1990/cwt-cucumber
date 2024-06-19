@@ -11,8 +11,8 @@ jobs:
     env:
       HOME: /root
     steps:
-      - name: checkout repo
-        uses: actions/checkout@v3
+      # - name: checkout repo
+      #   uses: actions/checkout@v3
       - name: build
         run: |
           conan install . -of ./build_gcc --build missing 
