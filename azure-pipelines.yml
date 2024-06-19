@@ -7,20 +7,20 @@ jobs:
       vmImage: 'windows-latest'
     steps:
     - script: | 
-        choco install -y python3 --version 3.12.2
+        choco install -y python3 --version 3.12.3
         py.exe -m pip install cmake
         py.exe -m pip install conan
       displayName: Install CMake, Conan
       # for now it does its job ... i know the  hardcoded paths are ugly... 
     - script: |
-        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.2\x64\Scripts
+        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.3\x64\Scripts
         conan --version  # Now you can use Conan
         conan profile detect
         powershell -Command "(gc C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default"
         powershell -Command "(gc C:\Users\VssAdministrator\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\VssAdministrator\.conan2\profiles\default"
       displayName: 'Init Conan'
     - script: |
-        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.2\x64\Scripts
+        set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.3\x64\Scripts
         conan install . -of build --build missing
         cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
         cmake --build ./build --config Release -j6
