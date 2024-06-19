@@ -1,3 +1,9 @@
+
+# the docker image is build for linux/amd64 and pushed to docker hub: 
+# docker buildx build --platform linux/amd64 . -t those90/ci-image:1.0
+# docker push those90/ci-image:1.0
+
+
 name: CI
 
 on:
