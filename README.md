@@ -3,7 +3,7 @@
 
 ## Coding With Thomas Cucumber: A C++ Cucumber Interpreter
 
-👋 Hello and Welcome to my C++20 Cucumber interpreter 🥒🚀✨
+👋🙋‍♂️🙋‍♀️ Hello and Welcome to my C++20 Cucumber interpreter 🥒🚀✨
 
 ## Table of Contents
 
@@ -26,9 +26,9 @@
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
 
-Tested compilers: GCC 13, Clang17 and MSVC 19
-Full documentation: https://those1990.github.io/cwt-cucumber-docs
-Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan
+Tested compilers: GCC 13, Clang17 and MSVC 19  
+Full documentation: https://those1990.github.io/cwt-cucumber-docs  
+Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
 
 ## Getting Started
 
