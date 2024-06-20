@@ -14,8 +14,6 @@ TEST(ast, init_obj)
   compiler compiler(script);
 }
 
-
-
 TEST(ast_tests, run_simple_scenario)
 {
   const char* script = R"*(
