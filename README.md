@@ -3,12 +3,7 @@
 
 ## Coding With Thomas Cucumber: A C++ Cucumber Interpreter
 
-👋 Hello and Welcome to my C++ Cucumber interpreter 🥒🚀✨
-
-CWT-Cucumber is implemented with C++20 and tested with:
-- MSVC 19 
-- Clang 15
-- GCC 13
+👋🙋‍♂️🙋‍♀️ Hello and Welcome to my C++20 Cucumber interpreter 🥒🚀✨
 
 ## Table of Contents
 
@@ -30,12 +25,21 @@ CWT-Cucumber is implemented with C++20 and tested with:
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
+
+Tested compilers: GCC 13, Clang17 and MSVC 19  
+Full documentation: https://those1990.github.io/cwt-cucumber-docs  
+Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
+
 ## Getting Started
 
-Find the full documentation [on GitHub Pages](https://those1990.github.io/cwt-cucumber-docs).  
-If you want to integrate this into your own projects, I have provided the same examples and a Conan recipe in [another GitHub repo](https://github.com/ThoSe1990/cwt-cucumber-conan).  
+Let us start with Cucumber. First of all build the project on your machine with CMake (you can use the Docker from this directory if you want): 
 
-In the first example we just place an items into a box:
+```shell
+cmake -S . -B ./build
+cmake --build ./build
+```
+
+Now, consider a simple box where we can put items. To run Cucumber tests, we create a scenario: 
 
 ```gherkin
 Feature: My first feature
@@ -46,13 +50,9 @@ Feature: My first feature
     When I place 2 x "apple" in it
     Then The box contains 2 item(s)
 ```
-
-
-So lets do a regular cmake build and run the `box` executable: 
+Now execute the first example from the example directory:
 
 ```shell
-cmake -S . -B ./build
-cmake --build ./build
 ./build/bin/box ./examples/features/1_first_scenario.feature
 
 Feature: My first feature  ./examples/features/1_first_scenario.feature:2
@@ -483,7 +483,6 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```shell
 ./build/bin/box ./examples/features
 ```
-
 
 ## Disclaimer
 
