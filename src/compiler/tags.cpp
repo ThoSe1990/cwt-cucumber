@@ -6,9 +6,9 @@
 namespace cwt::details::compiler
 {
 
-tag_expression::tag_expression() : m_parser("", bool_operators{}) {}
+tag_expression::tag_expression() : m_lexer("", bool_operators{}) {}
 tag_expression::tag_expression(std::string_view expression)
-    : m_parser(expression, bool_operators{})
+    : m_lexer(expression, bool_operators{})
 {
   compile();
 }
@@ -107,23 +107,23 @@ const tag_token& tag_expression::operator[](std::size_t idx) const
 
 tag_token tag_expression::make_token() const noexcept
 {
-  if (m_parser.previous().type == token_type::tag)
+  if (m_lexer.previous().type == token_type::tag)
   {
-    return tag_token{m_parser.previous().type,
-                     std::string(m_parser.previous().value)};
+    return tag_token{m_lexer.previous().type,
+                     std::string(m_lexer.previous().value)};
   }
   else
   {
-    return tag_token{m_parser.previous().type, std::string("")};
+    return tag_token{m_lexer.previous().type, std::string("")};
   }
 }
 
 void tag_expression::compile()
 {
-  m_parser.advance();
+  m_lexer.advance();
   expression();
 
-  if (m_parser.error())
+  if (m_lexer.error())
   {
     m_operators.clear();
     m_out.clear();
@@ -141,26 +141,26 @@ void tag_expression::compile()
 }
 void tag_expression::expression()
 {
-  if (m_parser.match(token_type::tag))
+  if (m_lexer.match(token_type::tag))
   {
     tag();
   }
-  else if (m_parser.match(token_type::left_paren))
+  else if (m_lexer.match(token_type::left_paren))
   {
     grouping();
   }
-  else if (m_parser.match(token_type::_not))
+  else if (m_lexer.match(token_type::_not))
   {
     m_operators.push_back(make_token());
     expression();
   }
-  if (m_parser.match(token_type::eof))
+  if (m_lexer.match(token_type::eof))
   {
     return;
   }
   else
   {
-    m_parser.error_at(m_parser.current(), "Expect '@tag', '(' or 'not'.");
+    m_lexer.error_at(m_lexer.current(), "Expect '@tag', '(' or 'not'.");
   }
 }
 void tag_expression::tag()
@@ -171,21 +171,21 @@ void tag_expression::tag()
     operator_to_out();
   }
 
-  if (m_parser.match(token_type::_and, token_type::_or, token_type::_xor))
+  if (m_lexer.match(token_type::_and, token_type::_or, token_type::_xor))
   {
     and_or_xor();
   }
-  else if (m_parser.match(token_type::right_paren))
+  else if (m_lexer.match(token_type::right_paren))
   {
     close_grouping();
   }
-  else if (m_parser.match(token_type::eof))
+  else if (m_lexer.match(token_type::eof))
   {
     return;
   }
   else
   {
-    m_parser.error_at(m_parser.current(), "Expect 'and' or 'or' after tag.");
+    m_lexer.error_at(m_lexer.current(), "Expect 'and' or 'or' after tag.");
   }
 }
 
@@ -235,21 +235,21 @@ void tag_expression::close_grouping()
     m_out.push_back(tag_token{back});
   }
 
-  if (m_parser.match(token_type::_and, token_type::_or, token_type::_xor))
+  if (m_lexer.match(token_type::_and, token_type::_or, token_type::_xor))
   {
     and_or_xor();
   }
-  else if (m_parser.match(token_type::right_paren))
+  else if (m_lexer.match(token_type::right_paren))
   {
     close_grouping();
   }
-  else if (m_parser.match(token_type::eof))
+  else if (m_lexer.match(token_type::eof))
   {
     return;
   }
   else
   {
-    m_parser.error_at(m_parser.current(),
+    m_lexer.error_at(m_lexer.current(),
                       "Expect operator or end of tags after ')'.");
   }
 }

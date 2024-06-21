@@ -17,8 +17,8 @@ function cucumber::make_function() noexcept
 }
 void cucumber::init()
 {
-  m_parser->advance();
-  m_parser->skip_linebreaks();
+  m_lexer->advance();
+  m_lexer->skip_linebreaks();
 }
 
 void cucumber::compile()
@@ -29,10 +29,10 @@ void cucumber::compile()
 
 void cucumber::internal_compile()
 {
-  while (!m_parser->check(token_type::eof))
+  while (!m_lexer->check(token_type::eof))
   {
-    m_parser->skip_linebreaks();
-    switch (m_parser->current().type)
+    m_lexer->skip_linebreaks();
+    switch (m_lexer->current().type)
     {
       case token_type::tag:
       {
@@ -46,7 +46,7 @@ void cucumber::internal_compile()
       break;
       default:
       {
-        m_parser->error_at(m_parser->current(), "Expect FeatureLine");
+        m_lexer->error_at(m_lexer->current(), "Expect FeatureLine");
         return;
       }
     }
@@ -59,7 +59,7 @@ void cucumber::compile_feature()
   const cuke::value_array tags = take_latest_tags();
   feature f(this, tags);
   f.compile();
-  m_parser->advance_to(token_type::feature, token_type::tag, token_type::eof);
+  m_lexer->advance_to(token_type::feature, token_type::tag, token_type::eof);
 }
 
 double cucumber::compile_time() const noexcept { return m_compile_time; }

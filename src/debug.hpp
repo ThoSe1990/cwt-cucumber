@@ -18,6 +18,7 @@ static void print_value(const cuke::value& v)
     case cuke::value_type::integral:
       std::cout << v.as<long>();
       break;
+    case cuke::value_type::_double:
     case cuke::value_type::floating:
       std::cout << v.as<double>();
       break;

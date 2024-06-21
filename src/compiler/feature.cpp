@@ -25,18 +25,18 @@ feature::~feature()
 
 void feature::next()
 {
-  m_parser->advance();
-  m_parser->advance_to(token_type::feature, token_type::tag,
+  m_lexer->advance();
+  m_lexer->advance_to(token_type::feature, token_type::tag,
                        token_type::scenario, token_type::scenario_outline,
                        token_type::eof);
 }
 
 void feature::init()
 {
-  m_parser->advance();
+  m_lexer->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);
-  m_parser->advance_until_line_starts_with(
+  m_lexer->advance_until_line_starts_with(
       token_type::scenario, token_type::scenario_outline, token_type::tag,
       token_type::background, token_type::eof);
 }
@@ -68,9 +68,9 @@ void feature::compile_scenario_outline(const cuke::value_array& tags)
 
 void feature::compile()
 {
-  while (!m_parser->check(token_type::eof))
+  while (!m_lexer->check(token_type::eof))
   {
-    switch (m_parser->current().type)
+    switch (m_lexer->current().type)
     {
       case token_type::tag:
       {
@@ -91,7 +91,7 @@ void feature::compile()
       {
         if (m_background.has_value())
         {
-          m_parser->error_at(m_parser->current(),
+          m_lexer->error_at(m_lexer->current(),
                              "Feature has already a background");
           return;
         }
@@ -108,7 +108,7 @@ void feature::compile()
         return;
       }
     }
-    m_parser->skip_linebreaks();
+    m_lexer->skip_linebreaks();
   } 
 }
 

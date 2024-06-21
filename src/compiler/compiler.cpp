@@ -10,7 +10,7 @@ namespace cwt::details::compiler
 {
 
 compiler::compiler(std::string_view source)
-    : m_parser(std::make_shared<parser>(source)),
+    : m_lexer(std::make_shared<lexer>(source)),
       m_options(std::make_shared<options>()),
       m_lines({}),
       m_filename("line"),
@@ -18,7 +18,7 @@ compiler::compiler(std::string_view source)
 {
 }
 compiler::compiler(const file& feature_file)
-    : m_parser(std::make_shared<parser>(feature_file)),
+    : m_lexer(std::make_shared<lexer>(feature_file)),
       m_options(std::make_shared<options>()),
       m_lines(feature_file.lines_to_compile),
       m_filename(feature_file.path),
@@ -31,12 +31,12 @@ void compiler::set_options(const options& opts)
 {
   m_options = std::make_shared<options>(opts);
 }
-bool compiler::error() const noexcept { return m_parser->error(); }
+bool compiler::error() const noexcept { return m_lexer->error(); }
 bool compiler::no_error() const noexcept { return !error(); }
 chunk& compiler::get_chunk() noexcept { return m_chunk; }
 void compiler::finish_chunk() noexcept
 {
-  m_chunk.push_byte(op_code::func_return, m_parser->previous().line);
+  m_chunk.push_byte(op_code::func_return, m_lexer->previous().line);
 #ifdef PRINT_STACK
   if (no_error())
   {
@@ -59,23 +59,23 @@ bool compiler::tags_valid(const cuke::value_array& tags)
 void compiler::read_tags()
 {
   m_latest_tags->clear();
-  while (m_parser->check(token_type::tag))
+  while (m_lexer->check(token_type::tag))
   {
-    m_latest_tags->push_back(std::string(m_parser->current().value));
-    m_parser->advance();
+    m_latest_tags->push_back(std::string(m_lexer->current().value));
+    m_lexer->advance();
   }
 }
 
 std::string compiler::location() const
 {
-  return std::format("{}:{}", m_filename, m_parser->current().line);
+  return std::format("{}:{}", m_filename, m_lexer->current().line);
 }
 std::pair<std::size_t, std::size_t> compiler::create_name_and_location()
 {
   std::size_t location_idx = m_chunk.make_constant(location());
-  token begin = m_parser->previous();
-  m_parser->advance_to(token_type::linebreak, token_type::eof);
-  token end = m_parser->previous();
+  token begin = m_lexer->previous();
+  m_lexer->advance_to(token_type::linebreak, token_type::eof);
+  token end = m_lexer->previous();
   std::size_t name_idx = m_chunk.make_constant(create_string(begin, end));
   return std::make_pair(name_idx, location_idx);
 }
@@ -95,16 +95,16 @@ void compiler::print_name_and_location(std::size_t name_idx,
 
 void compiler::emit_byte(uint32_t byte)
 {
-  m_chunk.push_byte(byte, m_parser->previous().line);
+  m_chunk.push_byte(byte, m_lexer->previous().line);
 }
 void compiler::emit_byte(op_code code)
 {
-  m_chunk.push_byte(code, m_parser->previous().line);
+  m_chunk.push_byte(code, m_lexer->previous().line);
 }
 void compiler::emit_bytes(op_code code, uint32_t byte)
 {
-  m_chunk.push_byte(code, m_parser->previous().line);
-  m_chunk.push_byte(byte, m_parser->previous().line);
+  m_chunk.push_byte(code, m_lexer->previous().line);
+  m_chunk.push_byte(byte, m_lexer->previous().line);
 }
 uint32_t compiler::emit_jump()
 {
@@ -117,7 +117,7 @@ void compiler::patch_jump(uint32_t offset)
   uint32_t jump = m_chunk.size() - 1 - offset;
   if (jump > std::numeric_limits<uint32_t>::max())
   {
-    m_parser->error_at(m_parser->previous(), "Too much code to jump over.");
+    m_lexer->error_at(m_lexer->previous(), "Too much code to jump over.");
   }
 
   m_chunk.at(offset) = m_chunk.size();
@@ -143,7 +143,7 @@ bool compiler::lines_match() const noexcept
   }
   else
   {
-    std::size_t current_line = m_parser->current().line;
+    std::size_t current_line = m_lexer->current().line;
     return std::any_of(m_lines.begin(), m_lines.end(),
                        [&current_line](std::size_t line)
                        { return current_line == line; });

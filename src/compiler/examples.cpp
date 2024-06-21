@@ -7,13 +7,13 @@ namespace cwt::details::compiler
 examples::examples(feature* f, const cuke::value_array& tags)
     : m_feature(f), m_tags(tags)
 {
-  m_feature->get_parser().advance_until_line_starts_with(token_type::vertical,
+  m_feature->get_lexer().advance_until_line_starts_with(token_type::vertical,
                                                          token_type::eof);
 }
 void examples::header()
 {
   m_variables.clear();
-  parser& p = m_feature->get_parser();
+  lexer& p = m_feature->get_lexer();
   p.consume(token_type::vertical, "Expect '|' after examples begin.");
   m_header.begin = p.previous();
   while (!p.match(token_type::linebreak))
@@ -33,7 +33,7 @@ void examples::header()
 
 void examples::body(std::size_t scenario_idx)
 {
-  parser& p = m_feature->get_parser();
+  lexer& p = m_feature->get_lexer();
   while (p.is_none_of(token_type::scenario, token_type::scenario_outline,
                       token_type::examples, token_type::tag, token_type::eof))
   {
@@ -53,17 +53,17 @@ void examples::body(std::size_t scenario_idx)
 
 std::size_t examples::make_variable()
 {
-  token begin = m_feature->get_parser().current();
-  m_feature->get_parser().advance_to(token_type::vertical);
-  token end = m_feature->get_parser().previous();
-  m_feature->get_parser().consume(token_type::vertical,
+  token begin = m_feature->get_lexer().current();
+  m_feature->get_lexer().advance_to(token_type::vertical);
+  token end = m_feature->get_lexer().previous();
+  m_feature->get_lexer().consume(token_type::vertical,
                                   "Expect '|' after variable.");
   return m_feature->get_chunk().make_constant(create_string(begin, end));
 }
 
 void examples::process_table_row()
 {
-  parser& p = m_feature->get_parser();
+  lexer& p = m_feature->get_lexer();
   p.consume(token_type::vertical, "Expect '|' at table begin.");
   m_current_row.begin = p.previous();
   for (const std::size_t variable_index : m_variables)

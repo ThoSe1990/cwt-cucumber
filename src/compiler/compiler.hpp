@@ -6,7 +6,7 @@
 
 #include "../token.hpp"
 #include "../chunk.hpp"
-#include "../parser.hpp"
+#include "../lexer.hpp"
 #include "../options.hpp"
 
 #include "tags.hpp"
@@ -24,7 +24,7 @@ class compiler
   [[nodiscard]] bool no_error() const noexcept;
   void finish_chunk() noexcept;
   [[nodiscard]] chunk& get_chunk() noexcept;
-  [[nodiscard]] parser& get_parser() noexcept { return *m_parser.get(); }
+  [[nodiscard]] lexer& get_lexer() noexcept { return *m_lexer.get(); }
 
   void set_options(const options& opts);
   const options& get_options() const;
@@ -62,7 +62,7 @@ class compiler
   template <typename Other,
             typename = std::enable_if_t<std::is_base_of_v<compiler, Other>>>
   compiler(const Other& other)
-      : m_parser(other.m_parser),
+      : m_lexer(other.m_lexer),
         m_options(other.m_options),
         m_lines(other.m_lines),
         m_filename(other.m_filename),
@@ -72,7 +72,7 @@ class compiler
   }
 
  protected:
-  std::shared_ptr<parser> m_parser;
+  std::shared_ptr<lexer> m_lexer;
   std::shared_ptr<options> m_options;
 
  private:

@@ -6,7 +6,7 @@
 #include <string_view>
 
 #include "../value.hpp"
-#include "../parser.hpp"
+#include "../lexer.hpp"
 
 namespace cwt::details::compiler
 {
@@ -46,7 +46,7 @@ class tag_expression
  private:
   std::vector<tag_token> m_out;
   std::vector<tag_token> m_operators;
-  parser m_parser;
+  lexer m_lexer;
   int m_open_parens{0};
 };
 

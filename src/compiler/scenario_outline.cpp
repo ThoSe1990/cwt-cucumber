@@ -20,10 +20,10 @@ scenario_outline::scenario_outline(feature* enclosing, const cuke::value_array& 
 
 void scenario_outline::init()
 {
-  m_parser->advance();
+  m_lexer->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);
-  m_parser->advance_until_line_starts_with(token_type::step);
+  m_lexer->advance_until_line_starts_with(token_type::step);
   emit_byte(op_code::init_scenario);
 
   if (m_enclosing->has_background())
@@ -43,19 +43,19 @@ void scenario_outline::compile_steps()
 {
   do
   {
-    if (m_parser->match(token_type::step))
+    if (m_lexer->match(token_type::step))
     {
       step s(this);
       s.compile();
     }
     else
     {
-      m_parser->error_at(m_parser->current(),
+      m_lexer->error_at(m_lexer->current(),
                          "Expect StepLine, Tags or Examples");
       return;
     }
-    m_parser->skip_linebreaks();
-  } while (m_parser->is_none_of(token_type::examples, token_type::tag));
+    m_lexer->skip_linebreaks();
+  } while (m_lexer->is_none_of(token_type::examples, token_type::tag));
 
   finish_chunk();
 }
@@ -72,7 +72,7 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
 {
   do
   {
-    switch (m_parser->current().type)
+    switch (m_lexer->current().type)
     {
       case token_type::tag:
       {
@@ -86,12 +86,12 @@ void scenario_outline::compile_table(std::size_t scenario_idx)
       break;
       default:
       {
-        m_parser->error_at(m_parser->current(), "Expect Examples table");
+        m_lexer->error_at(m_lexer->current(), "Expect Examples table");
         return;
       }
     }
-    m_parser->skip_linebreaks();
-  } while (m_parser->is_none_of(token_type::scenario,
+    m_lexer->skip_linebreaks();
+  } while (m_lexer->is_none_of(token_type::scenario,
                                 token_type::scenario_outline, token_type::eof));
 }
 
@@ -106,8 +106,8 @@ void scenario_outline::compile_examples(std::size_t scenario_idx)
   }
   else
   {
-    m_parser->advance();
-    m_parser->advance_to(token_type::scenario, token_type::scenario_outline,
+    m_lexer->advance();
+    m_lexer->advance_to(token_type::scenario, token_type::scenario_outline,
                          token_type::examples, token_type::tag,
                          token_type::feature, token_type::eof);
   }

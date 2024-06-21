@@ -17,10 +17,10 @@ scenario::scenario(feature* enclosing, const cuke::value_array& tags)
 
 void scenario::init()
 {
-  m_parser->advance();
+  m_lexer->advance();
   auto [name_idx, location_idx] = create_name_and_location();
   print_name_and_location(name_idx, location_idx);
-  m_parser->advance_until_line_starts_with(token_type::step);
+  m_lexer->advance_until_line_starts_with(token_type::step);
   emit_byte(op_code::init_scenario);
 
   if (m_enclosing->has_background())
@@ -45,18 +45,18 @@ void scenario::compile()
 {
   do
   {
-    if (m_parser->match(token_type::step))
+    if (m_lexer->match(token_type::step))
     {
       step s(this);
       s.compile();
     }
     else
     {
-      m_parser->error_at(m_parser->current(), "Expect StepLine");
+      m_lexer->error_at(m_lexer->current(), "Expect StepLine");
       return;
     }
-    m_parser->skip_linebreaks();
-  } while (m_parser->is_none_of(token_type::scenario,
+    m_lexer->skip_linebreaks();
+  } while (m_lexer->is_none_of(token_type::scenario,
                                 token_type::scenario_outline, token_type::tag,
                                 token_type::eof));
 }

@@ -7,12 +7,12 @@
 
 namespace cwt::details
 {
-class parser
+class lexer
 {
  public:
-  parser(const file& f);
-  parser(std::string_view source);
-  parser(std::string_view source, bool_operators);
+  lexer(const file& f);
+  lexer(std::string_view source);
+  lexer(std::string_view source, bool_operators);
   
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;

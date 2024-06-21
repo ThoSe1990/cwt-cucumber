@@ -20,25 +20,25 @@ class step
       : m_parent(parent),
         m_location_idx(
             m_parent->get_chunk().make_constant(m_parent->location())),
-        m_begin(m_parent->get_parser().current())
+        m_begin(m_parent->get_lexer().current())
   {
   }
 
   void compile() const
   {
     advance_to_linebreak();
-    token end = m_parent->get_parser().previous();
+    token end = m_parent->get_lexer().previous();
 
-    m_parent->get_parser().skip_linebreaks();
+    m_parent->get_lexer().skip_linebreaks();
 
-    if (m_parent->get_parser().match(token_type::doc_string))
+    if (m_parent->get_lexer().match(token_type::doc_string))
     {
-      end = m_parent->get_parser().previous();
+      end = m_parent->get_lexer().previous();
     }
-    else if (m_parent->get_parser().check(token_type::vertical))
+    else if (m_parent->get_lexer().check(token_type::vertical))
     {
       datatable();
-      end = m_parent->get_parser().previous();
+      end = m_parent->get_lexer().previous();
     }
 
     std::size_t name_idx =
@@ -72,8 +72,8 @@ class step
   {
     while (not_at_linebreak())
     {
-      m_parent->get_parser().advance();
-      if (m_parent->get_parser().match(token_type::variable))
+      m_parent->get_lexer().advance();
+      if (m_parent->get_lexer().match(token_type::variable))
       {
         emit_variable();
       }
@@ -83,21 +83,21 @@ class step
   void emit_variable() const
   {
     std::string_view name =
-        get_var_name(m_parent->get_parser().previous().value);
+        get_var_name(m_parent->get_lexer().previous().value);
     m_parent->emit_bytes(op_code::get_var, m_parent->get_chunk().make_constant(
                                                create_string(name)));
   }
 
   bool not_at_linebreak() const
   {
-    return m_parent->get_parser().is_none_of(token_type::linebreak,
+    return m_parent->get_lexer().is_none_of(token_type::linebreak,
                                              token_type::eof);
   }
 
   void datatable() const
   {
     const std::size_t elements_in_row = datatable_row();
-    parser& p = m_parent->get_parser();
+    lexer& p = m_parent->get_lexer();
     p.skip_linebreaks();
 
     while (p.is_none_of(token_type::step, token_type::scenario,
@@ -116,7 +116,7 @@ class step
   std::size_t datatable_row() const
   {
     std::size_t element_count = 0;
-    parser& p = m_parent->get_parser();
+    lexer& p = m_parent->get_lexer();
     p.consume(token_type::vertical, "Expect '|' at table row begin.");
     while (!p.match(token_type::linebreak) && !p.match(token_type::eof))
     {

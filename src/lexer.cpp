@@ -1,24 +1,24 @@
 #include <iostream>
 
-#include "parser.hpp"
+#include "lexer.hpp"
 
 #include "util.hpp"
 
 namespace cwt::details
 {
-parser::parser(const file& f) : m_scanner(f.content), m_filepath(f.path) {}
-parser::parser(std::string_view source) : m_scanner(source) {}
-parser::parser(std::string_view source, bool_operators)
+lexer::lexer(const file& f) : m_scanner(f.content), m_filepath(f.path) {}
+lexer::lexer(std::string_view source) : m_scanner(source) {}
+lexer::lexer(std::string_view source, bool_operators)
     : m_scanner(source, bool_operators{})
 {
 }
 
-const token& parser::current() const noexcept { return m_current; }
-const token& parser::previous() const noexcept { return m_previous; }
+const token& lexer::current() const noexcept { return m_current; }
+const token& lexer::previous() const noexcept { return m_previous; }
 
-bool parser::error() const noexcept { return m_error; }
+bool lexer::error() const noexcept { return m_error; }
 
-void parser::error_at(const token& t, std::string_view msg) noexcept
+void lexer::error_at(const token& t, std::string_view msg) noexcept
 {
   std::string prefix("");
   if (m_filepath.empty())
@@ -47,11 +47,11 @@ void parser::error_at(const token& t, std::string_view msg) noexcept
   m_error = true;
 }
 
-bool parser::check(token_type type) const noexcept
+bool lexer::check(token_type type) const noexcept
 {
   return m_current.type == type;
 }
-bool parser::match(token_type type) noexcept
+bool lexer::match(token_type type) noexcept
 {
   if (check(type))
   {
@@ -63,7 +63,7 @@ bool parser::match(token_type type) noexcept
     return false;
   }
 }
-void parser::advance_to(token_type type)
+void lexer::advance_to(token_type type)
 {
   while (!check(type))
   {
@@ -76,7 +76,7 @@ void parser::advance_to(token_type type)
   }
 }
 
-std::vector<token> parser::collect_tokens_to(token_type type)
+std::vector<token> lexer::collect_tokens_to(token_type type)
 {
   std::vector<token> result;
   while (!check(type))
@@ -92,7 +92,7 @@ std::vector<token> parser::collect_tokens_to(token_type type)
   return result;
 }
 
-void parser::consume(token_type type, std::string_view msg)
+void lexer::consume(token_type type, std::string_view msg)
 {
   if (m_current.type == type)
   {
@@ -103,13 +103,13 @@ void parser::consume(token_type type, std::string_view msg)
     error_at(m_current, msg);
   }
 }
-void parser::skip_linebreaks()
+void lexer::skip_linebreaks()
 {
   while (match(token_type::linebreak))
   {
   }
 }
-void parser::advance()
+void lexer::advance()
 {
   m_previous = m_current;
   for (;;)
