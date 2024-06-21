@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../lexer.hpp"
+#include "../token.hpp"
+
 #include <string>
 #include <vector>
 
@@ -31,9 +34,48 @@ struct step
   // TODO: datatable
   // TODO: doc string
 };
-struct node {
+struct node
+{
   info infos;
   std::vector<node> children;
-  // TODO tags 
+  // TODO tags
 };
-}  // namespace cwt::details::ast
+
+class parser
+{
+ public:
+  parser(std::string_view src) : m_lexer(src)
+  {
+    m_head.infos.type = cuke::ast::node_type::gherkin_document;
+  }
+  cuke::ast::node compile()
+  {
+    m_lexer.advance();
+    m_lexer.skip_linebreaks();
+    cuke::ast::node node;
+    // here we go ...
+    switch (m_lexer.current().type)
+    {
+      case cwt::details::token_type::tag:
+      {
+        // TODO
+      }
+      break;
+      case cwt::details::token_type::feature:
+      {
+        node.infos.type = cuke::ast::node_type::feature;
+      }
+      break;
+      default:
+      {
+        m_lexer.error_at(m_lexer.current(), "Expect FeatureLine");
+      }
+    }
+    return node;
+  }
+
+ private:
+  cwt::details::lexer m_lexer;
+  cuke::ast::node m_head;
+};
+}  // namespace cuke::ast
