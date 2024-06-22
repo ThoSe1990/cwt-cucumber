@@ -48,30 +48,87 @@ class parser
   {
     m_head.infos.type = cuke::ast::node_type::gherkin_document;
   }
-  cuke::ast::node compile()
+  cuke::ast::node& head() noexcept { return m_head; }
+  void parse()
   {
     m_lexer.advance();
     m_lexer.skip_linebreaks();
     cuke::ast::node node;
-    // here we go ...
     switch (m_lexer.current().type)
     {
       case cwt::details::token_type::tag:
       {
         // TODO
+        // push tags to feature node
+        // node.tags.push(...);
       }
       break;
       case cwt::details::token_type::feature:
       {
-        node.infos.type = cuke::ast::node_type::feature;
+        feature(node);
       }
       break;
       default:
       {
         m_lexer.error_at(m_lexer.current(), "Expect FeatureLine");
+        return;
       }
     }
-    return node;
+  }
+
+ private:
+  void scenario(cuke::ast::node& scenario_node)
+  {
+    // cuke::ast::node node;
+    scenario_node.infos.type = node_type::scenario;
+    do
+    {
+      if (m_lexer.match(cwt::details::token_type::step))
+      {
+        // TODO
+        // step s(this);
+        // s.compile();
+        // node.steps ( ??? ) ;
+      }
+      else
+      {
+        m_lexer.error_at(m_lexer.current(), "Expect StepLine");
+        return;
+      }
+      m_lexer.skip_linebreaks();
+    } while (m_lexer.is_none_of(cwt::details::token_type::scenario,
+                                cwt::details::token_type::scenario_outline,
+                                cwt::details::token_type::tag,
+                                cwt::details::token_type::eof));
+
+    // scenario_node.children.push_back( step node? )
+  }
+  void feature(cuke::ast::node& feature_node)
+  {
+    while (!m_lexer.check(cwt::details::token_type::eof))
+    {
+      m_lexer.skip_linebreaks();
+      cuke::ast::node node;
+      switch (m_lexer.current().type)
+      {
+        case cwt::details::token_type::tag:
+        {
+          // TODO
+          // push tags to feature node
+          // node.tags.push(...);
+        }
+        break;
+        case cwt::details::token_type::scenario:
+        {
+          scenario(node);
+        }
+        break;
+        default:
+          break;
+      }
+
+      feature_node.children.push_back(node);
+    }
   }
 
  private:
