@@ -54,6 +54,7 @@ class parser
     m_lexer.advance();
     m_lexer.skip_linebreaks();
     cuke::ast::node node;
+    node.infos.type = ast::node_type::feature;
     switch (m_lexer.current().type)
     {
       case cwt::details::token_type::tag:
@@ -65,6 +66,7 @@ class parser
       break;
       case cwt::details::token_type::feature:
       {
+        m_lexer.advance();
         feature(node);
       }
       break;
@@ -74,11 +76,13 @@ class parser
         return;
       }
     }
+    m_head.children.push_back(node);
   }
 
  private:
   void scenario(cuke::ast::node& scenario_node)
   {
+    m_lexer.skip_linebreaks();
     // cuke::ast::node node;
     scenario_node.infos.type = node_type::scenario;
     do
@@ -120,11 +124,15 @@ class parser
         break;
         case cwt::details::token_type::scenario:
         {
+          m_lexer.advance();
           scenario(node);
         }
         break;
         default:
+        {
+          // TODO error
           break;
+        }
       }
 
       feature_node.children.push_back(node);
