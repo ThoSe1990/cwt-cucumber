@@ -6,10 +6,10 @@
 namespace cwt::details
 {
 
-void parse_scenario(lexer& lex, cuke::ast::node scenario_node)
+void parse_scenario(lexer& lex, cuke::ast::node& scenario_node)
 {
   lex.skip_linebreaks();
-  // cuke::ast::node node;
+  lex.consume(token_type::scenario, "Expect: Scenario");
   scenario_node.infos.type = cuke::ast::node_type::scenario;
   do
   {
@@ -35,8 +35,10 @@ void parse_scenario(lexer& lex, cuke::ast::node scenario_node)
   // scenario_node.children.push_back( step node? )
 }
 
-void parse_feature(lexer& lex, cuke::ast::node feature_node)
+void parse_feature(lexer& lex, cuke::ast::node& feature_node)
 {
+  feature_node.infos.type = cuke::ast::node_type::feature;
+
   while (!lex.check(cwt::details::token_type::eof))
   {
     lex.skip_linebreaks();
@@ -52,7 +54,6 @@ void parse_feature(lexer& lex, cuke::ast::node feature_node)
       break;
       case cwt::details::token_type::scenario:
       {
-        lex.advance();
         parse_scenario(lex, node);
       }
       break;
@@ -62,8 +63,8 @@ void parse_feature(lexer& lex, cuke::ast::node feature_node)
         break;
       }
     }
-
     feature_node.children.push_back(node);
+    lex.advance();
   }
 }
 
@@ -80,7 +81,7 @@ class parser
     m_lexer.advance();
     m_lexer.skip_linebreaks();
     cuke::ast::node node;
-    node.infos.type = cuke::ast::node_type::feature;
+
     switch (m_lexer.current().type)
     {
       case cwt::details::token_type::tag:

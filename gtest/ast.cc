@@ -12,7 +12,7 @@ TEST(ast, init_obj)
   cwt::details::parser p(script);
 }
 
-TEST(ast_tests, feature)
+TEST(ast, feature)
 {
   const char* script = R"*(
   Feature:
@@ -23,7 +23,16 @@ TEST(ast_tests, feature)
   EXPECT_EQ(p.head().children[0].infos.type, cuke::ast::node_type::feature);
 }
 
-TEST(ast_tests, scenario)
+TEST(ast, feature_wo_parser) 
+{
+  const char* script = "Feature:";
+  cwt::details::lexer lex(script);
+  cuke::ast::node node;
+  cwt::details::parse_feature(lex, node);
+  EXPECT_EQ(node.infos.type, cuke::ast::node_type::feature);
+}
+
+TEST(ast, scenario)
 {
   const char* script = R"*(
   Feature:
@@ -33,4 +42,13 @@ TEST(ast_tests, scenario)
   p.parse();
   EXPECT_EQ(p.head().children.size(), 1);
   EXPECT_EQ(p.head().children[0].infos.type, cuke::ast::node_type::feature); 
+}
+TEST(ast, scenario_wo_parser)
+{
+  const char* script = "Scenario:";
+  cwt::details::lexer lex(script);
+  lex.advance();
+  cuke::ast::node node;
+  cwt::details::parse_scenario(lex, node);
+  EXPECT_EQ(node.infos.type, cuke::ast::node_type::scenario);
 }
