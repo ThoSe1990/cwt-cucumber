@@ -6,15 +6,24 @@
 #include <string>
 #include <vector>
 
-namespace cuke::ast::visitor
+namespace cuke::ast
 {
+enum class node_type
+{
+  gherkin_document = 0,
+  tag,
+  feature,
+  background,
+  scenario,
+  scenario_outline
+};
 class node
 {
  public:
   virtual ~node() = default;
   // virtual void visit(visitor& v) = 0; 
 
- private:
+//  private:
   struct
   {
     std::string file;
@@ -23,17 +32,31 @@ class node
   std::string m_keyword;
   std::string m_name;
 };
-class gherkin_document : public node
+
+class feature_node : public node
 {
  public:
- private:
-};
-class feature : public node
-{
- public:
+  feature_node(const std::string& key, const std::string& name) 
+  {
+    m_keyword = key;
+    m_name = name;
+  }
+
+  const std::string& name() const { return m_name; }
+  const std::string& keyword() const { return m_keyword; }
  private:
   std::vector<std::string> m_tags;
   std::vector<node> m_scenarios;
+};
+class gherkin_document : public node
+{
+ public:
+  node_type type() const { return m_type; }
+  const feature_node& feature() const { return *m_feature; }
+  
+//  private:
+ node_type m_type;
+ std::unique_ptr<feature_node> m_feature;
 };
 class background : public node
 {
@@ -56,32 +79,5 @@ class step : public node
  public:
 };
 
-}  // namespace cuke::ast::visitor
-
-namespace cuke::ast
-{
-enum class node_type
-{
-  gherkin_document = 0,
-  tag,
-  feature,
-  background,
-  scenario,
-  scenario_outline
-};
-struct node
-{
-  node_type type;
-  struct
-  {
-    std::string file;
-    std::size_t line;
-  } location;
-  std::string keyword;
-  std::string value;
-  std::string description;
-  std::vector<node> children;
-  std::vector<node> tags; 
-};
-
 }  // namespace cuke::ast
+
