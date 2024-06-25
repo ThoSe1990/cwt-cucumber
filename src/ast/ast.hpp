@@ -6,6 +6,58 @@
 #include <string>
 #include <vector>
 
+namespace cuke::ast::visitor
+{
+class node
+{
+ public:
+  virtual ~node() = default;
+  // virtual void visit(visitor& v) = 0; 
+
+ private:
+  struct
+  {
+    std::string file;
+    std::size_t line;
+  } m_location;
+  std::string m_keyword;
+  std::string m_name;
+};
+class gherkin_document : public node
+{
+ public:
+ private:
+};
+class feature : public node
+{
+ public:
+ private:
+  std::vector<std::string> m_tags;
+  std::vector<node> m_scenarios;
+};
+class background : public node
+{
+ public:
+};
+class scenario : public node
+{
+ public:
+ private:
+  std::vector<std::string> m_tags;
+};
+class scenario_outline : public node
+{
+ public:
+ private:
+  std::vector<std::string> m_tags;
+};
+class step : public node
+{
+ public:
+};
+
+}  // namespace cuke::ast::visitor
+
 namespace cuke::ast
 {
 enum class node_type
@@ -31,6 +83,5 @@ struct node
   std::vector<node> children;
   std::vector<node> tags; 
 };
-
 
 }  // namespace cuke::ast
