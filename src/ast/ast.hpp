@@ -11,12 +11,13 @@ namespace cuke::ast
 enum class node_type
 {
   gherkin_document = 0,
+  tag,
   feature,
   background,
   scenario,
   scenario_outline
 };
-struct info
+struct node
 {
   node_type type;
   struct
@@ -27,18 +28,8 @@ struct info
   std::string keyword;
   std::string value;
   std::string description;
-};
-struct step
-{
-  info infos;
-  // TODO: datatable
-  // TODO: doc string
-};
-struct node
-{
-  info infos;
   std::vector<node> children;
-  // TODO tags
+  std::vector<node> tags; 
 };
 
 

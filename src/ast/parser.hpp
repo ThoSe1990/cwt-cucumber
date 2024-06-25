@@ -8,12 +8,14 @@ namespace cwt::details
 
 void parse_scenario(lexer& lex, cuke::ast::node& scenario_node)
 {
+  using namespace cwt::details;
+
   lex.skip_linebreaks();
   lex.consume(token_type::scenario, "Expect: Scenario");
-  scenario_node.infos.type = cuke::ast::node_type::scenario;
+  scenario_node.type = cuke::ast::node_type::scenario;
   do
   {
-    if (lex.match(cwt::details::token_type::step))
+    if (lex.match(token_type::step))
     {
       cuke::ast::node n;
       // TODO
@@ -27,17 +29,15 @@ void parse_scenario(lexer& lex, cuke::ast::node& scenario_node)
       return;
     }
     lex.skip_linebreaks();
-  } while (lex.is_none_of(cwt::details::token_type::scenario,
-                          cwt::details::token_type::scenario_outline,
-                          cwt::details::token_type::tag,
-                          cwt::details::token_type::eof));
+  } while (lex.is_none_of(token_type::scenario, token_type::scenario_outline,
+                          token_type::tag, token_type::eof));
 
   // scenario_node.children.push_back( step node? )
 }
 
 void parse_feature(lexer& lex, cuke::ast::node& feature_node)
 {
-  feature_node.infos.type = cuke::ast::node_type::feature;
+  feature_node.type = cuke::ast::node_type::feature;
 
   while (!lex.check(cwt::details::token_type::eof))
   {
@@ -68,12 +68,41 @@ void parse_feature(lexer& lex, cuke::ast::node& feature_node)
   }
 }
 
+void parse_document(lexer& lex, cuke::ast::node& head)
+{
+  lex.advance();
+  lex.skip_linebreaks();
+  cuke::ast::node feature;
+
+  while (lex.current().type == cwt::details::token_type::tag)
+  {
+    // feature.tags.pushgback ..
+  }
+  if (lex.match(cwt::details::token_type::feature))
+  {
+    parse_feature(lex, feature);
+  }
+  else 
+  {
+    lex.error_at(lex.current(), "Expect FeatureLine");
+  }
+  head.children.push_back(feature);
+}
+cuke::ast::node make_ast(std::string_view document)
+{
+  cwt::details::lexer lex(document);
+  cuke::ast::node head;
+  head.type = cuke::ast::node_type::gherkin_document;
+  parse_document(lex, head);
+  return head;
+}
+
 class parser
 {
  public:
   parser(std::string_view src) : m_lexer(src)
   {
-    m_head.infos.type = cuke::ast::node_type::gherkin_document;
+    m_head.type = cuke::ast::node_type::gherkin_document;
   }
   cuke::ast::node& head() noexcept { return m_head; }
   void parse()

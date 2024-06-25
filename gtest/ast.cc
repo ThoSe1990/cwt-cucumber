@@ -19,9 +19,20 @@ TEST(ast, feature)
 )*";
   cwt::details::parser p(script);
   p.parse();
-  EXPECT_EQ(p.head().infos.type, cuke::ast::node_type::gherkin_document);
-  EXPECT_EQ(p.head().children[0].infos.type, cuke::ast::node_type::feature);
+  EXPECT_EQ(p.head().type, cuke::ast::node_type::gherkin_document);
+  EXPECT_EQ(p.head().children[0].type, cuke::ast::node_type::feature);
 }
+
+TEST(ast, make_ast)
+{
+  const char* script = R"*(
+  Feature:
+)*";
+  cuke::ast::node head = cwt::details::make_ast(script); 
+  EXPECT_EQ(head.type, cuke::ast::node_type::gherkin_document);
+  EXPECT_EQ(head.children[0].type, cuke::ast::node_type::feature);
+}
+
 
 TEST(ast, feature_wo_parser) 
 {
@@ -29,7 +40,7 @@ TEST(ast, feature_wo_parser)
   cwt::details::lexer lex(script);
   cuke::ast::node node;
   cwt::details::parse_feature(lex, node);
-  EXPECT_EQ(node.infos.type, cuke::ast::node_type::feature);
+  EXPECT_EQ(node.type, cuke::ast::node_type::feature);
 }
 
 TEST(ast, scenario)
@@ -41,7 +52,7 @@ TEST(ast, scenario)
   cwt::details::parser p(script);
   p.parse();
   EXPECT_EQ(p.head().children.size(), 1);
-  EXPECT_EQ(p.head().children[0].infos.type, cuke::ast::node_type::feature); 
+  EXPECT_EQ(p.head().children[0].type, cuke::ast::node_type::feature); 
 }
 TEST(ast, scenario_wo_parser)
 {
@@ -50,5 +61,5 @@ TEST(ast, scenario_wo_parser)
   lex.advance();
   cuke::ast::node node;
   cwt::details::parse_scenario(lex, node);
-  EXPECT_EQ(node.infos.type, cuke::ast::node_type::scenario);
+  EXPECT_EQ(node.type, cuke::ast::node_type::scenario);
 }
