@@ -48,7 +48,7 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
 
-  while (!lex.check(token_type::eof)) 
+  while (!lex.check(token_type::eof))
   {
     auto tags = parse_tags(lex);
     if (lex.check(token_type::scenario))
@@ -56,10 +56,11 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
       auto [key, name] = parse_keyword_and_name(lex);
       scenarios.push_back(std::make_unique<cuke::ast::scenario_node>());
     }
-    else 
+    else
     {
-      // TODO proper error 
-      std::cout << "[Error] wrong token " << (int)lex.current().type << ' ' << lex.current().value << std::endl;
+      // TODO proper error
+      std::cout << "[Error] wrong token " << (int)lex.current().type << ' '
+                << lex.current().value << std::endl;
       break;
     }
   }
@@ -74,6 +75,7 @@ cuke::ast::feature_node parse_feature(lexer& lex)
     lex.error_at(lex.current(), "Expect FeatureLine");
     return cuke::ast::feature_node();
   }
+  const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex);
   auto description = parse_description(
       lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
@@ -81,8 +83,9 @@ cuke::ast::feature_node parse_feature(lexer& lex)
 
   auto scenarios = parse_scenarios(lex);
 
-  return cuke::ast::feature_node(key, name, std::move(scenarios), tags,
-                                 description);
+  return cuke::ast::feature_node(std::move(key), std::move(name),
+                                 lex.filepath(), line, std::move(scenarios),
+                                 std::move(tags), std::move(description));
 }
 
 }  // namespace cwt::details
@@ -90,11 +93,29 @@ cuke::ast::feature_node parse_feature(lexer& lex)
 namespace cuke
 {
 
+// TODO 
+// struct file
+// {
+//   std::string path;
+//   std::string content;
+// };
+
+// TODO
+// [[nodiscard]] file read_file(std::string_view src)
+// {
+// TODO ...
+// }
+
 class parser
 {
  public:
   const cuke::ast::gherkin_document& head() const noexcept { return m_head; }
-  
+
+  void parse_from_file(std::string_view filepath)
+  {
+    // TODO ...
+  }
+
   void parse_script(std::string_view script)
   {
     using namespace cwt::details;

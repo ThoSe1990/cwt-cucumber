@@ -15,7 +15,7 @@ lexer::lexer(std::string_view source, bool_operators)
 
 const token& lexer::current() const noexcept { return m_current; }
 const token& lexer::previous() const noexcept { return m_previous; }
-
+const std::string& lexer::filepath() const noexcept { return m_filepath; }
 bool lexer::error() const noexcept { return m_error; }
 
 void lexer::error_at(const token& t, std::string_view msg) noexcept

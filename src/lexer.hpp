@@ -13,7 +13,8 @@ class lexer
   lexer(const file& f);
   lexer(std::string_view source);
   lexer(std::string_view source, bool_operators);
-  
+
+  [[nodiscard]] const std::string& filepath() const noexcept;  
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;

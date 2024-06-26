@@ -22,10 +22,12 @@ class node
 {
  public:
   node() = default;
-  node(node_type type, const std::string& keyword = "",
-       const std::string& name = "", const std::string& file = "",
-       std::size_t line = 0)
-      : m_type(type), m_location{file, line}, m_keyword(keyword), m_name(name)
+  node(node_type type, std::string&& keyword, std::string&& name,
+       std::size_t line, const std::string& file = "")
+      : m_type(type),
+        m_keyword(std::move(keyword)),
+        m_name(std::move(name)),
+        m_location{line, file}
   {
   }
 
@@ -40,27 +42,24 @@ class node
 
  private:
   node_type m_type;
-  struct
-  {
-    std::string file{""};
-    std::size_t line{0};
-  } m_location;
   std::string m_keyword{""};
   std::string m_name{""};
+  struct
+  {
+    std::size_t line{0};
+    std::string file{""};
+  } m_location;
 };
-
 
 class background_node : public node
 {
  public:
 };
 
-
 class step : public node
 {
  public:
 };
-
 
 class scenario_node : public node
 {
@@ -73,7 +72,6 @@ class scenario_node : public node
   // ... steps
 };
 
-
 class scenario_outline : public node
 {
  public:
@@ -81,16 +79,15 @@ class scenario_outline : public node
   std::vector<std::string> m_tags;
 };
 
-
 class feature_node : public node
 {
  public:
   feature_node() = default;
-  feature_node(const std::string& key, const std::string& name,
-               std::vector<std::unique_ptr<node>>&& scenarios,
-               const std::vector<std::string>& tags = {},
-               const std::vector<std::string>& description = {})
-      : node(node_type::feature, key, name),
+  feature_node(std::string&& key, std::string&& name, const std::string& file,
+               std::size_t line, std::vector<std::unique_ptr<node>>&& scenarios,
+               std::vector<std::string>&& tags,
+               std::vector<std::string>&& description)
+      : node(node_type::feature, std::move(key), std::move(name), line, file),
         m_scenarios(std::move(scenarios)),
         m_tags(tags),
         m_description(description)
@@ -121,12 +118,9 @@ class feature_node : public node
   std::unique_ptr<background_node> m_background;
 };
 
-
-class gherkin_document : public node
+class gherkin_document 
 {
  public:
-  gherkin_document() : node{node_type::gherkin_document} {}
-
   [[nodiscard]] const feature_node& feature() const { return *m_feature; }
   void clear() { m_feature.reset(); }
 
