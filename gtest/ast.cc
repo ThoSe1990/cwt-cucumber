@@ -74,7 +74,7 @@ TEST(ast, feature_w_scenario)
   lex.advance(); 
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
   EXPECT_EQ(feature.scenarios().size(), 1);
-  
+
 }
 
 // TEST(ast, make_ast)

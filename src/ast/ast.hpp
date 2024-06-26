@@ -51,14 +51,36 @@ class background_node : public node
 {
  public:
 };
+class step : public node
+{
+ public:
+};
+class scenario_node : public node
+{
+ public:
+  // scenario_node() : m_description("") {}
+
+ private:
+  std::vector<std::string> m_tags;
+  std::vector<std::string> m_description;
+  // ... steps
+};
+class scenario_outline : public node
+{
+ public:
+ private:
+  std::vector<std::string> m_tags;
+};
 class feature_node : public node
 {
  public:
   feature_node() = default;
   feature_node(const std::string& key, const std::string& name,
-               const std::vector<std::string>& tags,
+               std::vector<std::unique_ptr<node>>&& scenarios,
+               const std::vector<std::string>& tags = {},
                const std::vector<std::string>& description = {})
       : node(node_type::feature, key, name),
+        m_scenarios(std::move(scenarios)),
         m_tags(tags),
         m_description(description)
   {
@@ -82,10 +104,10 @@ class feature_node : public node
   }
 
  private:
+  std::vector<std::unique_ptr<node>> m_scenarios;
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
   std::unique_ptr<background_node> m_background;
-  std::vector<std::unique_ptr<node>> m_scenarios;
 };
 class gherkin_document : public node
 {
@@ -103,23 +125,6 @@ class gherkin_document : public node
 
  private:
   std::unique_ptr<feature_node> m_feature;
-};
-
-class scenario : public node
-{
- public:
- private:
-  std::vector<std::string> m_tags;
-};
-class scenario_outline : public node
-{
- public:
- private:
-  std::vector<std::string> m_tags;
-};
-class step : public node
-{
- public:
 };
 
 }  // namespace cuke::ast
