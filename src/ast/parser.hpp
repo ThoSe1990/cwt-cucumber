@@ -63,15 +63,6 @@ std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
 }
 std::vector<std::string> parse_tags(lexer& lex)
 {
-//   void compiler::read_tags()
-// {
-//   m_latest_tags->clear();
-//   while (m_lexer->check(token_type::tag))
-//   {
-//     m_latest_tags->push_back(std::string(m_lexer->current().value));
-//     m_lexer->advance();
-//   }
-// }
   std::vector<std::string> tags;
   while(lex.check(token_type::tag))
   {
@@ -84,46 +75,20 @@ std::vector<std::string> parse_tags(lexer& lex)
 cuke::ast::feature_node parse_feature(lexer& lex)
 {
   auto tags = parse_tags(lex);
+
   if (!lex.match(cwt::details::token_type::feature))
   {
     lex.error_at(lex.current(), "Expect FeatureLine");
-    // TODO
-    // return {};
+    return cuke::ast::feature_node();
   }
   auto [key, name] = parse_keyword_and_name(lex);
   auto description = parse_description(
       lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
       token_type::background, token_type::eof);
 
-  cuke::ast::feature_node feature(key, name, tags, description);
+  auto scenarios = parse_scenarios(lex);
 
-  // while (!lex.check(cwt::details::token_type::eof))
-  // {
-  //   lex.skip_linebreaks();
-  //   switch (lex.current().type)
-  //   {
-  //     case cwt::details::token_type::tag:
-  //     {
-  //       // TODO
-  //       // push tags to feature node
-  //       // node.tags.push(...);
-  //     }
-  //     break;
-  //     case cwt::details::token_type::scenario:
-  //     {
-  //       // parse_scenario(lex, node);
-  //     }
-  //     break;
-  //     default:
-  //     {
-  //       // TODO error
-  //       break;
-  //     }
-  //   }
-  //   // feature_node.push_back(node);
-  //   lex.advance();
-  // }
-  return feature;
+  return cuke::ast::feature_node(key, name, tags, description);
 }
 
 void parse_document(lexer& lex, cuke::ast::node& head)
@@ -197,6 +162,10 @@ class parser
     lex.advance();
     lex.skip_linebreaks();
     m_head.make_feature(parse_feature(lex));
+    if(lex.error())
+    {
+      m_head.clear();
+    }
   }
 
  private:

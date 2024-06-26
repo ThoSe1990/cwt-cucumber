@@ -16,6 +16,16 @@ TEST(ast, feature_w_parser)
   EXPECT_EQ(p.head().feature().keyword(), std::string("Feature:"));
   EXPECT_EQ(p.head().feature().name(), std::string("First Feature"));
 }
+TEST(ast, feature_error) 
+{
+  const char* script = "this is no feature";
+  cwt::details::lexer lex(script);
+  lex.advance();
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  EXPECT_TRUE(lex.error());
+  EXPECT_TRUE(feature.name().empty());
+  EXPECT_TRUE(feature.keyword().empty());
+}
 TEST(ast, feature)
 {
   const char* script = "Feature: A Feature";
@@ -54,6 +64,18 @@ TEST(ast, feature_w_tags)
   EXPECT_EQ(feature.tags().at(1), std::string("@tag2"));
 }
 
+TEST(ast, feature_w_scenario)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Scenario: A Scenario
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance(); 
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  EXPECT_EQ(feature.scenarios().size(), 1);
+  
+}
 
 // TEST(ast, make_ast)
 // {
