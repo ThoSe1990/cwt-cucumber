@@ -69,6 +69,9 @@ class lexer
 
  private:
   scanner m_scanner;
+  // TODO current & previous aren't initialized
+  // in parser/compiler we advance in constructors, we probably can 
+  // avoid that and advance in lexer's constructor.
   token m_current;
   token m_previous;
   bool m_error{false};

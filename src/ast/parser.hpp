@@ -36,52 +36,93 @@ namespace cwt::details
 //   // scenario_node.children.push_back( step node? )
 // }
 
-cuke::ast::feature_node parse_feature(lexer& lex)
+auto parse_keyword_and_name(lexer& lex)
 {
-  if (!lex.match(cwt::details::token_type::feature))
-  {
-    lex.error_at(lex.current(), "Expect FeatureLine");
-    // TODO 
-    // return {};
-  }
-  // 1. keyword 
   std::string key = create_string(lex.previous().value);
-  // 2. name 
   token begin = lex.current();
   lex.advance_to(token_type::linebreak, token_type::eof);
   token end = lex.previous();
+  lex.advance();
   std::string name = create_string(begin, end);
+  return std::make_pair(key, name);
+}
 
-  cuke::ast::feature_node feature(key, name);
-  // 3. eol
-  // 4. description
-  // 5. eol 
-  while (!lex.check(cwt::details::token_type::eof))
+template <typename... Ts>
+std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
+{
+  std::vector<std::string> lines;
+  while (!lex.match(std::forward<Ts>(terminators)...))
   {
-    lex.skip_linebreaks();
-    switch (lex.current().type)
-    {
-      case cwt::details::token_type::tag:
-      {
-        // TODO
-        // push tags to feature node
-        // node.tags.push(...);
-      }
-      break;
-      case cwt::details::token_type::scenario:
-      {
-        // parse_scenario(lex, node);
-      }
-      break;
-      default:
-      {
-        // TODO error
-        break;
-      }
-    }
-    // feature_node.push_back(node);
+    token begin = lex.current();
+    lex.advance_to(token_type::linebreak);
+    token end = lex.previous();
+    lex.advance();
+    lines.push_back(create_string(begin, end)); 
+  }
+  return lines;
+}
+std::vector<std::string> parse_tags(lexer& lex)
+{
+//   void compiler::read_tags()
+// {
+//   m_latest_tags->clear();
+//   while (m_lexer->check(token_type::tag))
+//   {
+//     m_latest_tags->push_back(std::string(m_lexer->current().value));
+//     m_lexer->advance();
+//   }
+// }
+  std::vector<std::string> tags;
+  while(lex.check(token_type::tag))
+  {
+    tags.push_back(create_string(lex.current().value));
     lex.advance();
   }
+  lex.skip_linebreaks();
+  return tags;
+}
+cuke::ast::feature_node parse_feature(lexer& lex)
+{
+  auto tags = parse_tags(lex);
+  if (!lex.match(cwt::details::token_type::feature))
+  {
+    lex.error_at(lex.current(), "Expect FeatureLine");
+    // TODO
+    // return {};
+  }
+  auto [key, name] = parse_keyword_and_name(lex);
+  auto description = parse_description(
+      lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
+      token_type::background, token_type::eof);
+
+  cuke::ast::feature_node feature(key, name, tags, description);
+
+  // while (!lex.check(cwt::details::token_type::eof))
+  // {
+  //   lex.skip_linebreaks();
+  //   switch (lex.current().type)
+  //   {
+  //     case cwt::details::token_type::tag:
+  //     {
+  //       // TODO
+  //       // push tags to feature node
+  //       // node.tags.push(...);
+  //     }
+  //     break;
+  //     case cwt::details::token_type::scenario:
+  //     {
+  //       // parse_scenario(lex, node);
+  //     }
+  //     break;
+  //     default:
+  //     {
+  //       // TODO error
+  //       break;
+  //     }
+  //   }
+  //   // feature_node.push_back(node);
+  //   lex.advance();
+  // }
   return feature;
 }
 
@@ -99,7 +140,7 @@ void parse_document(lexer& lex, cuke::ast::node& head)
   // {
   //   parse_feature(lex, feature);
   // }
-  // else 
+  // else
   // {
   //   lex.error_at(lex.current(), "Expect FeatureLine");
   // }
@@ -110,13 +151,13 @@ void parse_document(lexer& lex, cuke::ast::node& head)
 
 namespace cuke
 {
-  
+
 class parser
 {
  public:
   // parser(std::string_view src) //: m_lexer(src)
   // {
-    // m_head.type = cuke::ast::node_type::gherkin_document;
+  // m_head.type = cuke::ast::node_type::gherkin_document;
   // }
   const cuke::ast::gherkin_document& head() const noexcept { return m_head; }
   // void parse()
@@ -149,28 +190,17 @@ class parser
   //   // m_head.children.push_back(node);
   // }
 
-  void parse_document(std::string_view document)
+  void parse_script(std::string_view script)
   {
     using namespace cwt::details;
-    lexer lex(document);
+    lexer lex(script);
     lex.advance();
     lex.skip_linebreaks();
-    // std::vector<std::string> tags;
-    // while (lex.check(cwt::details::token_type::tag)) 
-    // {
-    //   // tags.push_back(...)
-    // }
-  // better: 
-  // auto tags = parse_tags(lex); 
-  auto feature = parse_feature(lex); 
-
-  m_head.m_type = cuke::ast::node_type::gherkin_document;
-  m_head.m_feature = std::make_unique<cuke::ast::feature_node>(feature);
-
+    m_head.make_feature(parse_feature(lex));
   }
 
  private:
   cuke::ast::gherkin_document m_head;
 };
 
-} // namespace cuke
+}  // namespace cuke

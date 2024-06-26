@@ -20,43 +20,68 @@ enum class node_type
 class node
 {
  public:
-  virtual ~node() = default;
-  // virtual void visit(visitor& v) = 0; 
+  node(node_type type, const std::string& keyword = "",
+       const std::string& name = "", const std::string& file = "",
+       std::size_t line = 0)
+      : m_type(type), m_location{file, line}, m_keyword(keyword), m_name(name)
+  {
+  }
 
-//  private:
+  virtual ~node() = default;
+  // virtual void visit(visitor& v) = 0;
+
+  node_type type() const { return m_type; }
+  const std::string& name() const { return m_name; }
+  const std::string& keyword() const { return m_keyword; }
+  const std::string& file() const { return m_location.file; }
+  std::size_t line() const { return m_location.line; }
+
+ private:
+  node_type m_type;
   struct
   {
-    std::string file;
-    std::size_t line;
+    std::string file{""};
+    std::size_t line{0};
   } m_location;
-  std::string m_keyword;
-  std::string m_name;
+  std::string m_keyword{""};
+  std::string m_name{""};
 };
 
 class feature_node : public node
 {
  public:
-  feature_node(const std::string& key, const std::string& name) 
+  feature_node(const std::string& key, const std::string& name,
+               const std::vector<std::string>& tags,
+               const std::vector<std::string>& description = {})
+      : node(node_type::feature, key, name),
+        m_tags(tags),
+        m_description(description)
   {
-    m_keyword = key;
-    m_name = name;
+  }
+  const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
   }
 
-  const std::string& name() const { return m_name; }
-  const std::string& keyword() const { return m_keyword; }
  private:
   std::vector<std::string> m_tags;
-  std::vector<node> m_scenarios;
+  std::vector<std::string> m_description;
+  std::vector<std::unique_ptr<node>> m_scenarios;
 };
 class gherkin_document : public node
 {
  public:
-  node_type type() const { return m_type; }
+  gherkin_document() : node{node_type::gherkin_document} {}
   const feature_node& feature() const { return *m_feature; }
-  
-//  private:
- node_type m_type;
- std::unique_ptr<feature_node> m_feature;
+  template <typename... Args>
+  void make_feature(Args&&... args)
+  {
+    m_feature = std::make_unique<feature_node>(std::forward<Args>(args)...);
+  }
+
+ private:
+  std::unique_ptr<feature_node> m_feature;
 };
 class background : public node
 {
@@ -80,4 +105,3 @@ class step : public node
 };
 
 }  // namespace cuke::ast
-
