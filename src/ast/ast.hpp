@@ -17,6 +17,7 @@ enum class node_type
   scenario,
   scenario_outline
 };
+
 class node
 {
  public:
@@ -47,14 +48,20 @@ class node
   std::string m_keyword{""};
   std::string m_name{""};
 };
+
+
 class background_node : public node
 {
  public:
 };
+
+
 class step : public node
 {
  public:
 };
+
+
 class scenario_node : public node
 {
  public:
@@ -65,12 +72,16 @@ class scenario_node : public node
   std::vector<std::string> m_description;
   // ... steps
 };
+
+
 class scenario_outline : public node
 {
  public:
  private:
   std::vector<std::string> m_tags;
 };
+
+
 class feature_node : public node
 {
  public:
@@ -109,6 +120,8 @@ class feature_node : public node
   std::vector<std::string> m_description;
   std::unique_ptr<background_node> m_background;
 };
+
+
 class gherkin_document : public node
 {
  public:
