@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string_view>
 
 #include "ast.hpp"
@@ -44,6 +46,30 @@ std::vector<std::string> parse_tags(lexer& lex)
   lex.skip_linebreaks();
   return tags;
 }
+std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
+{
+  using namespace cwt::details;
+  std::vector<cuke::ast::step_node> steps;
+  do
+  {
+    if (lex.check(token_type::step))
+    {
+      auto [key, text] = parse_keyword_and_name(lex);
+      std::cout << "keyword: " << key << "  text: " << text << std::endl;
+      // TODO constructor step_node
+      // TODO datatables + doc strings 
+      steps.push_back(cuke::ast::step_node{});
+    }
+    else
+    {
+      lex.error_at(lex.current(), "Expect Step line");
+      return {};
+    }
+  } while (lex.is_none_of(token_type::scenario, token_type::scenario_outline,
+                          token_type::tag, token_type::eof));
+  return steps;
+}
+
 std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
@@ -53,8 +79,16 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
     auto tags = parse_tags(lex);
     if (lex.check(token_type::scenario))
     {
+      const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
-      scenarios.push_back(std::make_unique<cuke::ast::scenario_node>());
+      auto steps = parse_steps(lex);
+      // TODO tags +description  
+      std::vector<std::string> tags{};
+      std::vector<std::string> description{};
+
+      scenarios.push_back(std::make_unique<cuke::ast::scenario_node>(
+          std::move(key), std::move(name), lex.filepath(), line,
+          std::move(steps), std::move(tags), std::move(description)));
     }
     else
     {
@@ -93,7 +127,7 @@ cuke::ast::feature_node parse_feature(lexer& lex)
 namespace cuke
 {
 
-// TODO 
+// TODO
 // struct file
 // {
 //   std::string path;
