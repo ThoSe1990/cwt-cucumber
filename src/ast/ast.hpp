@@ -58,10 +58,24 @@ class background_node : public node
 class step_node : public node
 {
  public:
+  step_node(std::string&& key, std::string&& name, const std::string& file,
+            std::size_t line, std::vector<std::string>&& doc_string)
+      : node(std::move(key), std::move(name), line, file),
+        m_doc_string(std::move(doc_string))
+  {
+  }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::step;
   }
+
+  const std::vector<std::string>& doc_string() const noexcept
+  {
+    return m_doc_string;
+  }
+
+ private:
+  std::vector<std::string> m_doc_string;
 };
 
 class scenario_node : public node

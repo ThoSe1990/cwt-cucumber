@@ -46,6 +46,20 @@ std::vector<std::string> parse_tags(lexer& lex)
   lex.skip_linebreaks();
   return tags;
 }
+std::vector<std::string> parse_doc_string(lexer& lex)
+{
+  if (lex.match(token_type::doc_string))
+  {
+    std::cout << lex.previous().value << std::endl;
+    // TODO string split by linebreak;
+    // return vector<string> 1 ... last-1 
+  }
+  else 
+  {
+    std::cout << "no doc string ... " << std::endl;
+  }
+  return {};
+}
 std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
 {
   using namespace cwt::details;
@@ -54,11 +68,12 @@ std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
   {
     if (lex.check(token_type::step))
     {
-      auto [key, text] = parse_keyword_and_name(lex);
-      std::cout << "keyword: " << key << "  text: " << text << std::endl;
-      // TODO constructor step_node
-      // TODO datatables + doc strings 
-      steps.push_back(cuke::ast::step_node{});
+      const std::size_t line = lex.current().line;
+      auto [key, name] = parse_keyword_and_name(lex);
+      std::vector<std::string> doc_string = parse_doc_string(lex);
+      // TODO: data table 
+      steps.push_back(cuke::ast::step_node(std::move(key), std::move(name),
+                                           lex.filepath(), line, std::move(doc_string)));
     }
     else
     {
@@ -82,7 +97,7 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
       const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
       auto steps = parse_steps(lex);
-      // TODO tags +description  
+      // TODO tags +description
       std::vector<std::string> tags{};
       std::vector<std::string> description{};
 

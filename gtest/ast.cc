@@ -84,11 +84,61 @@ TEST(ast, scenario_w_steps)
   Given A step with value 5 
   )*";
   cwt::details::lexer lex(script);
-  lex.advance(); // TODO delete me
+  lex.advance();  // TODO delete me
 
   auto scenarios = cwt::details::parse_scenarios(lex);
   ASSERT_EQ(scenarios.size(), 1);
+}
 
-  auto& s = static_cast<cuke::ast::scenario_node&>(*scenarios.at(0));
-  EXPECT_EQ(s.steps().size(), 1);
+TEST(ast, parse_step)
+{
+  const char* script = "Given A step with value 5";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_EQ(steps.size(), 1);
+  EXPECT_EQ(steps.at(0).keyword(), std::string("Given"));
+  EXPECT_EQ(steps.at(0).name(), std::string("A step with value 5"));
+  EXPECT_TRUE(steps.at(0).doc_string().empty());
+}
+TEST(ast, parse_step_w_doc_string)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    """
+    this is 
+    a multiline 
+    doc string
+    """ 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.at(0).doc_string().size(), 3);
+  EXPECT_EQ(steps.at(0).doc_string().at(0), std::string("this is"));
+  EXPECT_EQ(steps.at(0).doc_string().at(1), std::string("a multiline"));
+  EXPECT_EQ(steps.at(0).doc_string().at(2), std::string("doc string"));
+}
+TEST(ast, parse_step_w_doc_string_w_backticks)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    ``` 
+    this is 
+    a multiline 
+    doc string
+    ``` 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.at(0).doc_string().size(), 3);
+  EXPECT_EQ(steps.at(0).doc_string().at(0), std::string("this is"));
+  EXPECT_EQ(steps.at(0).doc_string().at(1), std::string("a multiline"));
+  EXPECT_EQ(steps.at(0).doc_string().at(2), std::string("doc string"));
 }
