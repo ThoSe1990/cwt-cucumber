@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ranges>
 #include <string_view>
 
 #include "ast.hpp"
@@ -8,8 +9,7 @@
 
 namespace cwt::details
 {
-
-auto parse_keyword_and_name(lexer& lex)
+[[nodiscard]] auto parse_keyword_and_name(lexer& lex)
 {
   std::string key = create_string(lex.current().value);
   lex.advance();
@@ -20,9 +20,8 @@ auto parse_keyword_and_name(lexer& lex)
   std::string name = create_string(begin, end);
   return std::make_pair(key, name);
 }
-
 template <typename... Ts>
-std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
+[[nodiscard]] std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
 {
   std::vector<std::string> lines;
   while (!lex.check(std::forward<Ts>(terminators)...))
@@ -35,7 +34,8 @@ std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
   }
   return lines;
 }
-std::vector<std::string> parse_tags(lexer& lex)
+
+[[nodiscard]] std::vector<std::string> parse_tags(lexer& lex)
 {
   std::vector<std::string> tags;
   while (lex.check(token_type::tag))
@@ -46,21 +46,46 @@ std::vector<std::string> parse_tags(lexer& lex)
   lex.skip_linebreaks();
   return tags;
 }
-std::vector<std::string> parse_doc_string(lexer& lex)
+
+[[nodiscard]] std::string trim(const std::string& str)
 {
+  auto is_space = [](char c)
+  { return std::isspace(static_cast<unsigned char>(c)); };
+  auto start = std::find_if_not(str.begin(), str.end(), is_space);
+  auto end = std::find_if_not(str.rbegin(), str.rend(), is_space).base();
+  return (start < end ? std::string(start, end) : "");
+}
+
+[[nodiscard]] std::vector<std::string> doc_string_to_vector(const std::string_view s,
+                                              std::size_t lines_count)
+{
+  auto lines_view = s | std::ranges::views::split('\n');
+  std::vector<std::string> lines;
+  lines.reserve(lines_count);
+  for (auto&& line : lines_view | std::views::drop(1))
+  {
+    lines.push_back(trim(std::string(line.begin(), line.end())));
+  }
+  lines.pop_back();
+  return lines;
+}
+
+[[nodiscard]] std::vector<std::string> parse_doc_string(lexer& lex)
+{
+  const std::size_t begin = lex.previous().line;
   if (lex.match(token_type::doc_string))
   {
-    std::cout << lex.previous().value << std::endl;
-    // TODO string split by linebreak;
-    // return vector<string> 1 ... last-1 
+    const std::size_t lines_count = lex.current().line - begin;
+    std::string_view doc_string = lex.previous().value;
+    return doc_string_to_vector(doc_string, lines_count);
   }
-  else 
+  else
   {
-    std::cout << "no doc string ... " << std::endl;
+    return {};
   }
-  return {};
 }
-std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
+
+[[nodiscard]] std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
 {
   using namespace cwt::details;
   std::vector<cuke::ast::step_node> steps;
@@ -71,9 +96,13 @@ std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
       const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
       std::vector<std::string> doc_string = parse_doc_string(lex);
-      // TODO: data table 
+
+      // TODO: data table
+
       steps.push_back(cuke::ast::step_node(std::move(key), std::move(name),
-                                           lex.filepath(), line, std::move(doc_string)));
+                                           lex.filepath(), line,
+                                           std::move(doc_string)));
+      lex.skip_linebreaks();
     }
     else
     {
@@ -85,7 +114,7 @@ std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
   return steps;
 }
 
-std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
+[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
 
@@ -115,7 +144,8 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
   }
   return std::move(scenarios);
 }
-cuke::ast::feature_node parse_feature(lexer& lex)
+
+[[nodiscard]] cuke::ast::feature_node parse_feature(lexer& lex)
 {
   auto tags = parse_tags(lex);
 
