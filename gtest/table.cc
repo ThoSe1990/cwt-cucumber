@@ -143,3 +143,44 @@ TEST(table, rows_hash_more_than_2_cols)
     std::runtime_error
   );
 }
+TEST(table, initialize_w_single_row)
+{
+  cuke::value_array row{cuke::value(1), cuke::value(2), cuke::value(3)};
+  cuke::table t(std::move(row));
+
+  ASSERT_TRUE(row.empty());
+  ASSERT_EQ(t.cells_count(), 3);
+  ASSERT_EQ(t.row_count(), 1);
+
+  EXPECT_EQ(t[0][0].as<int>(), 1);
+  EXPECT_EQ(t[0][1].as<int>(), 2);
+  EXPECT_EQ(t[0][2].as<int>(), 3);
+}
+TEST(table, append_row)
+{
+  cuke::value_array row{cuke::value(1), cuke::value(2), cuke::value(3)};
+  cuke::table t(std::move(row));
+
+  cuke::value_array append_me{cuke::value(100), cuke::value(101), cuke::value(102)};
+  ASSERT_TRUE(t.append_row(std::move(append_me)));
+
+  ASSERT_TRUE(append_me.empty());
+  ASSERT_EQ(t.cells_count(), 6);
+  ASSERT_EQ(t.row_count(), 2);
+
+  EXPECT_EQ(t[1][0].as<int>(), 100);
+  EXPECT_EQ(t[1][1].as<int>(), 101);
+  EXPECT_EQ(t[1][2].as<int>(), 102);
+}
+TEST(table, append_row_failing_case)
+{
+  cuke::value_array row{cuke::value(1), cuke::value(2)};
+  cuke::table t(std::move(row));
+
+  cuke::value_array append_me{cuke::value(100), cuke::value(101), cuke::value(102)};
+  ASSERT_FALSE(t.append_row(std::move(append_me)));
+
+  ASSERT_FALSE(append_me.empty());
+  ASSERT_EQ(t.cells_count(), 2);
+  ASSERT_EQ(t.row_count(), 1);
+}

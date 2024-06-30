@@ -2,7 +2,11 @@
 
 namespace cuke
 {
-
+table::table(value_array&& row)
+    : m_data(std::move(row)), m_col_count(m_data.size())
+{
+  row.clear();
+}
 table::table(value_array data, std::size_t col_count)
     : m_data(std::move(data)), m_col_count(col_count)
 {
@@ -15,6 +19,21 @@ table::table(value_array data, std::size_t col_count)
   }
 }
 
+bool table::append_row(value_array&& row)
+{
+  if (m_col_count != row.size())
+  {
+    return false;
+  }
+  else
+  {
+    m_data.reserve(m_data.size() + m_col_count);
+    m_data.insert(m_data.end(), std::make_move_iterator(row.begin()),
+                  std::make_move_iterator(row.end()));
+    row.clear();
+    return true;
+  }
+}
 std::size_t table::row_count() const noexcept
 {
   return m_data.size() / m_col_count;

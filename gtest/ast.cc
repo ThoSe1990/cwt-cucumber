@@ -142,3 +142,218 @@ TEST(ast, parse_step_w_doc_string_w_backticks)
   EXPECT_EQ(steps.at(0).doc_string().at(1), std::string("a multiline"));
   EXPECT_EQ(steps.at(0).doc_string().at(2), std::string("doc string"));
 }
+
+TEST(ast, multiple_steps)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    Then Another step
+    And One more
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 3);
+
+  EXPECT_EQ(steps.at(0).keyword(), std::string("Given"));
+  EXPECT_EQ(steps.at(1).keyword(), std::string("Then"));
+  EXPECT_EQ(steps.at(2).keyword(), std::string("And"));
+
+  EXPECT_EQ(steps.at(0).name(), std::string("A step with value 5"));
+  EXPECT_EQ(steps.at(1).name(), std::string("Another step"));
+  EXPECT_EQ(steps.at(2).name(), std::string("One more"));
+}
+TEST(ast, multiple_steps_w_docstring)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    Then Another step
+    """   
+    a multi line
+    doc string
+    is here 
+    """  
+    And One more
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 3);
+
+  ASSERT_EQ(steps.at(1).doc_string().size(), 3);
+  EXPECT_EQ(steps.at(1).doc_string().at(0), std::string("a multi line"));
+  EXPECT_EQ(steps.at(1).doc_string().at(1), std::string("doc string"));
+  EXPECT_EQ(steps.at(1).doc_string().at(2), std::string("is here"));
+}
+TEST(ast, multiple_steps_error)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    Then Another step
+    this line is invalid! 
+    """  
+    a multi line
+    doc string
+    is here 
+    """  
+    And One more
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_TRUE(lex.error());
+  ASSERT_EQ(steps.size(), 0);
+}
+
+TEST(ast, empty_datatable)
+{
+  const char* script = R"*(
+    Given A step with value 5
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  EXPECT_EQ(steps.at(0).data_table().cells_count(), 0);
+}
+
+TEST(ast, datatable)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2 |
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 1);
+  ASSERT_EQ(steps.at(0).data_table().cells_count(), 2);
+  ASSERT_EQ(steps.at(0).data_table().row_count(), 1);
+  EXPECT_EQ(steps.at(0).data_table()[0][0].as<int>(), 1);
+  EXPECT_EQ(steps.at(0).data_table()[0][1].as<int>(), 2);
+}
+TEST(ast, datatable_w_string_and_word)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | "some string" | a_word |
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 1);
+  ASSERT_EQ(steps.at(0).data_table().cells_count(), 2);
+  ASSERT_EQ(steps.at(0).data_table().row_count(), 1);
+  EXPECT_EQ(steps.at(0).data_table()[0][0].as<std::string>(),
+            std::string("some string"));
+  EXPECT_EQ(steps.at(0).data_table()[0][1].as<std::string>(),
+            std::string("a_word"));
+}
+TEST(ast, datatable_missing_vertical)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_TRUE(lex.error());
+  ASSERT_EQ(steps.size(), 1);
+}
+
+TEST(ast, datatable_multi_row)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2 |
+    | 3 | 4 | 
+    | 5 | 6 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 1);
+  ASSERT_EQ(steps.at(0).data_table().cells_count(), 6);
+  ASSERT_EQ(steps.at(0).data_table().row_count(), 3);
+  EXPECT_EQ(steps.at(0).data_table()[0][0].as<int>(), 1);
+  EXPECT_EQ(steps.at(0).data_table()[0][1].as<int>(), 2);
+  EXPECT_EQ(steps.at(0).data_table()[1][0].as<int>(), 3);
+  EXPECT_EQ(steps.at(0).data_table()[1][1].as<int>(), 4);
+  EXPECT_EQ(steps.at(0).data_table()[2][0].as<int>(), 5);
+  EXPECT_EQ(steps.at(0).data_table()[2][1].as<int>(), 6);
+}
+TEST(ast, datatable_multi_row_w_following_step)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2 |
+    | 3 | 4 | 
+    | 5 | 6 | 
+    And Another step 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(steps.size(), 2);
+  ASSERT_EQ(steps.at(0).data_table().cells_count(), 6);
+  ASSERT_EQ(steps.at(0).data_table().row_count(), 3);
+  EXPECT_EQ(steps.at(0).data_table()[0][0].as<int>(), 1);
+  EXPECT_EQ(steps.at(0).data_table()[0][1].as<int>(), 2);
+  EXPECT_EQ(steps.at(0).data_table()[1][0].as<int>(), 3);
+  EXPECT_EQ(steps.at(0).data_table()[1][1].as<int>(), 4);
+  EXPECT_EQ(steps.at(0).data_table()[2][0].as<int>(), 5);
+  EXPECT_EQ(steps.at(0).data_table()[2][1].as<int>(), 6);
+}
+
+
+TEST(ast, datatable_multi_row_error)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2 |
+    | 3 | 4  
+    | 5 | 6 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_TRUE(lex.error());
+}
+
+TEST(ast, datatable_multi_row_wrong_row_size)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    | 1 | 2 |
+    | 3 | 4 | 5 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cwt::details::parse_steps(lex);
+  ASSERT_TRUE(lex.error());
+}

@@ -26,6 +26,8 @@ class table
   table(table&&) = default;
   table& operator=(const table&) = default;
   table& operator=(table&&) = default;
+  table(value_array&& data);
+  // TODO data should be rvalue ref? value_array&& data
   table(value_array data, std::size_t col_count);
 
   /**
@@ -140,6 +142,18 @@ class table
     value_array::const_iterator m_end;
     std::size_t m_col_count;
   };
+
+
+  /**
+   * @brief Appends a row to the datatable
+   *
+   * Appending a row only works if the given row is the same
+   * length as the rows in the existing table. 
+   * 
+   * @param data Data to be appended
+   * @return Returns true if data is appended succesfully
+   */
+  [[nodiscard]] bool append_row(value_array&& data);
 
   /**
    * @brief Returns the number of rows

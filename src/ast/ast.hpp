@@ -2,6 +2,7 @@
 
 #include "../lexer.hpp"
 #include "../token.hpp"
+#include "../table.hpp"
 
 #include <string>
 #include <vector>
@@ -59,9 +60,9 @@ class step_node : public node
 {
  public:
   step_node(std::string&& key, std::string&& name, const std::string& file,
-            std::size_t line, std::vector<std::string>&& doc_string)
+            std::size_t line, std::vector<std::string>&& doc_string, cuke::table&& data_table)
       : node(std::move(key), std::move(name), line, file),
-        m_doc_string(std::move(doc_string))
+        m_doc_string(std::move(doc_string)), m_table(std::move(data_table))
   {
   }
   [[nodiscard]] node_type type() const noexcept override
@@ -73,9 +74,15 @@ class step_node : public node
   {
     return m_doc_string;
   }
+  
+  const cuke::table& data_table() const noexcept
+  {
+    return m_table;
+  }
 
  private:
   std::vector<std::string> m_doc_string;
+  cuke::table m_table;
 };
 
 class scenario_node : public node

@@ -6,6 +6,7 @@
 #include "ast.hpp"
 #include "../token.hpp"
 #include "../util.hpp"
+#include "../table.hpp"
 
 namespace cwt::details
 {
@@ -21,7 +22,8 @@ namespace cwt::details
   return std::make_pair(key, name);
 }
 template <typename... Ts>
-[[nodiscard]] std::vector<std::string> parse_description(lexer& lex, Ts&&... terminators)
+[[nodiscard]] std::vector<std::string> parse_description(lexer& lex,
+                                                         Ts&&... terminators)
 {
   std::vector<std::string> lines;
   while (!lex.check(std::forward<Ts>(terminators)...))
@@ -56,8 +58,8 @@ template <typename... Ts>
   return (start < end ? std::string(start, end) : "");
 }
 
-[[nodiscard]] std::vector<std::string> doc_string_to_vector(const std::string_view s,
-                                              std::size_t lines_count)
+[[nodiscard]] std::vector<std::string> doc_string_to_vector(
+    const std::string_view s, std::size_t lines_count)
 {
   auto lines_view = s | std::ranges::views::split('\n');
   std::vector<std::string> lines;
@@ -84,7 +86,40 @@ template <typename... Ts>
     return {};
   }
 }
-
+[[nodiscard]] cuke::value_array parse_row(lexer& lex)
+{
+  cuke::value_array v;
+  while (!(lex.match(token_type::linebreak) || lex.match(token_type::eof)))
+  {
+    bool negative = lex.match(token_type::minus);
+    v.push_back(token_to_value(lex.current(), negative));
+    lex.advance();
+    if (!lex.match(token_type::vertical))
+    {
+      v.clear();
+      lex.error_at(lex.current(), "Expect '|' after value in data table");
+      break;
+    }
+  }
+  return v;
+}
+[[nodiscard]] cuke::table parse_table(lexer& lex)
+{
+  if (!lex.match(token_type::vertical))
+  {
+    return {};
+  }
+  cuke::table t(parse_row(lex));
+  while (lex.match(token_type::vertical))
+  {
+    if (!t.append_row(parse_row(lex)) || lex.error())
+    {
+      lex.error_at(lex.current(), "Different row lengths in data table");
+      return {};
+    }
+  }
+  return t;
+}
 [[nodiscard]] std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
 {
   using namespace cwt::details;
@@ -96,12 +131,12 @@ template <typename... Ts>
       const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
       std::vector<std::string> doc_string = parse_doc_string(lex);
+      cuke::table data_table = parse_table(lex);
 
-      // TODO: data table
+      steps.push_back(cuke::ast::step_node(
+          std::move(key), std::move(name), lex.filepath(), line,
+          std::move(doc_string), std::move(data_table)));
 
-      steps.push_back(cuke::ast::step_node(std::move(key), std::move(name),
-                                           lex.filepath(), line,
-                                           std::move(doc_string)));
       lex.skip_linebreaks();
     }
     else
@@ -114,7 +149,8 @@ template <typename... Ts>
   return steps;
 }
 
-[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(lexer& lex)
+[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(
+    lexer& lex)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
 
