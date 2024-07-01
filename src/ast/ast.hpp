@@ -60,9 +60,11 @@ class step_node : public node
 {
  public:
   step_node(std::string&& key, std::string&& name, const std::string& file,
-            std::size_t line, std::vector<std::string>&& doc_string, cuke::table&& data_table)
+            std::size_t line, std::vector<std::string>&& doc_string,
+            cuke::table&& data_table)
       : node(std::move(key), std::move(name), line, file),
-        m_doc_string(std::move(doc_string)), m_table(std::move(data_table))
+        m_doc_string(std::move(doc_string)),
+        m_table(std::move(data_table))
   {
   }
   [[nodiscard]] node_type type() const noexcept override
@@ -74,11 +76,8 @@ class step_node : public node
   {
     return m_doc_string;
   }
-  
-  const cuke::table& data_table() const noexcept
-  {
-    return m_table;
-  }
+
+  const cuke::table& data_table() const noexcept { return m_table; }
 
  private:
   std::vector<std::string> m_doc_string;
@@ -105,23 +104,33 @@ class scenario_node : public node
 
   const std::vector<step_node> steps() const noexcept { return m_steps; }
   const std::vector<std::string>& tags() const noexcept { return m_tags; }
-  const std::vector<std::string>& description() const noexcept { return m_description; }
+  const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
+  }
+
  private:
   std::vector<step_node> m_steps;
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
 };
 
-class scenario_outline : public node
+class scenario_outline_node : public scenario_node
 {
  public:
+  scenario_outline_node(std::string&& key, std::string&& name,
+                        const std::string& file, std::size_t line,
+                        std::vector<step_node>&& steps,
+                        std::vector<std::string>&& tags,
+                        std::vector<std::string>&& description)
+      : scenario_node(std::move(key), std::move(name), file, line,
+                      std::move(steps), std::move(tags), std::move(description))
+  {
+  }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::scenario_outline;
   }
-
- private:
-  std::vector<std::string> m_tags;
 };
 
 class feature_node : public node

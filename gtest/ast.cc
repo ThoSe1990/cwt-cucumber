@@ -73,6 +73,7 @@ TEST(ast, feature_w_scenario)
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
   ASSERT_EQ(feature.scenarios().size(), 1);
+  ASSERT_EQ(feature.scenarios().at(0)->type(), cuke::ast::node_type::scenario);
   EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
   EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
 }
@@ -87,7 +88,7 @@ TEST(ast, feature_w_descr_and_scenario)
   cwt::details::lexer lex(script);
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
-  EXPECT_EQ(feature.description().size(), 2); 
+  EXPECT_EQ(feature.description().size(), 2);
   ASSERT_EQ(feature.scenarios().size(), 1);
   EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
   EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
@@ -147,7 +148,7 @@ TEST(ast, scenario_w_description)
 
   auto scenarios = cwt::details::parse_scenarios(lex);
   ASSERT_EQ(scenarios.size(), 1);
-  
+
   cuke::ast::scenario_node& scenario =
       static_cast<cuke::ast::scenario_node&>(*scenarios.at(0));
   ASSERT_EQ(scenario.description().size(), 3);
@@ -158,7 +159,6 @@ TEST(ast, scenario_w_description)
   EXPECT_EQ(scenario.steps().at(0).keyword(), std::string("Given"));
   EXPECT_EQ(scenario.steps().at(0).name(), std::string("A step with value 5"));
 }
-
 
 TEST(ast, scenario_w_tags)
 {
@@ -444,4 +444,46 @@ TEST(ast, datatable_multi_row_wrong_row_size)
 
   auto steps = cwt::details::parse_steps(lex);
   ASSERT_TRUE(lex.error());
+}
+
+TEST(ast, feature_w_scenario_outline)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Scenario Outline: A Scenario Outline
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_EQ(feature.scenarios().size(), 1);
+  ASSERT_EQ(feature.scenarios().at(0)->type(),
+            cuke::ast::node_type::scenario_outline);
+  EXPECT_EQ(feature.scenarios().at(0)->keyword(),
+            std::string("Scenario Outline:"));
+  EXPECT_EQ(feature.scenarios().at(0)->name(),
+            std::string("A Scenario Outline"));
+}
+
+TEST(ast, feature_w_scenario_outline_steps)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Scenario Outline: A Scenario Outline
+  Given First Step
+  Then Next Step
+  And Another
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_EQ(feature.scenarios().size(), 1);
+
+  auto scenario_outline = static_cast<cuke::ast::scenario_outline_node&>(
+      *feature.scenarios().at(0));
+
+  ASSERT_EQ(scenario_outline.steps().size(), 3);
+  EXPECT_EQ(scenario_outline.steps().at(0).name(), std::string("First Step"));
+  EXPECT_EQ(scenario_outline.steps().at(1).name(), std::string("Next Step"));
+  EXPECT_EQ(scenario_outline.steps().at(2).name(), std::string("Another"));
 }

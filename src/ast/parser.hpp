@@ -150,7 +150,7 @@ template <typename... Ts>
     }
     else
     {
-      lex.error_at(lex.current(), "Expect Step line");
+      lex.error_at(lex.current(), "Expect Step, Scenario or Scenario Outline");
       return {};
     }
   } while (lex.is_none_of(token_type::scenario, token_type::scenario_outline,
@@ -158,6 +158,28 @@ template <typename... Ts>
   return steps;
 }
 
+[[nodiscard]] std::unique_ptr<cuke::ast::scenario_node> make_scenario(
+    lexer& lex, std::vector<std::string>&& tags)
+{
+  const std::size_t line = lex.current().line;
+  auto [key, name] = parse_keyword_and_name(lex);
+  auto description = parse_description(lex, token_type::step, token_type::eof);
+  auto steps = parse_steps(lex);
+  return std::make_unique<cuke::ast::scenario_node>(
+      std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
+      std::move(tags), std::move(description));
+}
+[[nodiscard]] std::unique_ptr<cuke::ast::scenario_outline_node>
+make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
+{
+  const std::size_t line = lex.current().line;
+  auto [key, name] = parse_keyword_and_name(lex);
+  auto description = parse_description(lex, token_type::step, token_type::eof);
+  auto steps = parse_steps(lex);
+  return std::make_unique<cuke::ast::scenario_outline_node>(
+      std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
+      std::move(tags), std::move(description));
+}
 [[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(
     lexer& lex)
 {
@@ -168,21 +190,15 @@ template <typename... Ts>
     auto tags = parse_tags(lex);
     if (lex.check(token_type::scenario))
     {
-      const std::size_t line = lex.current().line;
-      auto [key, name] = parse_keyword_and_name(lex);
-      auto description =
-          parse_description(lex, token_type::step, token_type::eof);
-      auto steps = parse_steps(lex);
-
-      scenarios.push_back(std::make_unique<cuke::ast::scenario_node>(
-          std::move(key), std::move(name), lex.filepath(), line,
-          std::move(steps), std::move(tags), std::move(description)));
+      scenarios.push_back(make_scenario(lex, std::move(tags)));
+    }
+    else if (lex.check(token_type::scenario_outline))
+    {
+      scenarios.push_back(make_scenario_outline(lex, std::move(tags)));
     }
     else
     {
-      // TODO proper error
-      std::cout << "[Error] wrong token " << (int)lex.current().type << ' '
-                << lex.current().value << std::endl;
+      lex.error_at(lex.current(), "Expect Tags, Scenario or Scenario Outline");
       break;
     }
   }
