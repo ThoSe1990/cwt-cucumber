@@ -76,6 +76,22 @@ TEST(ast, feature_w_scenario)
   EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
   EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
 }
+TEST(ast, feature_w_descr_and_scenario)
+{
+  const char* script = R"*(
+  Feature: A feature
+  some description
+  inserted here 
+  Scenario: A Scenario
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  EXPECT_EQ(feature.description().size(), 2); 
+  ASSERT_EQ(feature.scenarios().size(), 1);
+  EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
+  EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
+}
 
 TEST(ast, scenario_w_steps)
 {
@@ -88,6 +104,52 @@ TEST(ast, scenario_w_steps)
 
   auto scenarios = cwt::details::parse_scenarios(lex);
   ASSERT_EQ(scenarios.size(), 1);
+}
+
+TEST(ast, scenario_w_description)
+{
+  const char* script = R"*(
+  Scenario: A Scenario
+  with some 
+  multi line 
+  description
+  Given A step with value 5 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_EQ(scenarios.size(), 1);
+  
+  cuke::ast::scenario_node& scenario =
+      static_cast<cuke::ast::scenario_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario.description().size(), 3);
+  EXPECT_EQ(scenario.description().at(0), std::string("with some"));
+  EXPECT_EQ(scenario.description().at(1), std::string("multi line"));
+  EXPECT_EQ(scenario.description().at(2), std::string("description"));
+
+  EXPECT_EQ(scenario.steps().at(0).keyword(), std::string("Given"));
+  EXPECT_EQ(scenario.steps().at(0).name(), std::string("A step with value 5"));
+}
+
+
+TEST(ast, scenario_w_tags)
+{
+  const char* script = R"*(
+  @tag1 @tag2
+  Scenario: A Scenario
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_EQ(scenarios.size(), 1);
+
+  cuke::ast::scenario_node& scenario =
+      static_cast<cuke::ast::scenario_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario.tags().size(), 2);
+  EXPECT_EQ(scenario.tags().at(0), std::string("@tag1"));
+  EXPECT_EQ(scenario.tags().at(1), std::string("@tag2"));
 }
 
 TEST(ast, parse_step)
@@ -325,7 +387,6 @@ TEST(ast, datatable_multi_row_w_following_step)
   EXPECT_EQ(steps.at(0).data_table()[2][0].as<int>(), 5);
   EXPECT_EQ(steps.at(0).data_table()[2][1].as<int>(), 6);
 }
-
 
 TEST(ast, datatable_multi_row_error)
 {

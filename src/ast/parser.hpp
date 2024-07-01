@@ -61,14 +61,15 @@ template <typename... Ts>
 [[nodiscard]] std::vector<std::string> doc_string_to_vector(
     const std::string_view s, std::size_t lines_count)
 {
+  const std::size_t lines_count_wo_quotes = lines_count - 2;
   auto lines_view = s | std::ranges::views::split('\n');
   std::vector<std::string> lines;
-  lines.reserve(lines_count);
-  for (auto&& line : lines_view | std::views::drop(1))
+  lines.reserve(lines_count_wo_quotes);
+  for (auto&& line : lines_view | std::views::drop(1) |
+                         std::views::take(lines_count_wo_quotes))
   {
     lines.push_back(trim(std::string(line.begin(), line.end())));
   }
-  lines.pop_back();
   return lines;
 }
 
@@ -161,11 +162,9 @@ template <typename... Ts>
     {
       const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
+      auto description = parse_description(lex, token_type::step, token_type::eof);
       auto steps = parse_steps(lex);
-      // TODO tags +description
-      std::vector<std::string> tags{};
-      std::vector<std::string> description{};
-
+      
       scenarios.push_back(std::make_unique<cuke::ast::scenario_node>(
           std::move(key), std::move(name), lex.filepath(), line,
           std::move(steps), std::move(tags), std::move(description)));

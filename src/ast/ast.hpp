@@ -104,7 +104,8 @@ class scenario_node : public node
   }
 
   const std::vector<step_node> steps() const noexcept { return m_steps; }
-
+  const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  const std::vector<std::string>& description() const noexcept { return m_description; }
  private:
   std::vector<step_node> m_steps;
   std::vector<std::string> m_tags;
