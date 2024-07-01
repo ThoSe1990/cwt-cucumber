@@ -105,7 +105,34 @@ TEST(ast, scenario_w_steps)
   auto scenarios = cwt::details::parse_scenarios(lex);
   ASSERT_EQ(scenarios.size(), 1);
 }
+TEST(ast, scenarios_w_steps)
+{
+  const char* script = R"*(
+  Scenario: A Scenario
+  Given A step with value 5 
+  
+  Scenario: A Scenario
+  Given A step with value 5 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
 
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_EQ(scenarios.size(), 2);
+}
+TEST(ast, scenarios_wo_name)
+{
+  const char* script = R"*(
+  Scenario: 
+  Given A step with value 5 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_TRUE(scenarios.at(0)->name().empty());
+}
 TEST(ast, scenario_w_description)
 {
   const char* script = R"*(

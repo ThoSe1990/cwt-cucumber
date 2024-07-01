@@ -14,12 +14,20 @@ namespace cwt::details
 {
   std::string key = create_string(lex.current().value);
   lex.advance();
-  token begin = lex.current();
-  lex.advance_to(token_type::linebreak, token_type::eof);
-  token end = lex.previous();
-  lex.advance();
-  std::string name = create_string(begin, end);
-  return std::make_pair(key, name);
+  if (lex.current().type == token_type::linebreak)
+  {
+    lex.advance();
+    return std::make_pair(key, std::string(""));
+  }
+  else
+  {
+    token begin = lex.current();
+    lex.advance_to(token_type::linebreak, token_type::eof);
+    token end = lex.previous();
+    lex.advance();
+    std::string name = create_string(begin, end);
+    return std::make_pair(key, name);
+  }
 }
 template <typename... Ts>
 [[nodiscard]] std::vector<std::string> parse_description(lexer& lex,
@@ -162,9 +170,10 @@ template <typename... Ts>
     {
       const std::size_t line = lex.current().line;
       auto [key, name] = parse_keyword_and_name(lex);
-      auto description = parse_description(lex, token_type::step, token_type::eof);
+      auto description =
+          parse_description(lex, token_type::step, token_type::eof);
       auto steps = parse_steps(lex);
-      
+
       scenarios.push_back(std::make_unique<cuke::ast::scenario_node>(
           std::move(key), std::move(name), lex.filepath(), line,
           std::move(steps), std::move(tags), std::move(description)));
