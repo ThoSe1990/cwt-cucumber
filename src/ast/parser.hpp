@@ -14,20 +14,20 @@ namespace cwt::details
 {
   std::string key = create_string(lex.current().value);
   lex.advance();
-  if (lex.current().type == token_type::linebreak)
-  {
-    lex.advance();
-    return std::make_pair(key, std::string(""));
-  }
-  else
+
+  auto make_name = [](lexer& lex)
   {
     token begin = lex.current();
     lex.advance_to(token_type::linebreak, token_type::eof);
     token end = lex.previous();
-    lex.advance();
-    std::string name = create_string(begin, end);
-    return std::make_pair(key, name);
-  }
+    return create_string(begin, end);
+  };
+
+  std::string name = lex.current().type == token_type::linebreak
+                         ? std::string("")
+                         : make_name(lex);
+  lex.advance();
+  return std::make_pair(key, name);
 }
 template <typename... Ts>
 [[nodiscard]] std::vector<std::string> parse_description(lexer& lex,
