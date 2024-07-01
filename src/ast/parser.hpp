@@ -157,7 +157,24 @@ template <typename... Ts>
                           token_type::tag, token_type::eof));
   return steps;
 }
+[[nodiscard]] std::vector<cuke::ast::example_node> parse_examples(lexer& lex)
+{
 
+  return {};
+}
+[[nodiscard]] std::unique_ptr<cuke::ast::scenario_outline_node>
+make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
+{
+  const std::size_t line = lex.current().line;
+  auto [key, name] = parse_keyword_and_name(lex);
+  auto description = parse_description(lex, token_type::step, token_type::eof);
+  auto steps = parse_steps(lex);  
+  auto examples = parse_examples(lex);
+
+  return std::make_unique<cuke::ast::scenario_outline_node>(
+      std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
+      std::move(tags), std::move(description), std::move(examples));
+}
 [[nodiscard]] std::unique_ptr<cuke::ast::scenario_node> make_scenario(
     lexer& lex, std::vector<std::string>&& tags)
 {
@@ -166,17 +183,6 @@ template <typename... Ts>
   auto description = parse_description(lex, token_type::step, token_type::eof);
   auto steps = parse_steps(lex);
   return std::make_unique<cuke::ast::scenario_node>(
-      std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
-      std::move(tags), std::move(description));
-}
-[[nodiscard]] std::unique_ptr<cuke::ast::scenario_outline_node>
-make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
-{
-  const std::size_t line = lex.current().line;
-  auto [key, name] = parse_keyword_and_name(lex);
-  auto description = parse_description(lex, token_type::step, token_type::eof);
-  auto steps = parse_steps(lex);
-  return std::make_unique<cuke::ast::scenario_outline_node>(
       std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
       std::move(tags), std::move(description));
 }

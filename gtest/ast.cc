@@ -487,3 +487,31 @@ TEST(ast, feature_w_scenario_outline_steps)
   EXPECT_EQ(scenario_outline.steps().at(1).name(), std::string("Next Step"));
   EXPECT_EQ(scenario_outline.steps().at(2).name(), std::string("Another"));
 }
+
+TEST(ast, scenario_outline_w_example)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  Examples: 
+  | var 1 | var 2 | 
+  | 123   | 456   | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+
+  ASSERT_EQ(scenarios.size(), 1);
+
+  auto& scenario_outline = static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 1);
+  EXPECT_EQ(scenario_outline.examples().at(0).table().cells_count(), 4);
+  EXPECT_EQ(scenario_outline.examples().at(0).table().row_count(), 2);
+  EXPECT_EQ(scenario_outline.examples().at(0).table().col_count(), 2);
+  EXPECT_EQ(scenario_outline.examples().at(0).table()[0][0].as<std::string>(), std::string("var 1"));
+  EXPECT_EQ(scenario_outline.examples().at(0).table()[0][1].as<std::string>(), std::string("var 2"));
+  EXPECT_EQ(scenario_outline.examples().at(0).table()[1][0].as<int>(), 123);
+  EXPECT_EQ(scenario_outline.examples().at(0).table()[1][1].as<int>(), 456);
+}
