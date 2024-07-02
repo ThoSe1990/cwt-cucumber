@@ -133,49 +133,51 @@ template <typename... Ts>
 {
   using namespace cwt::details;
   std::vector<cuke::ast::step_node> steps;
-  do
+  // TODO delete me
+  // do
+  while (lex.check(token_type::step))
   {
-    if (lex.check(token_type::step))
-    {
-      const std::size_t line = lex.current().line;
-      auto [key, name] = parse_keyword_and_name(lex);
-      std::vector<std::string> doc_string = parse_doc_string(lex);
-      cuke::table data_table = parse_table(lex);
+    // if (lex.check(token_type::step))
+    // {
+    const std::size_t line = lex.current().line;
+    auto [key, name] = parse_keyword_and_name(lex);
+    std::vector<std::string> doc_string = parse_doc_string(lex);
+    cuke::table data_table = parse_table(lex);
 
-      steps.push_back(cuke::ast::step_node(
-          std::move(key), std::move(name), lex.filepath(), line,
-          std::move(doc_string), std::move(data_table)));
+    steps.push_back(cuke::ast::step_node(
+        std::move(key), std::move(name), lex.filepath(), line,
+        std::move(doc_string), std::move(data_table)));
 
-      lex.skip_linebreaks();
-    }
-    else
-    {
-      lex.error_at(lex.current(), "Expect Step, Scenario or Scenario Outline");
-      return {};
-    }
-  } while (lex.is_none_of(token_type::scenario, token_type::scenario_outline,
-                          token_type::tag, token_type::eof));
+    lex.skip_linebreaks();
+    // }
+    // else
+    // {
+    //   lex.error_at(lex.current(), "Expect Step, Scenario or Scenario
+    //   Outline"); return {};
+    // }
+  }  // while (lex.is_none_of(token_type::scenario,
+     // token_type::scenario_outline,
+     //                     token_type::tag, token_type::eof));
   return steps;
 }
 
 /*
-TODO: 
-  1. parse strings w/o quotes in table cell 
-  2. parse examples w/o error
-  3. examples: tags
-  4. examples: name 
-  5. examples description 
+TODO:
+  1. parse strings w/o quotes in table cell
+ ✅ 2. parse examples w/o error
+ ✅ 3. examples: tags
+ ✅ 4. examples: name
+ ✅ 5. examples description
   6. scenario outline w multiple examples
 */
 
 [[nodiscard]] std::vector<cuke::ast::example_node> parse_examples(lexer& lex)
 {
   const std::size_t line = lex.current().line;
-  auto tags = std::vector<std::string>{};  // parse_tags(lex);
+  auto tags = parse_tags(lex);
   auto [keyword, name] = parse_keyword_and_name(lex);
   auto description =
-      std::vector<std::string>{};  // parse_description(lex,
-                                   // token_type::vertical, token_type::eof);
+      parse_description(lex, token_type::vertical, token_type::eof);
   cuke::table t = parse_table(lex);
   return std::vector<cuke::ast::example_node>{cuke::ast::example_node(
       std::move(keyword), std::move(name), lex.filepath(), line,

@@ -283,7 +283,8 @@ TEST(ast, multiple_steps_error)
   const char* script = R"*(
     Given A step with value 5
     Then Another step
-    this line is invalid! 
+    this line is invalid!
+    -> error detection does not happen in parse_steps()
     """  
     a multi line
     doc string
@@ -295,8 +296,7 @@ TEST(ast, multiple_steps_error)
   lex.advance();  // TODO delete me
 
   auto steps = cwt::details::parse_steps(lex);
-  ASSERT_TRUE(lex.error());
-  ASSERT_EQ(steps.size(), 0);
+  ASSERT_EQ(steps.size(), 2);
 }
 
 TEST(ast, empty_datatable)
@@ -532,4 +532,50 @@ TEST(ast, example)
   EXPECT_EQ(example.table()[1][0].as<int>(), 123);
   EXPECT_EQ(example.table()[1][1].as<int>(), 456);
 }
+TEST(ast, example_name_description)
+{
+  const char* script = R"*(
+  Examples: An example
+  with some 
+  multi line 
+  description here 
+  | one | two | 
+  | 123 | 456 | 
+  )*";
 
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto examples = cwt::details::parse_examples(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(examples.size(), 1); 
+
+  cuke::ast::example_node& example = examples.at(0);
+  EXPECT_EQ(example.name(), std::string("An example"));
+  ASSERT_EQ(example.description().size(), 3);
+  EXPECT_EQ(example.description().at(0), std::string("with some"));
+  EXPECT_EQ(example.description().at(1), std::string("multi line"));
+  EXPECT_EQ(example.description().at(2), std::string("description here"));
+}
+TEST(ast, example_tags)
+{
+  const char* script = R"*(
+  @tag1 @tag2
+  Examples: An example
+  with some description
+  | one | two | 
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto examples = cwt::details::parse_examples(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(examples.size(), 1); 
+
+  cuke::ast::example_node& example = examples.at(0);
+  ASSERT_EQ(example.tags().size(), 2);
+  EXPECT_EQ(example.tags().at(0), std::string("@tag1"));
+  EXPECT_EQ(example.tags().at(1), std::string("@tag2"));
+}
