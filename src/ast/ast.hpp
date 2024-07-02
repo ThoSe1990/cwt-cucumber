@@ -119,14 +119,27 @@ class scenario_node : public node
 class example_node : public node
 {
  public:
+ example_node(std::string&& key, std::string&& name, const std::string& file,
+                std::size_t line, 
+                std::vector<std::string>&& tags,
+                std::vector<std::string>&& description, cuke::table&& table)
+      : node(std::move(key), std::move(name), line, file),
+        m_tags(std::move(tags)),
+        m_description(std::move(description)),
+        m_table(std::move(table))
+  {
+  }
+
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::example;
   }
+  [[nodiscard]] const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  [[nodiscard]] const std::vector<std::string>& description() const noexcept { return m_description; }
   [[nodiscard]] const cuke::table& table() const noexcept { return m_table; }
-
  private:
-  std::string m_description;
+  std::vector<std::string> m_tags;
+  std::vector<std::string> m_description;
   cuke::table m_table;
 };
 
