@@ -184,6 +184,15 @@ class value
   ~value() = default;
 
   /**
+   * @brief Checks if the cuke::value is nil
+   * @return True if it is a nil type, else its false
+   */
+  [[nodiscard]] bool is_nil() const noexcept
+  {
+    return m_type == value_type::nil;
+  }
+
+  /**
    * @brief Retrieve a const reference to the underlying value.
    * @tparam T Return type / target type
    * @return Constant reference to the underlying value

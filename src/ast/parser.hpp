@@ -95,14 +95,32 @@ template <typename... Ts>
     return {};
   }
 }
+[[nodiscard]] cuke::value parse_cell(lexer& lex)
+{
+  bool negative = lex.match(token_type::minus); 
+  token begin = lex.current();
+  std::size_t count = lex.advance_to(token_type::vertical);
+
+  if (count == 1)
+  {
+    return cuke::value(token_to_value(lex.previous(), negative));
+  }
+  else if (count > 1)
+  {
+     return cuke::value(create_string(begin, lex.previous())); 
+  }
+  else 
+  {
+    lex.error_at(lex.current(), "Expect value in table cell"); 
+    return {};
+  }
+}
 [[nodiscard]] cuke::value_array parse_row(lexer& lex)
 {
   cuke::value_array v;
   while (!(lex.match(token_type::linebreak) || lex.match(token_type::eof)))
   {
-    bool negative = lex.match(token_type::minus);
-    v.push_back(token_to_value(lex.current(), negative));
-    lex.advance();
+    v.push_back(parse_cell(lex));
     if (!lex.match(token_type::vertical))
     {
       v.clear();
@@ -163,12 +181,12 @@ template <typename... Ts>
 
 /*
 TODO:
-  1. parse strings w/o quotes in table cell
+ ✅ 1. parse strings w/o quotes in table cell
  ✅ 2. parse examples w/o error
  ✅ 3. examples: tags
  ✅ 4. examples: name
  ✅ 5. examples description
-  6. scenario outline w multiple examples
+  6. scenario outline w multiple examples (or multiple examples in general)
 */
 
 [[nodiscard]] std::vector<cuke::ast::example_node> parse_examples(lexer& lex)

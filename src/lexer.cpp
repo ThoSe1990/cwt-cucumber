@@ -63,17 +63,20 @@ bool lexer::match(token_type type) noexcept
     return false;
   }
 }
-void lexer::advance_to(token_type type)
+std::size_t lexer::advance_to(token_type type)
 {
+  std::size_t count = 0;
   while (!check(type))
   {
+    ++count;
     advance();
     if (check(token_type::eof))
     {
       error_at(m_current, "Unexpected end of file.");
-      return;
+      return count;
     }
   }
+  return count;
 }
 
 std::vector<token> lexer::collect_tokens_to(token_type type)

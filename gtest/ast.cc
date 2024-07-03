@@ -505,7 +505,8 @@ TEST(ast, scenario_outline_w_example)
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
 
-  auto& scenario_outline = static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
   ASSERT_EQ(scenario_outline.examples().size(), 1);
 }
 
@@ -513,22 +514,22 @@ TEST(ast, example)
 {
   const char* script = R"*(
   Examples: 
-  | one | two | 
-  | 123 | 456 | 
+  | val 1 | val 2 | 
+  | 123   | 456   | 
   )*";
 
   cwt::details::lexer lex(script);
   lex.advance();  // TODO delete me
 
   auto examples = cwt::details::parse_examples(lex);
-  ASSERT_EQ(examples.size(), 1); 
+  ASSERT_EQ(examples.size(), 1);
 
   cuke::ast::example_node& example = examples.at(0);
   EXPECT_EQ(example.table().cells_count(), 4);
   EXPECT_EQ(example.table().row_count(), 2);
   EXPECT_EQ(example.table().col_count(), 2);
-  EXPECT_EQ(example.table()[0][0].as<std::string>(), std::string("one"));
-  EXPECT_EQ(example.table()[0][1].as<std::string>(), std::string("two"));
+  EXPECT_EQ(example.table()[0][0].as<std::string>(), std::string("val 1"));
+  EXPECT_EQ(example.table()[0][1].as<std::string>(), std::string("val 2"));
   EXPECT_EQ(example.table()[1][0].as<int>(), 123);
   EXPECT_EQ(example.table()[1][1].as<int>(), 456);
 }
@@ -548,7 +549,7 @@ TEST(ast, example_name_description)
 
   auto examples = cwt::details::parse_examples(lex);
   ASSERT_FALSE(lex.error());
-  ASSERT_EQ(examples.size(), 1); 
+  ASSERT_EQ(examples.size(), 1);
 
   cuke::ast::example_node& example = examples.at(0);
   EXPECT_EQ(example.name(), std::string("An example"));
@@ -563,8 +564,8 @@ TEST(ast, example_tags)
   @tag1 @tag2
   Examples: An example
   with some description
-  | one | two | 
-  | 123 | 456 | 
+  | value 1| value 2 | 
+  | 123    | 456     | 
   )*";
 
   cwt::details::lexer lex(script);
@@ -572,10 +573,75 @@ TEST(ast, example_tags)
 
   auto examples = cwt::details::parse_examples(lex);
   ASSERT_FALSE(lex.error());
-  ASSERT_EQ(examples.size(), 1); 
+  ASSERT_EQ(examples.size(), 1);
 
   cuke::ast::example_node& example = examples.at(0);
   ASSERT_EQ(example.tags().size(), 2);
   EXPECT_EQ(example.tags().at(0), std::string("@tag1"));
   EXPECT_EQ(example.tags().at(1), std::string("@tag2"));
+}
+TEST(ast, parse_cell_integer)
+{
+  const char* script = "1234 |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<int>(), 1234);
+}
+TEST(ast, parse_cell_negative_integer)
+{
+  const char* script = "-1234 |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<int>(), -1234);
+}
+TEST(ast, parse_cell_double)
+{
+  const char* script = "1234.1234 |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<double>(), 1234.1234);
+}
+TEST(ast, parse_cell_string)
+{
+  const char* script = "\"hello world\" |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<std::string>(), std::string("hello world"));
+}
+TEST(ast, parse_cell_word)
+{
+  const char* script = "hello |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<std::string>(), std::string("hello"));
+}
+TEST(ast, parse_cell_unquoted_string)
+{
+  const char* script = "some arbitrary text and 1 2 3 numbers here |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_EQ(v.as<std::string>(),
+            std::string("some arbitrary text and 1 2 3 numbers here"));
+}
+TEST(ast, parse_cell_empty_cell)
+{
+  const char* script = " |";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  cuke::value v = cwt::details::parse_cell(lex);
+  EXPECT_TRUE(v.is_nil());
+  EXPECT_TRUE(lex.error());
 }
