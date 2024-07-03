@@ -95,11 +95,27 @@ template <typename... Ts>
     return {};
   }
 }
+[[nodiscard]] std::size_t advance_to_cell_end(lexer& lex)
+{
+  std::size_t count = 0;
+  while (!lex.check(token_type::vertical))
+  {
+    ++count;
+    lex.advance();
+    if (lex.check(token_type::eof, token_type::linebreak))
+    {
+      lex.error_at(lex.current(), "Expect '|' after value in cell");
+      return 0;
+    }
+  }
+  return count;
+}
 [[nodiscard]] cuke::value parse_cell(lexer& lex)
 {
-  bool negative = lex.match(token_type::minus); 
+  bool negative = lex.match(token_type::minus);
   token begin = lex.current();
-  std::size_t count = lex.advance_to(token_type::vertical);
+
+  std::size_t count = advance_to_cell_end(lex);
 
   if (count == 1)
   {
@@ -107,11 +123,11 @@ template <typename... Ts>
   }
   else if (count > 1)
   {
-     return cuke::value(create_string(begin, lex.previous())); 
+    return cuke::value(create_string(begin, lex.previous()));
   }
-  else 
+  else
   {
-    lex.error_at(lex.current(), "Expect value in table cell"); 
+    lex.error_at(lex.current(), "Expect value in table cell");
     return {};
   }
 }
@@ -137,6 +153,7 @@ template <typename... Ts>
     return {};
   }
   cuke::table t(parse_row(lex));
+  lex.skip_linebreaks();
   while (lex.match(token_type::vertical))
   {
     if (!t.append_row(parse_row(lex)) || lex.error())
@@ -144,6 +161,7 @@ template <typename... Ts>
       lex.error_at(lex.current(), "Different row lengths in data table");
       return {};
     }
+    lex.skip_linebreaks();
   }
   return t;
 }
@@ -151,12 +169,8 @@ template <typename... Ts>
 {
   using namespace cwt::details;
   std::vector<cuke::ast::step_node> steps;
-  // TODO delete me
-  // do
   while (lex.check(token_type::step))
   {
-    // if (lex.check(token_type::step))
-    // {
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex);
     std::vector<std::string> doc_string = parse_doc_string(lex);
@@ -167,39 +181,22 @@ template <typename... Ts>
         std::move(doc_string), std::move(data_table)));
 
     lex.skip_linebreaks();
-    // }
-    // else
-    // {
-    //   lex.error_at(lex.current(), "Expect Step, Scenario or Scenario
-    //   Outline"); return {};
-    // }
-  }  // while (lex.is_none_of(token_type::scenario,
-     // token_type::scenario_outline,
-     //                     token_type::tag, token_type::eof));
+  }
   return steps;
 }
 
-/*
-TODO:
- ✅ 1. parse strings w/o quotes in table cell
- ✅ 2. parse examples w/o error
- ✅ 3. examples: tags
- ✅ 4. examples: name
- ✅ 5. examples description
-  6. scenario outline w multiple examples (or multiple examples in general)
-*/
 
-[[nodiscard]] std::vector<cuke::ast::example_node> parse_examples(lexer& lex)
+[[nodiscard]] cuke::ast::example_node parse_example(
+    lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
-  auto tags = parse_tags(lex);
   auto [keyword, name] = parse_keyword_and_name(lex);
   auto description =
       parse_description(lex, token_type::vertical, token_type::eof);
   cuke::table t = parse_table(lex);
-  return std::vector<cuke::ast::example_node>{cuke::ast::example_node(
+  return cuke::ast::example_node(cuke::ast::example_node(
       std::move(keyword), std::move(name), lex.filepath(), line,
-      std::move(tags), std::move(description), std::move(t))};
+      std::move(tags), std::move(description), std::move(t)));
 }
 [[nodiscard]] std::unique_ptr<cuke::ast::scenario_outline_node>
 make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
@@ -208,11 +205,10 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
   auto [key, name] = parse_keyword_and_name(lex);
   auto description = parse_description(lex, token_type::step, token_type::eof);
   auto steps = parse_steps(lex);
-  auto examples = parse_examples(lex);
 
   return std::make_unique<cuke::ast::scenario_outline_node>(
       std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
-      std::move(tags), std::move(description), std::move(examples));
+      std::move(tags), std::move(description) /*, std::move(examples)*/);
 }
 [[nodiscard]] std::unique_ptr<cuke::ast::scenario_node> make_scenario(
     lexer& lex, std::vector<std::string>&& tags)
@@ -230,7 +226,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
 
-  while (!lex.check(token_type::eof))
+  while (!lex.error() && !lex.check(token_type::eof))
   {
     auto tags = parse_tags(lex);
     if (lex.check(token_type::scenario))
@@ -241,11 +237,18 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
     {
       scenarios.push_back(make_scenario_outline(lex, std::move(tags)));
     }
+    else if (lex.check(token_type::examples) &&
+             scenarios.back()->type() == cuke::ast::node_type::scenario_outline)
+    {
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.back())
+          .push_example(parse_example(lex, std::move(tags)));
+    }
     else
     {
       lex.error_at(lex.current(), "Expect Tags, Scenario or Scenario Outline");
       break;
     }
+    lex.skip_linebreaks();
   }
   return std::move(scenarios);
 }
@@ -264,7 +267,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
   auto description = parse_description(
       lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
       token_type::background, token_type::eof);
-
+  lex.skip_linebreaks();
   auto scenarios = parse_scenarios(lex);
 
   return cuke::ast::feature_node(std::move(key), std::move(name),

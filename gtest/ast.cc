@@ -487,99 +487,6 @@ TEST(ast, feature_w_scenario_outline_steps)
   EXPECT_EQ(scenario_outline.steps().at(1).name(), std::string("Next Step"));
   EXPECT_EQ(scenario_outline.steps().at(2).name(), std::string("Another"));
 }
-
-TEST(ast, scenario_outline_w_example)
-{
-  const char* script = R"*(
-  Scenario Outline: A Scenario Outline
-  Given A step with <var 1> and <var 2> 
-
-  Examples: 
-  | one | two | 
-  | 123 | 456 | 
-  )*";
-
-  cwt::details::lexer lex(script);
-  lex.advance();  // TODO delete me
-  auto scenarios = cwt::details::parse_scenarios(lex);
-  ASSERT_FALSE(lex.error());
-  ASSERT_EQ(scenarios.size(), 1);
-
-  auto& scenario_outline =
-      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
-  ASSERT_EQ(scenario_outline.examples().size(), 1);
-}
-
-TEST(ast, example)
-{
-  const char* script = R"*(
-  Examples: 
-  | val 1 | val 2 | 
-  | 123   | 456   | 
-  )*";
-
-  cwt::details::lexer lex(script);
-  lex.advance();  // TODO delete me
-
-  auto examples = cwt::details::parse_examples(lex);
-  ASSERT_EQ(examples.size(), 1);
-
-  cuke::ast::example_node& example = examples.at(0);
-  EXPECT_EQ(example.table().cells_count(), 4);
-  EXPECT_EQ(example.table().row_count(), 2);
-  EXPECT_EQ(example.table().col_count(), 2);
-  EXPECT_EQ(example.table()[0][0].as<std::string>(), std::string("val 1"));
-  EXPECT_EQ(example.table()[0][1].as<std::string>(), std::string("val 2"));
-  EXPECT_EQ(example.table()[1][0].as<int>(), 123);
-  EXPECT_EQ(example.table()[1][1].as<int>(), 456);
-}
-TEST(ast, example_name_description)
-{
-  const char* script = R"*(
-  Examples: An example
-  with some 
-  multi line 
-  description here 
-  | one | two | 
-  | 123 | 456 | 
-  )*";
-
-  cwt::details::lexer lex(script);
-  lex.advance();  // TODO delete me
-
-  auto examples = cwt::details::parse_examples(lex);
-  ASSERT_FALSE(lex.error());
-  ASSERT_EQ(examples.size(), 1);
-
-  cuke::ast::example_node& example = examples.at(0);
-  EXPECT_EQ(example.name(), std::string("An example"));
-  ASSERT_EQ(example.description().size(), 3);
-  EXPECT_EQ(example.description().at(0), std::string("with some"));
-  EXPECT_EQ(example.description().at(1), std::string("multi line"));
-  EXPECT_EQ(example.description().at(2), std::string("description here"));
-}
-TEST(ast, example_tags)
-{
-  const char* script = R"*(
-  @tag1 @tag2
-  Examples: An example
-  with some description
-  | value 1| value 2 | 
-  | 123    | 456     | 
-  )*";
-
-  cwt::details::lexer lex(script);
-  lex.advance();  // TODO delete me
-
-  auto examples = cwt::details::parse_examples(lex);
-  ASSERT_FALSE(lex.error());
-  ASSERT_EQ(examples.size(), 1);
-
-  cuke::ast::example_node& example = examples.at(0);
-  ASSERT_EQ(example.tags().size(), 2);
-  EXPECT_EQ(example.tags().at(0), std::string("@tag1"));
-  EXPECT_EQ(example.tags().at(1), std::string("@tag2"));
-}
 TEST(ast, parse_cell_integer)
 {
   const char* script = "1234 |";
@@ -644,4 +551,203 @@ TEST(ast, parse_cell_empty_cell)
   cuke::value v = cwt::details::parse_cell(lex);
   EXPECT_TRUE(v.is_nil());
   EXPECT_TRUE(lex.error());
+}
+TEST(ast, scenario_outline_w_example)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  Examples: 
+  | one | two | 
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(scenarios.size(), 1);
+
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 1);
+}
+TEST(ast, scenario_outline_w_2_example)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  Examples: 
+  | one | two | 
+  | 123 | 456 | 
+  Examples: 
+  | one | two | 
+  | 123 | 456 | 
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(scenarios.size(), 1);
+
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 2);
+}
+
+TEST(ast, example_w_tags)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  @tag1 @tag2 
+  Examples: 
+  | var 1 | var 2 | 
+  | 123   | 456   | 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(scenarios.size(), 1);
+  ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);
+
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 1);
+  ASSERT_EQ(scenario_outline.examples().at(0).tags().size(), 2);
+  ASSERT_EQ(scenario_outline.examples().at(0).tags().at(0),
+            std::string("@tag1"));
+  ASSERT_EQ(scenario_outline.examples().at(0).tags().at(1),
+            std::string("@tag2"));
+}
+
+TEST(ast, example_w_name_description)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  @tag1 @tag2 
+  Examples: some example
+  with some 
+  description 
+  | var 1 | var 2 | 
+  | 123   | 456   | 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(scenarios.size(), 1);
+  ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);
+
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 1);
+  EXPECT_EQ(scenario_outline.examples().at(0).name(),
+            std::string("some example"));
+  EXPECT_EQ(scenario_outline.examples().at(0).description().size(), 2);
+  EXPECT_EQ(scenario_outline.examples().at(0).description().at(0),
+            std::string("with some"));
+  EXPECT_EQ(scenario_outline.examples().at(0).description().at(1),
+            std::string("description"));
+  EXPECT_EQ(scenario_outline.examples().at(0).tags().size(), 2);
+}
+TEST(ast, two_example_w_name_description)
+{
+  const char* script = R"*(
+  Scenario Outline: A Scenario Outline
+  Given A step with <var 1> and <var 2> 
+
+  @tag1 @tag2 
+  Examples: some example
+  with some 
+  description 
+  | var 1 | var 2 | 
+  | 123   | 45    |
+
+  Examples: another example
+  with some 
+  description 
+  | var 1 | var 2 | 
+  | 123   | 456   |
+  
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  auto scenarios = cwt::details::parse_scenarios(lex);
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(scenarios.size(), 1);
+  ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);
+
+  auto& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(*scenarios.at(0));
+  ASSERT_EQ(scenario_outline.examples().size(), 2);
+}
+TEST(ast, example_name_description)
+{
+  const char* script = R"*(
+  Examples: An example
+  with some 
+  multi line 
+  description here 
+  | one | two | 
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto example = cwt::details::parse_example(lex, {});
+  EXPECT_EQ(example.name(), std::string("An example"));
+  ASSERT_EQ(example.description().size(), 3);
+  EXPECT_EQ(example.description().at(0), std::string("with some"));
+  EXPECT_EQ(example.description().at(1), std::string("multi line"));
+  EXPECT_EQ(example.description().at(2), std::string("description here"));
+}
+TEST(ast, examples_invalid_table)
+{
+  const char* script = R"*(
+  Examples: An example
+  with some 
+  multi line 
+  description here 
+  | one | two  
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto example = cwt::details::parse_example(lex, {});
+  ASSERT_TRUE(lex.error());
+}
+TEST(ast, examples_table_w_linebreak)
+{
+  const char* script = R"*(
+  Examples: An example
+  with some 
+  multi line 
+  description here 
+
+  | one | two | 
+
+  | 123 | 456 | 
+  )*";
+
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto example = cwt::details::parse_example(lex, {});
+  ASSERT_FALSE(lex.error());
+  ASSERT_EQ(example.table().cells_count(), 4);
+  ASSERT_EQ(example.table().col_count(), 2);
+  ASSERT_EQ(example.table().row_count(), 2);
 }

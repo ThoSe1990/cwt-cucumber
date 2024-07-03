@@ -20,17 +20,14 @@ class lexer
   [[nodiscard]] bool error() const noexcept;
   [[nodiscard]] std::vector<token> collect_tokens_to(token_type type);
   void advance();
-  std::size_t advance_to(token_type type);
+  void advance_to(token_type type);
   template <typename... Args>
-  std::size_t advance_to(Args... args)
+  void advance_to(Args... args)
   {
-    std::size_t count = 0;
     while (!check(std::forward<Args>(args)...))
     {
-      ++count;
       advance();
     }
-    return count;
   }
   void consume(token_type type, std::string_view msg);
   template <typename... Args>

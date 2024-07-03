@@ -119,10 +119,9 @@ class scenario_node : public node
 class example_node : public node
 {
  public:
- example_node(std::string&& key, std::string&& name, const std::string& file,
-                std::size_t line, 
-                std::vector<std::string>&& tags,
-                std::vector<std::string>&& description, cuke::table&& table)
+  example_node(std::string&& key, std::string&& name, const std::string& file,
+               std::size_t line, std::vector<std::string>&& tags,
+               std::vector<std::string>&& description, cuke::table&& table)
       : node(std::move(key), std::move(name), line, file),
         m_tags(std::move(tags)),
         m_description(std::move(description)),
@@ -134,9 +133,16 @@ class example_node : public node
   {
     return node_type::example;
   }
-  [[nodiscard]] const std::vector<std::string>& tags() const noexcept { return m_tags; }
-  [[nodiscard]] const std::vector<std::string>& description() const noexcept { return m_description; }
+  [[nodiscard]] const std::vector<std::string>& tags() const noexcept
+  {
+    return m_tags;
+  }
+  [[nodiscard]] const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
+  }
   [[nodiscard]] const cuke::table& table() const noexcept { return m_table; }
+
  private:
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
@@ -150,12 +156,12 @@ class scenario_outline_node : public scenario_node
                         const std::string& file, std::size_t line,
                         std::vector<step_node>&& steps,
                         std::vector<std::string>&& tags,
-                        std::vector<std::string>&& description,
-                        std::vector<example_node>&& examples)
+                        std::vector<std::string>&& description)  //,
+      // std::vector<example_node>&& examples)
       : scenario_node(std::move(key), std::move(name), file, line,
                       std::move(steps), std::move(tags),
-                      std::move(description)),
-        m_examples(std::move(examples))
+                      std::move(description))  //,
+  // m_examples(std::move(examples))
   {
   }
   [[nodiscard]] node_type type() const noexcept override
@@ -165,6 +171,10 @@ class scenario_outline_node : public scenario_node
   [[nodiscard]] const std::vector<example_node>& examples() const noexcept
   {
     return m_examples;
+  }
+  void push_example(example_node&& example)
+  {
+    m_examples.push_back(std::move(example));
   }
 
  private:
