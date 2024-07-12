@@ -63,6 +63,98 @@ TEST(ast, feature_w_tags)
   EXPECT_EQ(feature.line(), 3);
 }
 
+TEST(ast, no_background)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Scenario: A Scenario
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_FALSE(feature.has_background()); 
+}
+TEST(ast, background_in_feature)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Background: A background 
+  Given With a step 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_TRUE(feature.has_background()); 
+  EXPECT_EQ(feature.background().keyword(), std::string("Background:"));
+  EXPECT_EQ(feature.background().name(), std::string("A background"));
+  EXPECT_EQ(feature.background().steps().size(), 1);
+  EXPECT_EQ(feature.background().steps().at(0).keyword(), std::string("Given"));
+  EXPECT_EQ(feature.background().steps().at(0).name(), std::string("With a step"));
+}
+TEST(ast, background_w_description)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Background: A background 
+  some description
+  given here
+  Given With a step 
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_TRUE(feature.has_background()); 
+  EXPECT_EQ(feature.background().description().size(), 2); 
+  EXPECT_EQ(feature.background().description().at(0), std::string("some description"));
+  EXPECT_EQ(feature.background().description().at(1), std::string("given here"));
+}
+
+TEST(ast, background_w_following_scenario)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Background: A background 
+  some description
+  given here
+  Given With a step
+
+  Scenario: Scenario follows here now 
+  Given A Step
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+  ASSERT_EQ(feature.scenarios().size(), 1);
+  ASSERT_TRUE(feature.has_background()); 
+  EXPECT_EQ(feature.background().steps().size(), 1); 
+}
+TEST(ast, background_w_following_scenario_w_tags)
+{
+  const char* script = R"*(
+  Feature: A feature
+  Background: A background 
+  some description
+  given here
+  Given With a step
+  
+  @tag
+  Scenario: Scenario follows here now 
+  Given A Step
+  )*";
+  cwt::details::lexer lex(script);
+  lex.advance();  // TODO delete me
+  cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
+
+  ASSERT_TRUE(feature.has_background()); 
+  EXPECT_EQ(feature.background().steps().size(), 1); 
+
+  ASSERT_EQ(feature.scenarios().size(), 1);
+  cuke::ast::scenario_node& scenario =
+      static_cast<cuke::ast::scenario_node&>(*feature.scenarios().at(0));
+  EXPECT_EQ(scenario.tags().size(), 1);
+  EXPECT_EQ(scenario.tags().at(0), std::string("@tag"));
+}
+
 TEST(ast, feature_w_scenario)
 {
   const char* script = R"*(
@@ -751,3 +843,4 @@ TEST(ast, examples_table_w_linebreak)
   ASSERT_EQ(example.table().col_count(), 2);
   ASSERT_EQ(example.table().row_count(), 2);
 }
+

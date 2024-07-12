@@ -52,11 +52,6 @@ class node
   } m_location;
 };
 
-class background_node : public node
-{
- public:
-};
-
 class step_node : public node
 {
  public:
@@ -84,6 +79,35 @@ class step_node : public node
   std::vector<std::string> m_doc_string;
   cuke::table m_table;
 };
+
+class background_node : public node
+{
+ public:
+  background_node(std::string&& key, std::string&& name, const std::string& file,
+                std::size_t line, std::vector<step_node>&& steps,
+                std::vector<std::string>&& description)
+      : node(std::move(key), std::move(name), line, file),
+        m_steps(std::move(steps)),
+        m_description(std::move(description))
+  {
+  }
+  [[nodiscard]] node_type type() const noexcept override
+  {
+    return node_type::background;
+  }
+
+  const std::vector<step_node> steps() const noexcept { return m_steps; }
+  const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
+  }
+
+
+ private:
+  std::vector<step_node> m_steps;
+  std::vector<std::string> m_description;
+};
+
 
 class scenario_node : public node
 {
@@ -187,10 +211,12 @@ class feature_node : public node
   feature_node() = default;
   feature_node(std::string&& key, std::string&& name, const std::string& file,
                std::size_t line, std::vector<std::unique_ptr<node>>&& scenarios,
+               std::unique_ptr<background_node> background,
                std::vector<std::string>&& tags,
                std::vector<std::string>&& description)
       : node(std::move(key), std::move(name), line, file),
         m_scenarios(std::move(scenarios)),
+        m_background(std::move(background)),
         m_tags(std::move(tags)),
         m_description(std::move(description))
   {
@@ -212,6 +238,10 @@ class feature_node : public node
   {
     return m_scenarios;
   }
+  [[nodiscard]] bool has_background() const noexcept 
+  {
+    return m_background != nullptr;
+  }
   [[nodiscard]] const background_node& background() const noexcept
   {
     return *m_background;
@@ -219,9 +249,9 @@ class feature_node : public node
 
  private:
   std::vector<std::unique_ptr<node>> m_scenarios;
+  std::unique_ptr<background_node> m_background;
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
-  std::unique_ptr<background_node> m_background;
 };
 
 class gherkin_document

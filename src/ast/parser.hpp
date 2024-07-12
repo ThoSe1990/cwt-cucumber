@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <ranges>
 #include <string_view>
 
@@ -185,7 +186,6 @@ template <typename... Ts>
   return steps;
 }
 
-
 [[nodiscard]] cuke::ast::example_node parse_example(
     lexer& lex, std::vector<std::string>&& tags)
 {
@@ -252,11 +252,25 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
   }
   return std::move(scenarios);
 }
-
+[[nodiscard]] std::unique_ptr<cuke::ast::background_node> parse_background(
+    lexer& lex)
+{
+  if (lex.check(cwt::details::token_type::background))
+  {
+    const std::size_t line = lex.current().line;
+    auto [key, name] = parse_keyword_and_name(lex);
+    auto description =
+        parse_description(lex, token_type::step, token_type::eof);
+    auto steps = parse_steps(lex);
+    return std::make_unique<cuke::ast::background_node>(
+        std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
+        std::move(description));
+  }
+  return {};
+}
 [[nodiscard]] cuke::ast::feature_node parse_feature(lexer& lex)
 {
   auto tags = parse_tags(lex);
-
   if (!lex.check(cwt::details::token_type::feature))
   {
     lex.error_at(lex.current(), "Expect FeatureLine");
@@ -268,11 +282,13 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
       lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
       token_type::background, token_type::eof);
   lex.skip_linebreaks();
+  auto background = parse_background(lex);
   auto scenarios = parse_scenarios(lex);
 
   return cuke::ast::feature_node(std::move(key), std::move(name),
                                  lex.filepath(), line, std::move(scenarios),
-                                 std::move(tags), std::move(description));
+                                 std::move(background), std::move(tags),
+                                 std::move(description));
 }
 
 }  // namespace cwt::details
