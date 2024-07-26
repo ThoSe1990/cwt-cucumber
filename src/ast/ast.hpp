@@ -35,7 +35,6 @@ class node
 
   virtual ~node() = default;
   virtual node_type type() const noexcept = 0;
-  // virtual void visit(visitor& v) = 0;
 
   [[nodiscard]] const std::string& name() const { return m_name; }
   [[nodiscard]] const std::string& keyword() const { return m_keyword; }
@@ -83,9 +82,10 @@ class step_node : public node
 class background_node : public node
 {
  public:
-  background_node(std::string&& key, std::string&& name, const std::string& file,
-                std::size_t line, std::vector<step_node>&& steps,
-                std::vector<std::string>&& description)
+  background_node(std::string&& key, std::string&& name,
+                  const std::string& file, std::size_t line,
+                  std::vector<step_node>&& steps,
+                  std::vector<std::string>&& description)
       : node(std::move(key), std::move(name), line, file),
         m_steps(std::move(steps)),
         m_description(std::move(description))
@@ -102,12 +102,10 @@ class background_node : public node
     return m_description;
   }
 
-
  private:
   std::vector<step_node> m_steps;
   std::vector<std::string> m_description;
 };
-
 
 class scenario_node : public node
 {
@@ -181,11 +179,9 @@ class scenario_outline_node : public scenario_node
                         std::vector<step_node>&& steps,
                         std::vector<std::string>&& tags,
                         std::vector<std::string>&& description)  //,
-      // std::vector<example_node>&& examples)
       : scenario_node(std::move(key), std::move(name), file, line,
                       std::move(steps), std::move(tags),
                       std::move(description))  //,
-  // m_examples(std::move(examples))
   {
   }
   [[nodiscard]] node_type type() const noexcept override
@@ -238,7 +234,7 @@ class feature_node : public node
   {
     return m_scenarios;
   }
-  [[nodiscard]] bool has_background() const noexcept 
+  [[nodiscard]] bool has_background() const noexcept
   {
     return m_background != nullptr;
   }

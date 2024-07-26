@@ -72,7 +72,7 @@ TEST(ast, no_background)
   cwt::details::lexer lex(script);
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
-  ASSERT_FALSE(feature.has_background()); 
+  ASSERT_FALSE(feature.has_background());
 }
 TEST(ast, background_in_feature)
 {
@@ -84,12 +84,13 @@ TEST(ast, background_in_feature)
   cwt::details::lexer lex(script);
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
-  ASSERT_TRUE(feature.has_background()); 
+  ASSERT_TRUE(feature.has_background());
   EXPECT_EQ(feature.background().keyword(), std::string("Background:"));
   EXPECT_EQ(feature.background().name(), std::string("A background"));
   EXPECT_EQ(feature.background().steps().size(), 1);
   EXPECT_EQ(feature.background().steps().at(0).keyword(), std::string("Given"));
-  EXPECT_EQ(feature.background().steps().at(0).name(), std::string("With a step"));
+  EXPECT_EQ(feature.background().steps().at(0).name(),
+            std::string("With a step"));
 }
 TEST(ast, background_w_description)
 {
@@ -103,10 +104,12 @@ TEST(ast, background_w_description)
   cwt::details::lexer lex(script);
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
-  ASSERT_TRUE(feature.has_background()); 
-  EXPECT_EQ(feature.background().description().size(), 2); 
-  EXPECT_EQ(feature.background().description().at(0), std::string("some description"));
-  EXPECT_EQ(feature.background().description().at(1), std::string("given here"));
+  ASSERT_TRUE(feature.has_background());
+  EXPECT_EQ(feature.background().description().size(), 2);
+  EXPECT_EQ(feature.background().description().at(0),
+            std::string("some description"));
+  EXPECT_EQ(feature.background().description().at(1),
+            std::string("given here"));
 }
 
 TEST(ast, background_w_following_scenario)
@@ -125,8 +128,8 @@ TEST(ast, background_w_following_scenario)
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
   ASSERT_EQ(feature.scenarios().size(), 1);
-  ASSERT_TRUE(feature.has_background()); 
-  EXPECT_EQ(feature.background().steps().size(), 1); 
+  ASSERT_TRUE(feature.has_background());
+  EXPECT_EQ(feature.background().steps().size(), 1);
 }
 TEST(ast, background_w_following_scenario_w_tags)
 {
@@ -145,8 +148,8 @@ TEST(ast, background_w_following_scenario_w_tags)
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cwt::details::parse_feature(lex);
 
-  ASSERT_TRUE(feature.has_background()); 
-  EXPECT_EQ(feature.background().steps().size(), 1); 
+  ASSERT_TRUE(feature.has_background());
+  EXPECT_EQ(feature.background().steps().size(), 1);
 
   ASSERT_EQ(feature.scenarios().size(), 1);
   cuke::ast::scenario_node& scenario =
@@ -832,6 +835,7 @@ TEST(ast, examples_table_w_linebreak)
   | one | two | 
 
   | 123 | 456 | 
+ 
   )*";
 
   cwt::details::lexer lex(script);
@@ -843,4 +847,34 @@ TEST(ast, examples_table_w_linebreak)
   ASSERT_EQ(example.table().col_count(), 2);
   ASSERT_EQ(example.table().row_count(), 2);
 }
+TEST(ast, full_feature)
+{
+  const char* script = R"*(
+  Feature: a full feature
+    with some description 
 
+    Scenario: First Scenario 
+    Given a step
+    Then another step 
+
+    Scenario Outline: an scenario outline 
+    with some description 
+    Given a step with <var1> 
+    Then another step with <var2> 
+
+    Examples: 
+      | var1 | var2 |
+      | "hello world" | 1 |
+      | "some text"   | 2 |
+
+    Scenario: Another Scenario 
+     Given with a step 
+     And another step 
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  const cuke::ast::feature_node& feature = p.head().feature();
+
+  ASSERT_EQ(feature.scenarios().size(), 3);
+}
