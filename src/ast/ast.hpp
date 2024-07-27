@@ -257,7 +257,7 @@ class gherkin_document
   void clear() { m_feature.reset(); }
 
   template <typename... Args>
-  void make_feature(Args&&... args)
+  void set_feature(Args&&... args)
   {
     m_feature = std::make_unique<feature_node>(std::forward<Args>(args)...);
   }

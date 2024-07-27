@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <ranges>
+#include <concepts>
 #include <string_view>
+#include <type_traits>
 
 #include "ast.hpp"
 #include "../token.hpp"
@@ -11,7 +13,8 @@
 
 namespace cwt::details
 {
-[[nodiscard]] auto parse_keyword_and_name(lexer& lex)
+
+[[nodiscard]] static auto parse_keyword_and_name(lexer& lex)
 {
   std::string key = create_string(lex.current().value);
   lex.advance();
@@ -30,9 +33,10 @@ namespace cwt::details
   lex.advance();
   return std::make_pair(key, name);
 }
+
 template <typename... Ts>
-[[nodiscard]] std::vector<std::string> parse_description(lexer& lex,
-                                                         Ts&&... terminators)
+[[nodiscard]] static std::vector<std::string> parse_description(
+    lexer& lex, Ts&&... terminators)
 {
   std::vector<std::string> lines;
   while (!lex.check(std::forward<Ts>(terminators)...))
@@ -46,7 +50,7 @@ template <typename... Ts>
   return lines;
 }
 
-[[nodiscard]] std::vector<std::string> parse_tags(lexer& lex)
+[[nodiscard]] static std::vector<std::string> parse_tags(lexer& lex)
 {
   std::vector<std::string> tags;
   while (lex.check(token_type::tag))
@@ -58,7 +62,7 @@ template <typename... Ts>
   return tags;
 }
 
-[[nodiscard]] std::string trim(const std::string& str)
+[[nodiscard]] static std::string trim(const std::string& str)
 {
   auto is_space = [](char c)
   { return std::isspace(static_cast<unsigned char>(c)); };
@@ -67,7 +71,7 @@ template <typename... Ts>
   return (start < end ? std::string(start, end) : "");
 }
 
-[[nodiscard]] std::vector<std::string> doc_string_to_vector(
+[[nodiscard]] static std::vector<std::string> doc_string_to_vector(
     const std::string_view s, std::size_t lines_count)
 {
   const std::size_t lines_count_wo_quotes = lines_count - 2;
@@ -82,7 +86,7 @@ template <typename... Ts>
   return lines;
 }
 
-[[nodiscard]] std::vector<std::string> parse_doc_string(lexer& lex)
+[[nodiscard]] static std::vector<std::string> parse_doc_string(lexer& lex)
 {
   const std::size_t begin = lex.previous().line;
   if (lex.match(token_type::doc_string))
@@ -96,7 +100,8 @@ template <typename... Ts>
     return {};
   }
 }
-[[nodiscard]] std::size_t advance_to_cell_end(lexer& lex)
+
+[[nodiscard]] static std::size_t advance_to_cell_end(lexer& lex)
 {
   std::size_t count = 0;
   while (!lex.check(token_type::vertical))
@@ -111,7 +116,8 @@ template <typename... Ts>
   }
   return count;
 }
-[[nodiscard]] cuke::value parse_cell(lexer& lex)
+
+[[nodiscard]] static cuke::value parse_cell(lexer& lex)
 {
   bool negative = lex.match(token_type::minus);
   token begin = lex.current();
@@ -132,7 +138,8 @@ template <typename... Ts>
     return {};
   }
 }
-[[nodiscard]] cuke::value_array parse_row(lexer& lex)
+
+[[nodiscard]] static cuke::value_array parse_row(lexer& lex)
 {
   cuke::value_array v;
   while (!(lex.match(token_type::linebreak) || lex.match(token_type::eof)))
@@ -147,7 +154,8 @@ template <typename... Ts>
   }
   return v;
 }
-[[nodiscard]] cuke::table parse_table(lexer& lex)
+
+[[nodiscard]] static cuke::table parse_table(lexer& lex)
 {
   if (!lex.match(token_type::vertical))
   {
@@ -166,7 +174,8 @@ template <typename... Ts>
   }
   return t;
 }
-[[nodiscard]] std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
+
+[[nodiscard]] static std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
 {
   using namespace cwt::details;
   std::vector<cuke::ast::step_node> steps;
@@ -186,7 +195,7 @@ template <typename... Ts>
   return steps;
 }
 
-[[nodiscard]] cuke::ast::example_node parse_example(
+[[nodiscard]] static cuke::ast::example_node parse_example(
     lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
@@ -198,7 +207,8 @@ template <typename... Ts>
       std::move(keyword), std::move(name), lex.filepath(), line,
       std::move(tags), std::move(description), std::move(t)));
 }
-[[nodiscard]] std::unique_ptr<cuke::ast::scenario_outline_node>
+
+[[nodiscard]] static std::unique_ptr<cuke::ast::scenario_outline_node>
 make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
@@ -208,9 +218,10 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
 
   return std::make_unique<cuke::ast::scenario_outline_node>(
       std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
-      std::move(tags), std::move(description) /*, std::move(examples)*/);
+      std::move(tags), std::move(description));
 }
-[[nodiscard]] std::unique_ptr<cuke::ast::scenario_node> make_scenario(
+
+[[nodiscard]] static std::unique_ptr<cuke::ast::scenario_node> make_scenario(
     lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
@@ -221,8 +232,9 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
       std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
       std::move(tags), std::move(description));
 }
-[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(
-    lexer& lex)
+
+[[nodiscard]] static std::vector<std::unique_ptr<cuke::ast::node>>
+parse_scenarios(lexer& lex)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
 
@@ -252,8 +264,9 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
   }
   return std::move(scenarios);
 }
-[[nodiscard]] std::unique_ptr<cuke::ast::background_node> parse_background(
-    lexer& lex)
+
+[[nodiscard]] static std::unique_ptr<cuke::ast::background_node>
+parse_background(lexer& lex)
 {
   if (lex.check(cwt::details::token_type::background))
   {
@@ -268,7 +281,8 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
   }
   return {};
 }
-[[nodiscard]] cuke::ast::feature_node parse_feature(lexer& lex)
+
+[[nodiscard]] static cuke::ast::feature_node parse_feature(lexer& lex)
 {
   auto tags = parse_tags(lex);
   if (!lex.check(cwt::details::token_type::feature))
@@ -309,6 +323,13 @@ namespace cuke
 // TODO ...
 // }
 
+template <typename T>
+concept ScenarioVisitor = requires(T t, const ast::scenario_outline_node& sn,
+                                   const ast::scenario_node& son) {
+  t.visit(son);
+  t.visit(son);
+};
+
 class parser
 {
  public:
@@ -325,11 +346,18 @@ class parser
     lexer lex(script);
     lex.advance();
     lex.skip_linebreaks();
-    m_head.make_feature(parse_feature(lex));
+    m_head.set_feature(parse_feature(lex));
     if (lex.error())
     {
       m_head.clear();
     }
+  }
+  // template <typename T>
+  //   requires has_scenario<T, ast::scenario_node>::value &&
+  //            has_scenario<T, ast::scenario_outline_node>::value
+  template <ScenarioVisitor T>
+  void for_each_scenario(T& visitor)
+  {
   }
 
  private:
