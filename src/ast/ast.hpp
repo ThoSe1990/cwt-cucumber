@@ -171,18 +171,25 @@ class example_node : public node
   cuke::table m_table;
 };
 
-class scenario_outline_node : public scenario_node
+class scenario_outline_node : public node
 {
  public:
   scenario_outline_node(std::string&& key, std::string&& name,
                         const std::string& file, std::size_t line,
                         std::vector<step_node>&& steps,
                         std::vector<std::string>&& tags,
-                        std::vector<std::string>&& description)  //,
-      : scenario_node(std::move(key), std::move(name), file, line,
-                      std::move(steps), std::move(tags),
-                      std::move(description))  //,
+                        std::vector<std::string>&& description)
+      : node(std::move(key), std::move(name), line, file),
+        m_steps(std::move(steps)),
+        m_tags(std::move(tags)),
+        m_description(std::move(description))
   {
+  }
+  const std::vector<step_node> steps() const noexcept { return m_steps; }
+  const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
   }
   [[nodiscard]] node_type type() const noexcept override
   {
@@ -198,6 +205,9 @@ class scenario_outline_node : public scenario_node
   }
 
  private:
+  std::vector<step_node> m_steps;
+  std::vector<std::string> m_tags;
+  std::vector<std::string> m_description;
   std::vector<example_node> m_examples;
 };
 

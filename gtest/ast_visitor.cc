@@ -4,12 +4,15 @@
 
 struct scenario_visitor
 {
-  void visit(const cuke::ast::scenario_node&) {}
-  // void visit(const cuke::ast::scenario_outline_node&) {}
-  // this is not implemented, its commmented:
+  void visit(const cuke::ast::scenario_node& s)
+  {
+    std::cout << "Hello scenario!!" << std::endl;
+    std::cout << s.name() << std::endl;
+  }
+  void visit(const cuke::ast::scenario_outline_node&) {}
 };
 
-TEST(ast_iterator, for_each_scenario)
+TEST(ast_visitor, for_each_scenario)
 {
   const char* script = R"*(
   Feature: A Feature

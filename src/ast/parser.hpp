@@ -2,9 +2,7 @@
 
 #include <memory>
 #include <ranges>
-#include <concepts>
 #include <string_view>
-#include <type_traits>
 
 #include "ast.hpp"
 #include "../token.hpp"
@@ -324,11 +322,12 @@ namespace cuke
 // }
 
 template <typename T>
-concept ScenarioVisitor = requires(T t, const ast::scenario_outline_node& sn,
-                                   const ast::scenario_node& son) {
-  t.visit(son);
-  t.visit(son);
-};
+concept ScenarioVisitor =
+    requires(T t, const ast::scenario_outline_node& scenario,
+             const ast::scenario_node& scenario_outline) {
+      t.visit(scenario);
+      t.visit(scenario_outline);
+    };
 
 class parser
 {
@@ -352,12 +351,20 @@ class parser
       m_head.clear();
     }
   }
-  // template <typename T>
-  //   requires has_scenario<T, ast::scenario_node>::value &&
-  //            has_scenario<T, ast::scenario_outline_node>::value
   template <ScenarioVisitor T>
   void for_each_scenario(T& visitor)
   {
+    for (const auto& n : m_head.feature().scenarios())
+    {
+      if (n->type() == ast::node_type::scenario)
+      {
+        visitor.visit(static_cast<ast::scenario_node&>(*n));
+      }
+      else if (n->type() == ast::node_type::scenario_outline)
+      {
+        visitor.visit(static_cast<ast::scenario_outline_node&>(*n));
+      }
+    }
   }
 
  private:
