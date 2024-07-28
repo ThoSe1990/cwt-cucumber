@@ -1,15 +1,18 @@
 #include <gtest/gtest.h>
+#include <cstddef>
 
 #include "../src/ast/parser.hpp"
 
-struct scenario_visitor
+class scenario_visitor
 {
-  void visit(const cuke::ast::scenario_node& s)
-  {
-    std::cout << "Hello scenario!!" << std::endl;
-    std::cout << s.name() << std::endl;
-  }
-  void visit(const cuke::ast::scenario_outline_node&) {}
+ public:
+  void visit(const cuke::ast::scenario_node& s) { ++m_calls; }
+  void visit(const cuke::ast::scenario_outline_node&) { ++m_calls; }
+
+  [[nodiscard]] std::size_t calls() const noexcept { return m_calls; }
+
+ private:
+  std::size_t m_calls{0};
 };
 
 TEST(ast_visitor, for_each_scenario)
@@ -24,4 +27,42 @@ TEST(ast_visitor, for_each_scenario)
   p.parse_script(script);
   scenario_visitor visitor;
   p.for_each_scenario(visitor);
+  EXPECT_EQ(visitor.calls(), 1);
+}
+TEST(ast_visitor, for_each_scenario_outline)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario Outline 
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  scenario_visitor visitor;
+  p.for_each_scenario(visitor);
+  EXPECT_EQ(visitor.calls(), 1);
+}
+TEST(ast_visitor, for_each_scenario_and_scenario_outline)
+{
+  const char* script = R"*(
+  Feature: A Feature
+    
+    Scenario: a scenario 
+    Given a step 
+
+    Scenario Outline: a scenario outline 
+    Given a step with <var>
+    
+    Examples:  
+    | var |
+    | 1   |
+    
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  scenario_visitor visitor;
+  p.for_each_scenario(visitor);
+  EXPECT_EQ(visitor.calls(), 2);
 }

@@ -22,6 +22,73 @@ TEST(ast, feature_error)
   EXPECT_TRUE(feature.name().empty());
   EXPECT_TRUE(feature.keyword().empty());
 }
+TEST(ast, feature_error_parser)
+{
+  const char* script = "this is no feature";
+  cuke::parser p;
+  p.parse_script(script);
+  EXPECT_TRUE(p.error());
+}
+TEST(ast, parser_scenario_and_scenario_outline)
+{
+  const char* script = R"*(
+  Feature: A Feature
+    
+    Scenario: a scenario 
+    Given a step 
+
+    Scenario Outline: a scenario outline 
+    Given a step with <var>
+    
+    Examples:  
+    | var |
+    | 1   |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  EXPECT_EQ(p.head().feature().scenarios().size(), 2);
+}
+TEST(ast, parser_scenario_outline_two_examples)
+{
+  const char* script = R"*(
+  Feature: A Feature
+    
+    Scenario: a scenario 
+    Given a step 
+
+    Scenario Outline: a scenario outline 
+    Given a step with <var>
+    
+    Examples:  
+    with some description
+
+
+    | var |
+    
+    @tag1
+
+    Examples:  
+    with some description
+
+
+    | var |
+    | 1   |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  EXPECT_EQ(p.head().feature().scenarios().size(), 2);
+  ASSERT_EQ(p.head().feature().scenarios().at(1)->type(),
+            cuke::ast::node_type::scenario_outline);
+
+  auto scenario_outline = static_cast<cuke::ast::scenario_outline_node&>(
+      *p.head().feature().scenarios().at(1));
+
+  ASSERT_EQ(scenario_outline.examples().size(), 2);
+  ASSERT_EQ(scenario_outline.examples().at(1).tags().size(), 1);
+  ASSERT_EQ(scenario_outline.examples().at(1).description().size(), 3);
+}
 TEST(ast, feature)
 {
   const char* script = "Feature: A Feature";

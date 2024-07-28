@@ -29,6 +29,7 @@ namespace cwt::details
                          ? std::string("")
                          : make_name(lex);
   lex.advance();
+  lex.skip_linebreaks();
   return std::make_pair(key, name);
 }
 
@@ -332,7 +333,11 @@ concept ScenarioVisitor =
 class parser
 {
  public:
-  const cuke::ast::gherkin_document& head() const noexcept { return m_head; }
+  [[nodiscard]] const cuke::ast::gherkin_document& head() const noexcept
+  {
+    return m_head;
+  }
+  [[nodiscard]] bool error() const noexcept { return m_error; }
 
   void parse_from_file(std::string_view filepath)
   {
@@ -341,6 +346,7 @@ class parser
 
   void parse_script(std::string_view script)
   {
+    m_error = false;
     using namespace cwt::details;
     lexer lex(script);
     lex.advance();
@@ -348,11 +354,12 @@ class parser
     m_head.set_feature(parse_feature(lex));
     if (lex.error())
     {
+      m_error = true;
       m_head.clear();
     }
   }
-  template <ScenarioVisitor T>
-  void for_each_scenario(T& visitor)
+  template <ScenarioVisitor Visitor>
+  void for_each_scenario(Visitor& visitor)
   {
     for (const auto& n : m_head.feature().scenarios())
     {
@@ -369,6 +376,7 @@ class parser
 
  private:
   cuke::ast::gherkin_document m_head;
+  bool m_error{false};
 };
 
 }  // namespace cuke
