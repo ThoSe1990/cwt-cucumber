@@ -5,7 +5,7 @@
 #define PRINT_STACK 1
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(compiler_scenario, chunk_wo_step)
 {
@@ -133,7 +133,7 @@ const char* script = R"*(
 )*";
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@some_other_tag")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@some_other_tag")});
   f.compile();
   
   disassemble_chunk(f.get_chunk(), "chunk w/o matching tags");
@@ -150,7 +150,7 @@ const char* script = R"*(
 )*";
   compiler::cucumber cuke(script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@tag1 and @tag2")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@tag1 and @tag2")});
   f.compile();
   
   disassemble_chunk(f.get_chunk(), "chunk with matching tags");

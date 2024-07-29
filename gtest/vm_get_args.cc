@@ -2,7 +2,7 @@
 
 #include "../src/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 class vm_get_args_integral : public ::testing::Test
 {
@@ -33,7 +33,7 @@ TEST_F(vm_get_args_integral, value_char)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        char v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        char v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -48,7 +48,7 @@ TEST_F(vm_get_args_integral, value_unsigned_char)
       [](argc n, argv values)
       {
         unsigned char v =
-            cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+            cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -63,7 +63,7 @@ TEST_F(vm_get_args_integral, value_short)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        short v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        short v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -78,7 +78,7 @@ TEST_F(vm_get_args_integral, value_unsigned_short)
       [](argc n, argv values)
       {
         unsigned short v =
-            cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+            cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -93,7 +93,7 @@ TEST_F(vm_get_args_integral, value_int)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        int v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        int v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -108,7 +108,7 @@ TEST_F(vm_get_args_integral, value_unsigned_int)
       [](argc n, argv values)
       {
         unsigned int v =
-            cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+            cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -123,7 +123,7 @@ TEST_F(vm_get_args_integral, value_long)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        long v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        long v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -138,7 +138,7 @@ TEST_F(vm_get_args_integral, value_unsigned_long)
       [](argc n, argv values)
       {
         unsigned long v =
-            cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+            cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -153,7 +153,7 @@ TEST_F(vm_get_args_integral, value_size_t)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::size_t v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::size_t v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99);
         called = true;
       },
@@ -190,7 +190,7 @@ TEST_F(vm_get_args_floating, value_float)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        float v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        float v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99.99f);
         called = true;
       },
@@ -203,7 +203,7 @@ TEST_F(vm_get_args_floating, value_double)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        double v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        double v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, 99.99);
         called = true;
       },
@@ -240,7 +240,7 @@ TEST_F(vm_get_args_strings, value_string)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, std::string("hello string"));
         called = true;
       },
@@ -253,7 +253,7 @@ TEST_F(vm_get_args_strings, value_string_view)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string_view v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string_view v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_STREQ(v.data(), std::string_view("hello string").data());
         called = true;
       },
@@ -297,7 +297,7 @@ TEST_F(vm_get_args_doc_strings_1, value_string)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_EQ(v, vm_get_args_doc_strings_1::expected);
         called = true;
       },
@@ -310,7 +310,7 @@ TEST_F(vm_get_args_doc_strings_1, value_string_view)
   test_vm.push_step(step(
       [](argc n, argv values)
       {
-        std::string_view v = cwt::details::get_arg(n, values, 1, __FILE__, __LINE__);
+        std::string_view v = cuke::internal::get_arg(n, values, 1, __FILE__, __LINE__);
         ASSERT_STREQ(v.data(), vm_get_args_doc_strings_1::expected.data());
         called = true;
       },

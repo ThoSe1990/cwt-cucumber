@@ -3,7 +3,7 @@
 
 #include "../src/chunk.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 void add_3_bytes(chunk& c)
 {

@@ -2,7 +2,7 @@
 
 #include "../src/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 class vm_context_init_values : public ::testing::Test
 {
@@ -22,7 +22,7 @@ class vm_context_init_values : public ::testing::Test
         [](argc, argv)
         {
           ++call_count;
-          EXPECT_EQ(cwt::details::get_context().size(), 0);
+          EXPECT_EQ(cuke::internal::get_context().size(), 0);
         },
         "Initial step"));
     test_vm.push_step(step(
@@ -33,7 +33,7 @@ class vm_context_init_values : public ::testing::Test
           cuke::context<bar>();
           cuke::context<std::string>("hello world");
           cuke::context<int>(999);
-          EXPECT_EQ(cwt::details::get_context().size(), 4);
+          EXPECT_EQ(cuke::internal::get_context().size(), 4);
         },
         "Here we set"));
     test_vm.push_step(step(
@@ -42,7 +42,7 @@ class vm_context_init_values : public ::testing::Test
           ++call_count;
           EXPECT_EQ(cuke::context<std::string>(), std::string("hello world"));
           EXPECT_EQ(cuke::context<int>(), 999);
-          EXPECT_EQ(cwt::details::get_context().size(), 4);
+          EXPECT_EQ(cuke::internal::get_context().size(), 4);
         },
         "Here we check"));
   }
@@ -100,10 +100,10 @@ class vm_context_modify_values : public ::testing::Test
         [](argc n, argv values)
         {
           ++call_count;
-          EXPECT_EQ(cwt::details::get_context().size(), 0);
+          EXPECT_EQ(cuke::internal::get_context().size(), 0);
           int value = CUKE_ARG(1);
           cuke::context<foo>(foo{value});
-          EXPECT_EQ(cwt::details::get_context().size(), 1);
+          EXPECT_EQ(cuke::internal::get_context().size(), 1);
         },
         "Init foo with {int}"));
     test_vm.push_step(step(

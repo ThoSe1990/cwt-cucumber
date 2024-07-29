@@ -9,7 +9,7 @@
 #include "../util.hpp"
 #include "../table.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 [[nodiscard]] static auto parse_keyword_and_name(lexer& lex)
@@ -176,7 +176,7 @@ template <typename... Ts>
 
 [[nodiscard]] static std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
 {
-  using namespace cwt::details;
+  using namespace cuke::internal;
   std::vector<cuke::ast::step_node> steps;
   while (lex.check(token_type::step))
   {
@@ -267,7 +267,7 @@ parse_scenarios(lexer& lex)
 [[nodiscard]] static std::unique_ptr<cuke::ast::background_node>
 parse_background(lexer& lex)
 {
-  if (lex.check(cwt::details::token_type::background))
+  if (lex.check(cuke::internal::token_type::background))
   {
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex);
@@ -284,7 +284,7 @@ parse_background(lexer& lex)
 [[nodiscard]] static cuke::ast::feature_node parse_feature(lexer& lex)
 {
   auto tags = parse_tags(lex);
-  if (!lex.check(cwt::details::token_type::feature))
+  if (!lex.check(cuke::internal::token_type::feature))
   {
     lex.error_at(lex.current(), "Expect FeatureLine");
     return cuke::ast::feature_node();
@@ -304,7 +304,7 @@ parse_background(lexer& lex)
                                  std::move(description));
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 namespace cuke
 {
@@ -347,7 +347,7 @@ class parser
   void parse_script(std::string_view script)
   {
     m_error = false;
-    using namespace cwt::details;
+    using namespace cuke::internal;
     lexer lex(script);
     lex.advance();
     lex.skip_linebreaks();

@@ -1,27 +1,25 @@
 #pragma once
 
-#include "vm.hpp"
 #include "value.hpp"
 #include "hooks.hpp"
+#include "ast/registry.hpp"
 
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
 #define _STEP(function_name, step_definition)                              \
-  void function_name(::cwt::details::argc n, ::cwt::details::argv values); \
+  void function_name(::cuke::internal::argc n, ::cuke::internal::argv values); \
   namespace                                                                \
   {                                                                        \
   struct CONCAT(function_name, _t)                                         \
   {                                                                        \
     CONCAT(function_name, _t)()                                            \
     {                                                                      \
-      ::cwt::details::vm::push_step(                                       \
-          ::cwt::details::step(function_name, step_definition));           \
     }                                                                      \
   } CONCAT(g_, function_name);                                             \
   }                                                                        \
-  void function_name([[maybe_unused]] ::cwt::details::argc n,              \
-                     [[maybe_unused]] ::cwt::details::argv values)
+  void function_name([[maybe_unused]] ::cuke::internal::argc n,              \
+                     [[maybe_unused]] ::cuke::internal::argv values)
 
 /**
  * @def STEP(function_name, step_definition)
@@ -66,8 +64,6 @@
   {                                                             \
     CONCAT(function_name, _t)()                                 \
     {                                                           \
-      ::cwt::details::vm::push_hook_before(                     \
-          ::cwt::details::hook(function_name, tag_expression)); \
     }                                                           \
                                                                 \
   } CONCAT(g_, function_name);                                  \
@@ -106,8 +102,6 @@
   {                                                             \
     CONCAT(function_name, _t)()                                 \
     {                                                           \
-      ::cwt::details::vm::push_hook_after(                      \
-          ::cwt::details::hook(function_name, tag_expression)); \
     }                                                           \
                                                                 \
   } CONCAT(g_, function_name);                                  \
@@ -146,8 +140,6 @@
   {                                              \
     CONCAT(function_name, _t)()                  \
     {                                            \
-      ::cwt::details::vm::push_hook_before_step( \
-          ::cwt::details::hook(function_name));  \
     }                                            \
                                                  \
   } CONCAT(g_, function_name);                   \
@@ -171,8 +163,6 @@
   {                                             \
     CONCAT(function_name, _t)()                 \
     {                                           \
-      ::cwt::details::vm::push_hook_after_step( \
-          ::cwt::details::hook(function_name)); \
     }                                           \
                                                 \
   } CONCAT(g_, function_name);                  \

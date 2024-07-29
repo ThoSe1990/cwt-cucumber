@@ -5,7 +5,7 @@
 #define PRINT_STACK 1
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(compiler_feature, chunk_size_wo_scenario)
 {

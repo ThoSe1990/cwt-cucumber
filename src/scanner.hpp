@@ -9,7 +9,7 @@
 #include "identifiers/bool_operators.hpp"
 
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class scanner
@@ -54,4 +54,4 @@ class scanner
   std::string_view m_source;
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

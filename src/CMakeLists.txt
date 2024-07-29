@@ -7,17 +7,18 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/lexer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tags.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cucumber.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/background.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/examples.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario_outline.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/compiler.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/tags.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/cucumber.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/feature.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/background.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/examples.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/compiler/scenario_outline.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/chunk.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/table.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/vm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/tags.cpp
+  # ${CMAKE_CURRENT_SOURCE_DIR}/vm.cpp
 )
 
 add_library(cucumber ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)

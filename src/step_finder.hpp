@@ -2,9 +2,9 @@
 
 #include "value.hpp"
 #include "scanner.hpp"
-#include "chunk.hpp"
+// #include "chunk.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class step_finder
@@ -41,4 +41,4 @@ class step_finder
   cuke::value_array m_values;
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

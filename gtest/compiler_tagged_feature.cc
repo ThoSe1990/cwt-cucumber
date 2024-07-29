@@ -5,7 +5,7 @@
 #define PRINT_STACK 1
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(compiler_tagged_feature, scenarios_code_1)
 {
@@ -31,7 +31,7 @@ TEST(compiler_tagged_feature, scenarios_code_2)
   Given A Step
 )*";
   compiler::cucumber cuke(script);
-  cuke.set_options(options{.tags = compiler::tag_expression("@tag1")});
+  cuke.set_options(options{.tags = cuke::internal::tag_expression("@tag1")});
   cuke.compile();
   chunk* f = cuke.get_chunk().constant(0).as<function>().get();
   EXPECT_EQ(f->size(), 32);
@@ -47,7 +47,7 @@ TEST(compiler_tagged_feature, scenarios_code_3)
   Given A Step
 )*";
   compiler::cucumber cuke(script);
-  cuke.set_options(options{.tags = compiler::tag_expression("not @tag1")});
+  cuke.set_options(options{.tags = cuke::internal::tag_expression("not @tag1")});
   cuke.compile();
   EXPECT_EQ(cuke.get_chunk().size(), 9);
 
@@ -68,7 +68,7 @@ TEST(compiler_tagged_feature, scenarios_code_4)
   Given A Step
 )*";
   compiler::cucumber cuke(script);
-  cuke.set_options(options{.tags = compiler::tag_expression("@tag2")});
+  cuke.set_options(options{.tags = cuke::internal::tag_expression("@tag2")});
   cuke.compile();
   EXPECT_EQ(cuke.get_chunk().size(), 9);
 

@@ -2,7 +2,7 @@
 
 #include "../src/value.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 cuke::value_array make_matrix(std::size_t dim)
 {

@@ -5,7 +5,7 @@
 #define PRINT_STACK 1
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(compiler_quiet, quiet_feature_chunk)
 {

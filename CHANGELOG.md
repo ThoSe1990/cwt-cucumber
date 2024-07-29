@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Run and compile time are measured and printed to final results 
-- Command line option `-h` and `--help` print a help screen (if needed in own main use `cwt::details::print_help(int argc, const char* argv[])`)
+- Command line option `-h` and `--help` print a help screen (if needed in own main use `cuke::internal::print_help(int argc, const char* argv[])`)
 
 ## [1.2.1] 2024-02-26
 

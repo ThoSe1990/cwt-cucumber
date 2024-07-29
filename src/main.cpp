@@ -2,9 +2,9 @@
 
 int main(int argc, const char* argv[])
 {
-  cwt::details::vm cuke_vm(argc, argv);
+  cuke::internal::vm cuke_vm(argc, argv);
 
-  if (cwt::details::print_help(argc, argv))
+  if (cuke::internal::print_help(argc, argv))
   {
     return EXIT_SUCCESS;
   }
@@ -15,7 +15,7 @@ int main(int argc, const char* argv[])
   }
   catch(const std::runtime_error& e)
   {
-    cwt::details::println(cwt::details::color::red, e.what());
+    cuke::internal::println(cuke::internal::color::red, e.what());
     return EXIT_FAILURE;
   }
   

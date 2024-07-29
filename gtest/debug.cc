@@ -5,7 +5,7 @@
 #include "../src/chunk.hpp"
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(debug, print_chunk)
 {

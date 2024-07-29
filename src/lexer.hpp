@@ -5,7 +5,7 @@
 #include "scanner.hpp"
 #include "file.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 class lexer
 {
@@ -79,4 +79,4 @@ class lexer
   std::string m_filepath{""};
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

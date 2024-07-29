@@ -5,7 +5,7 @@
 
 #include "../token.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class identifier
@@ -19,4 +19,4 @@ class identifier
 
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

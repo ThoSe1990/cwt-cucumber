@@ -1,7 +1,7 @@
 #include "options.hpp"
 
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 terminal_arguments::terminal_arguments(int argc, const char* argv[])
@@ -24,7 +24,7 @@ void terminal_arguments::process_option(std::span<const char*>::iterator it)
   if (option.starts_with("-t") || option.starts_with("--tags"))
   {
     std::string_view arg(*std::next(it));
-    m_options.tags = compiler::tag_expression(arg);
+    m_options.tags = cuke::internal::tag_expression(arg);
   }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
@@ -82,4 +82,4 @@ void terminal_arguments::process()
   }
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

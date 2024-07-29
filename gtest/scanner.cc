@@ -2,7 +2,7 @@
 
 #include "../src/scanner.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(scanner, init_obj) { scanner s("some script"); }
 

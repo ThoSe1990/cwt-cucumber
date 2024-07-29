@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class context_type
@@ -65,7 +65,7 @@ class scenario_context
   {
     if (m_data.count(get_type_id<T>()) == 0)
     {
-      details::context_type ct;
+      context_type ct;
       ct.template emplace<T>();
       m_data.emplace(std::make_pair(get_type_id<T>(), std::move(ct)));
     }
@@ -77,7 +77,7 @@ class scenario_context
   {
     if (m_data.count(get_type_id<T>()) == 0)
     {
-      details::context_type ct;
+      context_type ct;
       ct.template emplace<T>(std::forward<Args>(args)...);
       m_data.emplace(std::make_pair(get_type_id<T>(), std::move(ct)));
     }
@@ -100,7 +100,7 @@ inline scenario_context& get_context()
 
 inline void reset_context() { get_context().clear(); }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 namespace cuke
 {
@@ -117,7 +117,7 @@ namespace cuke
 template <typename T>
 inline T& context()
 {
-  return cwt::details::get_context().get<T>();
+  return cuke::internal::get_context().get<T>();
 }
 /**
  * @brief Creates and returns a object of the given type to the scenario
@@ -136,6 +136,6 @@ inline T& context()
 template <typename T, typename... Args>
 inline T& context(Args&&... args)
 {
-  return cwt::details::get_context().get<T>(std::forward<Args>(args)...);
+  return cuke::internal::get_context().get<T>(std::forward<Args>(args)...);
 }
 }  // namespace cuke

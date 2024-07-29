@@ -2,7 +2,7 @@
 
 #include "../src/compiler/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(compiler, init_object) { compiler::cucumber c(""); }
 

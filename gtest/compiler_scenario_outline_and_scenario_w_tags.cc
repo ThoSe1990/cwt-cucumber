@@ -5,7 +5,7 @@
 #define PRINT_STACK 1
 #include "../src/debug.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 namespace compiler_scenario_and_scenario_outline_w_tags
 {
@@ -40,7 +40,7 @@ TEST(compiler_scenario_and_scenario_outline_w_tags, scenarios_code_2)
 {
   compiler::cucumber cuke(compiler_scenario_and_scenario_outline_w_tags::script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@some_other_tag")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@some_other_tag")});
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
   EXPECT_EQ(f.get_chunk().size(), 60);
@@ -49,7 +49,7 @@ TEST(compiler_scenario_and_scenario_outline_w_tags, scenarios_code_3)
 {
   compiler::cucumber cuke(compiler_scenario_and_scenario_outline_w_tags::script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@tag1")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@tag1")});
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
   EXPECT_EQ(f.get_chunk().size(), 81);
@@ -58,7 +58,7 @@ TEST(compiler_scenario_and_scenario_outline_w_tags, scenarios_code_4)
 {
   compiler::cucumber cuke(compiler_scenario_and_scenario_outline_w_tags::script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@tag1 and @tag2")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@tag1 and @tag2")});
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
   EXPECT_EQ(f.get_chunk().size(), 81);
@@ -67,7 +67,7 @@ TEST(compiler_scenario_and_scenario_outline_w_tags, scenarios_code_5)
 {
   compiler::cucumber cuke(compiler_scenario_and_scenario_outline_w_tags::script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@tag1 or @tag2")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@tag1 or @tag2")});
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
   EXPECT_EQ(f.get_chunk().size(), 81);
@@ -76,7 +76,7 @@ TEST(compiler_scenario_and_scenario_outline_w_tags, scenarios_code_6)
 {
   compiler::cucumber cuke(compiler_scenario_and_scenario_outline_w_tags::script);
   compiler::feature f(&cuke);
-  f.set_options(options{.tags=compiler::tag_expression("@tag1 xor @tag2")});
+  f.set_options(options{.tags=cuke::internal::tag_expression("@tag1 xor @tag2")});
   f.compile();
   disassemble_chunk(f.get_chunk(), "scenario outline");
   EXPECT_EQ(f.get_chunk().size(), 60);

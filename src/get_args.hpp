@@ -2,7 +2,7 @@
 
 #include "value.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 template <typename T, typename = void>
@@ -178,7 +178,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
   }
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 /**
  * @def CUKE_ARG(index)
@@ -193,7 +193,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  */
 
 #define CUKE_ARG(index) \
-  cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
+  cuke::internal::get_arg(n, values, index, __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()
@@ -207,7 +207,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  *
  */
 #define CUKE_DOC_STRING() \
-  cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+  cuke::internal::get_arg(n, values, n, __FILE__, __LINE__)
 /**
  * @def CUKE_TABLE()
  * @brief Access a table in a step. Use cuke::table (or const cuke::table&) as
@@ -218,4 +218,4 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  * CUKE_ARG(..), with index == last.
  *
  */
-#define CUKE_TABLE() cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+#define CUKE_TABLE() cuke::internal::get_arg(n, values, n, __FILE__, __LINE__)

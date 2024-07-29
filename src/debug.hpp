@@ -8,7 +8,7 @@
 
 #include "chunk.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 static void print_value(const cuke::value& v)
@@ -136,6 +136,6 @@ static void disassemble_chunk(const chunk& c, const std::string& name)
   }
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 #endif

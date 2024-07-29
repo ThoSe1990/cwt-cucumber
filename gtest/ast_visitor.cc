@@ -1,12 +1,11 @@
 #include <gtest/gtest.h>
-#include <cstddef>
 
 #include "../src/ast/parser.hpp"
 
-class scenario_visitor
+class count_scenarios
 {
  public:
-  void visit(const cuke::ast::scenario_node& s) { ++m_calls; }
+  void visit(const cuke::ast::scenario_node&) { ++m_calls; }
   void visit(const cuke::ast::scenario_outline_node&) { ++m_calls; }
 
   [[nodiscard]] std::size_t calls() const noexcept { return m_calls; }
@@ -25,7 +24,7 @@ TEST(ast_visitor, for_each_scenario)
   )*";
   cuke::parser p;
   p.parse_script(script);
-  scenario_visitor visitor;
+  count_scenarios visitor;
   p.for_each_scenario(visitor);
   EXPECT_EQ(visitor.calls(), 1);
 }
@@ -39,7 +38,7 @@ TEST(ast_visitor, for_each_scenario_outline)
   )*";
   cuke::parser p;
   p.parse_script(script);
-  scenario_visitor visitor;
+  count_scenarios visitor;
   p.for_each_scenario(visitor);
   EXPECT_EQ(visitor.calls(), 1);
 }
@@ -62,7 +61,7 @@ TEST(ast_visitor, for_each_scenario_and_scenario_outline)
   cuke::parser p;
   p.parse_script(script);
   ASSERT_FALSE(p.error());
-  scenario_visitor visitor;
+  count_scenarios visitor;
   p.for_each_scenario(visitor);
   EXPECT_EQ(visitor.calls(), 2);
 }

@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "table.hpp"
 
 namespace cuke

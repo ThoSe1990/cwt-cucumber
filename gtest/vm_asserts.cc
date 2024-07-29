@@ -2,7 +2,7 @@
 
 #include "../src/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 class vm_asserts_is_true : public ::testing::Test
 {

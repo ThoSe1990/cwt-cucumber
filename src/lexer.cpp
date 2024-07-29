@@ -4,7 +4,7 @@
 
 #include "util.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 lexer::lexer(const file& f) : m_scanner(f.content), m_filepath(f.path) {}
 lexer::lexer(std::string_view source) : m_scanner(source) {}
@@ -123,4 +123,4 @@ void lexer::advance()
   }
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

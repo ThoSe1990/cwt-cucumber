@@ -2,7 +2,7 @@
 
 #include "../src/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 class vm_options_tags : public ::testing::Test
 {
@@ -31,7 +31,7 @@ const char* script = R"*(
   Scenario: First Scenario
   Given A Step
 )*";
-  test_vm.set_options(options{.tags=compiler::tag_expression("@tag1")});
+  test_vm.set_options(options{.tags=cuke::internal::tag_expression("@tag1")});
   EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(1, test_vm.step_results().at(return_code::passed));
@@ -48,7 +48,7 @@ const char* script = R"*(
   Scenario: First Scenario
   Given A Step
 )*";
-  test_vm.set_options(options{.tags=compiler::tag_expression("@tag1")});
+  test_vm.set_options(options{.tags=cuke::internal::tag_expression("@tag1")});
   EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(2, test_vm.scenario_results().at(return_code::passed));
   EXPECT_EQ(2, test_vm.step_results().at(return_code::passed));
@@ -84,7 +84,7 @@ const char* script = R"*(
   Scenario: First Scenario
   Given A Step
 )*";
-  test_vm.set_options(options{.tags=compiler::tag_expression("@not_given")});
+  test_vm.set_options(options{.tags=cuke::internal::tag_expression("@not_given")});
 
   EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(0, test_vm.scenario_results().at(return_code::passed));
@@ -101,7 +101,7 @@ const char* script = R"*(
   Scenario: First Scenario
   Given A Step
 )*";
-  test_vm.set_options(options{.tags=compiler::tag_expression("@tag2")});
+  test_vm.set_options(options{.tags=cuke::internal::tag_expression("@tag2")});
 
   EXPECT_EQ(return_code::passed, test_vm.run(script));
   EXPECT_EQ(1, test_vm.scenario_results().at(return_code::passed));

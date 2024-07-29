@@ -2,7 +2,7 @@
 
 #include "../src/cucumber.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(vm, init_obj) { vm test_vm; }
 TEST(vm, run_chunk)

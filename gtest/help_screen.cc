@@ -2,7 +2,7 @@
 
 #include "../src/options.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(help_screen, check_print_1)
 {

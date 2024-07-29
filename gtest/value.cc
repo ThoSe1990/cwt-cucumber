@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "../src/value.hpp"
-#include "../src/chunk.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(value, init_obj)
 {
@@ -82,12 +81,6 @@ TEST(value, string_view_value)
   EXPECT_EQ(v.type(), cuke::value_type::string);
   EXPECT_EQ(v.as<std::string_view>(), "hello value");
 }
-TEST(value, function_value)
-{
-  cuke::value v(function{std::make_unique<chunk>(std::string("some name"))});
-  EXPECT_EQ(v.type(), cuke::value_type::function);
-  EXPECT_EQ(v.as<function>()->name(), "some name");
-}
 
 TEST(value, nil_value)
 {
@@ -154,49 +147,6 @@ TEST(value, assign_string)
   EXPECT_EQ(v2.as<std::string>(), v1.as<std::string>());
   EXPECT_EQ(v2.as<std::string>(), std::string("hello copy"));
   EXPECT_EQ(v2.type(), cuke::value_type::string);
-}
-TEST(value, copy_function_object)
-{
-  cuke::value v1(function{std::make_unique<chunk>(std::string("some name"))});
-  EXPECT_EQ(v1.as<function>()->make_constant(std::string{"some value"}), 0);
-  EXPECT_EQ(v1.as<function>()->make_constant(123), 1);
-  cuke::value v2(v1);
-  EXPECT_EQ(v1.type(), cuke::value_type::function);
-  EXPECT_EQ(v2.type(), cuke::value_type::function);
-  EXPECT_EQ(v2.as<function>()->size(), 0);
-  EXPECT_EQ(v2.as<function>()->constants_count(), 2);
-  EXPECT_EQ(v2.as<function>()->constant(0).as<std::string>(),
-            std::string("some value"));
-  EXPECT_EQ(v2.as<function>()->constant(1).as<int>(), 123);
-}
-TEST(value, assign_function_object)
-{
-  cuke::value v1(function{std::make_unique<chunk>(std::string("some name"))});
-  EXPECT_EQ(v1.as<function>()->make_constant(std::string{"some value"}), 0);
-  EXPECT_EQ(v1.as<function>()->make_constant(123), 1);
-  cuke::value v2 = v1;
-  EXPECT_EQ(v1.type(), cuke::value_type::function);
-  EXPECT_EQ(v2.type(), cuke::value_type::function);
-  EXPECT_EQ(v2.as<function>()->size(), 0);
-  EXPECT_EQ(v2.as<function>()->constants_count(), 2);
-  EXPECT_EQ(v2.as<function>()->constant(0).as<std::string>(),
-            std::string("some value"));
-  EXPECT_EQ(v2.as<function>()->constant(1).as<int>(), 123);
-}
-TEST(value, move_function_object)
-{
-  cuke::value v1(function{std::make_unique<chunk>(std::string("some name"))});
-  EXPECT_EQ(v1.as<function>()->make_constant(std::string{"some value"}), 0);
-  EXPECT_EQ(v1.as<function>()->make_constant(123), 1);
-  cuke::value v2(std::move(v1));
-
-  EXPECT_EQ(v1.type(), cuke::value_type::nil);
-  EXPECT_EQ(v2.type(), cuke::value_type::function);
-  EXPECT_EQ(v2.as<function>()->size(), 0);
-  EXPECT_EQ(v2.as<function>()->constants_count(), 2);
-  EXPECT_EQ(v2.as<function>()->constant(0).as<std::string>(),
-            std::string("some value"));
-  EXPECT_EQ(v2.as<function>()->constant(1).as<int>(), 123);
 }
 
 TEST(value, to_string_integral)

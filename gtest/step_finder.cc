@@ -2,7 +2,7 @@
 
 #include "../src/step_finder.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(step_finder, step_finder)
 {

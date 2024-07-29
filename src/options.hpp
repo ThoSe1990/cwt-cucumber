@@ -9,15 +9,15 @@
 #include "util.hpp"
 #include "file.hpp"
 #include "version.hpp"
-#include "compiler/tags.hpp"
+#include "tags.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 struct options
 {
   bool quiet{false};
-  compiler::tag_expression tags;
+  cuke::internal::tag_expression tags;
 };
 
 class terminal_arguments
@@ -89,4 +89,4 @@ static void do_print_help()
   println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

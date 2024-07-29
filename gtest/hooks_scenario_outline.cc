@@ -3,7 +3,7 @@
 #include "../src/cucumber.hpp"
 #include "../src/hooks.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 namespace hooks_scenario_outline_call_count
 {

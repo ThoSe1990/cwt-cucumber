@@ -2,7 +2,7 @@
 
 #include "chunk.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 class function
 {
@@ -14,4 +14,4 @@ class function
   chunk m_chunk;
   std::string m_name;
 };
-}  // namespace cwt::details
+}  // namespace cuke::internal

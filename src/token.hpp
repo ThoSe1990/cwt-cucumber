@@ -2,7 +2,7 @@
 
 #include <string_view>
 
-namespace cwt::details
+namespace cuke::internal
 {
 enum class token_type
 {
@@ -58,4 +58,4 @@ struct token
   std::size_t line;
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

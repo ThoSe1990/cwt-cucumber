@@ -3,7 +3,7 @@
 #include <vector> 
 #include <string> 
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 struct file
@@ -14,4 +14,4 @@ struct file
 };
 using feature_files = std::vector<file>;
 
-} // namespace cwt::details
+} // namespace cuke::internal

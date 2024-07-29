@@ -3,7 +3,7 @@
 #include "../src/cucumber.hpp"
 #include "../src/hooks.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 class scenario_outline_tests : public ::testing::Test
 {

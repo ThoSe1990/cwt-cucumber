@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 enum class return_code
@@ -56,12 +56,12 @@ enum class color
   black
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 #include "token.hpp"
 #include "value.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 [[nodiscard]] inline std::string create_string(std::string_view sv)
@@ -261,11 +261,6 @@ inline constexpr std::string replace(const token& t, std::string_view r)
   {
     return cuke::value(create_string(tokens[0].value, tokens.back().value));
   }
-}
-
-[[nodiscard]] inline const cuke::value& to_value(argv values, std::size_t idx)
-{
-  return *(values + idx);
 }
 
 [[nodiscard]] inline cuke::value_array combine(const cuke::value_array& v1,
@@ -511,4 +506,4 @@ template <typename Func, typename... Args>
   return duration.count();
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

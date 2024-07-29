@@ -1,8 +1,9 @@
 #include <format>
 
 #include "step_finder.hpp"
+#include "util.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 static void correct_floating_point_types(token& defined,
@@ -183,4 +184,4 @@ std::pair<token, token> step_finder::next()
   return {m_defined.scan_token(), m_feature.scan_token()};
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

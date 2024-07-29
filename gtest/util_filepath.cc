@@ -2,7 +2,7 @@
 
 #include "../src/util.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 
 TEST(util_filepath, absolute_path_win_wo_line)
