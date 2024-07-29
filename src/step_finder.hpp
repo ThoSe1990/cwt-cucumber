@@ -15,17 +15,8 @@ class step_finder
   
   void reset_with_next_step(std::string_view defined) noexcept;
   [[nodiscard]] bool step_matches();
-  [[nodiscard]] std::size_t values_count() const noexcept;
-  [[nodiscard]] cuke::value& get_value(std::size_t idx); 
-  template <typename Callback>
-  void for_each_value(Callback&& cb)
-  {
-    for (const cuke::value& v : m_values)
-    {
-      cb(v);
-    }
-  }
-  
+  [[nodiscard]] const cuke::value_array& values() const noexcept; 
+
  private:
   [[nodiscard]] bool parameter_matches_value(token_type parameter,
                                              token_type value);

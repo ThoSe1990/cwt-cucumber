@@ -12,7 +12,7 @@ class scenario_runner
   scenario_runner() 
   {
     cuke::registry::push_step(
-      cuke::internal::step([](const std::vector<cuke::value>&) {}, "a step"));
+      cuke::internal::step([](const cuke::value_array&) {}, "a step"));
   }
   void visit(const cuke::ast::scenario_node&) {}
   void visit(const cuke::ast::scenario_outline_node&) {}

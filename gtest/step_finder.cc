@@ -113,25 +113,25 @@ TEST(step_finder, value_int)
 {
   step_finder sf("  {int} a step", "456 a step");
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(0).as<int>(), 456);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 456);
 }
 TEST(step_finder, value_double)
 {
   step_finder sf("{double} a step", "1.123 a step");
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(0).as<double>(), 1.123);
+  EXPECT_EQ(sf.values().at(0).as<double>(), 1.123);
 }
 TEST(step_finder, value_float)
 {
   step_finder sf("{float} a step", "1.1 a step");
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(0).as<float>(), 1.1f);
+  EXPECT_EQ(sf.values().at(0).as<float>(), 1.1f);
 }
 TEST(step_finder, value_string)
 {
   step_finder sf("{string} a step", "\"hello world\" a step");
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(0).as<std::string>(), std::string("hello world"));
+  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("hello world"));
 }
 TEST(step_finder, step_with_doc_string_1)
 {
@@ -144,7 +144,7 @@ which just follows after the step!
                  doc_string_step);
   ASSERT_TRUE(sf.step_matches());
   EXPECT_EQ(
-      sf.get_value(0).as<std::string>(),
+      sf.values().at(0).as<std::string>(),
       std::string(
           "\nthis is a doc string\nwhich just follows after the step!\n"));
 }
@@ -159,7 +159,7 @@ which just follows after the step!
                  doc_string_step);
   ASSERT_TRUE(sf.step_matches());
   EXPECT_EQ(
-      sf.get_value(0).as<std::string>(),
+      sf.values().at(0).as<std::string>(),
       std::string(
           "\nthis is a doc string\nwhich just follows after the step!\n"));
 }
@@ -169,12 +169,12 @@ TEST(step_finder, multiple_values)
       "{int} and {double} and {float} and {byte} and {string} and {short}",
       "1 and 2.2 and 3.3 and 4 and \"five\" and 6");
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(0).as<int>(), 1);
-  EXPECT_EQ(sf.get_value(1).as<double>(), 2.2);
-  EXPECT_EQ(sf.get_value(2).as<float>(), 3.3f);
-  EXPECT_EQ(sf.get_value(3).as<char>(), 4);
-  EXPECT_EQ(sf.get_value(4).as<std::string>(), std::string("five"));
-  EXPECT_EQ(sf.get_value(5).as<short>(), 6);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  EXPECT_EQ(sf.values().at(1).as<double>(), 2.2);
+  EXPECT_EQ(sf.values().at(2).as<float>(), 3.3f);
+  EXPECT_EQ(sf.values().at(3).as<char>(), 4);
+  EXPECT_EQ(sf.values().at(4).as<std::string>(), std::string("five"));
+  EXPECT_EQ(sf.values().at(5).as<short>(), 6);
 }
 TEST(step_finder, multiple_values_with_doc_string)
 {
@@ -186,7 +186,7 @@ seven
       "{int} and {double} and {float} and {byte} and {string} and {short}",
       doc_string_step);
   EXPECT_TRUE(sf.step_matches());
-  EXPECT_EQ(sf.get_value(6).as<std::string>(), std::string("\nseven\n"));
+  EXPECT_EQ(sf.values().at(6).as<std::string>(), std::string("\nseven\n"));
 }
 
 TEST(step_finder, step_w_table_as_const_ref)
@@ -199,7 +199,7 @@ TEST(step_finder, step_w_table_as_const_ref)
   step_finder sf("A datatable:", doc_string_step);
   ASSERT_TRUE(sf.step_matches());
 
-  const cuke::table& t = *sf.get_value(0).as<table_ptr>().get();
+  const cuke::table& t = *sf.values().at(0).as<table_ptr>().get();
   EXPECT_EQ(t.cells_count(), 6);
   EXPECT_EQ(t.row_count(), 3);
   EXPECT_EQ(t.col_count(), 2);
@@ -215,7 +215,7 @@ TEST(step_finder, step_w_table_as_copy)
   step_finder sf("A datatable:", doc_string_step);
   ASSERT_TRUE(sf.step_matches());
 
-  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+  cuke::table t = *sf.values().at(0).as<table_ptr>().get();
   EXPECT_EQ(t.cells_count(), 6);
   EXPECT_EQ(t.row_count(), 3);
   EXPECT_EQ(t.col_count(), 2);
@@ -232,7 +232,7 @@ TEST(step_finder, step_w_strings_in_table_dims)
   step_finder sf("A datatable:", doc_string_step);
   ASSERT_TRUE(sf.step_matches());
 
-  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+  cuke::table t = *sf.values().at(0).as<table_ptr>().get();
   EXPECT_EQ(t.cells_count(), 16);
   EXPECT_EQ(t.row_count(), 4);
   EXPECT_EQ(t.col_count(), 4);
@@ -248,7 +248,7 @@ TEST(step_finder, step_w_strings_in_table_element_type)
   step_finder sf("A datatable:", doc_string_step);
   ASSERT_TRUE(sf.step_matches());
 
-  cuke::table t = *sf.get_value(0).as<table_ptr>().get();
+  cuke::table t = *sf.values().at(0).as<table_ptr>().get();
 
   for (std::size_t row = 0; row < 4; ++row)
   {

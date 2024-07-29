@@ -20,23 +20,10 @@ step_finder::step_finder(std::string_view defined, std::string_view feature)
 {
 }
 step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
-std::size_t step_finder::values_count() const noexcept
+const cuke::value_array& step_finder::values() const noexcept
 {
-  return m_values.size();
+  return m_values;
 }
-
-cuke::value& step_finder::get_value(std::size_t idx)
-{
-  if (idx < m_values.size())
-  {
-    return m_values[idx];
-  }
-  else
-  {
-    throw std::out_of_range("step_finder::get_value: Index out of range");
-  }
-}
-
 void step_finder::reset_with_next_step(std::string_view defined) noexcept
 {
   m_feature.reset();
