@@ -2,7 +2,6 @@
 
 #include "value.hpp"
 #include "scanner.hpp"
-// #include "chunk.hpp"
 
 namespace cuke::internal
 {
