@@ -362,6 +362,7 @@ class parser
   template <CukeVisitor Visitor>
   void for_each_scenario(Visitor& visitor)
   {
+    visitor.visit(m_head.feature());
     for (const auto& n : m_head.feature().scenarios())
     {
       if (n->type() == ast::node_type::scenario)
