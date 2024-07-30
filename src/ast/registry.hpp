@@ -10,19 +10,18 @@ class registry
  public:
   static void push_step(const internal::step& s) noexcept
   {
-    registry::steps().push_back(s);
+    get_steps().push_back(s);
   }
   static void clear() noexcept
   {
-    registry::steps().clear();
+    get_steps().clear();
   }
-  [[nodiscard]] static std::size_t steps_count() noexcept
+  [[nodiscard]] static const std::vector<internal::step>& steps() noexcept
   {
-    return registry::steps().size();
+    return get_steps(); 
   }
-
  private:
-  [[nodiscard]] static std::vector<internal::step>& steps() noexcept
+  [[nodiscard]] static std::vector<internal::step>& get_steps() noexcept
   {
     static std::vector<internal::step> instance; 
     return instance; 
