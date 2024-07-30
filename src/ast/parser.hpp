@@ -323,12 +323,13 @@ namespace cuke
 // }
 
 template <typename T>
-concept ScenarioVisitor =
-    requires(T t, const ast::scenario_outline_node& scenario,
-             const ast::scenario_node& scenario_outline) {
-      t.visit(scenario);
-      t.visit(scenario_outline);
-    };
+concept CukeVisitor = requires(
+    T t, const ast::feature_node& feature, const ast::scenario_node& scenario,
+    const ast::scenario_outline_node& scenario_outline) {
+  t.visit(feature);
+  t.visit(scenario);
+  t.visit(scenario_outline);
+};
 
 class parser
 {
@@ -358,7 +359,7 @@ class parser
       m_head.clear();
     }
   }
-  template <ScenarioVisitor Visitor>
+  template <CukeVisitor Visitor>
   void for_each_scenario(Visitor& visitor)
   {
     for (const auto& n : m_head.feature().scenarios())

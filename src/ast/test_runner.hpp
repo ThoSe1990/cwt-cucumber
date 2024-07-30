@@ -9,6 +9,8 @@ namespace cuke::internal
 class test_runner
 {
  public:
+  // void subscribe(/*TODO*/){}
+  void visit(const cuke::ast::feature_node&) {}
   void visit(const cuke::ast::scenario_node& scenario)
   {
     for (const cuke::ast::step_node& step : scenario.steps())
@@ -23,6 +25,7 @@ class test_runner
     }
   }
   void visit(const cuke::ast::scenario_outline_node&) {}
+
 };
 
 }  // namespace cuke::internal

@@ -30,7 +30,7 @@ if(GTest_FOUND)
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks_scenario_outline.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_runner.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/registry.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/util_filepath.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/value.cc

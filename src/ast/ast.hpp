@@ -12,7 +12,6 @@ namespace cuke::ast
 enum class node_type
 {
   gherkin_document = 0,
-  tag,
   feature,
   background,
   scenario,

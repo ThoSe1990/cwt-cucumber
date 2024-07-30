@@ -5,6 +5,7 @@
 class count_scenarios
 {
  public:
+  void visit(const cuke::ast::feature_node&) {}
   void visit(const cuke::ast::scenario_node&) { ++m_calls; }
   void visit(const cuke::ast::scenario_outline_node&) { ++m_calls; }
 
