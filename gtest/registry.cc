@@ -9,7 +9,7 @@ TEST(registry, steps)
   EXPECT_EQ(cuke::registry::steps().size(), 0); 
  
   cuke::registry::push_step(
-      cuke::internal::step([](const cuke::value_array&) {}, "a step"));
+      cuke::internal::step([](cuke::value_array::const_iterator, std::size_t) {}, "a step"));
   EXPECT_EQ(cuke::registry::steps().size(), 1);
 
   cuke::registry::clear();

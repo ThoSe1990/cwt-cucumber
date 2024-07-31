@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <cstddef>
 
 #include "../src/ast/test_runner.hpp"
 #include "../src/ast/parser.hpp"
@@ -11,7 +12,7 @@ class run_scenarios_1 : public ::testing::Test
     call_count = 0;
     cuke::registry::clear();
     cuke::registry::push_step(cuke::internal::step(
-        [](const cuke::value_array&) { run_scenarios_1::call_count++; },
+        [](cuke::value_array::const_iterator, std::size_t) { run_scenarios_1::call_count++; },
         "a step"));
   }
 
@@ -86,10 +87,10 @@ class run_scenarios_2 : public ::testing::Test
     expected_string = "";
     cuke::registry::clear();
     cuke::registry::push_step(cuke::internal::step(
-        [](const cuke::value_array& values)
+        [](cuke::value_array::const_iterator it, std::size_t n)
         {
-          run_scenarios_2::expected_int = values[0].as<unsigned int>();
-          run_scenarios_2::expected_string = values[1].as<std::string>();
+          run_scenarios_2::expected_int = it->as<unsigned int>();
+          run_scenarios_2::expected_string = (it+1)->as<std::string>();
         },
         "a step with {int} and {string}"));
   }

@@ -1,11 +1,15 @@
 #pragma once
 
+#include <cstddef>
+#include <iterator>
 #include <vector>
 #include <memory>
 #include <string>
 #include <format>
 #include <stdexcept>
 #include <type_traits>
+
+// TODO: refactor nested namespaces
 
 namespace cuke
 {
@@ -337,7 +341,8 @@ using value_array = std::vector<value>;
 namespace cuke::internal
 {
 
-using step_callback = void (*)(const cuke::value_array& args);
+using step_callback = void (*)(cuke::value_array::const_iterator it,
+                               std::size_t n);
 class step
 {
  public:
@@ -346,7 +351,10 @@ class step
   {
   }
   const std::string& definition() const noexcept { return m_definition; }
-  void call(const value_array& values) const { m_callback(values); }
+  void call(value_array::const_iterator it, std::size_t n) const
+  {
+    m_callback(it, n);
+  }
 
  private:
   step_callback m_callback;
