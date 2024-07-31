@@ -20,7 +20,7 @@ class test_runner
                             cuke::registry::steps().end());
       if (it != cuke::registry::steps().end())
       {
-        it->call(finder.values().cbegin(), finder.values().size());
+        it->call(finder.values());
       }
     }
   }
