@@ -5,6 +5,7 @@
 
 #include "value.hpp"
 #include "scanner.hpp"
+#include "table.hpp"
 
 namespace cuke::internal
 {
@@ -14,6 +15,7 @@ class step_finder
  public:
   step_finder(std::string_view defined, std::string_view feature);
   step_finder(std::string_view feature);
+  step_finder(std::string_view feature, cuke::table::row hash_row);
 
   void reset_with_next_step(std::string_view defined) noexcept;
   [[nodiscard]] bool step_matches();
@@ -43,6 +45,7 @@ class step_finder
  private:
   scanner m_defined{""};
   scanner m_feature{""};
+  cuke::table::row m_hash_row;
   cuke::value_array m_values;
 };
 

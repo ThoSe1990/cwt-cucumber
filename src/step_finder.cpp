@@ -20,6 +20,7 @@ step_finder::step_finder(std::string_view defined, std::string_view feature)
 {
 }
 step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
+step_finder::step_finder(std::string_view feature, cuke::table::row hash_row) : m_feature(feature), m_hash_row(hash_row) {}
 const cuke::value_array& step_finder::values() const noexcept
 {
   return m_values;
@@ -50,9 +51,8 @@ bool step_finder::step_matches()
       }
       else if (feature.type == token_type::variable)
       {
-        auto use_nil_as_placeholder = [this]()
-        { m_values.push_back(nil_value{}); };
-        use_nil_as_placeholder();
+        // TODO refactor 
+        m_values.push_back(m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
       }
       else
       {

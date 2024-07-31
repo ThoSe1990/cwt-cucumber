@@ -40,6 +40,7 @@ class table
   class row
   {
    public:
+    row() = default;
     row(const value_array& data, std::size_t col_count);
     row(value_array::const_iterator current, std::size_t col_count);
     row(value_array::const_iterator current, std::size_t col_count,

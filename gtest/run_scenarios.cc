@@ -124,6 +124,7 @@ TEST_F(run_scenarios_2, run_scenario_outline)
 
     Examples: 
       | var 1 | var 2              | 
+      | 123  |asdfasdf asdfasdf afsd | 
       | 99    | "scenario outline" | 
   )*";
 
