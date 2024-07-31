@@ -115,3 +115,22 @@ TEST_F(run_scenarios_2, run_scenario)
   EXPECT_EQ(run_scenarios_2::expected_int, 5);
   EXPECT_EQ(run_scenarios_2::expected_string, std::string("hello world"));
 }
+TEST_F(run_scenarios_2, run_scenario_outline)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario Outline: First Scenario 
+    Given a step with <var 1> and <var 2> 
+
+    Examples: 
+      | var 1 | var 2              | 
+      | 99    | "scenario outline" | 
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::internal::test_runner runner;
+  p.for_each_scenario(runner);
+  EXPECT_EQ(run_scenarios_2::expected_int, 99);
+  EXPECT_EQ(run_scenarios_2::expected_string, std::string("scenario outline"));
+}
