@@ -104,6 +104,39 @@ TEST(table, hashes)
   }
   EXPECT_EQ(i, 3);
 }
+TEST(table, hashes_access_third_row)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value(34));
+
+  values.push_back(cuke::value(std::string("Theodor")));
+  values.push_back(cuke::value(std::string("Wonderland")));
+  values.push_back(cuke::value(999));
+
+  values.push_back(cuke::value(std::string("Alf")));
+  values.push_back(cuke::value(std::string("Melmac")));
+  values.push_back(cuke::value(12));
+  cuke::table t(values, 3);
+
+  {
+    const cuke::table::row& data = t.hash_row(2);
+    EXPECT_EQ(data["NAME"].to_string(), std::string("Theodor"));
+    EXPECT_EQ(data["CITY"].to_string(), std::string("Wonderland"));
+    EXPECT_EQ(data["AGE"].as<int>(), 999);
+  }
+  {
+    const cuke::table::row& data = t.hash_row(3);
+    EXPECT_EQ(data["NAME"].to_string(), std::string("Alf"));
+    EXPECT_EQ(data["CITY"].to_string(), std::string("Melmac"));
+    EXPECT_EQ(data["AGE"].as<int>(), 12);
+  }
+}
 
 TEST(table, rows_hash)
 {

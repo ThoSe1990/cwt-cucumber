@@ -195,6 +195,11 @@ class table
    */
   [[nodiscard]] hash_access hashes() const;
   /**
+   * TODO: 
+   *
+   */
+  [[nodiscard]] row hash_row(std::size_t row_index) const;
+  /**
    * @brief Returns a wrapper to the row iterator for hashes
    *
    * @details This works only for a total column count of 2. If the column count

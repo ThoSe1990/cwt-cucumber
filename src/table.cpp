@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stdexcept>
 
 #include "table.hpp"
 
@@ -112,7 +113,14 @@ table::hash_access table::hashes() const
 {
   return hash_access(m_data.begin(), m_data.end(), m_col_count);
 }
-
+table::row table::hash_row(std::size_t row_index) const
+{
+  if (row_index < row_count()) [[likely]]
+  {
+    return row(m_data.begin() + row_index * m_col_count, m_col_count, m_data.begin());
+  }
+  throw std::runtime_error(std::format("table::hash: Row index '{}' does not exist", row_index));
+}
 cuke::table::pair table::rows_hash() const
 {
   if (m_col_count == 2)
