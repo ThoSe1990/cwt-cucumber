@@ -65,6 +65,19 @@ static void set_step_to(test_status status)
   test_results().back().scenarios.back().steps.back().status = status;
 }
 
+[[nodiscard]] static feature& last_feature()
+{
+  return test_results().back();
+}
+[[nodiscard]] static scenario& last_scenario()
+{
+  return test_results().back().scenarios.back();
+}
+[[nodiscard]] static step& last_step()
+{
+  return test_results().back().scenarios.back().steps.back();
+}
+
 }  // namespace cuke::results
 
 

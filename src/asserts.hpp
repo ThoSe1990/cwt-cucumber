@@ -3,6 +3,7 @@
 #include <string_view>
 
 #include "util.hpp"
+#include "ast/test_results.hpp"
 
 namespace cuke::internal
 {
@@ -10,6 +11,7 @@ inline void internal_assert(bool condition, std::string_view error_msg)
 {
   if (condition == false)
   {
+    cuke::results::set_step_to(cuke::results::test_status::failed);
     // TODO !!!! 
     // vm::current_step_failed();
     // if (!vm::get_options().quiet)
