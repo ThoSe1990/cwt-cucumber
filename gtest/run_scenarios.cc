@@ -9,8 +9,8 @@ class run_scenarios_1 : public ::testing::Test
   void SetUp() override
   {
     call_count = 0;
-    cuke::registry::clear();
-    cuke::registry::push_step(cuke::internal::step(
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&) { run_scenarios_1::call_count++; },
         "a step"));
   }
@@ -29,7 +29,7 @@ TEST_F(run_scenarios_1, run_scenario)
 
   cuke::parser p;
   p.parse_script(script);
-  cuke::internal::test_runner runner;
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_1::call_count, 1);
 }
@@ -46,7 +46,7 @@ TEST_F(run_scenarios_1, run_scenario_w_multiple_steps)
 
   cuke::parser p;
   p.parse_script(script);
-  cuke::internal::test_runner runner;
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_1::call_count, 4);
 }
@@ -72,7 +72,7 @@ TEST_F(run_scenarios_1, run_multiple_scenarios)
 
   cuke::parser p;
   p.parse_script(script);
-  cuke::internal::test_runner runner;
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_1::call_count, 8);
 }
@@ -84,8 +84,8 @@ class run_scenarios_2 : public ::testing::Test
   {
     expected_int = 0;
     expected_string = "";
-    cuke::registry::clear();
-    cuke::registry::push_step(cuke::internal::step(
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array& values)
         {
           run_scenarios_2::expected_int = values[0].as<unsigned int>();
@@ -110,7 +110,7 @@ TEST_F(run_scenarios_2, run_scenario)
 
   cuke::parser p;
   p.parse_script(script);
-  cuke::internal::test_runner runner;
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_2::expected_int, 5);
   EXPECT_EQ(run_scenarios_2::expected_string, std::string("hello world"));
@@ -130,7 +130,7 @@ TEST_F(run_scenarios_2, run_scenario_outline)
 
   cuke::parser p;
   p.parse_script(script);
-  cuke::internal::test_runner runner;
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_2::expected_int, 99);
   EXPECT_EQ(run_scenarios_2::expected_string, std::string("scenario outline"));

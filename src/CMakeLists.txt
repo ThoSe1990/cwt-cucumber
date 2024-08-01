@@ -3,6 +3,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.template ${CMAKE_CURRENT_SOUR
 
 
 set(cucumber-src 
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/test_results.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast/registry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/lexer.cpp

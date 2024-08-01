@@ -1,4 +1,5 @@
 #include <format>
+#include <string_view>
 
 #include "step_finder.hpp"
 #include "util.hpp"
@@ -6,8 +7,7 @@
 namespace cuke::internal
 {
 
-static void correct_floating_point_types(token& defined,
-                                                       token& feature)
+static void correct_floating_point_types(token& defined, token& feature)
 {
   if (feature.type == token_type::double_value &&
       defined.type == token_type::parameter_float)
@@ -15,24 +15,20 @@ static void correct_floating_point_types(token& defined,
     feature.type = token_type::float_value;
   }
 }
-step_finder::step_finder(std::string_view defined, std::string_view feature)
-    : m_defined(defined), m_feature(feature)
+step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
+step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
+    : m_feature(feature), m_hash_row(std::move(std::move(hash_row)))
 {
 }
-step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
-step_finder::step_finder(std::string_view feature, cuke::table::row hash_row) : m_feature(feature), m_hash_row(hash_row) {}
 const cuke::value_array& step_finder::values() const noexcept
 {
   return m_values;
 }
-void step_finder::reset_with_next_step(std::string_view defined) noexcept
+bool step_finder::step_matches(std::string_view defined_step)
 {
   m_feature.reset();
   m_values.clear();
-  m_defined = scanner(defined);
-}
-bool step_finder::step_matches()
-{
+  m_defined = scanner(defined_step);
   for (;;)
   {
     auto [defined, feature] = next();
@@ -51,8 +47,9 @@ bool step_finder::step_matches()
       }
       else if (feature.type == token_type::variable)
       {
-        // TODO refactor 
-        m_values.push_back(m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
+        // TODO: refactor
+        m_values.push_back(
+            m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
       }
       else
       {

@@ -1,42 +1,52 @@
 #pragma once
 
 #include "ast.hpp"
+#include "gtest/gtest.h"
 #include "registry.hpp"
 #include "../step_finder.hpp"
+#include "test_results.hpp"
 
-namespace cuke::internal
+namespace cuke
 {
 class test_runner
 {
  public:
-  // void subscribe(/*TODO*/){}
-  // TODO refactor dry 
-  void visit(const cuke::ast::feature_node&) {}
+  enum class state
+  {
+    idle = 0,
+    skip
+  };
+  void visit(const cuke::ast::feature_node&)
+  {
+    results::feature f;
+    results::new_feature(std::move(f));
+  }
   void visit(const cuke::ast::scenario_node& scenario)
   {
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       cuke::internal::step_finder finder(step.name());
-      auto it = finder.find(cuke::registry::steps().begin(),
-                            cuke::registry::steps().end());
-      if (it != cuke::registry::steps().end())
+      auto it = finder.find(cuke::registry().steps().begin(),
+                            cuke::registry().steps().end());
+      if (it != cuke::registry().steps().end())
       {
         it->call(finder.values());
       }
     }
   }
-  void visit(const cuke::ast::scenario_outline_node& scenario_outline) 
+  void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
     for (const cuke::ast::example_node& example : scenario_outline.examples())
     {
-      for (std::size_t row = 1 ; row < example.table().row_count() ; ++row)
+      for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
-          cuke::internal::step_finder finder(step.name(), example.table().hash_row(row));
-          auto it = finder.find(cuke::registry::steps().begin(),
-                                cuke::registry::steps().end());
-          if (it != cuke::registry::steps().end())
+          cuke::internal::step_finder finder(step.name(),
+                                             example.table().hash_row(row));
+          auto it = finder.find(cuke::registry().steps().begin(),
+                                cuke::registry().steps().end());
+          if (it != cuke::registry().steps().end())
           {
             it->call(finder.values());
           }
@@ -45,6 +55,8 @@ class test_runner
     }
   }
 
+ private:
+  state m_state{test_runner::state::idle};
 };
 
-}  // namespace cuke::internal
+}  // namespace cuke

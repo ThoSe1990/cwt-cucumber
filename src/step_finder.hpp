@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <string_view>
 #include <algorithm>
@@ -13,23 +13,17 @@ namespace cuke::internal
 class step_finder
 {
  public:
-  step_finder(std::string_view defined, std::string_view feature);
   step_finder(std::string_view feature);
   step_finder(std::string_view feature, cuke::table::row hash_row);
 
-  void reset_with_next_step(std::string_view defined) noexcept;
-  [[nodiscard]] bool step_matches();
+  [[nodiscard]] bool step_matches(std::string_view defined_step);
   [[nodiscard]] const cuke::value_array& values() const noexcept;
 
   template <typename Iterator>
   Iterator find(Iterator first, Iterator last)
   {
-    return std::find_if(first, last,
-                        [this](const cuke::internal::step& s)
-                        {
-                          reset_with_next_step(s.definition());
-                          return step_matches();
-                        });
+    return std::find_if(first, last, [this](const cuke::internal::step& s)
+                        { return step_matches(s.definition()); });
   }
 
  private:
