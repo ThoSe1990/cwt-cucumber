@@ -39,17 +39,17 @@ class test_result
 
 [[nodiscard]] test_result& test_results();
 
-static void new_feature(feature&& f)
+static void new_feature()
 {
-  test_results().data().push_back(std::move(f));
+  test_results().data().emplace_back();
 }
-static void new_scenario(scenario&& s)
+static void new_scenario()
 {
-  test_results().back().scenarios.push_back(std::move(s));
+  test_results().back().scenarios.emplace_back();
 }
-static void new_step(step&& s)
+static void new_step()
 {
-  test_results().back().scenarios.back().steps.push_back(std::move(s));
+  test_results().back().scenarios.back().steps.emplace_back();
 }
 
 static void set_feature_to(test_status status)

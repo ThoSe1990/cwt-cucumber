@@ -42,8 +42,7 @@ static void update_scenario_status()
 template <typename... OptionalRow>
 static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
 {
-  results::step s;
-  results::new_step(std::move(s));
+  results::new_step();
   if (skip_step())
   {
     results::last_step().status = results::test_status::skipped;
@@ -57,20 +56,19 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   {
     it->call(finder.values());
   }
+  else
+  {
+    results::last_step().status = results::test_status::undefined;
+  }
 }
 
 class test_runner
 {
  public:
-  void visit(const cuke::ast::feature_node&)
-  {
-    results::feature f;
-    results::new_feature(std::move(f));
-  }
+  void visit(const cuke::ast::feature_node&) { results::new_feature(); }
   void visit(const cuke::ast::scenario_node& scenario)
   {
-    results::scenario s;
-    results::new_scenario(std::move(s));
+    results::new_scenario();
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       execute_step(step);
@@ -83,8 +81,7 @@ class test_runner
     {
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
-        results::scenario s;
-        results::new_scenario(std::move(s));
+        results::new_scenario();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
