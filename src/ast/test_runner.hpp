@@ -12,29 +12,29 @@ namespace cuke
 
 [[nodiscard]] static bool skip_step()
 {
-  return !(results::last_scenario().steps.empty() ||
-           results::last_step().status == results::test_status::passed);
+  return !(results::scenarios_back().steps.empty() ||
+           results::steps_back().status == results::test_status::passed);
 }
 static void update_feature_status()
 {
-  if (results::last_feature().status != results::test_status::passed)
+  if (results::features_back().status != results::test_status::passed)
   {
     return;
   }
-  if (results::last_scenario().status != results::test_status::passed)
+  if (results::scenarios_back().status != results::test_status::passed)
   {
     results::set_feature_to(results::test_status::failed);
   }
 }
 static void update_scenario_status()
 {
-  if (results::last_scenario().status != results::test_status::passed)
+  if (results::scenarios_back().status != results::test_status::passed)
   {
     return;
   }
-  if (results::last_step().status != results::test_status::passed)
+  if (results::steps_back().status != results::test_status::passed)
   {
-    results::last_scenario().status = results::test_status::failed;
+    results::scenarios_back().status = results::test_status::failed;
   }
   update_feature_status();
 }
@@ -45,7 +45,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   results::new_step();
   if (skip_step())
   {
-    results::last_step().status = results::test_status::skipped;
+    results::steps_back().status = results::test_status::skipped;
     return;
   }
   cuke::internal::step_finder finder(step.name(),
@@ -58,7 +58,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   }
   else
   {
-    results::last_step().status = results::test_status::undefined;
+    results::steps_back().status = results::test_status::undefined;
   }
 }
 

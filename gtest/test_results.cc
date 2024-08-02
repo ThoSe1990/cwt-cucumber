@@ -33,13 +33,13 @@ TEST_F(test_results_1, scenario_passed)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::last_feature().scenarios.size(), 1);
-  ASSERT_EQ(cuke::results::last_scenario().steps.size(), 1);
-  EXPECT_EQ(cuke::results::last_feature().status,
+  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 1);
+  ASSERT_EQ(cuke::results::scenarios_back().steps.size(), 1);
+  EXPECT_EQ(cuke::results::features_back().status,
             cuke::results::test_status::passed);
-  EXPECT_EQ(cuke::results::last_scenario().status,
+  EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::passed);
-  EXPECT_EQ(cuke::results::last_step().status,
+  EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::passed);
 }
 
@@ -57,10 +57,10 @@ TEST_F(test_results_1, scenario_fails)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  EXPECT_EQ(cuke::results::last_feature().status,
+  EXPECT_EQ(cuke::results::features_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::last_scenario().status,
+  EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::last_step().status,
+  EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::failed);
 }

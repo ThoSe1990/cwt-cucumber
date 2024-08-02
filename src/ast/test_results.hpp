@@ -65,15 +65,15 @@ static void set_step_to(test_status status)
   test_results().back().scenarios.back().steps.back().status = status;
 }
 
-[[nodiscard]] static feature& last_feature()
+[[nodiscard]] static feature& features_back()
 {
   return test_results().back();
 }
-[[nodiscard]] static scenario& last_scenario()
+[[nodiscard]] static scenario& scenarios_back()
 {
   return test_results().back().scenarios.back();
 }
-[[nodiscard]] static step& last_step()
+[[nodiscard]] static step& steps_back()
 {
   return test_results().back().scenarios.back().steps.back();
 }
