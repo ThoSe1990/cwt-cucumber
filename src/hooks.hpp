@@ -14,7 +14,7 @@ struct hook
   {
   }
   // TODO Rename, overload call with tags ...
-  [[nodiscard]] bool valid_tag(const std::vector<cuke::value>& tags) const
+  [[nodiscard]] bool valid_tag(const std::vector<std::string>& tags) const
   {
     if (m_tags.empty())
     {

@@ -135,3 +135,4 @@ TEST_F(run_scenarios_2, run_scenario_outline)
   EXPECT_EQ(run_scenarios_2::expected_int, 99);
   EXPECT_EQ(run_scenarios_2::expected_string, std::string("scenario outline"));
 }
+

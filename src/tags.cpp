@@ -15,7 +15,7 @@ tag_expression::tag_expression(std::string_view expression)
 }
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
 bool tag_expression::empty() const noexcept { return m_out.empty(); }
-bool tag_expression::evaluate(const value_array& tags) const
+bool tag_expression::evaluate(const std::vector<std::string>& tags) const
 {
   if (m_out.empty() || tags.empty())
   {
@@ -81,11 +81,11 @@ bool tag_expression::evaluate(const value_array& tags) const
   }
 }
 bool tag_expression::contains(const std::string& tag,
-                              const std::vector<value>& tags) const
+                              const std::vector<std::string>& tags) const
 {
   for (const auto& t : tags)
   {
-    if (t.type() == cuke::value_type::string && t.as<std::string>() == tag)
+    if (t == tag)
     {
       return true;
     }

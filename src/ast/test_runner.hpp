@@ -54,7 +54,9 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
                         cuke::registry().steps().end());
   if (it != cuke::registry().steps().end())
   {
+    cuke::registry().run_hook_before_step();
     it->call(finder.values());
+    cuke::registry().run_hook_after_step();
   }
   else
   {
@@ -69,10 +71,12 @@ class test_runner
   void visit(const cuke::ast::scenario_node& scenario)
   {
     results::new_scenario();
+    cuke::registry().run_hook_before(scenario.tags());
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       execute_step(step);
     }
+    cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status();
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
@@ -82,10 +86,12 @@ class test_runner
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario();
+        cuke::registry().run_hook_before(scenario_outline.tags());
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
         }
+        cuke::registry().run_hook_after(scenario_outline.tags());
         update_scenario_status();
       }
     }

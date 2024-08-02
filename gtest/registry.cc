@@ -48,14 +48,14 @@ TEST_F(registry_tests, scenario_hook_before_tag)
   cuke::registry().push_hook_before(cuke::internal::hook([]() {}, "@tag1"));
   EXPECT_EQ(cuke::registry().hooks_before().size(), 1);
   EXPECT_TRUE(cuke::registry().hooks_before().at(0).valid_tag(
-      std::vector<cuke::value>{cuke::value(std::string("@tag1"))}));
+      std::vector<std::string>{std::string("@tag1")}));
 }
 TEST_F(registry_tests, scenario_hook_after_tag)
 {
   cuke::registry().push_hook_after(cuke::internal::hook([]() {}, "@tag1"));
   EXPECT_EQ(cuke::registry().hooks_after().size(), 1);
   EXPECT_TRUE(cuke::registry().hooks_after().at(0).valid_tag(
-      std::vector<cuke::value>{cuke::value(std::string("@tag1"))}));
+      std::vector<std::string>{std::string("@tag1")}));
 }
 TEST_F(registry_tests, step_hook_before)
 {

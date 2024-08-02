@@ -24,7 +24,7 @@ class tag_expression
   tag_expression();
   tag_expression(std::string_view expression);
 
-  [[nodiscard]] bool evaluate(const value_array& tags) const;
+  [[nodiscard]] bool evaluate(const std::vector<std::string>& tags) const;
   // [[nodiscard]] bool evaluate(const std::vector<value>& tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] bool empty() const noexcept;
@@ -44,7 +44,7 @@ class tag_expression
 
   void operator_to_out();
   [[nodiscard]] bool contains(const std::string& tag,
-                              const std::vector<value>& tags) const;
+                              const std::vector<std::string>& tags) const;
 
  private:
   std::vector<tag_token> m_out;
