@@ -1,36 +1,80 @@
 #pragma once
 
 #include "../value.hpp"
+#include "../hooks.hpp"
 
 namespace cuke
 {
-namespace internal 
+namespace internal
 {
 class registry
 {
  public:
-  void push_step(const internal::step& s) noexcept
-  {
-    get_steps().push_back(s);
-  }
   void clear() noexcept
   {
-    get_steps().clear();
+    m_steps.clear();
+    m_hooks.before.clear();
+    m_hooks.after.clear();
+    m_hooks.before_step.clear();
+    m_hooks.after_step.clear();
   }
-  [[nodiscard]] const std::vector<internal::step>& steps() noexcept
+
+  void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
+  [[nodiscard]] const std::vector<internal::step>& steps() const noexcept
   {
-    return get_steps(); 
+    return m_steps;
   }
+
+  void push_hook_before(const internal::hook& h) noexcept
+  {
+    m_hooks.before.push_back(h);
+  }
+  [[nodiscard]] const std::vector<internal::hook>& hooks_before() const noexcept
+  {
+    return m_hooks.before;
+  }
+
+  void push_hook_after(const internal::hook& h) noexcept
+  {
+    m_hooks.after.push_back(h);
+  }
+  [[nodiscard]] const std::vector<internal::hook>& hooks_after() const noexcept
+  {
+    return m_hooks.after;
+  }
+  void push_hook_before_step(const internal::hook& h) noexcept
+  {
+    m_hooks.before_step.push_back(h);
+  }
+  [[nodiscard]] const std::vector<internal::hook>& hooks_before_step()
+      const noexcept
+  {
+    return m_hooks.before_step;
+  }
+
+  void push_hook_after_step(const internal::hook& h) noexcept
+  {
+    m_hooks.after_step.push_back(h);
+  }
+  [[nodiscard]] const std::vector<internal::hook>& hooks_after_step()
+      const noexcept
+  {
+    return m_hooks.after_step;
+  }
+
  private:
-  [[nodiscard]] std::vector<internal::step>& get_steps() noexcept
+  std::vector<internal::step> m_steps;
+  struct
   {
-    static std::vector<internal::step> instance; 
-    return instance; 
-  }
+    std::vector<internal::hook> before;
+    std::vector<internal::hook> after;
+    std::vector<internal::hook> before_step;
+    std::vector<internal::hook> after_step;
+  } m_hooks;
 };
 
-} // namespace internal 
+}  // namespace internal
 
 [[nodiscard]] internal::registry& registry();
 
-} // namespace cuke
+}  // namespace cuke

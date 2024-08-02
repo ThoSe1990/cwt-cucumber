@@ -13,7 +13,7 @@ struct hook
   hook(hook_callback cb, std::string_view tags) : m_callback(cb), m_tags(tags)
   {
   }
-  // TODO Rename, overload call with tags ... 
+  // TODO Rename, overload call with tags ...
   [[nodiscard]] bool valid_tag(const std::vector<cuke::value>& tags) const
   {
     if (m_tags.empty())
@@ -22,7 +22,7 @@ struct hook
     }
     else
     {
-      return tags.empty() ? false : m_tags.evluate(tags);
+      return tags.empty() ? false : m_tags.evaluate(tags);
     }
   }
   void call() const { m_callback(); }
