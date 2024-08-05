@@ -1,5 +1,5 @@
 #include "options.hpp"
-
+#include "util.hpp"
 
 namespace cuke::internal
 {
@@ -7,15 +7,22 @@ namespace cuke::internal
 terminal_arguments::terminal_arguments(int argc, const char* argv[])
     : m_args(argv, argc)
 {
-  process();
+  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
+  {
+    std::string_view sv{*it};
+    if (sv.starts_with('-'))
+    {
+      process_option(it);
+    }
+    else
+    {
+      process_path(sv);
+    }
+  }
 }
 const options& terminal_arguments::get_options() const noexcept
 {
   return m_options;
-}
-const feature_files& terminal_arguments::get_files() const noexcept
-{
-  return m_feature_files;
 }
 
 void terminal_arguments::process_option(std::span<const char*>::iterator it)
@@ -42,8 +49,7 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
     }
     else if (entry.path().extension() == ".feature")
     {
-      m_feature_files.push_back(
-          file{entry.path().string(), read_file(entry.path().string()), {}});
+      m_options.files.push_back(feature_file{entry.path().string(), {}});
     }
   }
 }
@@ -51,8 +57,8 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
 void terminal_arguments::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
-  auto [feature_file, lines] = filepath_and_lines(sv);
-  fs::path path = feature_file;
+  auto [file_path, lines] = filepath_and_lines(sv);
+  fs::path path = file_path;
   if (fs::exists(path))
   {
     if (fs::is_directory(path))
@@ -61,23 +67,7 @@ void terminal_arguments::process_path(std::string_view sv)
     }
     else if (path.extension() == ".feature")
     {
-      m_feature_files.push_back(
-          file{feature_file, read_file(feature_file), lines});
-    }
-  }
-}
-void terminal_arguments::process()
-{
-  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
-  {
-    std::string_view sv{*it};
-    if (sv.starts_with('-'))
-    {
-      process_option(it);
-    }
-    else
-    {
-      process_path(sv);
+      m_options.files.push_back(feature_file{file_path, lines});
     }
   }
 }

@@ -3,14 +3,13 @@
 #include <vector>
 
 #include "scanner.hpp"
-#include "file.hpp"
+// #include "file.hpp"
 
 namespace cuke::internal
 {
 class lexer
 {
  public:
-  lexer(const file& f);
   lexer(std::string_view source);
   lexer(std::string_view source, bool_operators);
 

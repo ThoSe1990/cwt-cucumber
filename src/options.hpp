@@ -3,32 +3,36 @@
 #include <span>
 #include <vector>
 #include <string>
-#include <algorithm>
 #include <filesystem>
 
 #include "util.hpp"
-#include "file.hpp"
 #include "version.hpp"
 #include "tags.hpp"
 
 namespace cuke::internal
 {
 
+struct feature_file
+{
+  std::string path;
+  std::vector<std::size_t> lines_to_compile;
+};
+
 struct options
 {
   bool quiet{false};
   cuke::internal::tag_expression tags;
+  std::vector<feature_file> files;  
 };
 
 class terminal_arguments
 {
  public:
+  terminal_arguments() = default; 
   terminal_arguments(int argc, const char* argv[]);
   const options& get_options() const noexcept;
-  const feature_files& get_files() const noexcept;
 
  private:
-  void process();
   void process_path(std::string_view sv);
   void process_option(std::span<const char*>::iterator it);
   void find_feature_in_dir(const std::filesystem::path& dir);
@@ -36,7 +40,6 @@ class terminal_arguments
  private:
   std::span<const char*> m_args;
   options m_options;
-  feature_files m_feature_files;
 };
 
 static void do_print_help();

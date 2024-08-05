@@ -3,6 +3,8 @@ set(target unittests)
 find_package(GTest)
 
 if(GTest_FOUND)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths.template ${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp)
+
 
   add_executable(${target} 
     ${CMAKE_CURRENT_SOURCE_DIR}/ast.cc
@@ -27,6 +29,7 @@ if(GTest_FOUND)
     # ${CMAKE_CURRENT_SOURCE_DIR}/compiler_single_lines.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/debug.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/options.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks_with_tags.cc
     # ${CMAKE_CURRENT_SOURCE_DIR}/hooks_scenario_outline.cc
