@@ -1,10 +1,14 @@
 #pragma once
 
+#include <algorithm>
+#include <memory>
 #include <utility>
 #include "ast.hpp"
 #include "registry.hpp"
 #include "../step_finder.hpp"
 #include "test_results.hpp"
+#include "../util.hpp"
+#include "../options.hpp"
 
 namespace cuke
 {
@@ -64,9 +68,43 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   }
 }
 
+class stdout_interface
+{
+ public:
+  virtual ~stdout_interface() = default;
+  virtual void print(std::string_view sv, internal::color c) const noexcept {}
+};
+
+class cuke_printer : public stdout_interface
+{
+ public:
+  void print(std::string_view sv, internal::color c) const noexcept override
+  {
+    print(sv, c);
+  }
+};
+
+[[nodiscard]] static std::unique_ptr<stdout_interface> make_printer(
+    const internal::terminal_arguments& targs)
+{
+  return targs.get_options().quiet ? std::make_unique<stdout_interface>()
+                                   : std::make_unique<cuke_printer>();
+}
+
+// TODO:
+// - unittests for run scenarios with options single scenarios
+// - unittests for run w and w/o printer
+// - cleanup: remove internal namespace
+// - cleanup: remove ast directory
+
 class test_runner
 {
  public:
+  test_runner() = default;
+  test_runner(int argc, const char* argv[])
+      : m_args(argc, argv), m_printer(make_printer(m_args))
+  {
+  }
   void visit(const cuke::ast::feature_node& feature)
   {
     results::new_feature();
@@ -125,6 +163,8 @@ class test_runner
 
  private:
   const cuke::ast::background_node* m_background = nullptr;
+  internal::terminal_arguments m_args;
+  std::unique_ptr<stdout_interface> m_printer = nullptr;
 };
 
 }  // namespace cuke

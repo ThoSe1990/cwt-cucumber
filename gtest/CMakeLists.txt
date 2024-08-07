@@ -21,6 +21,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/table.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/tags.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/terminal_prints.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_english.cc
