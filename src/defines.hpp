@@ -7,19 +7,20 @@
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
-#define _STEP(function_name, step_definition)                              \
-  void function_name(::cuke::internal::argc n, ::cuke::internal::argv values); \
-  namespace                                                                \
-  {                                                                        \
-  struct CONCAT(function_name, _t)                                         \
-  {                                                                        \
-    CONCAT(function_name, _t)()                                            \
-    {                                                                      \
-    }                                                                      \
-  } CONCAT(g_, function_name);                                             \
-  }                                                                        \
-  void function_name([[maybe_unused]] ::cuke::internal::argc n,              \
-                     [[maybe_unused]] ::cuke::internal::argv values)
+#define _STEP(function_name, step_definition)                      \
+  void function_name(const ::cuke::value_array& values);           \
+  namespace                                                        \
+  {                                                                \
+  struct CONCAT(function_name, _t)                                 \
+  {                                                                \
+    CONCAT(function_name, _t)()                                    \
+    {                                                              \
+      ::cuke::registry().push_step(                                \
+          ::cuke::internal::step(function_name, step_definition)); \
+    }                                                              \
+  } CONCAT(g_, function_name);                                     \
+  }                                                                \
+  void function_name([[maybe_unused]] const ::cuke::value_array& values)
 
 /**
  * @def STEP(function_name, step_definition)
@@ -56,18 +57,20 @@
 #define THEN(function_name, step_definition) \
   STEP(function_name, step_definition)
 
-#define _BEFORE(function_name, tag_expression)                  \
-  void function_name();                                         \
-  namespace                                                     \
-  {                                                             \
-  struct CONCAT(function_name, _t)                              \
-  {                                                             \
-    CONCAT(function_name, _t)()                                 \
-    {                                                           \
-    }                                                           \
-                                                                \
-  } CONCAT(g_, function_name);                                  \
-  }                                                             \
+#define _BEFORE(function_name, tag_expression)                    \
+  void function_name();                                           \
+  namespace                                                       \
+  {                                                               \
+  struct CONCAT(function_name, _t)                                \
+  {                                                               \
+    CONCAT(function_name, _t)()                                   \
+    {                                                             \
+      ::cuke::registry().push_hook_before(                        \
+          ::cuke::internal::hook(function_name, tag_expression)); \
+    }                                                             \
+                                                                  \
+  } CONCAT(g_, function_name);                                    \
+  }                                                               \
   void function_name()
 
 /**
@@ -94,18 +97,20 @@
 #define BEFORE_T(function_name, tag_expression) \
   _BEFORE(function_name, tag_expression)
 
-#define _AFTER(function_name, tag_expression)                   \
-  void function_name();                                         \
-  namespace                                                     \
-  {                                                             \
-  struct CONCAT(function_name, _t)                              \
-  {                                                             \
-    CONCAT(function_name, _t)()                                 \
-    {                                                           \
-    }                                                           \
-                                                                \
-  } CONCAT(g_, function_name);                                  \
-  }                                                             \
+#define _AFTER(function_name, tag_expression)                     \
+  void function_name();                                           \
+  namespace                                                       \
+  {                                                               \
+  struct CONCAT(function_name, _t)                                \
+  {                                                               \
+    CONCAT(function_name, _t)()                                   \
+    {                                                             \
+      ::cuke::registry().push_hook_after(                         \
+          ::cuke::internal::hook(function_name, tag_expression)); \
+    }                                                             \
+                                                                  \
+  } CONCAT(g_, function_name);                                    \
+  }                                                               \
   void function_name()
 
 /**
@@ -132,18 +137,20 @@
 #define AFTER_T(function_name, tag_expression) \
   _AFTER(function_name, tag_expression)
 
-#define _BEFORE_STEP(function_name)              \
-  void function_name();                          \
-  namespace                                      \
-  {                                              \
-  struct CONCAT(function_name, _t)               \
-  {                                              \
-    CONCAT(function_name, _t)()                  \
-    {                                            \
-    }                                            \
-                                                 \
-  } CONCAT(g_, function_name);                   \
-  }                                              \
+#define _BEFORE_STEP(function_name)               \
+  void function_name();                           \
+  namespace                                       \
+  {                                               \
+  struct CONCAT(function_name, _t)                \
+  {                                               \
+    CONCAT(function_name, _t)()                   \
+    {                                             \
+      ::cuke::registry().push_hook_before_step(   \
+          ::cuke::internal::hook(function_name)); \
+    }                                             \
+                                                  \
+  } CONCAT(g_, function_name);                    \
+  }                                               \
   void function_name()
 
 /**
@@ -155,18 +162,20 @@
  */
 #define BEFORE_STEP(function_name) _BEFORE_STEP(function_name)
 
-#define _AFTER_STEP(function_name)              \
-  void function_name();                         \
-  namespace                                     \
-  {                                             \
-  struct CONCAT(function_name, _t)              \
-  {                                             \
-    CONCAT(function_name, _t)()                 \
-    {                                           \
-    }                                           \
-                                                \
-  } CONCAT(g_, function_name);                  \
-  }                                             \
+#define _AFTER_STEP(function_name)                \
+  void function_name();                           \
+  namespace                                       \
+  {                                               \
+  struct CONCAT(function_name, _t)                \
+  {                                               \
+    CONCAT(function_name, _t)()                   \
+    {                                             \
+      ::cuke::registry().push_hook_after_step(    \
+          ::cuke::internal::hook(function_name)); \
+    }                                             \
+                                                  \
+  } CONCAT(g_, function_name);                    \
+  }                                               \
   void function_name()
 
 /**

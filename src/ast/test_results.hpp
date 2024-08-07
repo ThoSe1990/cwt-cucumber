@@ -1,5 +1,6 @@
-#pragma once 
+#pragma once
 
+#include <algorithm>
 #include <vector>
 
 namespace cuke::results
@@ -33,20 +34,30 @@ class test_result
   [[nodiscard]] std::vector<feature>& data() noexcept { return m_data; }
   [[nodiscard]] feature& back() noexcept { return m_data.back(); }
   void clear() noexcept { m_data.clear(); }
+
  private:
   std::vector<feature> m_data;
 };
 
 [[nodiscard]] test_result& test_results();
 
-static void new_feature()
+[[nodiscard]] static test_status final_result()
 {
-  test_results().data().emplace_back();
+  if (test_results().data().empty())
+  {
+    return test_status::passed;
+  }
+
+  bool all_passed =
+      std::all_of(test_results().data().begin(), test_results().data().end(),
+                  [](const feature& f)
+                  { return f.status == results::test_status::passed; });
+
+  return all_passed ? test_status::passed : test_status::failed;
 }
-static void new_scenario()
-{
-  test_results().back().scenarios.emplace_back();
-}
+
+static void new_feature() { test_results().data().emplace_back(); }
+static void new_scenario() { test_results().back().scenarios.emplace_back(); }
 static void new_step()
 {
   test_results().back().scenarios.back().steps.emplace_back();
@@ -65,10 +76,7 @@ static void set_step_to(test_status status)
   test_results().back().scenarios.back().steps.back().status = status;
 }
 
-[[nodiscard]] static feature& features_back()
-{
-  return test_results().back();
-}
+[[nodiscard]] static feature& features_back() { return test_results().back(); }
 [[nodiscard]] static scenario& scenarios_back()
 {
   return test_results().back().scenarios.back();
@@ -79,5 +87,3 @@ static void set_step_to(test_status status)
 }
 
 }  // namespace cuke::results
-
-

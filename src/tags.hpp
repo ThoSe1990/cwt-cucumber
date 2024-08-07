@@ -25,7 +25,6 @@ class tag_expression
   tag_expression(std::string_view expression);
 
   [[nodiscard]] bool evaluate(const std::vector<std::string>& tags) const;
-  // [[nodiscard]] bool evaluate(const std::vector<value>& tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] bool empty() const noexcept;
 
