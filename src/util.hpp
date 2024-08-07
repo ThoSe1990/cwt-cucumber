@@ -300,7 +300,7 @@ filepath_and_lines(std::string_view sv)
   return std::make_pair(std::string{sv.substr(0, last_pos + 1)}, lines);
 }
 
-[[nodiscard]] inline std::string read_file(const std::string& path)
+[[nodiscard]] inline std::string read_file(std::string_view path)
 {
   std::ifstream in(path);
   std::string script((std::istreambuf_iterator<char>(in)),

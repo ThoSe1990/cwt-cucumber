@@ -309,19 +309,6 @@ parse_background(lexer& lex)
 namespace cuke
 {
 
-// TODO
-// struct file
-// {
-//   std::string path;
-//   std::string content;
-// };
-
-// TODO
-// [[nodiscard]] file read_file(std::string_view src)
-// {
-// TODO ...
-// }
-
 template <typename T>
 concept CukeVisitor = requires(
     T t, const ast::feature_node& feature, const ast::scenario_node& scenario,
@@ -342,7 +329,8 @@ class parser
 
   void parse_from_file(std::string_view filepath)
   {
-    // TODO ...
+    const std::string script = internal::read_file(filepath);
+    parse_script(script);
   }
 
   void parse_script(std::string_view script)
