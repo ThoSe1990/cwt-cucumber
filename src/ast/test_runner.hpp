@@ -2,7 +2,6 @@
 
 #include <utility>
 #include "ast.hpp"
-#include "gtest/gtest.h"
 #include "registry.hpp"
 #include "../step_finder.hpp"
 #include "test_results.hpp"
@@ -67,11 +66,20 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
 class test_runner
 {
  public:
-  void visit(const cuke::ast::feature_node&) { results::new_feature(); }
+  void visit(const cuke::ast::feature_node& feature)
+  {
+    results::new_feature();
+
+    if (feature.has_background())
+    {
+      m_background = &feature.background();
+    }
+  }
   void visit(const cuke::ast::scenario_node& scenario)
   {
     results::new_scenario();
     cuke::registry().run_hook_before(scenario.tags());
+    run_background();
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       execute_step(step);
@@ -87,6 +95,7 @@ class test_runner
       {
         results::new_scenario();
         cuke::registry().run_hook_before(scenario_outline.tags());
+        run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
@@ -96,6 +105,25 @@ class test_runner
       }
     }
   }
+
+ private:
+  void run_background() const noexcept
+  {
+    if (has_background())
+    {
+      for (const cuke::ast::step_node& step : m_background->steps())
+      {
+        execute_step(step);
+      }
+    }
+  }
+  [[nodiscard]] bool has_background() const noexcept
+  {
+    return m_background != nullptr;
+  }
+
+ private:
+  const cuke::ast::background_node* m_background = nullptr;
 };
 
 }  // namespace cuke
