@@ -41,12 +41,13 @@ static void update_scenario_status()
 template <typename... OptionalRow>
 static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
 {
-  results::new_step();
   if (skip_step())
   {
+    results::new_step();
     results::steps_back().status = results::test_status::skipped;
     return;
   }
+  results::new_step();
   cuke::internal::step_finder finder(step.name(),
                                      std::forward<OptionalRow>(row)...);
   auto it = finder.find(cuke::registry().steps().begin(),
