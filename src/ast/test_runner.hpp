@@ -82,24 +82,17 @@ class stdout_interface
 {
  public:
   virtual ~stdout_interface() = default;
-  virtual void print(std::string_view sv, internal::color c) const noexcept {}
+  virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
 };
 
 class cuke_printer : public stdout_interface
 {
  public:
-  void print(std::string_view sv, internal::color c) const noexcept override
+  void print(const cuke::ast::feature_node& feature) const noexcept override
   {
-    print(sv, c);
+    internal::println(feature.keyword(), feature.name());
   }
 };
-
-[[nodiscard]] static std::unique_ptr<stdout_interface> make_printer(
-    const internal::terminal_arguments& targs)
-{
-  return targs.get_options().quiet ? std::make_unique<stdout_interface>()
-                                   : std::make_unique<cuke_printer>();
-}
 
 // TODO:
 // - unittests for run w and w/o printer
@@ -120,7 +113,7 @@ class test_runner
   void visit(const cuke::ast::feature_node& feature)
   {
     results::new_feature();
-
+    m_printer->print(feature);
     if (feature.has_background())
     {
       m_background = &feature.background();

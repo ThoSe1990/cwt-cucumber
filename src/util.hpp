@@ -100,24 +100,42 @@ static const std::unordered_map<color, std::string> color_codes = {
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
     {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
 
-inline void print(color c, std::string_view msg)
+template <typename T>
+inline void print_impl(const T& t)
+{
+  std::cout << t << ' ';
+}
+
+template <typename... Args>
+inline void print(color c, Args&&... args)
 {
   auto it = color_codes.find(c);
   if (it != color_codes.end())
   {
     std::cout << it->second;
+    print_impl(std::forward<Args>(args)...);
+    std::cout << color_codes.at(color::standard);
   }
   else
   {
     std::cerr << "Color code " << to_uint(c) << " not found!\n";
   }
-  std::cout << msg << "\x1b[0m";
 }
-inline void print(std::string_view msg) { print(color::standard, msg); }
-
-inline void println(color c, std::string_view mgs)
+template <typename... Args>
+inline void print(Args&&... args)
 {
-  print(c, mgs);
+  (print_impl(std::forward<Args>(args)), ...);
+}
+template <typename... Args>
+inline void println(Args&&... args)
+{
+  (print_impl(std::forward<Args>(args)), ...);
+  std::cout << '\n';
+}
+template <typename... Args>
+inline void println(color c, Args&&... args)
+{
+  print(c, std::forward<Args>(args)...);
   std::cout << '\n';
 }
 inline void println() { std::cout << '\n'; }
