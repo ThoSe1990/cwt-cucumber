@@ -13,6 +13,16 @@
 namespace cuke
 {
 
+[[nodiscard]] static bool skip_scenario(const internal::feature_file* file,
+                                        std::size_t line)
+{
+  if (file == nullptr || file->lines_to_compile.empty())
+  {
+    return false;
+  }
+  return std::find(file->lines_to_compile.begin(), file->lines_to_compile.end(),
+                   line) == file->lines_to_compile.end();
+}
 [[nodiscard]] static bool skip_step()
 {
   return !(results::scenarios_back().steps.empty() ||
@@ -92,7 +102,6 @@ class cuke_printer : public stdout_interface
 }
 
 // TODO:
-// - unittests for run scenarios with options single scenarios
 // - unittests for run w and w/o printer
 // - cleanup: remove internal namespace
 // - cleanup: remove ast directory
@@ -101,10 +110,13 @@ class test_runner
 {
  public:
   test_runner() = default;
-  test_runner(int argc, const char* argv[])
-      : m_args(argc, argv), m_printer(make_printer(m_args))
+  test_runner(const internal::feature_file* file) : m_file(file) {}
+
+  void set_quiet()
   {
+    m_printer.reset(std::make_unique<stdout_interface>().release());
   }
+
   void visit(const cuke::ast::feature_node& feature)
   {
     results::new_feature();
@@ -117,6 +129,11 @@ class test_runner
   void visit(const cuke::ast::scenario_node& scenario)
   {
     results::new_scenario();
+    if (skip_scenario(m_file, scenario.line()))
+    {
+      results::scenarios_back().status = results::test_status::skipped;
+      return;
+    }
     cuke::registry().run_hook_before(scenario.tags());
     run_background();
     for (const cuke::ast::step_node& step : scenario.steps())
@@ -133,6 +150,11 @@ class test_runner
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario();
+        if (skip_scenario(m_file, example.line_table_begin() + row))
+        {
+          results::scenarios_back().status = results::test_status::skipped;
+          continue;
+        }
         cuke::registry().run_hook_before(scenario_outline.tags());
         run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
@@ -163,8 +185,9 @@ class test_runner
 
  private:
   const cuke::ast::background_node* m_background = nullptr;
-  internal::terminal_arguments m_args;
-  std::unique_ptr<stdout_interface> m_printer = nullptr;
+  std::unique_ptr<stdout_interface> m_printer =
+      std::make_unique<cuke_printer>();
+  const internal::feature_file* m_file = nullptr;
 };
 
 }  // namespace cuke

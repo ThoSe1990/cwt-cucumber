@@ -154,12 +154,13 @@ template <typename... Ts>
   return v;
 }
 
-[[nodiscard]] static cuke::table parse_table(lexer& lex)
+[[nodiscard]] static std::pair<cuke::table, std::size_t> parse_table(lexer& lex)
 {
   if (!lex.match(token_type::vertical))
   {
     return {};
   }
+  std::size_t line_table_begin = lex.current().line;
   cuke::table t(parse_row(lex));
   lex.skip_linebreaks();
   while (lex.match(token_type::vertical))
@@ -171,7 +172,7 @@ template <typename... Ts>
     }
     lex.skip_linebreaks();
   }
-  return t;
+  return std::make_pair(std::move(t), line_table_begin);
 }
 
 [[nodiscard]] static std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
@@ -183,7 +184,7 @@ template <typename... Ts>
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex);
     std::vector<std::string> doc_string = parse_doc_string(lex);
-    cuke::table data_table = parse_table(lex);
+    auto [data_table, line_table_begin] = parse_table(lex);
 
     steps.push_back(cuke::ast::step_node(
         std::move(key), std::move(name), lex.filepath(), line,
@@ -201,10 +202,10 @@ template <typename... Ts>
   auto [keyword, name] = parse_keyword_and_name(lex);
   auto description =
       parse_description(lex, token_type::vertical, token_type::eof);
-  cuke::table t = parse_table(lex);
+  auto [t, line_table_begin] = parse_table(lex);
   return cuke::ast::example_node(cuke::ast::example_node(
       std::move(keyword), std::move(name), lex.filepath(), line,
-      std::move(tags), std::move(description), std::move(t)));
+      std::move(tags), std::move(description), std::move(t), line_table_begin));
 }
 
 [[nodiscard]] static std::unique_ptr<cuke::ast::scenario_outline_node>
@@ -330,6 +331,7 @@ class parser
   void parse_from_file(std::string_view filepath)
   {
     const std::string script = internal::read_file(filepath);
+    // TODO: if string.empty() -> error case
     parse_script(script);
   }
 

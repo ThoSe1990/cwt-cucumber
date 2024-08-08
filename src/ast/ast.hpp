@@ -4,6 +4,7 @@
 #include "../token.hpp"
 #include "../table.hpp"
 
+#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -142,11 +143,13 @@ class example_node : public node
  public:
   example_node(std::string&& key, std::string&& name, const std::string& file,
                std::size_t line, std::vector<std::string>&& tags,
-               std::vector<std::string>&& description, cuke::table&& table)
+               std::vector<std::string>&& description, cuke::table&& table,
+               std::size_t line_table_begin)
       : node(std::move(key), std::move(name), line, file),
         m_tags(std::move(tags)),
         m_description(std::move(description)),
-        m_table(std::move(table))
+        m_table(std::move(table)),
+        m_line_table_begin(line_table_begin)
   {
   }
 
@@ -163,11 +166,16 @@ class example_node : public node
     return m_description;
   }
   [[nodiscard]] const cuke::table& table() const noexcept { return m_table; }
+  [[nodiscard]] std::size_t line_table_begin() const noexcept
+  {
+    return m_line_table_begin;
+  }
 
  private:
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
   cuke::table m_table;
+  std::size_t m_line_table_begin;
 };
 
 class scenario_outline_node : public node
