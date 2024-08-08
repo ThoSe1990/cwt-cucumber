@@ -83,6 +83,16 @@ class stdout_interface
  public:
   virtual ~stdout_interface() = default;
   virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
+  virtual void print(const cuke::ast::scenario_node& scenario) const noexcept {}
+  virtual void print(
+      const cuke::ast::scenario_outline_node& scenario_outline) const noexcept
+  {
+  }
+  virtual void print(const cuke::ast::example_node& example) const noexcept {}
+  virtual void print(const cuke::ast::step_node& step,
+                     results::test_status status) const noexcept
+  {
+  }
 };
 
 class cuke_printer : public stdout_interface
@@ -90,7 +100,25 @@ class cuke_printer : public stdout_interface
  public:
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
-    internal::println(feature.keyword(), feature.name());
+    internal::println(feature.keyword(), ' ', feature.name());
+    internal::println();
+  }
+  void print(const cuke::ast::scenario_node& scenario) const noexcept override
+  {
+    internal::println(scenario.keyword(), ' ', scenario.name());
+  }
+  void print(const cuke::ast::scenario_outline_node& scenario_outline)
+      const noexcept override
+  {
+    internal::println(scenario_outline.keyword(), ' ', scenario_outline.name());
+  }
+  void print(const cuke::ast::example_node& example) const noexcept override {}
+  void print(const cuke::ast::step_node& step,
+             results::test_status status) const noexcept override
+  {
+    internal::print(internal::to_color(status), internal::step_prefix(status),
+                    step.keyword(), ' ', step.name(), "  ");
+    internal::println(internal::color::black, step.file(), ':', step.line());
   }
 };
 
@@ -127,11 +155,13 @@ class test_runner
       results::scenarios_back().status = results::test_status::skipped;
       return;
     }
+    m_printer->print(scenario);
     cuke::registry().run_hook_before(scenario.tags());
     run_background();
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       execute_step(step);
+      m_printer->print(step, results::steps_back().status);
     }
     cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status();

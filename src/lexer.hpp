@@ -13,7 +13,7 @@ class lexer
   lexer(std::string_view source);
   lexer(std::string_view source, bool_operators);
 
-  [[nodiscard]] const std::string& filepath() const noexcept;  
+  [[nodiscard]] const std::string& filepath() const noexcept;
   [[nodiscard]] const token& current() const noexcept;
   [[nodiscard]] const token& previous() const noexcept;
   [[nodiscard]] bool error() const noexcept;
@@ -70,12 +70,12 @@ class lexer
  private:
   scanner m_scanner;
   // TODO current & previous aren't initialized
-  // in parser/compiler we advance in constructors, we probably can 
+  // in parser/compiler we advance in constructors, we probably can
   // avoid that and advance in lexer's constructor.
   token m_current;
   token m_previous;
   bool m_error{false};
-  std::string m_filepath{""};
+  std::string m_filepath{"<no file>"};
 };
 
 }  // namespace cuke::internal

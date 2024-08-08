@@ -26,6 +26,8 @@ TEST_F(stdout_print, scenario_pass)
   )*";
 
   cuke::parser p;
+  // TODO: we have to pass filenames to parse_from_file, lexer's filename
+  // is not initialized yet
   p.parse_script(script);
   cuke::test_runner runner;
   p.for_each_scenario(runner);

@@ -98,12 +98,12 @@ template <typename T>
 static const std::unordered_map<color, std::string> color_codes = {
     {color::standard, "\x1b[0m"}, {color::green, "\x1b[32m"},
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
-    {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
+    {color::blue, "\x1b[34m"},    {color::black, "\x1b[90m"}};
 
 template <typename T>
 inline void print_impl(const T& t)
 {
-  std::cout << t << ' ';
+  std::cout << t;
 }
 
 template <typename... Args>
@@ -113,7 +113,7 @@ inline void print(color c, Args&&... args)
   if (it != color_codes.end())
   {
     std::cout << it->second;
-    print_impl(std::forward<Args>(args)...);
+    (print_impl(std::forward<Args>(args)), ...);
     std::cout << color_codes.at(color::standard);
   }
   else
@@ -270,13 +270,13 @@ inline constexpr std::string replace(const token& t, std::string_view r)
   switch (status)
   {
     case cuke::results::test_status::passed:
-      return std::string("[   PASSED    ]");
+      return std::string("[   PASSED    ] ");
     case cuke::results::test_status::failed:
-      return std::string("[   FAILED    ]");
+      return std::string("[   FAILED    ] ");
     case cuke::results::test_status::skipped:
-      return std::string("[   SKIPPED   ]");
+      return std::string("[   SKIPPED   ] ");
     case cuke::results::test_status::undefined:
-      return std::string("[  UNDEFINED  ]");
+      return std::string("[  UNDEFINED  ] ");
     default:
       return std::string("");
   }
