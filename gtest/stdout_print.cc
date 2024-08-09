@@ -3,6 +3,7 @@
 
 #include "../src/ast/test_runner.hpp"
 #include "../src/ast/parser.hpp"
+#include "../src/asserts.hpp"
 
 #include "paths.hpp"
 
@@ -13,9 +14,12 @@ class stdout_print : public ::testing::Test
   {
     testing::internal::CaptureStdout();
 
+    cuke::results::test_results().clear();
     cuke::registry().clear();
     cuke::registry().push_step(
         cuke::internal::step([](const cuke::value_array&) {}, "a step"));
+    cuke::registry().push_step(cuke::internal::step(
+        [](const cuke::value_array&) { cuke::is_true(false); }, "this fails"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,
@@ -69,4 +73,25 @@ TEST_F(stdout_print, scenario_pass)
   EXPECT_TRUE(has_substr(output, "<no file>:3"));
   EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
+}
+TEST_F(stdout_print, scenario_fail)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+    And this fails
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
+  EXPECT_TRUE(has_substr(output, "[   FAILED    ] And this fails"));
+  EXPECT_TRUE(has_substr(output, "<no file>:5"));
 }
