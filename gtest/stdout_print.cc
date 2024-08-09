@@ -1,8 +1,9 @@
-
+#include <format>
 #include <gtest/gtest.h>
 
 #include "../src/ast/test_runner.hpp"
 #include "../src/ast/parser.hpp"
+
 #include "paths.hpp"
 
 class stdout_print : public ::testing::Test
@@ -10,12 +11,18 @@ class stdout_print : public ::testing::Test
  protected:
   void SetUp() override
   {
+    testing::internal::CaptureStdout();
+
     cuke::registry().clear();
     cuke::registry().push_step(
         cuke::internal::step([](const cuke::value_array&) {}, "a step"));
   }
 
-  static std::size_t call_count;
+  [[nodiscard]] bool has_substr(const std::string& output,
+                                const std::string& expected) const noexcept
+  {
+    return output.find(expected) != std::string::npos;
+  }
 };
 
 TEST_F(stdout_print, scenario_from_file)
@@ -33,18 +40,33 @@ TEST_F(stdout_print, scenario_from_file)
 
   cuke::test_runner runner(&file);
   p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "Feature: example feature"));
+  EXPECT_TRUE(has_substr(output, "Scenario: first scenario"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] And a step"));
 }
 
 TEST_F(stdout_print, scenario_pass)
 {
   const char* script = R"*(
     Feature: a feature 
-    Scenario: First Scenario 
+    Scenario: a scenario 
     Given a step 
   )*";
 
   cuke::parser p;
   p.parse_script(script);
+
   cuke::test_runner runner;
   p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "Feature: a feature"));
+  EXPECT_TRUE(has_substr(output, "<no file>:2"));
+  EXPECT_TRUE(has_substr(output, "Scenario: a scenario"));
+  EXPECT_TRUE(has_substr(output, "<no file>:3"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
 }

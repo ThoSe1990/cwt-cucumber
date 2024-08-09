@@ -327,12 +327,14 @@ class parser
   {
     return m_head;
   }
+
   [[nodiscard]] bool error() const noexcept { return m_error; }
 
   void parse_from_file(const internal::feature_file& file)
   {
     parse_from_file(file.path);
   }
+
   void parse_from_file(std::string_view filepath)
   {
     const std::string script = internal::read_file(filepath);
@@ -349,6 +351,7 @@ class parser
   {
     parse_impl(script, "<no file>");
   }
+
   template <CukeVisitor Visitor>
   void for_each_scenario(Visitor& visitor)
   {

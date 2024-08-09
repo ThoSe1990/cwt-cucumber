@@ -78,6 +78,17 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   }
 }
 
+namespace details
+{
+
+template <typename T>
+void print_file_line(const T& t)
+{
+  internal::println(internal::color::black, "  ", t.file(), ':', t.line());
+}
+
+}  // namespace details
+
 class stdout_interface
 {
  public:
@@ -101,24 +112,27 @@ class cuke_printer : public stdout_interface
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
     internal::println(feature.keyword(), ' ', feature.name());
+    details::print_file_line(feature);
     internal::println();
   }
   void print(const cuke::ast::scenario_node& scenario) const noexcept override
   {
     internal::println(scenario.keyword(), ' ', scenario.name());
+    details::print_file_line(scenario);
   }
   void print(const cuke::ast::scenario_outline_node& scenario_outline)
       const noexcept override
   {
     internal::println(scenario_outline.keyword(), ' ', scenario_outline.name());
+    details::print_file_line(scenario_outline);
   }
   void print(const cuke::ast::example_node& example) const noexcept override {}
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
     internal::print(internal::to_color(status), internal::step_prefix(status),
-                    step.keyword(), ' ', step.name(), "  ");
-    internal::println(internal::color::black, step.file(), ':', step.line());
+                    step.keyword(), ' ', step.name());
+    details::print_file_line(step);
   }
 };
 
