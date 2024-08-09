@@ -7,6 +7,10 @@
 namespace cuke::internal
 {
 lexer::lexer(std::string_view source) : m_scanner(source) {}
+lexer::lexer(std::string_view source, std::string_view filepath)
+    : m_scanner(source), m_filepath(filepath)
+{
+}
 lexer::lexer(std::string_view source, bool_operators)
     : m_scanner(source, bool_operators{})
 {
@@ -70,8 +74,8 @@ void lexer::advance_to(token_type type)
     if (check(token_type::eof))
     {
       error_at(m_current, "Unexpected end of file.");
-      return ;
-    } 
+      return;
+    }
   }
 }
 

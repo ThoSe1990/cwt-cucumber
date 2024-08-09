@@ -8,6 +8,7 @@
 #include "../token.hpp"
 #include "../util.hpp"
 #include "../table.hpp"
+#include "../options.hpp"
 
 namespace cuke::internal
 {
@@ -328,26 +329,25 @@ class parser
   }
   [[nodiscard]] bool error() const noexcept { return m_error; }
 
+  void parse_from_file(const internal::feature_file& file)
+  {
+    parse_from_file(file.path);
+  }
   void parse_from_file(std::string_view filepath)
   {
     const std::string script = internal::read_file(filepath);
-    // TODO: if string.empty() -> error case
-    parse_script(script);
+    if (script.empty())
+    {
+      internal::println(internal::color::red, "Error: File not found '",
+                        filepath, "'");
+      return;
+    }
+    parse_impl(script, filepath);
   }
 
   void parse_script(std::string_view script)
   {
-    m_error = false;
-    using namespace cuke::internal;
-    lexer lex(script);
-    lex.advance();
-    lex.skip_linebreaks();
-    m_head.set_feature(parse_feature(lex));
-    if (lex.error())
-    {
-      m_error = true;
-      m_head.clear();
-    }
+    parse_impl(script, "<no file>");
   }
   template <CukeVisitor Visitor>
   void for_each_scenario(Visitor& visitor)
@@ -363,6 +363,25 @@ class parser
       {
         visitor.visit(static_cast<ast::scenario_outline_node&>(*n));
       }
+    }
+  }
+
+ private:
+  void parse_impl(std::string_view script, std::string_view filename)
+  {
+    using namespace cuke::internal;
+    m_error = false;
+    // TODO: pass file name to lexer
+    lexer lex(script, filename);
+    lex.advance();
+    lex.skip_linebreaks();
+    m_head.set_feature(parse_feature(lex));
+    if (lex.error())
+    {
+      internal::println(internal::color::red,
+                        "Error while parsing script, Gherkin AST deleted");
+      m_error = true;
+      m_head.clear();
     }
   }
 
