@@ -111,19 +111,19 @@ class cuke_printer : public stdout_interface
  public:
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
-    internal::println(feature.keyword(), ' ', feature.name());
+    internal::print(feature.keyword(), ' ', feature.name());
     details::print_file_line(feature);
     internal::println();
   }
   void print(const cuke::ast::scenario_node& scenario) const noexcept override
   {
-    internal::println(scenario.keyword(), ' ', scenario.name());
+    internal::print(scenario.keyword(), ' ', scenario.name());
     details::print_file_line(scenario);
   }
   void print(const cuke::ast::scenario_outline_node& scenario_outline)
       const noexcept override
   {
-    internal::println(scenario_outline.keyword(), ' ', scenario_outline.name());
+    internal::print(scenario_outline.keyword(), ' ', scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
   void print(const cuke::ast::example_node& example) const noexcept override {}

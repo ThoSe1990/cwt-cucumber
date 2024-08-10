@@ -95,3 +95,24 @@ TEST_F(stdout_print, scenario_fail)
   EXPECT_TRUE(has_substr(output, "[   FAILED    ] And this fails"));
   EXPECT_TRUE(has_substr(output, "<no file>:5"));
 }
+TEST_F(stdout_print, scenario_undefined)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given an undefined step 
+    And something else
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "[   UNDEFINED ] Given an undefined step"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
+  EXPECT_TRUE(has_substr(output, "[   SKIPPED   ] And something else"));
+  EXPECT_TRUE(has_substr(output, "<no file>:5"));
+}

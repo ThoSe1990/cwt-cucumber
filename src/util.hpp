@@ -276,7 +276,7 @@ inline constexpr std::string replace(const token& t, std::string_view r)
     case cuke::results::test_status::skipped:
       return std::string("[   SKIPPED   ] ");
     case cuke::results::test_status::undefined:
-      return std::string("[  UNDEFINED  ] ");
+      return std::string("[   UNDEFINED ] ");
     default:
       return std::string("");
   }
