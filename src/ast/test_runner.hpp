@@ -99,7 +99,10 @@ class stdout_interface
       const cuke::ast::scenario_outline_node& scenario_outline) const noexcept
   {
   }
-  virtual void print(const cuke::ast::example_node& example) const noexcept {}
+  virtual void print(const cuke::ast::example_node& example,
+                     std::size_t row) const noexcept
+  {
+  }
   virtual void print(const cuke::ast::step_node& step,
                      results::test_status status) const noexcept
   {
@@ -126,7 +129,10 @@ class cuke_printer : public stdout_interface
     internal::print(scenario_outline.keyword(), ' ', scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
-  void print(const cuke::ast::example_node& example) const noexcept override {}
+  void print(const cuke::ast::example_node& example,
+             std::size_t row) const noexcept override
+  {
+  }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
@@ -138,6 +144,7 @@ class cuke_printer : public stdout_interface
 
 // TODO:
 // - unittests for run w and w/o printer
+// - final result print
 // - cleanup: remove internal namespace
 // - cleanup: remove ast directory
 
@@ -192,12 +199,15 @@ class test_runner
           results::scenarios_back().status = results::test_status::skipped;
           continue;
         }
+        m_printer->print(scenario_outline);
         cuke::registry().run_hook_before(scenario_outline.tags());
         run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
+          m_printer->print(step, results::steps_back().status);
         }
+        // TODO: examples print here
         cuke::registry().run_hook_after(scenario_outline.tags());
         update_scenario_status();
       }

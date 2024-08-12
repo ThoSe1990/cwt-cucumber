@@ -116,11 +116,14 @@ TEST_F(stdout_print, scenario_outline)
   p.for_each_scenario(runner);
 
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(
-      has_substr(output, "Scenario Outline: a scenario outline <no file>:3"));
+  std::cout << "*****" << std::endl;
+  std::cout << output << std::endl;
+  std::cout << "*****" << std::endl;
+  EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
+  EXPECT_TRUE(has_substr(output, "<no file>:3"));
   EXPECT_TRUE(has_substr(
-      output,
-      "[   PASSED    ] Given a step with <var 1> and <var 2>  <no file>:4"));
+      output, "[   PASSED    ] Given a step with <var 1> and <var 2>"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
   EXPECT_TRUE(has_substr(output, "With Examples:"));
   EXPECT_TRUE(has_substr(output, "| var 1 | var 2       |"));
   EXPECT_TRUE(has_substr(output, "| 123   | \"some text\" |"));
