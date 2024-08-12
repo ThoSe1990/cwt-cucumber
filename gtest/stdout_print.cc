@@ -20,6 +20,9 @@ class stdout_print : public ::testing::Test
         cuke::internal::step([](const cuke::value_array&) {}, "a step"));
     cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&) { cuke::is_true(false); }, "this fails"));
+    cuke::registry().push_step(
+        cuke::internal::step([](const cuke::value_array& values) {},
+                             "a step with {int} and {string}"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,
@@ -28,29 +31,6 @@ class stdout_print : public ::testing::Test
     return output.find(expected) != std::string::npos;
   }
 };
-
-TEST_F(stdout_print, scenario_from_file)
-{
-  std::string file_arg =
-      std::format("{}/test_files/example.feature:3", unittests::test_dir());
-  const char* argv[] = {"program", file_arg.c_str()};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs(argc, argv);
-
-  const cuke::internal::feature_file& file = targs.get_options().files.back();
-
-  cuke::parser p;
-  p.parse_from_file(file);
-
-  cuke::test_runner runner(&file);
-  p.for_each_scenario(runner);
-
-  std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_TRUE(has_substr(output, "Feature: example feature"));
-  EXPECT_TRUE(has_substr(output, "Scenario: first scenario"));
-  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
-  EXPECT_TRUE(has_substr(output, "[   PASSED    ] And a step"));
-}
 
 TEST_F(stdout_print, scenario_pass)
 {
@@ -115,4 +95,56 @@ TEST_F(stdout_print, scenario_undefined)
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
   EXPECT_TRUE(has_substr(output, "[   SKIPPED   ] And something else"));
   EXPECT_TRUE(has_substr(output, "<no file>:5"));
+}
+TEST_F(stdout_print, scenario_outline)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario Outline: a scenario outline
+    Given a step with <var 1> and <var 2> 
+
+    Examples: 
+    | var 1 | var 2       |
+    | 123   | "some text" |
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(
+      has_substr(output, "Scenario Outline: a scenario outline <no file>:3"));
+  EXPECT_TRUE(has_substr(
+      output,
+      "[   PASSED    ] Given a step with <var 1> and <var 2>  <no file>:4"));
+  EXPECT_TRUE(has_substr(output, "With Examples:"));
+  EXPECT_TRUE(has_substr(output, "| var 1 | var 2       |"));
+  EXPECT_TRUE(has_substr(output, "| 123   | \"some text\" |"));
+}
+
+TEST_F(stdout_print, scenario_from_file)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature:3", unittests::test_dir());
+  const char* argv[] = {"program", file_arg.c_str()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::internal::terminal_arguments targs(argc, argv);
+
+  const cuke::internal::feature_file& file = targs.get_options().files.back();
+
+  cuke::parser p;
+  p.parse_from_file(file);
+
+  cuke::test_runner runner(&file);
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "Feature: example feature"));
+  EXPECT_TRUE(has_substr(output, "Scenario: first scenario"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] And a step"));
 }
