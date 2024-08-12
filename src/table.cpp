@@ -117,9 +117,11 @@ table::row table::hash_row(std::size_t row_index) const
 {
   if (row_index < row_count()) [[likely]]
   {
-    return row(m_data.begin() + row_index * m_col_count, m_col_count, m_data.begin());
+    return row(m_data.begin() + row_index * m_col_count, m_col_count,
+               m_data.begin());
   }
-  throw std::runtime_error(std::format("table::hash: Row index '{}' does not exist", row_index));
+  throw std::runtime_error(
+      std::format("table::hash: Row index '{}' does not exist", row_index));
 }
 cuke::table::pair table::rows_hash() const
 {
@@ -139,6 +141,38 @@ cuke::table::pair table::rows_hash() const
         "this table has {} columns",
         m_col_count));
   }
+}
+
+std::string table::to_string(std::size_t row,
+                             std::size_t padding) const noexcept
+{
+  std::string result = std::string{""};
+  if (row < row_count())
+  {
+    auto table_row = operator[](row);
+    result += '|';
+    for (std::size_t i = 0; i < col_count(); ++i)
+    {
+      result += ' ';
+      result.append(table_row[i].to_string());
+      result.append(padding, ' ');
+      result += '|';
+    }
+  }
+  return result;
+}
+std::size_t table::max_cell_size(std::size_t row) const noexcept
+{
+  std::size_t length = 0;
+  if (row < row_count())
+  {
+    auto table_row = operator[](row);
+    for (std::size_t i = 0; i < col_count(); ++i)
+    {
+      length = std::max(length, table_row[i].to_string().length());
+    }
+  }
+  return length;
 }
 
 }  // namespace cuke

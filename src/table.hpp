@@ -61,7 +61,7 @@ class table
     [[nodiscard]] const cuke::value& operator[](std::string_view key) const;
     /**
      * @brief Total count of columns in this table / row
-    */
+     */
     [[nodiscard]] std::size_t col_count() const noexcept { return m_col_count; }
 
    private:
@@ -143,13 +143,12 @@ class table
     std::size_t m_col_count;
   };
 
-
   /**
    * @brief Appends a row to the datatable
    *
    * Appending a row only works if the given row is the same
-   * length as the rows in the existing table. 
-   * 
+   * length as the rows in the existing table.
+   *
    * @param data Data to be appended
    * @return Returns true if data is appended succesfully
    */
@@ -196,7 +195,7 @@ class table
    */
   [[nodiscard]] hash_access hashes() const;
   /**
-   * TODO: 
+   * TODO:
    *
    */
   [[nodiscard]] row hash_row(std::size_t row_index) const;
@@ -210,6 +209,25 @@ class table
    * cuke::value>
    */
   [[nodiscard]] cuke::table::pair rows_hash() const;
+
+  /**
+   * @brief Returns the given row as string with '|' delemiters
+   *
+   * @details Creates a string for the given line. The padding parameters adds
+   * whitespaces between the string end of each cell and the closing vertical
+   * '|'. If no padding is given, there is always one space between the opening
+   * and closing vertical.
+   *
+   * If the given row does not exist, the returned string is empty.
+   */
+  [[nodiscard]] std::string to_string(std::size_t row,
+                                      std::size_t padding = 1) const noexcept;
+
+  /**
+   * @brief Returns the greatest size of a cell. If the given row does not
+   * exist, it'll return 0
+   */
+  [[nodiscard]] std::size_t max_cell_size(std::size_t row) const noexcept;
 
  private:
   value_array m_data;

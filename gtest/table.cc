@@ -241,3 +241,40 @@ TEST(table, append_row_failing_case)
   ASSERT_EQ(t.cells_count(), 2);
   ASSERT_EQ(t.row_count(), 1);
 }
+TEST(table, to_string_row_doesnt_exist)
+{
+  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
+  EXPECT_TRUE(t.to_string(3).empty());
+}
+TEST(table, to_string_1)
+{
+  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
+  EXPECT_EQ(t.to_string(0), std::string("| 1 | 2 |"));
+}
+TEST(table, to_string_2)
+{
+  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
+  EXPECT_EQ(t.to_string(0, 4), std::string("| 1    | 2    |"));
+}
+TEST(table, to_string_3)
+{
+  cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
+                                  cuke::value(2)});
+  EXPECT_EQ(t.to_string(0), std::string("| hello world | 2 |"));
+}
+TEST(table, max_cell_length_row_doesnt_exist)
+{
+  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
+  EXPECT_EQ(t.max_cell_size(3), 0);
+}
+TEST(table, max_cell_length_1)
+{
+  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
+  EXPECT_EQ(t.max_cell_size(0), 1);
+}
+TEST(table, max_cell_length_2)
+{
+  cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
+                                  cuke::value(2)});
+  EXPECT_EQ(t.max_cell_size(0), 11);
+}
