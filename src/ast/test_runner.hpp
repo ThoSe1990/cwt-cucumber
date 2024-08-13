@@ -3,12 +3,29 @@
 #include <algorithm>
 #include <memory>
 #include <utility>
+
 #include "ast.hpp"
 #include "registry.hpp"
 #include "../step_finder.hpp"
 #include "test_results.hpp"
 #include "../util.hpp"
 #include "../options.hpp"
+#include "../context.hpp"
+
+// TODO:
+// - cleanup ast dir
+// - cleanup internal namespace
+// - cleanup headers
+// - print doc string (after step)
+// - print table (after step)
+// FIXME: in box examples
+// - tags (tags are not evaluated in skip scenario ... )
+// - tables (access crashes, probably table is not in value array)
+// - doc strings (access crashes, same as in table) --> check step finder
+// --> see example with doc string in execute_step this prevents crash
+// todo here -> printer should print doc string and tables (it does not right
+// now)
+//
 
 namespace cuke
 {
@@ -76,6 +93,17 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   if (it != cuke::registry().steps().end())
   {
     cuke::registry().run_hook_before_step();
+    // TODO: not here ...
+    if (step.doc_string().size() > 0)
+    {
+      // TODO: move out ...
+      std::string doc_string = "";
+      for (const auto& value : finder.values())
+      {
+        doc_string += value.to_string();
+      }
+      finder.values().push_back(doc_string);
+    }
     it->call(finder.values());
     cuke::registry().run_hook_after_step();
   }
@@ -101,6 +129,7 @@ class stdout_interface
 {
  public:
   virtual ~stdout_interface() = default;
+  virtual void println() const noexcept {}
   virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
   virtual void print(const cuke::ast::scenario_node& scenario) const noexcept {}
   virtual void print(
@@ -120,6 +149,7 @@ class stdout_interface
 class cuke_printer : public stdout_interface
 {
  public:
+  virtual void println() const noexcept override { internal::println(); }
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
     internal::print(feature.keyword(), ' ', feature.name());
@@ -153,10 +183,6 @@ class cuke_printer : public stdout_interface
     details::print_file_line(step);
   }
 };
-
-// TODO:
-// - cleanup: remove internal namespace
-// - cleanup: remove ast directory
 
 class test_runner
 {
@@ -196,6 +222,8 @@ class test_runner
     }
     cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status();
+    cuke::internal::reset_context();
+    m_printer->println();
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
@@ -217,10 +245,11 @@ class test_runner
           execute_step(step, example.table().hash_row(row));
           m_printer->print(step, results::steps_back().status);
         }
-        // TODO: examples print here
         m_printer->print(example, row);
         cuke::registry().run_hook_after(scenario_outline.tags());
         update_scenario_status();
+        cuke::internal::reset_context();
+        m_printer->println();
       }
     }
   }
@@ -233,6 +262,7 @@ class test_runner
       for (const cuke::ast::step_node& step : m_background->steps())
       {
         execute_step(step);
+        m_printer->print(step, results::steps_back().status);
       }
     }
   }

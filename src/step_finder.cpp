@@ -20,10 +20,7 @@ step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
     : m_feature(feature), m_hash_row(std::move(std::move(hash_row)))
 {
 }
-const cuke::value_array& step_finder::values() const noexcept
-{
-  return m_values;
-}
+cuke::value_array& step_finder::values() noexcept { return m_values; }
 bool step_finder::step_matches(std::string_view defined_step)
 {
   m_feature.reset();
@@ -47,7 +44,6 @@ bool step_finder::step_matches(std::string_view defined_step)
       }
       else if (feature.type == token_type::variable)
       {
-        // TODO: refactor
         m_values.push_back(
             m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
       }
@@ -56,24 +52,27 @@ bool step_finder::step_matches(std::string_view defined_step)
         return false;
       }
     }
-    else if (is_at_end(defined) && feature.type == token_type::linebreak)
-    {
-      while (feature.type == token_type::linebreak)
-      {
-        feature = m_feature.scan_token();
-      }
-
-      if (feature.type == token_type::doc_string)
-      {
-        m_values.push_back(token_to_value(feature, false));
-      }
-      else if (feature.type == token_type::vertical)
-      {
-        cuke::value v = create_table();
-        m_values.push_back(v);
-      }
-      feature = m_feature.scan_token();
-    }
+    // else if (is_at_end(defined) && feature.type == token_type::linebreak)
+    // {
+    // while (feature.type == token_type::linebreak)
+    // {
+    //   feature = m_feature.scan_token();
+    // }
+    // TODO: when pushing doc string / table after step matching, it would be
+    // easier ... step finding has nothing to do with tables or doc stirngs
+    // ....
+    //
+    // if (feature.type == token_type::doc_string)
+    // {
+    //   m_values.push_back(token_to_value(feature, false));
+    // }
+    // else if (feature.type == token_type::vertical)
+    // {
+    //   cuke::value v = create_table();
+    //   m_values.push_back(v);
+    // }
+    // feature = m_feature.scan_token();
+    // }
     else if (is_not_equal(defined, feature))
     {
       return false;

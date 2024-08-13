@@ -1,3 +1,4 @@
+#pragma once
 
 #include <memory>
 #include <typeinfo>
@@ -92,11 +93,7 @@ class scenario_context
   std::unordered_map<std::type_index, context_type> m_data;
 };
 
-inline scenario_context& get_context()
-{
-  static scenario_context sc;
-  return sc;
-}
+scenario_context& get_context();
 
 inline void reset_context() { get_context().clear(); }
 

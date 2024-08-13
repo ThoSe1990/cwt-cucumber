@@ -155,12 +155,18 @@ class test_result
     return test_status::passed;
   }
 
-  bool all_passed =
-      std::all_of(test_results().data().begin(), test_results().data().end(),
-                  [](const feature& f)
-                  { return f.status == results::test_status::passed; });
+  if (test_results().scenarios_failed() == 0)
+  {
+    return test_status::passed;
+  }
+  return test_status::failed;
 
-  return all_passed ? test_status::passed : test_status::failed;
+  // bool all_passed =
+  //     std::all_of(test_results().data().begin(), test_results().data().end(),
+  //                 [](const feature& f)
+  //                 { return f.status == results::test_status::passed; });
+  //
+  // return all_passed ? test_status::passed : test_status::failed;
 }
 
 static void new_feature() { test_results().data().emplace_back(); }

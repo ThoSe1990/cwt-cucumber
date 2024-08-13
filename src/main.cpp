@@ -1,7 +1,10 @@
+#include <cstdlib>
+#include "ast/test_results.hpp"
 #include "cucumber.hpp"
 
 int main(int argc, const char* argv[])
 {
   auto result = cuke::entry_point(argc, argv);
-  return 0;
+  return result == cuke::results::test_status::passed ? EXIT_SUCCESS
+                                                      : EXIT_FAILURE;
 }
