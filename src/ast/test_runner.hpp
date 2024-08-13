@@ -18,6 +18,7 @@
 // - cleanup headers
 // - print doc string (after step)
 // - print table (after step)
+// - fix defines for accessing docstrings and tables
 // FIXME: in box examples
 // - tags (tags are not evaluated in skip scenario ... )
 // - tables (access crashes, probably table is not in value array)
