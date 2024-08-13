@@ -163,9 +163,13 @@ TEST_F(stdout_print, final_result_1)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
-  std::string final_result = cuke::results::to_string();
-  EXPECT_TRUE(has_substr(final_result, "1 Scenario (1 passed)"));
-  EXPECT_TRUE(has_substr(final_result, "1 Step (1 passed)"));
+  std::string scenario_result = cuke::results::scenarios_to_string();
+  EXPECT_TRUE(has_substr(scenario_result, "1 Scenario"));
+  EXPECT_TRUE(has_substr(scenario_result, "1 passed"));
+
+  std::string steps_result = cuke::results::steps_to_string();
+  EXPECT_TRUE(has_substr(steps_result, "1 Step"));
+  EXPECT_TRUE(has_substr(steps_result, "1 passed"));
 }
 TEST_F(stdout_print, final_result_2)
 {
@@ -189,12 +193,13 @@ TEST_F(stdout_print, final_result_2)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
-  std::string final_result = cuke::results::to_string();
-  EXPECT_TRUE(has_substr(final_result, "2 Scenarios"));
-  EXPECT_TRUE(has_substr(final_result, "2 passed"));
+  std::string scenario_result = cuke::results::scenarios_to_string();
+  EXPECT_TRUE(has_substr(scenario_result, "2 Scenarios"));
+  EXPECT_TRUE(has_substr(scenario_result, "2 passed"));
 
-  EXPECT_TRUE(has_substr(final_result, "5 Steps"));
-  EXPECT_TRUE(has_substr(final_result, "5 passed"));
+  std::string steps_result = cuke::results::steps_to_string();
+  EXPECT_TRUE(has_substr(steps_result, "5 Steps"));
+  EXPECT_TRUE(has_substr(steps_result, "5 passed"));
 }
 TEST_F(stdout_print, final_result_3)
 {
@@ -217,15 +222,16 @@ TEST_F(stdout_print, final_result_3)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
-  std::string final_result = cuke::results::to_string();
-  EXPECT_TRUE(has_substr(final_result, "2 Scenarios"));
-  EXPECT_TRUE(has_substr(final_result, "1 failed"));
-  EXPECT_TRUE(has_substr(final_result, "1 passed"));
+  std::string scenario_result = cuke::results::scenarios_to_string();
+  EXPECT_TRUE(has_substr(scenario_result, "2 Scenarios"));
+  EXPECT_TRUE(has_substr(scenario_result, "1 failed"));
+  EXPECT_TRUE(has_substr(scenario_result, "1 passed"));
 
-  EXPECT_TRUE(has_substr(final_result, "4 Steps"));
-  EXPECT_TRUE(has_substr(final_result, "1 undefined"));
-  EXPECT_TRUE(has_substr(final_result, "1 skipped"));
-  EXPECT_TRUE(has_substr(final_result, "2 passed"));
+  std::string steps_result = cuke::results::steps_to_string();
+  EXPECT_TRUE(has_substr(steps_result, "4 Steps"));
+  EXPECT_TRUE(has_substr(steps_result, "1 undefined"));
+  EXPECT_TRUE(has_substr(steps_result, "1 skipped"));
+  EXPECT_TRUE(has_substr(steps_result, "2 passed"));
 }
 
 TEST_F(stdout_print, final_result_4)
@@ -245,12 +251,12 @@ TEST_F(stdout_print, final_result_4)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
-  std::string final_result = cuke::results::to_string();
+  std::string scenario_result = cuke::results::scenarios_to_string();
+  EXPECT_TRUE(has_substr(scenario_result, "1 Scenario"));
+  EXPECT_TRUE(has_substr(scenario_result, "1 failed"));
 
-  EXPECT_TRUE(has_substr(final_result, "1 Scenario"));
-  EXPECT_TRUE(has_substr(final_result, "1 failed"));
-
-  EXPECT_TRUE(has_substr(final_result, "2 Steps"));
-  EXPECT_TRUE(has_substr(final_result, "1 failed"));
-  EXPECT_TRUE(has_substr(final_result, "1 passed"));
+  std::string steps_result = cuke::results::steps_to_string();
+  EXPECT_TRUE(has_substr(steps_result, "2 Steps"));
+  EXPECT_TRUE(has_substr(steps_result, "1 failed"));
+  EXPECT_TRUE(has_substr(steps_result, "1 passed"));
 }

@@ -49,7 +49,13 @@ static void update_scenario_status()
   {
     results::scenarios_back().status = results::test_status::failed;
   }
+  results::test_results().add_scenario(results::scenarios_back().status);
   update_feature_status();
+}
+
+static void update_step_status()
+{
+  results::test_results().add_step(results::steps_back().status);
 }
 
 template <typename... OptionalRow>
