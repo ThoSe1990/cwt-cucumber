@@ -30,6 +30,16 @@ TEST(options, file_path_does_exist)
   ASSERT_FALSE(targs.get_options().files.empty());
   EXPECT_EQ(targs.get_options().files[0].path, std::string(argv[1]));
 }
+TEST(options, find_files_in_dir)
+{
+  std::string path = std::format("{}/test_files", unittests::test_dir());
+  const char* argv[] = {"program", path.c_str()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::internal::terminal_arguments targs(argc, argv);
+  ASSERT_EQ(targs.get_options().files.size(), 2);
+  EXPECT_TRUE(targs.get_options().files[0].path.ends_with("example.feature"));
+  EXPECT_TRUE(targs.get_options().files[1].path.ends_with("any.feature"));
+}
 namespace details
 {
 static std::string remove_trailing_char(std::string_view str, std::size_t n)

@@ -1,5 +1,7 @@
+#include <cmath>
 #include <algorithm>
 #include <stdexcept>
+#include <utility>
 
 #include "table.hpp"
 
@@ -143,36 +145,84 @@ cuke::table::pair table::rows_hash() const
   }
 }
 
-std::string table::to_string(std::size_t row,
-                             std::size_t padding) const noexcept
+std::pair<std::string, std::string> table::to_string(
+    std::size_t row_1, std::size_t row_2) const noexcept
 {
-  std::string result = std::string{""};
-  if (row < row_count())
+  std::string line_1 = "";
+  std::string line_2 = "";
+
+  if (row_1 < row_count() && row_2 < row_count())
   {
-    auto table_row = operator[](row);
-    result += '|';
+    auto table_row_1 = operator[](row_1);
+    auto table_row_2 = operator[](row_2);
+
+    line_1 += '|';
+    line_2 += '|';
+
     for (std::size_t i = 0; i < col_count(); ++i)
     {
-      result += ' ';
-      result.append(table_row[i].to_string());
-      result.append(padding, ' ');
-      result += '|';
+      line_1 += ' ';
+      line_2 += ' ';
+
+      line_1.append(table_row_1[i].to_string());
+      line_2.append(table_row_2[i].to_string());
+
+      std::size_t length_1 = table_row_1[i].to_string().length();
+      std::size_t length_2 = table_row_2[i].to_string().length();
+
+      int delta = length_1 - length_2;
+      if (delta > 0)
+      {
+        line_2.append(delta, ' ');
+      }
+      else if (delta < 0)
+      {
+        line_1.append(std::abs(delta), ' ');
+      }
+
+      line_1 += ' ';
+      line_2 += ' ';
+      line_1 += '|';
+      line_2 += '|';
     }
   }
-  return result;
+  return std::make_pair(line_1, line_2);
 }
-std::size_t table::max_cell_size(std::size_t row) const noexcept
-{
-  std::size_t length = 0;
-  if (row < row_count())
-  {
-    auto table_row = operator[](row);
-    for (std::size_t i = 0; i < col_count(); ++i)
-    {
-      length = std::max(length, table_row[i].to_string().length());
-    }
-  }
-  return length;
-}
+// std::string table::to_string(std::size_t row,
+//                              std::size_t total_cell_size) const noexcept
+// {
+//   std::string result = std::string{""};
+//   if (row < row_count())
+//   {
+//     auto table_row = operator[](row);
+//     result += '|';
+//     for (std::size_t i = 0; i < col_count(); ++i)
+//     {
+//       result += ' ';
+//       result.append(table_row[i].to_string());
+//       std::size_t cell_length = table_row[i].to_string().length();
+//       if (total_cell_size > cell_length)
+//       {
+//         result.append(total_cell_size - cell_length, ' ');
+//       }
+//       result += ' ';
+//       result += '|';
+//     }
+//   }
+//   return result;
+// }
+// std::size_t table::max_cell_size(std::size_t row) const noexcept
+// {
+//   std::size_t length = 0;
+//   if (row < row_count())
+//   {
+//     auto table_row = operator[](row);
+//     for (std::size_t i = 0; i < col_count(); ++i)
+//     {
+//       length = std::max(length, table_row[i].to_string().length());
+//     }
+//   }
+//   return length;
+// }
 
 }  // namespace cuke

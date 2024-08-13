@@ -132,6 +132,10 @@ class cuke_printer : public stdout_interface
   void print(const cuke::ast::example_node& example,
              std::size_t row) const noexcept override
   {
+    internal::println("  With Examples:");
+    auto [header, values] = example.table().to_string(0, row);
+    internal::println("  ", header);
+    internal::println("  ", values);
   }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
@@ -208,6 +212,7 @@ class test_runner
           m_printer->print(step, results::steps_back().status);
         }
         // TODO: examples print here
+        m_printer->print(example, row);
         cuke::registry().run_hook_after(scenario_outline.tags());
         update_scenario_status();
       }

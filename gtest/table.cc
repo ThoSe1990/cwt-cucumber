@@ -241,40 +241,36 @@ TEST(table, append_row_failing_case)
   ASSERT_EQ(t.cells_count(), 2);
   ASSERT_EQ(t.row_count(), 1);
 }
-TEST(table, to_string_row_doesnt_exist)
-{
-  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
-  EXPECT_TRUE(t.to_string(3).empty());
-}
 TEST(table, to_string_1)
 {
-  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
-  EXPECT_EQ(t.to_string(0), std::string("| 1 | 2 |"));
+  cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
+                                  cuke::value(2)});
+  [[maybe_unused]] bool b = t.append_row(cuke::value_array{
+      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+
+  auto [line_1, line_2] = t.to_string(0, 1);
+  EXPECT_EQ(line_1, std::string("| hello world             | 2 |"));
+  EXPECT_EQ(line_2, std::string("| hello world hello world | 2 |"));
 }
 TEST(table, to_string_2)
 {
-  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
-  EXPECT_EQ(t.to_string(0, 4), std::string("| 1    | 2    |"));
+  cuke::table t(cuke::value_array{
+      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+  [[maybe_unused]] bool b = t.append_row(cuke::value_array{
+      cuke::value(std::string{"hello world"}), cuke::value(2)});
+
+  auto [line_1, line_2] = t.to_string(0, 1);
+  EXPECT_EQ(line_1, std::string("| hello world hello world | 2 |"));
+  EXPECT_EQ(line_2, std::string("| hello world             | 2 |"));
 }
 TEST(table, to_string_3)
 {
-  cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
-                                  cuke::value(2)});
-  EXPECT_EQ(t.to_string(0), std::string("| hello world | 2 |"));
-}
-TEST(table, max_cell_length_row_doesnt_exist)
-{
-  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
-  EXPECT_EQ(t.max_cell_size(3), 0);
-}
-TEST(table, max_cell_length_1)
-{
-  cuke::table t(cuke::value_array{cuke::value(1), cuke::value(2)});
-  EXPECT_EQ(t.max_cell_size(0), 1);
-}
-TEST(table, max_cell_length_2)
-{
-  cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
-                                  cuke::value(2)});
-  EXPECT_EQ(t.max_cell_size(0), 11);
+  cuke::table t(cuke::value_array{
+      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+  [[maybe_unused]] bool b = t.append_row(cuke::value_array{
+      cuke::value(std::string{"hello world"}), cuke::value(1234)});
+
+  auto [line_1, line_2] = t.to_string(0, 1);
+  EXPECT_EQ(line_1, std::string("| hello world hello world | 2    |"));
+  EXPECT_EQ(line_2, std::string("| hello world             | 1234 |"));
 }
