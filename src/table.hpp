@@ -211,35 +211,14 @@ class table
   [[nodiscard]] cuke::table::pair rows_hash() const;
 
   /**
-   * @brief Returns the given row as string with '|' delemiters
+   * @brief Returns a pair of the given two rows as string. The cells are
+   * separated by '|' delemiters
    *
-   * @details Creates a string for the given line.
-   *
-   * @param row the row to be represented as string
-   * @param the total cell size for each cell. Adds whitespaces to the end of
-   * the cell's value. Default value = 0 which means no trailing whitespaces are
-   * added
-   *
-   * If the given row does not exist, the returned string is empty.
+   * The vertiacals '|' are alligned for each column. If the given row does not
+   * exist, the returned string is empty.
    */
-  // [[nodiscard]] std::string to_string(
-  //     std::size_t row, std::size_t total_cell_size = 0) const noexcept;
-
   [[nodiscard]] std::pair<std::string, std::string> to_string(
       std::size_t row_1, std::size_t row_2) const noexcept;
-
-  /**
-   * @brief Returns the greatest size of a cell. If the given row does not
-   * exist, it'll return 0
-   */
-  // [[nodiscard]] std::size_t max_cell_size(std::size_t row) const noexcept;
-  //
-  // template <typename... Rows,
-  //           typename = std::enable_if_t<(sizeof...(Rows) > 1)>>
-  // [[nodiscard]] std::size_t max_cell_size(Rows&&... rows) const noexcept
-  // {
-  //   return std::max({max_cell_size(std::forward<Rows>(rows))...});
-  // }
 
  private:
   value_array m_data;

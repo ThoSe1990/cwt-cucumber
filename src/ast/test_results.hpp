@@ -86,4 +86,6 @@ static void set_step_to(test_status status)
   return test_results().back().scenarios.back().steps.back();
 }
 
+[[nodiscard]] static std::string to_string() { return ""; }
+
 }  // namespace cuke::results

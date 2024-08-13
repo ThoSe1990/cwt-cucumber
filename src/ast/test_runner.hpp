@@ -147,8 +147,6 @@ class cuke_printer : public stdout_interface
 };
 
 // TODO:
-// - unittests for run w and w/o printer
-// - final result print
 // - cleanup: remove internal namespace
 // - cleanup: remove ast directory
 

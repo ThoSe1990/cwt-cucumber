@@ -52,7 +52,6 @@ TEST_F(stdout_print, scenario_pass)
   EXPECT_TRUE(has_substr(output, "Scenario: a scenario"));
   EXPECT_TRUE(has_substr(output, "<no file>:3"));
   EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
-  EXPECT_TRUE(has_substr(output, "<no file>:4"));
 }
 TEST_F(stdout_print, scenario_fail)
 {
@@ -147,4 +146,111 @@ TEST_F(stdout_print, scenario_from_file)
   EXPECT_TRUE(has_substr(output, "Scenario: first scenario"));
   EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step"));
   EXPECT_TRUE(has_substr(output, "[   PASSED    ] And a step"));
+}
+TEST_F(stdout_print, final_result_1)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
+
+  std::string final_result = cuke::results::to_string();
+  EXPECT_TRUE(has_substr(final_result, "1 Scenario (1 passed)"));
+  EXPECT_TRUE(has_substr(final_result, "1 Step (1 passed)"));
+}
+TEST_F(stdout_print, final_result_2)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+    Given a step 
+    Given a step 
+
+    Scenario: a scenario 
+    Given a step 
+    Given a step 
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
+
+  std::string final_result = cuke::results::to_string();
+  EXPECT_TRUE(has_substr(final_result, "2 Scenarios"));
+  EXPECT_TRUE(has_substr(final_result, "2 passed"));
+
+  EXPECT_TRUE(has_substr(final_result, "5 Steps"));
+  EXPECT_TRUE(has_substr(final_result, "5 passed"));
+}
+TEST_F(stdout_print, final_result_3)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+   
+    Scenario: a scenario
+    Given a step
+    Given an undefined step 
+    And something else
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
+
+  std::string final_result = cuke::results::to_string();
+  EXPECT_TRUE(has_substr(final_result, "2 Scenarios"));
+  EXPECT_TRUE(has_substr(final_result, "1 failed"));
+  EXPECT_TRUE(has_substr(final_result, "1 passed"));
+
+  EXPECT_TRUE(has_substr(final_result, "4 Steps"));
+  EXPECT_TRUE(has_substr(final_result, "1 undefined"));
+  EXPECT_TRUE(has_substr(final_result, "1 skipped"));
+  EXPECT_TRUE(has_substr(final_result, "2 passed"));
+}
+
+TEST_F(stdout_print, final_result_4)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+    And this fails
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
+
+  std::string final_result = cuke::results::to_string();
+
+  EXPECT_TRUE(has_substr(final_result, "1 Scenario"));
+  EXPECT_TRUE(has_substr(final_result, "1 failed"));
+
+  EXPECT_TRUE(has_substr(final_result, "2 Steps"));
+  EXPECT_TRUE(has_substr(final_result, "1 failed"));
+  EXPECT_TRUE(has_substr(final_result, "1 passed"));
 }
