@@ -33,7 +33,23 @@ class test_result
  public:
   [[nodiscard]] std::vector<feature>& data() noexcept { return m_data; }
   [[nodiscard]] feature& back() noexcept { return m_data.back(); }
-  void clear() noexcept { m_data.clear(); }
+  void clear() noexcept
+  {
+    m_data.clear();
+
+    m_scenarios_count = 0;
+
+    m_scenarios_failed = 0;
+    m_scenarios_skipped = 0;
+    m_scenarios_passed = 0;
+
+    m_steps_count = 0;
+
+    m_steps_failed = 0;
+    m_steps_undefined = 0;
+    m_steps_skipped = 0;
+    m_steps_passed = 0;
+  }
 
   [[nodiscard]] std::size_t scenarios_passed() const noexcept
   {
@@ -67,6 +83,7 @@ class test_result
 
   void add_scenario(test_status status) noexcept
   {
+    ++m_scenarios_count;
     switch (status)
     {
       case test_status::passed:
@@ -86,6 +103,7 @@ class test_result
 
   void add_step(test_status status) noexcept
   {
+    ++m_steps_count;
     switch (status)
     {
       case test_status::passed:
@@ -103,8 +121,20 @@ class test_result
     }
   }
 
+  [[nodiscard]] std::size_t scenarios_count() const noexcept
+  {
+    return m_scenarios_count;
+  }
+  [[nodiscard]] std::size_t steps_count() const noexcept
+  {
+    return m_steps_count;
+  }
+
  private:
   std::vector<feature> m_data;
+
+  std::size_t m_scenarios_count{0};
+  std::size_t m_steps_count{0};
 
   std::size_t m_scenarios_passed{0};
   std::size_t m_scenarios_failed{0};
@@ -163,7 +193,7 @@ static void set_step_to(test_status status)
   return test_results().back().scenarios.back().steps.back();
 }
 
-[[nodiscard]] static std::string scenarios_to_string() { return ""; }
-[[nodiscard]] static std::string steps_to_string() { return ""; }
+[[nodiscard]] std::string scenarios_to_string();
+[[nodiscard]] std::string steps_to_string();
 
 }  // namespace cuke::results

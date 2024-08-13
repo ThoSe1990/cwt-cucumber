@@ -65,6 +65,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   {
     results::new_step();
     results::steps_back().status = results::test_status::skipped;
+    update_step_status();
     return;
   }
   results::new_step();
@@ -82,6 +83,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   {
     results::steps_back().status = results::test_status::undefined;
   }
+  update_step_status();
 }
 
 namespace details
