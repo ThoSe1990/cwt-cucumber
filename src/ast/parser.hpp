@@ -72,28 +72,23 @@ template <typename... Ts>
 }
 
 [[nodiscard]] static std::vector<std::string> doc_string_to_vector(
-    const std::string_view s, std::size_t lines_count)
+    const std::string_view s)
 {
-  const std::size_t lines_count_wo_quotes = lines_count - 2;
   auto lines_view = s | std::ranges::views::split('\n');
   std::vector<std::string> lines;
-  lines.reserve(lines_count_wo_quotes);
-  for (auto&& line : lines_view | std::views::drop(1) |
-                         std::views::take(lines_count_wo_quotes))
+  for (auto&& line : lines_view | std::views::drop(1))
   {
     lines.push_back(trim(std::string(line.begin(), line.end())));
   }
+  lines.pop_back();
   return lines;
 }
 
 [[nodiscard]] static std::vector<std::string> parse_doc_string(lexer& lex)
 {
-  const std::size_t begin = lex.previous().line;
   if (lex.match(token_type::doc_string))
   {
-    const std::size_t lines_count = lex.current().line - begin;
-    std::string_view doc_string = lex.previous().value;
-    return doc_string_to_vector(doc_string, lines_count);
+    return doc_string_to_vector(lex.previous().value);
   }
   else
   {

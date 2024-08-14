@@ -67,12 +67,38 @@ class step_node : public node
     return node_type::step;
   }
 
-  const std::vector<std::string>& doc_string() const noexcept
+  [[nodiscard]] const std::vector<std::string>& doc_string() const noexcept
   {
     return m_doc_string;
   }
 
-  const cuke::table& data_table() const noexcept { return m_table; }
+  [[nodiscard]] const cuke::table& data_table() const noexcept
+  {
+    return m_table;
+  }
+
+  template <typename Callback>
+  void if_has_table_do(Callback&& callback)
+  {
+    if (m_table.row_count() > 0)
+    {
+      callback(m_table);
+    }
+  }
+
+  template <typename Callback>
+  void if_has_doc_string_do(Callback&& callback)
+  {
+    if (m_doc_string.size() > 0)
+    {
+      std::string doc_string = "";
+      for (const std::string& line : m_doc_string)
+      {
+        doc_string += line;
+      }
+      callback(doc_string);
+    }
+  }
 
  private:
   std::vector<std::string> m_doc_string;

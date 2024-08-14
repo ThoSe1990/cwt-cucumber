@@ -94,17 +94,10 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   if (it != cuke::registry().steps().end())
   {
     cuke::registry().run_hook_before_step();
-    // TODO: not here ...
-    if (step.doc_string().size() > 0)
-    {
-      // TODO: move out ...
-      std::string doc_string = "";
-      for (const auto& value : finder.values())
-      {
-        doc_string += value.to_string();
-      }
-      finder.values().push_back(doc_string);
-    }
+    step.if_has_doc_string_do([&finder](const std::string& doc_string)
+                              { finder.values().push_back(doc_string); });
+    step.if_has_table_do([&finder](const cuke::table& t)
+                         { finder.values().push_back(t); });
     it->call(finder.values());
     cuke::registry().run_hook_after_step();
   }
