@@ -23,7 +23,7 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
     cuke::parser p;
     p.parse_from_file(feature.path);
 
-    cuke::test_runner runner(&feature);
+    cuke::test_runner runner(&feature, &targs.get_options().tags);
     if (targs.get_options().quiet)
     {
       runner.set_quiet();

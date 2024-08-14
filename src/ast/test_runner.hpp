@@ -1,5 +1,4 @@
-#include <ratio>
-#pragma oncetestrunner
+#pragma once
 
 #include <algorithm>
 #include <memory>
@@ -13,21 +12,7 @@
 #include "../options.hpp"
 #include "../context.hpp"
 
-// TODO:
-// - cleanup ast dir
-// - cleanup internal namespace
-// - cleanup headers
-// - print doc string (after step)
-// - print table (after step)
-// - fix defines for accessing docstrings and tables
-// FIXME: in box examples
-// - tags (tags are not evaluated in skip scenario ... )
-// - tables (access crashes, probably table is not in value array)
-// - doc strings (access crashes, same as in table) --> check step finder
-// --> see example with doc string in execute_step this prevents crash
-// todo here -> printer should print doc string and tables (it does not right
-// now)
-//
+// TODO: cleanup headers/ast directory and namespaces
 
 namespace cuke
 {
@@ -203,6 +188,11 @@ class test_runner
  public:
   test_runner() = default;
   test_runner(const internal::feature_file* file) : m_file(file) {}
+  test_runner(const internal::feature_file* file,
+              const internal::tag_expression* tags)
+      : m_file(file), m_tags(tags)
+  {
+  }
 
   void set_quiet()
   {
@@ -217,11 +207,17 @@ class test_runner
     {
       m_background = &feature.background();
     }
+    m_skip_all = !m_tags->evaluate(feature.tags());
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
+    if (m_skip_all)
+    {
+      return;
+    }
     results::new_scenario();
-    if (skip_scenario(m_file, scenario.line()))
+    if (skip_scenario(m_file, scenario.line()) ||
+        !m_tags->evaluate(scenario.tags()))
     {
       results::scenarios_back().status = results::test_status::skipped;
       return;
@@ -241,12 +237,17 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
+    if (m_skip_all || !m_tags->evaluate(scenario_outline.tags()))
+    {
+      return;
+    }
     for (const cuke::ast::example_node& example : scenario_outline.examples())
     {
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario();
-        if (skip_scenario(m_file, example.line_table_begin() + row))
+        if (skip_scenario(m_file, example.line_table_begin() + row) ||
+            !m_tags->evaluate(example.tags()))
         {
           results::scenarios_back().status = results::test_status::skipped;
           continue;
@@ -286,10 +287,12 @@ class test_runner
   }
 
  private:
+  bool m_skip_all = false;
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
   const internal::feature_file* m_file = nullptr;
+  const internal::tag_expression* m_tags = nullptr;
 };
 
 }  // namespace cuke
