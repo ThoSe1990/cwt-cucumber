@@ -14,3 +14,10 @@ Feature: This is a doc string example
     This is a docstring with backticks
     after a step
     ```
+  Scenario: Doc string as vector 
+    When There is a doc string as vector:
+    """
+    This is a docstring 
+    which we access 
+    as std::vector<std::string>
+    """

@@ -211,14 +211,14 @@ class table
   [[nodiscard]] cuke::table::pair rows_hash() const;
 
   /**
-   * @brief Returns a pair of the given two rows as string. The cells are
-   * separated by '|' delemiters
+   * @brief Converts the table to a std::vector<std::string>. The vector
+   * represents each row as one string, with '|' as delimiter
    *
-   * The vertiacals '|' are alligned for each column. If the given row does not
-   * exist, the returned string is empty.
    */
-  [[nodiscard]] std::pair<std::string, std::string> to_string(
-      std::size_t row_1, std::size_t row_2) const noexcept;
+  [[nodiscard]] std::vector<std::string> to_string_array() const noexcept;
+
+ private:
+  [[nodiscard]] std::vector<std::size_t> col_sizes() const noexcept;
 
  private:
   value_array m_data;

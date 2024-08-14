@@ -1,4 +1,3 @@
-#include <cmath>
 #include <algorithm>
 #include <stdexcept>
 #include <utility>
@@ -145,84 +144,44 @@ cuke::table::pair table::rows_hash() const
   }
 }
 
-std::pair<std::string, std::string> table::to_string(
-    std::size_t row_1, std::size_t row_2) const noexcept
+std::vector<std::size_t> table::col_sizes() const noexcept
 {
-  std::string line_1 = "";
-  std::string line_2 = "";
+  std::vector<std::size_t> col_size(col_count(), 0);
 
-  if (row_1 < row_count() && row_2 < row_count())
+  for (const auto& row : raw())
   {
-    auto table_row_1 = operator[](row_1);
-    auto table_row_2 = operator[](row_2);
-
-    line_1 += '|';
-    line_2 += '|';
-
     for (std::size_t i = 0; i < col_count(); ++i)
     {
-      line_1 += ' ';
-      line_2 += ' ';
-
-      line_1.append(table_row_1[i].to_string());
-      line_2.append(table_row_2[i].to_string());
-
-      std::size_t length_1 = table_row_1[i].to_string().length();
-      std::size_t length_2 = table_row_2[i].to_string().length();
-
-      int delta = length_1 - length_2;
-      if (delta > 0)
-      {
-        line_2.append(delta, ' ');
-      }
-      else if (delta < 0)
-      {
-        line_1.append(std::abs(delta), ' ');
-      }
-
-      line_1 += ' ';
-      line_2 += ' ';
-      line_1 += '|';
-      line_2 += '|';
+      col_size[i] = std::max(col_size[i], row[i].to_string().length());
     }
   }
-  return std::make_pair(line_1, line_2);
+
+  return col_size;
 }
-// std::string table::to_string(std::size_t row,
-//                              std::size_t total_cell_size) const noexcept
-// {
-//   std::string result = std::string{""};
-//   if (row < row_count())
-//   {
-//     auto table_row = operator[](row);
-//     result += '|';
-//     for (std::size_t i = 0; i < col_count(); ++i)
-//     {
-//       result += ' ';
-//       result.append(table_row[i].to_string());
-//       std::size_t cell_length = table_row[i].to_string().length();
-//       if (total_cell_size > cell_length)
-//       {
-//         result.append(total_cell_size - cell_length, ' ');
-//       }
-//       result += ' ';
-//       result += '|';
-//     }
-//   }
-//   return result;
-// }
-// std::size_t table::max_cell_size(std::size_t row) const noexcept
-// {
-//   std::size_t length = 0;
-//   if (row < row_count())
-//   {
-//     auto table_row = operator[](row);
-//     for (std::size_t i = 0; i < col_count(); ++i)
-//     {
-//       length = std::max(length, table_row[i].to_string().length());
-//     }
-//   }
-//   return length;
-// }
+
+std::vector<std::string> table::to_string_array() const noexcept
+{
+  std::vector<std::size_t> col_size = col_sizes();
+  std::vector<std::string> result;
+  result.reserve(row_count());
+  for (const auto& row : raw())
+  {
+    std::string line = "|";
+    for (std::size_t i = 0; i < col_count(); ++i)
+    {
+      line += ' ';
+      line.append(row[i].to_string());
+      int padding = col_size[i] - row[i].to_string().length();
+      if (padding > 0)
+      {
+        line.append(padding, ' ');
+      }
+      line += ' ';
+      line += '|';
+    }
+    result.push_back(line);
+  }
+  return result;
+}
 
 }  // namespace cuke

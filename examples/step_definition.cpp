@@ -1,5 +1,7 @@
 #include "../src/cucumber.hpp"
 #include "box.hpp"
+#include "defines.hpp"
+#include "get_args.hpp"
 
 GIVEN(init_box, "An empty box")
 {
@@ -21,6 +23,16 @@ WHEN(doc_string, "There is a doc string:")
   std::cout << str << '\n';
   std::cout << "------------------------------------------" << '\n';
 }
+WHEN(doc_string_vector, "There is a doc string as vector:")
+{
+  const std::vector<std::string> doc_string = CUKE_DOC_STRING();
+  std::cout << "-------- Print from step definition: -----" << '\n';
+  for (const std::string& line : doc_string)
+  {
+    std::cout << line << '\n';
+  }
+  std::cout << "------------------------------------------" << '\n';
+}
 WHEN(add_table_raw, "I add all items with raw():")
 {
   const cuke::table& t = CUKE_TABLE();
@@ -34,15 +46,17 @@ WHEN(add_table_hashes, "I add all items with hashes():")
   const cuke::table& t = CUKE_TABLE();
   for (const auto& row : t.hashes())
   {
-    cuke::context<box>().add_items(row["ITEM"].to_string(), row["QUANTITY"].as<long>());
+    cuke::context<box>().add_items(row["ITEM"].to_string(),
+                                   row["QUANTITY"].as<long>());
   }
 }
-WHEN(add_table_rows_hash, "I add the following item with rows_hash():") 
+WHEN(add_table_rows_hash, "I add the following item with rows_hash():")
 {
   const cuke::table& t = CUKE_TABLE();
   cuke::table::pair hash_rows = t.rows_hash();
 
-  cuke::context<box>().add_items(hash_rows["ITEM"].to_string(), hash_rows["QUANTITY"].as<long>());
+  cuke::context<box>().add_items(hash_rows["ITEM"].to_string(),
+                                 hash_rows["QUANTITY"].as<long>());
 }
 
 THEN(check_box_size, "The box contains {int} item(s)")

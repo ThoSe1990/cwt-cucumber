@@ -1,4 +1,5 @@
-#pragma once
+#include <ratio>
+#pragma oncetestrunner
 
 #include <algorithm>
 #include <memory>
@@ -166,9 +167,9 @@ class cuke_printer : public stdout_interface
              std::size_t row) const noexcept override
   {
     internal::println("  With Examples:");
-    auto [header, values] = example.table().to_string(0, row);
-    internal::println("  ", header);
-    internal::println("  ", values);
+    auto table_strings = example.table().to_string_array();
+    internal::println("  ", table_strings[0]);
+    internal::println("  ", table_strings[row]);
   }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
@@ -176,7 +177,6 @@ class cuke_printer : public stdout_interface
     internal::print(internal::to_color(status), internal::step_prefix(status),
                     step.keyword(), ' ', step.name());
     details::print_file_line(step);
-    // TODO: print tables and doc strings
     step.if_has_doc_string_do(
         [](const std::vector<std::string>& doc_string)
         {
@@ -186,6 +186,14 @@ class cuke_printer : public stdout_interface
             internal::println(line);
           }
           internal::println("\"\"\"");
+        });
+    step.if_has_table_do(
+        [](const cuke::table& t)
+        {
+          for (const std::string& row : t.to_string_array())
+          {
+            internal::println("  ", row);
+          }
         });
   }
 };
