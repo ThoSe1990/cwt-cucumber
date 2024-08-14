@@ -78,7 +78,7 @@ class step_node : public node
   }
 
   template <typename Callback>
-  void if_has_table_do(Callback&& callback)
+  void if_has_table_do(Callback&& callback) const noexcept
   {
     if (m_table.row_count() > 0)
     {
@@ -87,16 +87,11 @@ class step_node : public node
   }
 
   template <typename Callback>
-  void if_has_doc_string_do(Callback&& callback)
+  void if_has_doc_string_do(Callback&& callback) const noexcept
   {
     if (m_doc_string.size() > 0)
     {
-      std::string doc_string = "";
-      for (const std::string& line : m_doc_string)
-      {
-        doc_string += line;
-      }
-      callback(doc_string);
+      callback(m_doc_string);
     }
   }
 

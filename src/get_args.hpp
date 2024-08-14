@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+#include <type_traits>
 #include "value.hpp"
 
 namespace cuke::internal
@@ -145,21 +147,39 @@ struct conversion_impl<
     T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
                         std::is_convertible_v<T, std::string_view>>>
 {
-  static const std::string& get_arg(const cuke::value& v, std::string_view file,
-                                    std::size_t line)
+  static const std::string get_arg(const cuke::value& v, std::string_view file,
+                                   std::size_t line)
   {
-    if (v.type() == cuke::value_type::string)
+    if (v.type() != cuke::value_type::nil)
     {
-      return v.as<std::string>();
+      return v.to_string();
+    }
+    else
+    {
+      throw std::runtime_error(std::format(
+          "{}:{}: Nil value can not be converted to a string", file, line));
+    }
+  }
+};
+template <typename T>
+struct conversion_impl<
+    T, std::enable_if_t<std::is_same_v<T, std::vector<std::string>>>>
+{
+  static const std::vector<std::string>& get_arg(const cuke::value& v,
+                                                 std::string_view file,
+                                                 std::size_t line)
+  {
+    if (v.type() == cuke::value_type::string_array)
+    {
+      return v.as<std::vector<std::string>>();
     }
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not an string type", file, line));
+          std::format("{}:{}: Value is not a table", file, line));
     }
   }
 };
-
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
 {

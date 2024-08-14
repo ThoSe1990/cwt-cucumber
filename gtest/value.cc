@@ -81,7 +81,21 @@ TEST(value, string_view_value)
   EXPECT_EQ(v.type(), cuke::value_type::string);
   EXPECT_EQ(v.as<std::string_view>(), "hello value");
 }
-
+TEST(value, string_array)
+{
+  cuke::value v{std::vector<std::string>{"hello", "world", ":)"}};
+  EXPECT_EQ(v.type(), cuke::value_type::string_array);
+  ASSERT_EQ(v.as<std::vector<std::string>>().size(), 3);
+  EXPECT_EQ(v.as<std::vector<std::string>>().at(0), "hello");
+  EXPECT_EQ(v.as<std::vector<std::string>>().at(1), "world");
+  EXPECT_EQ(v.as<std::vector<std::string>>().at(2), ":)");
+}
+TEST(value, string_array_to_string)
+{
+  cuke::value v{std::vector<std::string>{"hello ", "world ", ":)"}};
+  ASSERT_EQ(v.type(), cuke::value_type::string_array);
+  EXPECT_EQ(v.to_string(), "hello world :)");
+}
 TEST(value, nil_value)
 {
   cuke::value v(nil_value{});

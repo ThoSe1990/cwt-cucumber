@@ -14,13 +14,14 @@ namespace cuke
  */
 enum class value_type
 {
-  integral,  ///< Represents an integer value
-  floating,  ///< Represents a float value
-  _double,   ///< Represents a double value
-  boolean,   ///< Represents a boolean value
-  string,    ///< Represents a string value
-  table,     ///< Represents a table
-  nil        ///< Represents a nil value
+  integral,      ///< Represents an integer value
+  floating,      ///< Represents a float value
+  _double,       ///< Represents a double value
+  boolean,       ///< Represents a boolean value
+  string,        ///< Represents a string value
+  string_array,  ///< Represents an array/vector of strings
+  table,         ///< Represents a table
+  nil            ///< Represents a nil value
 };
 
 class table;
@@ -71,6 +72,13 @@ struct value_trait<T,
                                     std::is_convertible_v<T, std::string_view>>>
 {
   static constexpr cuke::value_type tag = cuke::value_type::string;
+};
+
+template <typename T>
+struct value_trait<
+    T, std::enable_if_t<std::is_convertible_v<T, std::vector<std::string>>>>
+{
+  static constexpr cuke::value_type tag = cuke::value_type::string_array;
 };
 
 template <typename T>
@@ -258,6 +266,15 @@ class value
         return std::to_string(copy_as<bool>());
       case value_type::string:
         return copy_as<std::string>();
+      case value_type::string_array:
+      {
+        std::string str = "";
+        for (const std::string& line : as<std::vector<std::string>>())
+        {
+          str += line;
+        }
+        return str;
+      }
       default:
         throw std::runtime_error(
             std::format("cuke::value: Can not create string from value_type {}",

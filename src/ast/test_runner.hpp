@@ -94,7 +94,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   if (it != cuke::registry().steps().end())
   {
     cuke::registry().run_hook_before_step();
-    step.if_has_doc_string_do([&finder](const std::string& doc_string)
+    step.if_has_doc_string_do([&finder](const auto& doc_string)
                               { finder.values().push_back(doc_string); });
     step.if_has_table_do(
         [&finder](const cuke::table& t)
@@ -176,6 +176,17 @@ class cuke_printer : public stdout_interface
     internal::print(internal::to_color(status), internal::step_prefix(status),
                     step.keyword(), ' ', step.name());
     details::print_file_line(step);
+    // TODO: print tables and doc strings
+    step.if_has_doc_string_do(
+        [](const std::vector<std::string>& doc_string)
+        {
+          internal::println("\"\"\"");
+          for (const std::string& line : doc_string)
+          {
+            internal::println(line);
+          }
+          internal::println("\"\"\"");
+        });
   }
 };
 
