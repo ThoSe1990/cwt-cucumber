@@ -173,7 +173,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not an string type", file, line));
+          std::format("{}:{}: Value is not a table", file, line));
     }
   }
 };
