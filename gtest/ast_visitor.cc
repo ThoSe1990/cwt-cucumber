@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/ast/parser.hpp"
+#include "../src/parser.hpp"
 
 class count_scenarios
 {

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <unordered_map>
 
-#include "ast/test_results.hpp"
+#include "test_results.hpp"
 
 namespace cuke::internal
 {

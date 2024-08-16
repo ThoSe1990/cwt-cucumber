@@ -3,7 +3,7 @@
 #include <string_view>
 
 #include "util.hpp"
-#include "ast/test_results.hpp"
+#include "test_results.hpp"
 
 namespace cuke::internal
 {

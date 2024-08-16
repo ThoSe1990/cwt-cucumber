@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include "../value.hpp"
-#include "../hooks.hpp"
+#include "value.hpp"
+#include "hooks.hpp"
 
 namespace cuke
 {

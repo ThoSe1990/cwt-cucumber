@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../src/ast/parser.hpp"
-#include "../src/ast/test_runner.hpp"
-#include "../src/ast/test_results.hpp"
+#include "../src/parser.hpp"
+#include "../src/test_runner.hpp"
+#include "../src/test_results.hpp"
 #include "../src/asserts.hpp"
 
 class test_results_1 : public ::testing::Test

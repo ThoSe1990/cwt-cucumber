@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../src/ast/test_runner.hpp"
-#include "../src/ast/parser.hpp"
+#include "../src/test_runner.hpp"
+#include "../src/parser.hpp"
 
 class run_scenario_hooks : public ::testing::Test
 {

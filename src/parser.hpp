@@ -5,10 +5,10 @@
 #include <string_view>
 
 #include "ast.hpp"
-#include "../token.hpp"
-#include "../util.hpp"
-#include "../table.hpp"
-#include "../options.hpp"
+#include "token.hpp"
+#include "util.hpp"
+#include "table.hpp"
+#include "options.hpp"
 
 namespace cuke::internal
 {

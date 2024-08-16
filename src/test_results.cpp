@@ -1,6 +1,6 @@
 
 #include "test_results.hpp"
-#include "../util.hpp"
+#include "util.hpp"
 
 namespace cuke::results
 {

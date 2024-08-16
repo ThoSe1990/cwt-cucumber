@@ -6,11 +6,11 @@
 
 #include "ast.hpp"
 #include "registry.hpp"
-#include "../step_finder.hpp"
+#include "step_finder.hpp"
 #include "test_results.hpp"
-#include "../util.hpp"
-#include "../options.hpp"
-#include "../context.hpp"
+#include "util.hpp"
+#include "options.hpp"
+#include "context.hpp"
 
 // TODO: cleanup headers/ast directory and namespaces
 
@@ -207,7 +207,8 @@ class test_runner
     {
       m_background = &feature.background();
     }
-    m_skip_all = !m_tags->evaluate(feature.tags());
+
+    m_skip_all = !tags_valid(feature.tags());
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
@@ -216,8 +217,7 @@ class test_runner
       return;
     }
     results::new_scenario();
-    if (skip_scenario(m_file, scenario.line()) ||
-        !m_tags->evaluate(scenario.tags()))
+    if (skip_scenario(m_file, scenario.line()) || !tags_valid(scenario.tags()))
     {
       results::scenarios_back().status = results::test_status::skipped;
       return;
@@ -237,7 +237,7 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
-    if (m_skip_all || !m_tags->evaluate(scenario_outline.tags()))
+    if (m_skip_all || !tags_valid(scenario_outline.tags()))
     {
       return;
     }
@@ -247,7 +247,7 @@ class test_runner
       {
         results::new_scenario();
         if (skip_scenario(m_file, example.line_table_begin() + row) ||
-            !m_tags->evaluate(example.tags()))
+            !tags_valid(example.tags()))
         {
           results::scenarios_back().status = results::test_status::skipped;
           continue;
@@ -280,6 +280,18 @@ class test_runner
         m_printer->print(step, results::steps_back().status);
       }
     }
+  }
+  // TODO: refactor this, tags and files are not handled well in test_runner ...
+  // should we put terminal_args into this class to make all available?
+  // then we we'd execute for all files everything here ... idk now ...
+  [[nodiscard]] bool tags_valid(
+      const std::vector<std::string>& tags) const noexcept
+  {
+    if (m_tags == nullptr)
+    {
+      return true;
+    }
+    return m_tags->evaluate(tags);
   }
   [[nodiscard]] bool has_background() const noexcept
   {

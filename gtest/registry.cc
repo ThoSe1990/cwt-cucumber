@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 
-#include "../src/ast/registry.hpp"
+#include "../src/registry.hpp"
 
 class registry_tests : public ::testing::Test
 {

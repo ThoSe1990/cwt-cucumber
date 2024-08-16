@@ -6,7 +6,7 @@
 #include "get_args.hpp"
 #include "options.hpp"
 
-#include "ast/test_results.hpp"
+#include "test_results.hpp"
 
 namespace cuke
 {

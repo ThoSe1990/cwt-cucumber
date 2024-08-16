@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <algorithm>
 
-#include "../src/ast/test_runner.hpp"
-#include "../src/ast/parser.hpp"
+#include "../src/test_runner.hpp"
+#include "../src/parser.hpp"
 #include "paths.hpp"
 
 class file_io : public ::testing::Test

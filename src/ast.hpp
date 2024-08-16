@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../lexer.hpp"
-#include "../token.hpp"
-#include "../table.hpp"
+#include "lexer.hpp"
+#include "token.hpp"
+#include "table.hpp"
 
 #include <cstddef>
 #include <string>

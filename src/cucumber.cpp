@@ -1,9 +1,9 @@
 #include "cucumber.hpp"
-#include "ast/test_results.hpp"
+#include "test_results.hpp"
 #include "options.hpp"
 
-#include "ast/parser.hpp"
-#include "ast/test_runner.hpp"
+#include "parser.hpp"
+#include "test_runner.hpp"
 #include "util.hpp"
 
 namespace cuke
