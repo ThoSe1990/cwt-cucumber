@@ -12,8 +12,6 @@
 #include "options.hpp"
 #include "context.hpp"
 
-// TODO: cleanup headers/ast directory and namespaces
-
 namespace cuke
 {
 
