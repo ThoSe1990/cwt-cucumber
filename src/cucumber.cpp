@@ -10,7 +10,7 @@ namespace cuke
 {
 
 // TODO:
-// - suppress prints when quiet -> use singleton targs, initialialize properly
+// - suppress prints when quiet -> use singleton args, initialialize properly
 //
 
 void print_failed_scenarios()
@@ -43,16 +43,16 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
     return cuke::results::final_result();
   }
 
-  internal::terminal_arguments& targs = internal::terminal_args(argc, argv);
+  cuke_args& args = program_arguments(argc, argv);
 
-  for (const auto& feature : targs.get_options().files)
+  for (const auto& feature : args.get_options().files)
   {
     cuke::parser p;
     p.parse_from_file(feature.path);
 
-    cuke::test_runner runner(feature.lines_to_compile,
-                             &targs.get_options().tags);
-    if (targs.get_options().quiet)
+    cuke::test_runner runner(feature.lines_to_run,
+                             &args.get_options().tags);
+    if (args.get_options().quiet)
     {
       runner.set_quiet();
     }
