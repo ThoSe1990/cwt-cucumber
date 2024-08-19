@@ -1,9 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <typeinfo>
 #include <typeindex>
-#include <algorithm>
 #include <unordered_map>
 
 namespace cuke::internal

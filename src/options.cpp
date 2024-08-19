@@ -1,5 +1,6 @@
-#include "options.hpp"
 #include <optional>
+
+#include "options.hpp"
 #include "util.hpp"
 
 namespace cuke::internal
@@ -7,6 +8,7 @@ namespace cuke::internal
 
 void terminal_arguments::initialize(int argc, const char* argv[])
 {
+  clear();
   m_args = std::span<const char*>(argv, argc);
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {

@@ -252,7 +252,6 @@ TEST_F(stdout_print, final_result_4)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
-  std::cout << output << std::endl;
   std::string scenario_result = cuke::results::scenarios_to_string();
   EXPECT_TRUE(has_substr(scenario_result, "1 Scenario"));
   EXPECT_TRUE(has_substr(scenario_result, "1 failed"));
@@ -263,18 +262,91 @@ TEST_F(stdout_print, final_result_4)
   EXPECT_TRUE(has_substr(steps_result, "1 passed"));
 }
 
-TEST_F(stdout_print, scenario_fail_final_result)
+namespace cuke
 {
-  const char* script = R"*(
-    Feature: a feature 
-    Scenario: a scenario 
-    Given a step 
-    And this fails
-  )*";
+extern void print_failed_scenarios();
+}
+
+TEST_F(stdout_print, scenario_fail_final_form_file)
+{
+  std::string file_arg =
+      std::format("{}/test_files/fail.feature:3", unittests::test_dir());
+  const char* argv[] = {"program", file_arg.c_str()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+
+  cuke::internal::terminal_arguments& targs =
+      cuke::internal::terminal_args(argc, argv);
+
+  const cuke::internal::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
-  p.parse_script(script);
+  p.parse_from_file(file);
 
-  cuke::test_runner runner;
+  cuke::test_runner runner(file.lines_to_compile);
   p.for_each_scenario(runner);
+
+  cuke::print_failed_scenarios();
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "Failed Scenarios:"));
+  EXPECT_TRUE(has_substr(output, "first scenario"));
+  EXPECT_TRUE(has_substr(output, "fail.feature:3"));
+}
+
+TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
+{
+  // TODO:
+  // --quiet option suppresses the print in assert.hpp
+  // but unfortunatelly we have to call set_quiet() on test runner
+  // manually, lets refactor the test runner later ...
+  std::string file_arg =
+      std::format("{}/test_files/fail.feature:3", unittests::test_dir());
+  const char* argv[] = {"program", file_arg.c_str(), "--quiet"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+
+  cuke::internal::terminal_arguments& targs =
+      cuke::internal::terminal_args(argc, argv);
+  const cuke::internal::feature_file& file = targs.get_options().files.back();
+
+  cuke::parser p;
+  p.parse_from_file(file);
+
+  cuke::test_runner runner(file.lines_to_compile);
+  runner.set_quiet();
+  p.for_each_scenario(runner);
+
+  cuke::print_failed_scenarios();
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_FALSE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_FALSE(
+      has_substr(output, "Expected given condition true, but its false:"));
+  EXPECT_FALSE(has_substr(output, "[   FAILED    ] And this fails"));
+}
+TEST_F(stdout_print, scenario_fail_final_form_file_q)
+{
+  // TODO:
+  // --quiet option suppresses the print in assert.hpp
+  // but unfortunatelly we have to call set_quiet() on test runner
+  // manually, lets refactor the test runner later ...
+  std::string file_arg =
+      std::format("{}/test_files/fail.feature:3", unittests::test_dir());
+  const char* argv[] = {"program", file_arg.c_str(), "-q"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+
+  cuke::internal::terminal_arguments& targs =
+      cuke::internal::terminal_args(argc, argv);
+  const cuke::internal::feature_file& file = targs.get_options().files.back();
+
+  cuke::parser p;
+  p.parse_from_file(file);
+
+  cuke::test_runner runner(file.lines_to_compile);
+  runner.set_quiet();
+  p.for_each_scenario(runner);
+
+  cuke::print_failed_scenarios();
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_FALSE(has_substr(output, "[   PASSED    ] Given a step"));
+  EXPECT_FALSE(
+      has_substr(output, "Expected given condition true, but its false:"));
+  EXPECT_FALSE(has_substr(output, "[   FAILED    ] And this fails"));
 }

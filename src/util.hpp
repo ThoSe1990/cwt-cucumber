@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 #include <unordered_map>
 
 #include "test_results.hpp"

@@ -1,5 +1,3 @@
-#include <cstdlib>
-#include "test_results.hpp"
 #include "cucumber.hpp"
 
 int main(int argc, const char* argv[])

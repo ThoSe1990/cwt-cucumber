@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "lexer.hpp"
 
 #include "util.hpp"

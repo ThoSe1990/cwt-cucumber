@@ -12,7 +12,7 @@ inline void internal_assert(bool condition, std::string_view error_msg)
   if (condition == false)
   {
     cuke::results::set_step_to(cuke::results::test_status::failed);
-    if (terminal_args().get_options().quiet)
+    if (!terminal_args().get_options().quiet)
     {
       println(color::red, error_msg);
     }

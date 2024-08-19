@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "scanner.hpp"
-// #include "file.hpp"
 
 namespace cuke::internal
 {

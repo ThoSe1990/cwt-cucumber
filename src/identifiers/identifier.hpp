@@ -13,10 +13,10 @@ class identifier
  public:
   virtual ~identifier() = default;
 
-  virtual std::pair<token_type, std::size_t> get_token(std::string_view str) const = 0;
+  virtual std::pair<token_type, std::size_t> get_token(
+      std::string_view str) const = 0;
 
  private:
-
 };
 
 }  // namespace cuke::internal
