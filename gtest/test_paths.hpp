@@ -12,7 +12,7 @@ namespace unittests
 
 [[nodiscard]] static constexpr std::string_view test_dir()
 {
-  return std::string_view("C:/git/cwt-cucumber/gtest");
+  return std::string_view("/Users/thomas/git/cwt-cucumber/gtest");
 }
 
 
