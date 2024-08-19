@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <string_view>
+#include <string> 
 
 namespace cuke::results
 {
@@ -21,8 +21,8 @@ struct scenario
 {
   std::vector<step> steps{};
   test_status status{test_status::passed};
-  std::string_view name;
-  std::string_view file;
+  std::string name;
+  std::string file;
   std::size_t line;
 };
 struct feature
