@@ -26,6 +26,9 @@ jobs:
           ls -la ./gtest
           ls -la ./gtest/test_files
           cat ./gtest/test_paths.hpp
+          echo "****"
+          pwd
+          echo "****"
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
