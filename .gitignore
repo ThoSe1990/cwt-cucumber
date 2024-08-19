@@ -3,7 +3,7 @@
 build/
 build*/
 docs/_build/
-gtest/paths.hpp
+gtest/test_paths.hpp
 compile_commands.json
 CMakeUserPresets.json
 *.sh
