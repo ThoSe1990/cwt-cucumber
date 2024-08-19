@@ -29,8 +29,8 @@ TEST_F(file_io, run_scenario)
                            unittests::test_dir())
             << std::endl;
   cuke::parser p;
-  p.parse_from_file("./gtest/test_files/example.feature");
-  // std::format("{}/test_files/example.feature", unittests::test_dir()));
+  p.parse_from_file(
+      std::format("{}/test_files/example.feature", unittests::test_dir()));
   cuke::test_runner runner;
   p.for_each_scenario(runner);
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
