@@ -52,27 +52,6 @@ bool step_finder::step_matches(std::string_view defined_step)
         return false;
       }
     }
-    // else if (is_at_end(defined) && feature.type == token_type::linebreak)
-    // {
-    // while (feature.type == token_type::linebreak)
-    // {
-    //   feature = m_feature.scan_token();
-    // }
-    // TODO: when pushing doc string / table after step matching, it would be
-    // easier ... step finding has nothing to do with tables or doc stirngs
-    // ....
-    //
-    // if (feature.type == token_type::doc_string)
-    // {
-    //   m_values.push_back(token_to_value(feature, false));
-    // }
-    // else if (feature.type == token_type::vertical)
-    // {
-    //   cuke::value v = create_table();
-    //   m_values.push_back(v);
-    // }
-    // feature = m_feature.scan_token();
-    // }
     else if (is_not_equal(defined, feature))
     {
       return false;

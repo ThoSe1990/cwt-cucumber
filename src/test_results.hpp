@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <vector>
 
 namespace cuke::results
@@ -21,6 +20,9 @@ struct scenario
 {
   std::vector<step> steps{};
   test_status status{test_status::passed};
+  std::string_view name;
+  std::string_view file;
+  std::size_t line;
 };
 struct feature
 {
@@ -160,13 +162,6 @@ class test_result
     return test_status::passed;
   }
   return test_status::failed;
-
-  // bool all_passed =
-  //     std::all_of(test_results().data().begin(), test_results().data().end(),
-  //                 [](const feature& f)
-  //                 { return f.status == results::test_status::passed; });
-  //
-  // return all_passed ? test_status::passed : test_status::failed;
 }
 
 static void new_feature() { test_results().data().emplace_back(); }

@@ -4,7 +4,7 @@
 namespace cuke
 {
 
-[[nodiscard]] internal::registry& registry()
+internal::registry& registry()
 {
   static internal::registry instance;
   return instance;

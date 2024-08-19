@@ -1,12 +1,13 @@
 #include "options.hpp"
+#include <optional>
 #include "util.hpp"
 
 namespace cuke::internal
 {
 
-terminal_arguments::terminal_arguments(int argc, const char* argv[])
-    : m_args(argv, argc)
+void terminal_arguments::initialize(int argc, const char* argv[])
 {
+  m_args = std::span<const char*>(argv, argc);
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {
     std::string_view sv{*it};
@@ -19,6 +20,12 @@ terminal_arguments::terminal_arguments(int argc, const char* argv[])
       process_path(sv);
     }
   }
+}
+
+void terminal_arguments::clear()
+{
+  m_args = std::span<const char*>();
+  m_options = options{};
 }
 const options& terminal_arguments::get_options() const noexcept
 {
@@ -70,6 +77,18 @@ void terminal_arguments::process_path(std::string_view sv)
       m_options.files.push_back(feature_file{file_path, lines});
     }
   }
+}
+
+[[nodiscard]] terminal_arguments& terminal_args(
+    std::optional<int> argc /*= std::nullopt*/,
+    const char* argv[] /*= nullptr*/)
+{
+  static terminal_arguments instance;
+  if (argc && argv)
+  {
+    instance.initialize(argc.value(), argv);
+  }
+  return instance;
 }
 
 }  // namespace cuke::internal

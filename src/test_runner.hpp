@@ -1,7 +1,10 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <utility>
 
 #include "ast.hpp"
@@ -9,21 +12,20 @@
 #include "step_finder.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
-#include "options.hpp"
 #include "context.hpp"
 
 namespace cuke
 {
 
-[[nodiscard]] static bool skip_scenario(const internal::feature_file* file,
+[[nodiscard]] static bool skip_scenario(const std::vector<std::size_t> lines,
                                         std::size_t line)
 {
-  if (file == nullptr || file->lines_to_compile.empty())
+  if (lines.empty())
   {
     return false;
   }
-  return std::find(file->lines_to_compile.begin(), file->lines_to_compile.end(),
-                   line) == file->lines_to_compile.end();
+
+  return std::find(lines.begin(), lines.end(), line) == lines.end();
 }
 [[nodiscard]] static bool skip_step()
 {
@@ -41,15 +43,22 @@ static void update_feature_status()
     results::set_feature_to(results::test_status::failed);
   }
 }
-static void update_scenario_status()
+static void update_scenario_status(std::string_view name, std::string_view file,
+                                   std::size_t line)
 {
-  if (results::scenarios_back().status != results::test_status::passed)
+  auto failed_already = []()
+  { return results::scenarios_back().status != results::test_status::passed; };
+  if (failed_already())
   {
     return;
   }
+
   if (results::steps_back().status != results::test_status::passed)
   {
     results::scenarios_back().status = results::test_status::failed;
+    results::scenarios_back().name = name;
+    results::scenarios_back().file = file;
+    results::scenarios_back().line = line;
   }
   results::test_results().add_scenario(results::scenarios_back().status);
   update_feature_status();
@@ -185,10 +194,10 @@ class test_runner
 {
  public:
   test_runner() = default;
-  test_runner(const internal::feature_file* file) : m_file(file) {}
-  test_runner(const internal::feature_file* file,
+  test_runner(const std::vector<std::size_t>& lines) : m_lines(lines) {}
+  test_runner(const std::vector<std::size_t>& lines,
               const internal::tag_expression* tags)
-      : m_file(file), m_tags(tags)
+      : m_lines(lines), m_tags(tags)
   {
   }
 
@@ -215,7 +224,7 @@ class test_runner
       return;
     }
     results::new_scenario();
-    if (skip_scenario(m_file, scenario.line()) || !tags_valid(scenario.tags()))
+    if (skip_scenario(m_lines, scenario.line()) || !tags_valid(scenario.tags()))
     {
       results::scenarios_back().status = results::test_status::skipped;
       return;
@@ -229,7 +238,7 @@ class test_runner
       m_printer->print(step, results::steps_back().status);
     }
     cuke::registry().run_hook_after(scenario.tags());
-    update_scenario_status();
+    update_scenario_status(scenario.name(), scenario.file(), scenario.line());
     cuke::internal::reset_context();
     m_printer->println();
   }
@@ -244,7 +253,8 @@ class test_runner
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario();
-        if (skip_scenario(m_file, example.line_table_begin() + row) ||
+        std::size_t row_file_line = example.line_table_begin() + row;
+        if (skip_scenario(m_lines, row_file_line) ||
             !tags_valid(example.tags()))
         {
           results::scenarios_back().status = results::test_status::skipped;
@@ -260,7 +270,8 @@ class test_runner
         }
         m_printer->print(example, row);
         cuke::registry().run_hook_after(scenario_outline.tags());
-        update_scenario_status();
+        update_scenario_status(scenario_outline.name(), scenario_outline.file(),
+                               row_file_line);
         cuke::internal::reset_context();
         m_printer->println();
       }
@@ -301,8 +312,8 @@ class test_runner
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
-  const internal::feature_file* m_file = nullptr;
   const internal::tag_expression* m_tags = nullptr;
+  std::vector<std::size_t> m_lines;
 };
 
 }  // namespace cuke

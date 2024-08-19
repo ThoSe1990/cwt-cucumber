@@ -22,14 +22,14 @@ struct options
 {
   bool quiet{false};
   cuke::internal::tag_expression tags;
-  std::vector<feature_file> files;  
+  std::vector<feature_file> files;
 };
 
 class terminal_arguments
 {
  public:
-  terminal_arguments() = default; 
-  terminal_arguments(int argc, const char* argv[]);
+  void initialize(int argc, const char* argv[]);
+  void clear();
   const options& get_options() const noexcept;
 
  private:
@@ -41,6 +41,9 @@ class terminal_arguments
   std::span<const char*> m_args;
   options m_options;
 };
+
+[[nodiscard]] terminal_arguments& terminal_args(
+    std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
 static void do_print_help();
 [[nodiscard]] static bool print_help(int argc, const char* argv[])

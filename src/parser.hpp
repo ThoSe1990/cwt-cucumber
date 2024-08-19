@@ -369,7 +369,6 @@ class parser
   {
     using namespace cuke::internal;
     m_error = false;
-    // TODO: pass file name to lexer
     lexer lex(script, filename);
     lex.advance();
     lex.skip_linebreaks();

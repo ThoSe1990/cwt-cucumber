@@ -131,14 +131,15 @@ TEST_F(stdout_print, scenario_from_file)
       std::format("{}/test_files/example.feature:3", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs(argc, argv);
+  cuke::internal::terminal_arguments targs;
+  targs.initialize(argc, argv);
 
   const cuke::internal::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
   p.parse_from_file(file);
 
-  cuke::test_runner runner(&file);
+  cuke::test_runner runner(file.lines_to_compile);
   p.for_each_scenario(runner);
 
   std::string output = testing::internal::GetCapturedStdout();
@@ -251,6 +252,7 @@ TEST_F(stdout_print, final_result_4)
 
   [[maybe_unused]] std::string output = testing::internal::GetCapturedStdout();
 
+  std::cout << output << std::endl;
   std::string scenario_result = cuke::results::scenarios_to_string();
   EXPECT_TRUE(has_substr(scenario_result, "1 Scenario"));
   EXPECT_TRUE(has_substr(scenario_result, "1 failed"));
@@ -259,4 +261,20 @@ TEST_F(stdout_print, final_result_4)
   EXPECT_TRUE(has_substr(steps_result, "2 Steps"));
   EXPECT_TRUE(has_substr(steps_result, "1 failed"));
   EXPECT_TRUE(has_substr(steps_result, "1 passed"));
+}
+
+TEST_F(stdout_print, scenario_fail_final_result)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+    And this fails
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
 }
