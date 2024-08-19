@@ -25,7 +25,7 @@ jobs:
           cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
           cmake --build ./build_gcc -j12
       - name: unittests
-        run: sudo ./build_gcc/bin/unittests
+        run: ./build_gcc/bin/unittests
 
   build-clang:
     runs-on: ubuntu-latest
@@ -41,5 +41,5 @@ jobs:
           cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
           cmake --build ./build_clang -j12      
       - name: unittests
-        run: sudo ./build_clang/bin/unittests
+        run: ./build_clang/bin/unittests
 
