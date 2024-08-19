@@ -40,9 +40,10 @@ TEST(options, find_files_in_dir)
   cuke::internal::terminal_arguments targs;
   targs.initialize(argc, argv);
   ASSERT_EQ(targs.get_options().files.size(), 3);
-  EXPECT_TRUE(targs.get_options().files[0].path.ends_with(".feature"));
+
+  EXPECT_TRUE(targs.get_options().files[0].path.ends_with("any.feature"));
   EXPECT_TRUE(targs.get_options().files[1].path.ends_with("example.feature"));
-  EXPECT_TRUE(targs.get_options().files[2].path.ends_with("any.feature"));
+  EXPECT_TRUE(targs.get_options().files[2].path.ends_with("fail.feature"));
 }
 namespace details
 {

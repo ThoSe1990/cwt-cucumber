@@ -30,6 +30,8 @@ class table
   // TODO data should be rvalue ref? value_array&& data
   table(value_array data, std::size_t col_count);
 
+  [[nodscard]] bool empty() const noexcept;
+
   /**
    * @class row
    * @brief A row object to represent a row in a table

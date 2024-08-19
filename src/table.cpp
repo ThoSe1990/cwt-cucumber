@@ -22,7 +22,10 @@ table::table(value_array data, std::size_t col_count)
                     m_data.size(), m_col_count));
   }
 }
-
+bool table::empty() const noexcept
+{
+  return m_data.empty();
+}
 bool table::append_row(value_array&& row)
 {
   if (m_col_count != row.size())

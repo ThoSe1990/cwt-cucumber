@@ -78,7 +78,7 @@ class step_node : public node
   template <typename Callback>
   void if_has_table_do(Callback&& callback) const noexcept
   {
-    if (m_table.row_count() > 0)
+    if (!m_table.empty())
     {
       callback(m_table);
     }
