@@ -1,4 +1,3 @@
-
 #include "test_results.hpp"
 #include "util.hpp"
 

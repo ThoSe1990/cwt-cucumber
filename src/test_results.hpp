@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string_view>
 
 namespace cuke::results
 {
