@@ -25,6 +25,9 @@ class file_io : public ::testing::Test
 
 TEST_F(file_io, run_scenario)
 {
+  std::cout << std::format("{}/test_files/example.feature",
+                           unittests::test_dir())
+            << std::endl;
   cuke::parser p;
   p.parse_from_file(
       std::format("{}/test_files/example.feature", unittests::test_dir()));
@@ -51,23 +54,18 @@ template <typename T>
 
 TEST_F(file_io, run_single_scenario)
 {
-  std::cout << "***" << std::endl;
   std::string file_arg =
       std::format("{}/test_files/example.feature:3", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::internal::terminal_arguments targs;
-  std::cout << "***" << std::endl;
   targs.initialize(argc, argv);
 
-  std::cout << "***" << std::endl;
   const cuke::internal::feature_file& file = targs.get_options().files.back();
 
-  std::cout << "***" << std::endl;
   cuke::parser p;
   p.parse_from_file(file.path);
 
-  std::cout << "***" << std::endl;
   cuke::test_runner runner(file.lines_to_compile);
   p.for_each_scenario(runner);
 
