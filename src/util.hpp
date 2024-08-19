@@ -317,7 +317,7 @@ filepath_and_lines(std::string_view sv)
 
 [[nodiscard]] inline std::string read_file(std::string_view path)
 {
-  std::ifstream in(path);
+  std::ifstream in(path.data());
   std::string script((std::istreambuf_iterator<char>(in)),
                      std::istreambuf_iterator<char>());
   return script;
