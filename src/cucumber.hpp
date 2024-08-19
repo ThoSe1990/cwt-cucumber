@@ -3,6 +3,7 @@
 #include "defines.hpp"  // NOLINT
 #include "asserts.hpp"  // NOLINT
 #include "context.hpp"  // NOLINT
+#include "get_args.hpp" // NOLINT 
 
 #include "test_results.hpp"
 
