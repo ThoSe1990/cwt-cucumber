@@ -291,10 +291,10 @@ inline constexpr std::string replace(const token& t, std::string_view r)
   return true;
 }
 
-[[nodiscard]] inline std::pair<std::string, std::vector<unsigned long>>
+[[nodiscard]] inline std::pair<std::string, std::vector<std::size_t>>
 filepath_and_lines(std::string_view sv)
 {
-  std::vector<unsigned long> lines;
+  std::vector<std::size_t> lines;
   long pos = static_cast<long>(sv.size());
   long last_pos = pos;
   while (pos > 0)
