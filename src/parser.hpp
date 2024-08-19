@@ -325,7 +325,7 @@ class parser
 
   [[nodiscard]] bool error() const noexcept { return m_error; }
 
-  void parse_from_file(const internal::feature_file& file)
+  void parse_from_file(const feature_file& file)
   {
     parse_from_file(file.path);
   }

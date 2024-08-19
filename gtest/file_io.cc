@@ -55,15 +55,15 @@ TEST_F(file_io, run_single_scenario)
       std::format("{}/test_files/example.feature:3", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs;
+  cuke::cuke_args targs;
   targs.initialize(argc, argv);
 
-  const cuke::internal::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
   p.parse_from_file(file.path);
 
-  cuke::test_runner runner(file.lines_to_compile);
+  cuke::test_runner runner(file.lines_to_run);
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -78,15 +78,15 @@ TEST_F(file_io, run_single_scenario_wrong_line)
       std::format("{}/test_files/example.feature:4", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs;
+  cuke::cuke_args targs;
   targs.initialize(argc, argv);
 
-  const cuke::internal::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
   p.parse_from_file(file.path);
 
-  cuke::test_runner runner(file.lines_to_compile);
+  cuke::test_runner runner(file.lines_to_run);
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -101,15 +101,15 @@ TEST_F(file_io, run_single_scenario_outline)
       std::format("{}/test_files/example.feature:21", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs;
+  cuke::cuke_args targs;
   targs.initialize(argc, argv);
 
-  const cuke::internal::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
   p.parse_from_file(file.path);
 
-  cuke::test_runner runner(file.lines_to_compile);
+  cuke::test_runner runner(file.lines_to_run);
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -124,15 +124,15 @@ TEST_F(file_io, run_multiple_scenario)
                                      unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::internal::terminal_arguments targs;
+  cuke::cuke_args targs;
   targs.initialize(argc, argv);
 
-  const cuke::internal::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = targs.get_options().files.back();
 
   cuke::parser p;
   p.parse_from_file(file.path);
 
-  cuke::test_runner runner(file.lines_to_compile);
+  cuke::test_runner runner(file.lines_to_run);
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);

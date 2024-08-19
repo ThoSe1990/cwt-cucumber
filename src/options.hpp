@@ -9,13 +9,13 @@
 #include "version.hpp"
 #include "tags.hpp"
 
-namespace cuke::internal
+namespace cuke
 {
 
 struct feature_file
 {
   std::string path;
-  std::vector<std::size_t> lines_to_compile;
+  std::vector<std::size_t> lines_to_run;
 };
 
 struct options
@@ -25,7 +25,7 @@ struct options
   std::vector<feature_file> files;
 };
 
-class terminal_arguments
+class cuke_args
 {
  public:
   void initialize(int argc, const char* argv[]);
@@ -42,22 +42,24 @@ class terminal_arguments
   options m_options;
 };
 
-[[nodiscard]] terminal_arguments& terminal_args(
+[[nodiscard]] cuke_args& program_arguments(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
+namespace internal
+{
 static void do_print_help();
 [[nodiscard]] static bool print_help(int argc, const char* argv[])
 {
-  std::span<const char*> terminal_args(argv, argc);
+  std::span<const char*> program_arguments(argv, argc);
 
-  if (terminal_args.size() == 1)
+  if (program_arguments.size() == 1)
   {
     do_print_help();
     return true;
   }
-  else if (terminal_args.size() == 2)
+  else if (program_arguments.size() == 2)
   {
-    std::string_view arg = terminal_args[1];
+    std::string_view arg = program_arguments[1];
     if (arg == std::string_view("-h") || arg == std::string_view("--help"))
     {
       do_print_help();
@@ -94,5 +96,6 @@ static void do_print_help()
   println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
   println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
+}  // namespace internal
 
-}  // namespace cuke::internal
+}  // namespace cuke

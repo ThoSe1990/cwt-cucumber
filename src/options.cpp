@@ -3,10 +3,10 @@
 #include "options.hpp"
 #include "util.hpp"
 
-namespace cuke::internal
+namespace cuke
 {
 
-void terminal_arguments::initialize(int argc, const char* argv[])
+void cuke_args::initialize(int argc, const char* argv[])
 {
   clear();
   m_args = std::span<const char*>(argv, argc);
@@ -24,17 +24,17 @@ void terminal_arguments::initialize(int argc, const char* argv[])
   }
 }
 
-void terminal_arguments::clear()
+void cuke_args::clear()
 {
   m_args = std::span<const char*>();
   m_options = options{};
 }
-const options& terminal_arguments::get_options() const noexcept
+const options& cuke_args::get_options() const noexcept
 {
   return m_options;
 }
 
-void terminal_arguments::process_option(std::span<const char*>::iterator it)
+void cuke_args::process_option(std::span<const char*>::iterator it)
 {
   std::string_view option(*it);
   if (option.starts_with("-t") || option.starts_with("--tags"))
@@ -48,7 +48,7 @@ void terminal_arguments::process_option(std::span<const char*>::iterator it)
   }
 }
 
-void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
+void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
 {
   for (const auto& entry : std::filesystem::directory_iterator(dir))
   {
@@ -63,10 +63,10 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
   }
 }
 
-void terminal_arguments::process_path(std::string_view sv)
+void cuke_args::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
-  auto [file_path, lines] = filepath_and_lines(sv);
+  auto [file_path, lines] = internal::filepath_and_lines(sv);
   fs::path path = file_path;
   if (fs::exists(path))
   {
@@ -81,11 +81,11 @@ void terminal_arguments::process_path(std::string_view sv)
   }
 }
 
-[[nodiscard]] terminal_arguments& terminal_args(
+[[nodiscard]] cuke_args& program_arguments(
     std::optional<int> argc /*= std::nullopt*/,
     const char* argv[] /*= nullptr*/)
 {
-  static terminal_arguments instance;
+  static cuke_args instance;
   if (argc && argv)
   {
     instance.initialize(argc.value(), argv);
@@ -93,4 +93,4 @@ void terminal_arguments::process_path(std::string_view sv)
   return instance;
 }
 
-}  // namespace cuke::internal
+}  // namespace cuke

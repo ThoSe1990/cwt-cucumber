@@ -291,7 +291,7 @@ class test_runner
     }
   }
   // TODO: refactor this, tags and files are not handled well in test_runner ...
-  // should we put terminal_args into this class to make all available?
+  // should we put program_arguments into this class to make all available?
   // then we we'd execute for all files everything here ... idk now ...
   [[nodiscard]] bool tags_valid(
       const std::vector<std::string>& tags) const noexcept
