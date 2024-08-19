@@ -1,11 +1,10 @@
-#include <format>
 #include <gtest/gtest.h>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
 #include "../src/asserts.hpp"
 
-#include "paths.hpp"
+#include "test_paths.hpp"
 
 class stdout_print : public ::testing::Test
 {

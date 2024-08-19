@@ -23,8 +23,9 @@ jobs:
         run: |
           conan install . -of ./build_gcc --build missing 
           cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
-          ls ./gtest
-          ls ./gtest/test_files
+          ls -la ./gtest
+          ls -la ./gtest/test_files
+          cat ./gtest/test_paths.hpp
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
@@ -41,8 +42,9 @@ jobs:
         run: |
           conan install . -of ./build_clang --build missing -pr clang
           cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
-          ls ./gtest
-          ls ./gtest/test_files
+          ls -la ./gtest
+          ls -la ./gtest/test_files
+          cat ./gtest/test_paths.hpp
           cmake --build ./build_clang -j12      
       - name: unittests
         run: ./build_clang/bin/unittests

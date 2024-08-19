@@ -4,13 +4,13 @@ find_package(GTest)
 
 if(GTest_FOUND)
  
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths.template ${CMAKE_CURRENT_SOURCE_DIR}/paths.hpp)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_paths.template ${CMAKE_CURRENT_SOURCE_DIR}/test_paths.hpp)
 
   add_executable(${target} 
     ${CMAKE_CURRENT_SOURCE_DIR}/ast.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ast_visitor.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/context.cc
-    # ${CMAKE_CURRENT_SOURCE_DIR}/file_io.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/file_io.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/options.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios.cc

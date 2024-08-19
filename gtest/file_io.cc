@@ -4,7 +4,7 @@
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
-#include "paths.hpp"
+#include "test_paths.hpp"
 
 class file_io : public ::testing::Test
 {
