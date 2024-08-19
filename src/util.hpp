@@ -4,47 +4,12 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 #include <unordered_map>
 
-namespace cwt::details
-{
+#include "test_results.hpp"
 
-enum class return_code
+namespace cuke::internal
 {
-  passed,
-  failed,
-  undefined,
-  skipped,
-  compile_error,
-  runtime_error
-};
-
-enum class op_code : uint32_t
-{
-  constant,
-  tag,
-  pop,
-  get_var,
-  set_var,
-  define_var,
-  print,
-  println,
-  print_linebreak,
-  print_indent,
-  print_step_result,
-  init_scenario,
-  scenario_result,
-  jump_if_failed,
-  call,
-  call_step,
-  hook_before,
-  hook_before_step,
-  hook_after,
-  hook_after_step,
-  reset_context,
-  func_return
-};
 
 enum class color
 {
@@ -56,12 +21,12 @@ enum class color
   black
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 #include "token.hpp"
 #include "value.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 [[nodiscard]] inline std::string create_string(std::string_view sv)
@@ -98,19 +63,6 @@ template <typename T>
 {
   return static_cast<uint32_t>(value);
 }
-[[nodiscard]] inline constexpr op_code to_code(uint32_t val)
-{
-  if (val >= to_uint(op_code::constant) && val <= to_uint(op_code::func_return))
-      [[likely]]
-  {
-    return static_cast<op_code>(val);
-  }
-  else [[unlikely]]
-  {
-    throw std::out_of_range(
-        "inline op_code to_code(uint32_t val): value out of range");
-  }
-}
 [[nodiscard]] inline constexpr color to_color(uint32_t val)
 {
   if (val >= to_uint(color::standard) && val <= to_uint(color::black))
@@ -125,17 +77,17 @@ template <typename T>
   }
 }
 
-[[nodiscard]] inline color to_color(return_code result)
+[[nodiscard]] inline color to_color(cuke::results::test_status status)
 {
-  switch (result)
+  switch (status)
   {
-    case return_code::passed:
+    case cuke::results::test_status::passed:
       return color::green;
-    case return_code::failed:
+    case cuke::results::test_status::failed:
       return color::red;
-    case return_code::skipped:
+    case cuke::results::test_status::skipped:
       return color::blue;
-    case return_code::undefined:
+    case cuke::results::test_status::undefined:
       return color::yellow;
     default:
       return color::standard;
@@ -145,26 +97,44 @@ template <typename T>
 static const std::unordered_map<color, std::string> color_codes = {
     {color::standard, "\x1b[0m"}, {color::green, "\x1b[32m"},
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
-    {color::blue, "\x1b[34m"},    {color::black, "\x1b[30m"}};
+    {color::blue, "\x1b[34m"},    {color::black, "\x1b[90m"}};
 
-inline void print(color c, std::string_view msg)
+template <typename T>
+inline void print_impl(const T& t)
+{
+  std::cout << t;
+}
+
+template <typename... Args>
+inline void print(color c, Args&&... args)
 {
   auto it = color_codes.find(c);
   if (it != color_codes.end())
   {
     std::cout << it->second;
+    (print_impl(std::forward<Args>(args)), ...);
+    std::cout << color_codes.at(color::standard);
   }
   else
   {
     std::cerr << "Color code " << to_uint(c) << " not found!\n";
   }
-  std::cout << msg << "\x1b[0m";
 }
-inline void print(std::string_view msg) { print(color::standard, msg); }
-
-inline void println(color c, std::string_view mgs)
+template <typename... Args>
+inline void print(Args&&... args)
 {
-  print(c, mgs);
+  (print_impl(std::forward<Args>(args)), ...);
+}
+template <typename... Args>
+inline void println(Args&&... args)
+{
+  (print_impl(std::forward<Args>(args)), ...);
+  std::cout << '\n';
+}
+template <typename... Args>
+inline void println(color c, Args&&... args)
+{
+  print(c, std::forward<Args>(args)...);
   std::cout << '\n';
 }
 inline void println() { std::cout << '\n'; }
@@ -260,11 +230,6 @@ inline constexpr std::string replace(const token& t, std::string_view r)
   }
 }
 
-[[nodiscard]] inline const cuke::value& to_value(argv values, std::size_t idx)
-{
-  return *(values + idx);
-}
-
 [[nodiscard]] inline cuke::value_array combine(const cuke::value_array& v1,
                                                const cuke::value_array& v2)
 {
@@ -280,150 +245,35 @@ inline constexpr std::string replace(const token& t, std::string_view r)
   return result;
 }
 
-[[nodiscard]] inline return_code to_return_code(
-    const std::unordered_map<return_code, std::size_t>& results)
+[[nodiscard]] inline std::string to_string(cuke::results::test_status status)
 {
-  if (results.at(return_code::failed) == 0 &&
-      results.at(return_code::skipped) == 0 &&
-      results.at(return_code::undefined) == 0)
+  switch (status)
   {
-    return return_code::passed;
-  }
-  else
-  {
-    return return_code::failed;
-  }
-}
-
-[[nodiscard]] inline std::string to_string(return_code rc)
-{
-  switch (rc)
-  {
-    case return_code::passed:
+    case cuke::results::test_status::passed:
       return std::string("passed");
-    case return_code::failed:
+    case cuke::results::test_status::failed:
       return std::string("failed");
-    case return_code::skipped:
+    case cuke::results::test_status::skipped:
       return std::string("skipped");
-    case return_code::undefined:
+    case cuke::results::test_status::undefined:
       return std::string("undefined");
     default:
       return std::string("");
   }
 }
 
-[[nodiscard]] inline std::size_t count_values(
-    const std::unordered_map<return_code, std::size_t>& m)
+[[nodiscard]] inline std::string step_prefix(cuke::results::test_status status)
 {
-  std::size_t count = 0;
-  for (const auto& pair : m)
+  switch (status)
   {
-    count += pair.second;
-  }
-  return count;
-}
-
-inline void print(const std::unordered_map<return_code, std::size_t>& results)
-{
-  bool need_comma = false;
-  print(" (");
-  for (const return_code& rc : {return_code::passed, return_code::failed,
-                                return_code::skipped, return_code::undefined})
-  {
-    if (results.at(rc) > 0)
-    {
-      if (need_comma)
-      {
-        print(", ");
-      }
-      print(to_color(rc), std::format("{} {}", results.at(rc), to_string(rc)));
-      need_comma = true;
-    }
-  }
-  println(")");
-}
-
-[[nodiscard]] inline auto count_results(
-    const std::vector<return_code>& scenario)
-{
-  return std::make_tuple(
-      std::count(scenario.begin(), scenario.end(), return_code::passed),
-      std::count(scenario.begin(), scenario.end(), return_code::failed),
-      std::count(scenario.begin(), scenario.end(), return_code::skipped),
-      std::count(scenario.begin(), scenario.end(), return_code::undefined));
-}
-
-[[nodiscard]] inline return_code scenario_result(std::size_t /*passed*/,
-                                                 std::size_t failed,
-                                                 std::size_t skipped,
-                                                 std::size_t undefined)
-{
-  if (failed > 0)
-  {
-    return return_code::failed;
-  }
-  else if (skipped > 0)
-  {
-    return return_code::skipped;
-  }
-  else if (undefined > 0)
-  {
-    return return_code::undefined;
-  }
-  else
-  {
-    return return_code::passed;
-  }
-}
-
-[[nodiscard]] inline std::unordered_map<return_code, std::size_t>
-get_scenario_results(const std::vector<std::vector<return_code>>& scenarios)
-{
-  std::unordered_map<return_code, std::size_t> result{
-      {return_code::passed, 0},
-      {return_code::failed, 0},
-      {return_code::skipped, 0},
-      {return_code::undefined, 0}};
-  for (const std::vector<return_code>& s : scenarios)
-  {
-    auto [passed, failed, skipped, undefined] = count_results(s);
-    return_code current = scenario_result(passed, failed, skipped, undefined);
-    result[current]++;
-  }
-  return result;
-}
-[[nodiscard]] inline std::unordered_map<return_code, std::size_t>
-get_step_results(const std::vector<std::vector<return_code>>& scenarios)
-{
-  std::unordered_map<return_code, std::size_t> result{
-      {return_code::passed, 0},
-      {return_code::failed, 0},
-      {return_code::skipped, 0},
-      {return_code::undefined, 0}};
-
-  for (const std::vector<return_code>& s : scenarios)
-  {
-    auto [passed, failed, skipped, undefined] = count_results(s);
-    result[return_code::passed] += passed;
-    result[return_code::failed] += failed;
-    result[return_code::skipped] += skipped;
-    result[return_code::undefined] += undefined;
-  }
-  return result;
-}
-
-[[nodiscard]] inline std::string step_prefix(return_code rc)
-{
-  switch (rc)
-  {
-    case return_code::passed:
-      return std::string("[   PASSED    ]");
-    case return_code::failed:
-      return std::string("[   FAILED    ]");
-    case return_code::skipped:
-      return std::string("[   SKIPPED   ]");
-    case return_code::undefined:
-      return std::string("[  UNDEFINED  ]");
+    case cuke::results::test_status::passed:
+      return std::string("[   PASSED    ] ");
+    case cuke::results::test_status::failed:
+      return std::string("[   FAILED    ] ");
+    case cuke::results::test_status::skipped:
+      return std::string("[   SKIPPED   ] ");
+    case cuke::results::test_status::undefined:
+      return std::string("[   UNDEFINED ] ");
     default:
       return std::string("");
   }
@@ -441,10 +291,10 @@ get_step_results(const std::vector<std::vector<return_code>>& scenarios)
   return true;
 }
 
-[[nodiscard]] inline std::pair<std::string, std::vector<unsigned long>>
+[[nodiscard]] inline std::pair<std::string, std::vector<std::size_t>>
 filepath_and_lines(std::string_view sv)
 {
-  std::vector<unsigned long> lines;
+  std::vector<std::size_t> lines;
   long pos = static_cast<long>(sv.size());
   long last_pos = pos;
   while (pos > 0)
@@ -465,9 +315,9 @@ filepath_and_lines(std::string_view sv)
   return std::make_pair(std::string{sv.substr(0, last_pos + 1)}, lines);
 }
 
-[[nodiscard]] inline std::string read_file(const std::string& path)
+[[nodiscard]] inline std::string read_file(std::string_view path)
 {
-  std::ifstream in(path);
+  std::ifstream in(path.data());
   std::string script((std::istreambuf_iterator<char>(in)),
                      std::istreambuf_iterator<char>());
   return script;
@@ -508,4 +358,4 @@ template <typename Func, typename... Args>
   return duration.count();
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

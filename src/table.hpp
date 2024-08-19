@@ -1,7 +1,7 @@
 #pragma once
 
-#include <optional>
 #include <unordered_map>
+#include <optional>
 
 #include "value.hpp"
 
@@ -26,7 +26,14 @@ class table
   table(table&&) = default;
   table& operator=(const table&) = default;
   table& operator=(table&&) = default;
+  table(value_array&& data);
+  // TODO data should be rvalue ref? value_array&& data
   table(value_array data, std::size_t col_count);
+
+  /**
+   * @brief Checks if the table is empty or not
+   */
+  [[nodiscard]] bool empty() const noexcept;
 
   /**
    * @class row
@@ -39,6 +46,7 @@ class table
   class row
   {
    public:
+    row() = default;
     row(const value_array& data, std::size_t col_count);
     row(value_array::const_iterator current, std::size_t col_count);
     row(value_array::const_iterator current, std::size_t col_count,
@@ -59,7 +67,7 @@ class table
     [[nodiscard]] const cuke::value& operator[](std::string_view key) const;
     /**
      * @brief Total count of columns in this table / row
-    */
+     */
     [[nodiscard]] std::size_t col_count() const noexcept { return m_col_count; }
 
    private:
@@ -142,6 +150,17 @@ class table
   };
 
   /**
+   * @brief Appends a row to the datatable
+   *
+   * Appending a row only works if the given row is the same
+   * length as the rows in the existing table.
+   *
+   * @param data Data to be appended
+   * @return Returns true if data is appended succesfully
+   */
+  [[nodiscard]] bool append_row(value_array&& data);
+
+  /**
    * @brief Returns the number of rows
    */
   [[nodiscard]] std::size_t row_count() const noexcept;
@@ -182,6 +201,11 @@ class table
    */
   [[nodiscard]] hash_access hashes() const;
   /**
+   * @brief returns the given row as hash row
+   *
+   */
+  [[nodiscard]] row hash_row(std::size_t row_index) const;
+  /**
    * @brief Returns a wrapper to the row iterator for hashes
    *
    * @details This works only for a total column count of 2. If the column count
@@ -191,6 +215,16 @@ class table
    * cuke::value>
    */
   [[nodiscard]] cuke::table::pair rows_hash() const;
+
+  /**
+   * @brief Converts the table to a std::vector<std::string>. The vector
+   * represents each row as one string, with '|' as delimiter
+   *
+   */
+  [[nodiscard]] std::vector<std::string> to_string_array() const noexcept;
+
+ private:
+  [[nodiscard]] std::vector<std::size_t> col_sizes() const noexcept;
 
  private:
   value_array m_data;

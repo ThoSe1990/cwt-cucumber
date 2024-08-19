@@ -3,32 +3,36 @@
 #include <span>
 #include <vector>
 #include <string>
-#include <algorithm>
 #include <filesystem>
 
 #include "util.hpp"
-#include "file.hpp"
 #include "version.hpp"
-#include "compiler/tags.hpp"
+#include "tags.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
+
+struct feature_file
+{
+  std::string path;
+  std::vector<std::size_t> lines_to_compile;
+};
 
 struct options
 {
   bool quiet{false};
-  compiler::tag_expression tags;
+  cuke::internal::tag_expression tags;
+  std::vector<feature_file> files;
 };
 
 class terminal_arguments
 {
  public:
-  terminal_arguments(int argc, const char* argv[]);
+  void initialize(int argc, const char* argv[]);
+  void clear();
   const options& get_options() const noexcept;
-  const feature_files& get_files() const noexcept;
 
  private:
-  void process();
   void process_path(std::string_view sv);
   void process_option(std::span<const char*>::iterator it);
   void find_feature_in_dir(const std::filesystem::path& dir);
@@ -36,8 +40,10 @@ class terminal_arguments
  private:
   std::span<const char*> m_args;
   options m_options;
-  feature_files m_feature_files;
 };
+
+[[nodiscard]] terminal_arguments& terminal_args(
+    std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
 static void do_print_help();
 [[nodiscard]] static bool print_help(int argc, const char* argv[])
@@ -89,4 +95,4 @@ static void do_print_help()
   println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

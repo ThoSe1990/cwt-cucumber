@@ -2,7 +2,7 @@
 
 #include "../src/scanner.hpp"
 
-using namespace cwt::details;
+using namespace cuke::internal;
 
 TEST(english_keywords, feature)
 {

@@ -2,7 +2,7 @@
 
 #include "identifier.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class german : public identifier
@@ -42,4 +42,4 @@ class german : public identifier
                      {"Aber", token_type::step}}};
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

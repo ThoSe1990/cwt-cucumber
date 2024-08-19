@@ -1,8 +1,16 @@
+#include <algorithm>
+#include <stdexcept>
+#include <utility>
+
 #include "table.hpp"
 
 namespace cuke
 {
-
+table::table(value_array&& row)
+    : m_data(std::move(row)), m_col_count(m_data.size())
+{
+  row.clear();
+}
 table::table(value_array data, std::size_t col_count)
     : m_data(std::move(data)), m_col_count(col_count)
 {
@@ -14,7 +22,25 @@ table::table(value_array data, std::size_t col_count)
                     m_data.size(), m_col_count));
   }
 }
-
+bool table::empty() const noexcept
+{
+  return m_data.empty();
+}
+bool table::append_row(value_array&& row)
+{
+  if (m_col_count != row.size())
+  {
+    return false;
+  }
+  else
+  {
+    m_data.reserve(m_data.size() + m_col_count);
+    m_data.insert(m_data.end(), std::make_move_iterator(row.begin()),
+                  std::make_move_iterator(row.end()));
+    row.clear();
+    return true;
+  }
+}
 std::size_t table::row_count() const noexcept
 {
   return m_data.size() / m_col_count;
@@ -91,7 +117,16 @@ table::hash_access table::hashes() const
 {
   return hash_access(m_data.begin(), m_data.end(), m_col_count);
 }
-
+table::row table::hash_row(std::size_t row_index) const
+{
+  if (row_index < row_count()) [[likely]]
+  {
+    return row(m_data.begin() + row_index * m_col_count, m_col_count,
+               m_data.begin());
+  }
+  throw std::runtime_error(
+      std::format("table::hash: Row index '{}' does not exist", row_index));
+}
 cuke::table::pair table::rows_hash() const
 {
   if (m_col_count == 2)
@@ -110,6 +145,46 @@ cuke::table::pair table::rows_hash() const
         "this table has {} columns",
         m_col_count));
   }
+}
+
+std::vector<std::size_t> table::col_sizes() const noexcept
+{
+  std::vector<std::size_t> col_size(col_count(), 0);
+
+  for (const auto& row : raw())
+  {
+    for (std::size_t i = 0; i < col_count(); ++i)
+    {
+      col_size[i] = std::max(col_size[i], row[i].to_string().length());
+    }
+  }
+
+  return col_size;
+}
+
+std::vector<std::string> table::to_string_array() const noexcept
+{
+  std::vector<std::size_t> col_size = col_sizes();
+  std::vector<std::string> result;
+  result.reserve(row_count());
+  for (const auto& row : raw())
+  {
+    std::string line = "|";
+    for (std::size_t i = 0; i < col_count(); ++i)
+    {
+      line += ' ';
+      line.append(row[i].to_string());
+      int padding = col_size[i] - row[i].to_string().length();
+      if (padding > 0)
+      {
+        line.append(padding, ' ');
+      }
+      line += ' ';
+      line += '|';
+    }
+    result.push_back(line);
+  }
+  return result;
 }
 
 }  // namespace cuke

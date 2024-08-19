@@ -1,6 +1,11 @@
 @all
 Feature: Scenarios with tags
 
+  Scenario: Tomatoes 
+    Given An empty box
+    When I place 5 x "Tomatoes" in it
+    Then The box contains 5 item(s)
+
   @apples
   Scenario: Apple
     Given An empty box

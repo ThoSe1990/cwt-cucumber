@@ -14,57 +14,28 @@ namespace cuke
  */
 enum class value_type
 {
-  integral,  ///< Represents an integer value
-  floating,  ///< Represents a float value
-  _double,   ///< Represents a double value
-  boolean,   ///< Represents a boolean value
-  string,    ///< Represents a string value
-  function,  ///< Represents a chunk of byte code to execute in the cuke vm.
-             ///< Those types are only created by the compiler, in general they
-             ///< aren't necessary for the user.
-  table,     ///< Represents a table
-  nil  ///< Represents a nil value, in general they aren't necessary for the
-       ///< user.
+  integral,      ///< Represents an integer value
+  floating,      ///< Represents a float value
+  _double,       ///< Represents a double value
+  boolean,       ///< Represents a boolean value
+  string,        ///< Represents a string value
+  string_array,  ///< Represents an array/vector of strings
+  table,         ///< Represents a table
+  nil            ///< Represents a nil value
 };
 
 class table;
 
-class value;
-using value_array = std::vector<value>;
-
 }  // namespace cuke
 
-namespace cwt::details
+namespace cuke::internal
 {
-using table_ptr = std::unique_ptr<cuke::table>;
 
-class chunk;
-using function = std::unique_ptr<chunk>;
+using table_ptr = std::unique_ptr<cuke::table>;
 
 struct nil_value
 {
 };
-using argv = const std::reverse_iterator<cuke::value_array::const_iterator>&;
-using argc = std::size_t;
-using step_callback = void (*)(argc, argv);
-class step
-{
- public:
-  step(step_callback cb, const std::string& definition)
-      : m_callback(cb), m_definition(definition)
-  {
-  }
-  const std::string& definition() const noexcept { return m_definition; }
-  void call(argc n, argv values) const { m_callback(n, values); }
-  void operator()(argc n, argv values) const { m_callback(n, values); }
-
- private:
-  step_callback m_callback;
-  std::string m_definition;
-};
-
-using hook_callback = void (*)();
-struct hook;
 
 template <typename T, typename = void>
 struct value_trait
@@ -104,10 +75,10 @@ struct value_trait<T,
 };
 
 template <typename T>
-struct value_trait<T,
-                   std::enable_if_t<std::is_same_v<T, cwt::details::function>>>
+struct value_trait<
+    T, std::enable_if_t<std::is_convertible_v<T, std::vector<std::string>>>>
 {
-  static constexpr cuke::value_type tag = cuke::value_type::function;
+  static constexpr cuke::value_type tag = cuke::value_type::string_array;
 };
 
 template <typename T>
@@ -122,7 +93,7 @@ struct value_trait<T, std::enable_if_t<std::is_same_v<T, nil_value>>>
   static constexpr cuke::value_type tag = cuke::value_type::nil;
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 namespace cuke
 {
@@ -138,15 +109,9 @@ class value
 {
  public:
   value() = default;
-  value(cwt::details::function&& func)
-      : m_type(value_type::function),
-        m_value(std::make_unique<value_model<cwt::details::function>>(
-            std::move(func)))
-  {
-  }
-  value(cwt::details::table_ptr t)
+  value(cuke::internal::table_ptr t)
       : m_type(value_type::table),
-        m_value(std::make_unique<value_model<cwt::details::table_ptr>>(
+        m_value(std::make_unique<value_model<cuke::internal::table_ptr>>(
             std::move(t)))
   {
   }
@@ -161,7 +126,7 @@ class value
   template <typename T, typename = std::enable_if_t<
                             !std::is_same_v<std::remove_reference_t<T>, value>>>
   value(T&& value)
-      : m_type(cwt::details::value_trait<std::remove_reference_t<T>>::tag),
+      : m_type(cuke::internal::value_trait<std::remove_reference_t<T>>::tag),
         m_value(std::make_unique<value_model<std::remove_reference_t<T>>>(
             std::forward<T>(value)))
   {
@@ -170,7 +135,7 @@ class value
   template <typename T, typename = std::enable_if_t<
                             !std::is_same_v<std::decay_t<T>, value>>>
   value(const T& value)
-      : m_type(cwt::details::value_trait<T>::tag),
+      : m_type(cuke::internal::value_trait<T>::tag),
         m_value(std::make_unique<value_model<T>>(value))
   {
   }
@@ -182,6 +147,15 @@ class value
   }
 
   ~value() = default;
+
+  /**
+   * @brief Checks if the cuke::value is nil
+   * @return True if it is a nil type, else its false
+   */
+  [[nodiscard]] bool is_nil() const noexcept
+  {
+    return m_type == value_type::nil;
+  }
 
   /**
    * @brief Retrieve a const reference to the underlying value.
@@ -197,7 +171,7 @@ class value
             std::enable_if_t<std::is_same_v<T, std::size_t>, bool> = true>
   T as() const
   {
-    if (m_type == cwt::details::value_trait<long>::tag) [[likely]]
+    if (m_type == cuke::internal::value_trait<long>::tag) [[likely]]
     {
       return static_cast<value_model<long>*>(m_value.get())->m_value;
     }
@@ -221,7 +195,7 @@ class value
             std::enable_if_t<!std::is_same_v<T, std::size_t>, bool> = true>
   const T& as() const
   {
-    if (m_type == cwt::details::value_trait<T>::tag) [[likely]]
+    if (m_type == cuke::internal::value_trait<T>::tag) [[likely]]
     {
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
@@ -242,7 +216,7 @@ class value
   template <typename T>
   T copy_as() const
   {
-    if (m_type == cwt::details::value_trait<T>::tag) [[likely]]
+    if (m_type == cuke::internal::value_trait<T>::tag) [[likely]]
     {
       return static_cast<value_model<T>*>(m_value.get())->m_value;
     }
@@ -264,7 +238,7 @@ class value
     std::unique_ptr<value_concept> new_value =
         std::make_unique<value_model<T>>(std::forward<T>(value));
     m_value.swap(new_value);
-    m_type = cwt::details::value_trait<T>::tag;
+    m_type = cuke::internal::value_trait<T>::tag;
   }
 
   /**
@@ -292,6 +266,15 @@ class value
         return std::to_string(copy_as<bool>());
       case value_type::string:
         return copy_as<std::string>();
+      case value_type::string_array:
+      {
+        std::string str = "";
+        for (const std::string& line : as<std::vector<std::string>>())
+        {
+          str += line;
+        }
+        return str;
+      }
       default:
         throw std::runtime_error(
             std::format("cuke::value: Can not create string from value_type {}",
@@ -323,19 +306,11 @@ class value
           m_value = std::make_unique<value_model<std::string>>(
               other.as<std::string>());
           break;
-        case value_type::function:
-        {
-          const auto& func = other.as<cwt::details::function>();
-          m_value = std::make_unique<value_model<cwt::details::function>>(
-              cwt::details::function{
-                  std::make_unique<cwt::details::chunk>(*func)});
-        }
-        break;
         case value_type::table:
         {
-          const auto& t = other.as<cwt::details::table_ptr>();
-          m_value = std::make_unique<value_model<cwt::details::table_ptr>>(
-              cwt::details::table_ptr{std::make_unique<table>(*t)});
+          const auto& t = other.as<cuke::internal::table_ptr>();
+          m_value = std::make_unique<value_model<cuke::internal::table_ptr>>(
+              cuke::internal::table_ptr{std::make_unique<table>(*t)});
         }
         break;
         default:
@@ -376,5 +351,25 @@ using value_array = std::vector<value>;
 
 }  // namespace cuke
 
-#include "chunk.hpp"
+namespace cuke::internal
+{
+
+using step_callback = void (*)(const cuke::value_array& args);
+class step
+{
+ public:
+  step(step_callback cb, const std::string& definition)
+      : m_callback(cb), m_definition(definition)
+  {
+  }
+  const std::string& definition() const noexcept { return m_definition; }
+  void call(const value_array& values) const { m_callback(values); }
+
+ private:
+  step_callback m_callback;
+  std::string m_definition;
+};
+
+}  // namespace cuke::internal
+
 #include "table.hpp"

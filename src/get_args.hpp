@@ -1,8 +1,10 @@
 #pragma once
 
+// #include <ostream>
+#include <type_traits>
 #include "value.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 template <typename T, typename = void>
@@ -46,13 +48,13 @@ struct conversion
   }
 };
 
-inline conversion get_arg(argc n, argv values, std::size_t idx,
+inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
                           std::string_view file, std::size_t line)
 {
-  const std::size_t left_0_based_idx = n - idx;
-  if (left_0_based_idx < n)
+  std::size_t zero_based_idx = idx - 1;
+  if (zero_based_idx < values.max_size())
   {
-    return conversion{*(values + left_0_based_idx), file, line};
+    return conversion(values[zero_based_idx]);
   }
   else
   {
@@ -145,21 +147,39 @@ struct conversion_impl<
     T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
                         std::is_convertible_v<T, std::string_view>>>
 {
-  static const std::string& get_arg(const cuke::value& v, std::string_view file,
-                                    std::size_t line)
+  static const std::string get_arg(const cuke::value& v, std::string_view file,
+                                   std::size_t line)
   {
-    if (v.type() == cuke::value_type::string)
+    if (v.type() != cuke::value_type::nil)
     {
-      return v.as<std::string>();
+      return v.to_string();
+    }
+    else
+    {
+      throw std::runtime_error(std::format(
+          "{}:{}: Nil value can not be converted to a string", file, line));
+    }
+  }
+};
+template <typename T>
+struct conversion_impl<
+    T, std::enable_if_t<std::is_same_v<T, std::vector<std::string>>>>
+{
+  static const std::vector<std::string>& get_arg(const cuke::value& v,
+                                                 std::string_view file,
+                                                 std::size_t line)
+  {
+    if (v.type() == cuke::value_type::string_array)
+    {
+      return v.as<std::vector<std::string>>();
     }
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not an string type", file, line));
+          std::format("{}:{}: Value is not a table", file, line));
     }
   }
 };
-
 template <typename T>
 struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
 {
@@ -173,12 +193,12 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
     else
     {
       throw std::runtime_error(
-          std::format("{}:{}: Value is not an string type", file, line));
+          std::format("{}:{}: Value is not a table", file, line));
     }
   }
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 /**
  * @def CUKE_ARG(index)
@@ -193,12 +213,12 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  */
 
 #define CUKE_ARG(index) \
-  cwt::details::get_arg(n, values, index, __FILE__, __LINE__)
+  cuke::internal::get_arg(values, index, __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()
  * @brief Access a doc string in a step. Use std::string as type here, e.g.:
- * 
+ *
  * ``std::string doc = CUKE_DOC_STRING();`` or
  * ``std::string_view doc = CUKE_DOC_STRING();``
  *
@@ -207,7 +227,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  *
  */
 #define CUKE_DOC_STRING() \
-  cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+  cuke::internal::get_arg(values, values.size(), __FILE__, __LINE__)
 /**
  * @def CUKE_TABLE()
  * @brief Access a table in a step. Use cuke::table (or const cuke::table&) as
@@ -218,4 +238,5 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  * CUKE_ARG(..), with index == last.
  *
  */
-#define CUKE_TABLE() cwt::details::get_arg(n, values, n, __FILE__, __LINE__)
+#define CUKE_TABLE() \
+  cuke::internal::get_arg(values, values.size(), __FILE__, __LINE__)

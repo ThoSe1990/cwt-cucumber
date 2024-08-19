@@ -1,12 +1,13 @@
 #include <format>
+#include <string_view>
 
 #include "step_finder.hpp"
+#include "util.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
-static void correct_floating_point_types(token& defined,
-                                                       token& feature)
+static void correct_floating_point_types(token& defined, token& feature)
 {
   if (feature.type == token_type::double_value &&
       defined.type == token_type::parameter_float)
@@ -14,36 +15,17 @@ static void correct_floating_point_types(token& defined,
     feature.type = token_type::float_value;
   }
 }
-step_finder::step_finder(std::string_view defined, std::string_view feature)
-    : m_defined(defined), m_feature(feature)
-{
-}
 step_finder::step_finder(std::string_view feature) : m_feature(feature) {}
-std::size_t step_finder::values_count() const noexcept
+step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
+    : m_feature(feature), m_hash_row(std::move(std::move(hash_row)))
 {
-  return m_values.size();
 }
-
-cuke::value& step_finder::get_value(std::size_t idx)
-{
-  if (idx < m_values.size())
-  {
-    return m_values[idx];
-  }
-  else
-  {
-    throw std::out_of_range("step_finder::get_value: Index out of range");
-  }
-}
-
-void step_finder::reset_with_next_step(std::string_view defined) noexcept
+cuke::value_array& step_finder::values() noexcept { return m_values; }
+bool step_finder::step_matches(std::string_view defined_step)
 {
   m_feature.reset();
   m_values.clear();
-  m_defined = scanner(defined);
-}
-bool step_finder::step_matches()
-{
+  m_defined = scanner(defined_step);
   for (;;)
   {
     auto [defined, feature] = next();
@@ -62,32 +44,13 @@ bool step_finder::step_matches()
       }
       else if (feature.type == token_type::variable)
       {
-        auto use_nil_as_placeholder = [this]()
-        { m_values.push_back(nil_value{}); };
-        use_nil_as_placeholder();
+        m_values.push_back(
+            m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
       }
       else
       {
         return false;
       }
-    }
-    else if (is_at_end(defined) && feature.type == token_type::linebreak)
-    {
-      while (feature.type == token_type::linebreak)
-      {
-        feature = m_feature.scan_token();
-      }
-
-      if (feature.type == token_type::doc_string)
-      {
-        m_values.push_back(token_to_value(feature, false));
-      }
-      else if (feature.type == token_type::vertical)
-      {
-        cuke::value v = create_table();
-        m_values.push_back(v);
-      }
-      feature = m_feature.scan_token();
     }
     else if (is_not_equal(defined, feature))
     {
@@ -183,4 +146,4 @@ std::pair<token, token> step_finder::next()
   return {m_defined.scan_token(), m_feature.scan_token()};
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

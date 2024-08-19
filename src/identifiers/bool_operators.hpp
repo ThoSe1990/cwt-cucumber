@@ -2,7 +2,7 @@
 
 #include "identifier.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class bool_operators : public identifier
@@ -29,4 +29,4 @@ class bool_operators : public identifier
 
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

@@ -2,23 +2,23 @@
 
 #include <string_view>
 
-#include "vm.hpp"
 #include "util.hpp"
+#include "options.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 inline void internal_assert(bool condition, std::string_view error_msg)
 {
   if (condition == false)
   {
-    vm::current_step_failed();
-    if (!vm::get_options().quiet)
+    cuke::results::set_step_to(cuke::results::test_status::failed);
+    if (!terminal_args().get_options().quiet)
     {
       println(color::red, error_msg);
     }
   }
 }
-}  // namespace cwt::details
+}  // namespace cuke::internal
 
 namespace cuke
 {
@@ -51,14 +51,14 @@ inline void equal(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs == rhs,
         std::format("Value {} is not equal to {} in following step:", lhs,
                     rhs));
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -78,14 +78,14 @@ inline void not_equal(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs != rhs,
         std::format("Value {} is not equal to {} in following step:", lhs,
                     rhs));
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -105,14 +105,14 @@ inline void greater(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs > rhs,
         std::format("Value {} is not greater than {} in following step:", lhs,
                     rhs));
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -133,7 +133,7 @@ inline void greater_or_equal(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs >= rhs,
         std::format(
             "Value {} is not greater or equal than {} in following step:", lhs,
@@ -141,7 +141,7 @@ inline void greater_or_equal(const T& lhs, const U& rhs)
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -161,14 +161,14 @@ inline void less(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs < rhs,
         std::format("Value {} is not less than {} in following step:", lhs,
                     rhs));
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -189,14 +189,14 @@ inline void less_or_equal(const T& lhs, const U& rhs)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cwt::details::internal_assert(
+    cuke::internal::internal_assert(
         lhs <= rhs,
         std::format("Value {} is not less or equal than {} in following step:",
                     lhs, rhs));
   }
   else
   {
-    cwt::details::internal_assert(false, "Expect values to be compareable.");
+    cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
 }
 
@@ -209,7 +209,7 @@ inline void less_or_equal(const T& lhs, const U& rhs)
  */
 inline void is_true(bool condition)
 {
-  cwt::details::internal_assert(
+  cuke::internal::internal_assert(
       condition, "Expected given condition true, but its false:");
 }
 /**
@@ -221,7 +221,7 @@ inline void is_true(bool condition)
  */
 inline void is_false(bool condition)
 {
-  cwt::details::internal_assert(
+  cuke::internal::internal_assert(
       !condition, "Expected given condition true, but its false:");
 }
 };  // namespace cuke

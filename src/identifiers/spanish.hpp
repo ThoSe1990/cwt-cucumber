@@ -2,7 +2,7 @@
 
 #include "identifier.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 class spanish : public identifier
@@ -41,4 +41,4 @@ class spanish : public identifier
                      {"Pero", token_type::step}}};
 };
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

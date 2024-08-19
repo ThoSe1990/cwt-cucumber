@@ -2,7 +2,7 @@
 #include "identifiers/german.hpp"
 #include "identifiers/spanish.hpp"
 
-namespace cwt::details
+namespace cuke::internal
 {
 
 static bool is_alpha(char c)
@@ -435,4 +435,4 @@ token scanner::scan_token()
   return word();
 }
 
-}  // namespace cwt::details
+}  // namespace cuke::internal

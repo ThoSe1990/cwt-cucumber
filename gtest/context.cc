@@ -5,7 +5,7 @@
 class context : public ::testing::Test
 {
  protected:
-  void TearDown() override { cwt::details::reset_context(); }
+  void TearDown() override { cuke::internal::reset_context(); }
 };
 
 TEST_F(context, init_string)
@@ -17,10 +17,10 @@ TEST_F(context, reset_context)
 {
   cuke::context<std::string>("hello world");
   cuke::context<std::size_t>(11);
-  EXPECT_EQ(cwt::details::get_context().size(), 2);
+  EXPECT_EQ(cuke::internal::get_context().size(), 2);
 
-  cwt::details::reset_context();
-  EXPECT_EQ(cwt::details::get_context().size(), 0);
+  cuke::internal::reset_context();
+  EXPECT_EQ(cuke::internal::get_context().size(), 0);
 }
 
 struct foo

@@ -1,21 +1,37 @@
+#include <optional>
+
 #include "options.hpp"
+#include "util.hpp"
 
-
-namespace cwt::details
+namespace cuke::internal
 {
 
-terminal_arguments::terminal_arguments(int argc, const char* argv[])
-    : m_args(argv, argc)
+void terminal_arguments::initialize(int argc, const char* argv[])
 {
-  process();
+  clear();
+  m_args = std::span<const char*>(argv, argc);
+  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
+  {
+    std::string_view sv{*it};
+    if (sv.starts_with('-'))
+    {
+      process_option(it);
+    }
+    else
+    {
+      process_path(sv);
+    }
+  }
+}
+
+void terminal_arguments::clear()
+{
+  m_args = std::span<const char*>();
+  m_options = options{};
 }
 const options& terminal_arguments::get_options() const noexcept
 {
   return m_options;
-}
-const feature_files& terminal_arguments::get_files() const noexcept
-{
-  return m_feature_files;
 }
 
 void terminal_arguments::process_option(std::span<const char*>::iterator it)
@@ -24,7 +40,7 @@ void terminal_arguments::process_option(std::span<const char*>::iterator it)
   if (option.starts_with("-t") || option.starts_with("--tags"))
   {
     std::string_view arg(*std::next(it));
-    m_options.tags = compiler::tag_expression(arg);
+    m_options.tags = cuke::internal::tag_expression(arg);
   }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
@@ -42,8 +58,7 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
     }
     else if (entry.path().extension() == ".feature")
     {
-      m_feature_files.push_back(
-          file{entry.path().string(), read_file(entry.path().string()), {}});
+      m_options.files.push_back(feature_file{entry.path().string(), {}});
     }
   }
 }
@@ -51,8 +66,8 @@ void terminal_arguments::find_feature_in_dir(const std::filesystem::path& dir)
 void terminal_arguments::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
-  auto [feature_file, lines] = filepath_and_lines(sv);
-  fs::path path = feature_file;
+  auto [file_path, lines] = filepath_and_lines(sv);
+  fs::path path = file_path;
   if (fs::exists(path))
   {
     if (fs::is_directory(path))
@@ -61,25 +76,21 @@ void terminal_arguments::process_path(std::string_view sv)
     }
     else if (path.extension() == ".feature")
     {
-      m_feature_files.push_back(
-          file{feature_file, read_file(feature_file), lines});
-    }
-  }
-}
-void terminal_arguments::process()
-{
-  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
-  {
-    std::string_view sv{*it};
-    if (sv.starts_with('-'))
-    {
-      process_option(it);
-    }
-    else
-    {
-      process_path(sv);
+      m_options.files.push_back(feature_file{file_path, lines});
     }
   }
 }
 
-}  // namespace cwt::details
+[[nodiscard]] terminal_arguments& terminal_args(
+    std::optional<int> argc /*= std::nullopt*/,
+    const char* argv[] /*= nullptr*/)
+{
+  static terminal_arguments instance;
+  if (argc && argv)
+  {
+    instance.initialize(argc.value(), argv);
+  }
+  return instance;
+}
+
+}  // namespace cuke::internal
