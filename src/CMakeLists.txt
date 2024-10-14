@@ -45,29 +45,29 @@ set(LIBRARY_VERSION ${PROJECT_VERSION})
 set(LIBRARY_SYSTEM_NAME "${CMAKE_HOST_SYSTEM_NAME}")
 
 configure_package_config_file(
-    CucumberConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CucumberConfig.cmake
-    INSTALL_DESTINATION lib/cucumber/cmake
+    CwTCucumberConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/CwTCucumberConfig.cmake
+    INSTALL_DESTINATION lib/cwt_cucumber/cmake
     PATH_VARS INCLUDE_INSTALL_DIR LIBRARY_INSTALL_DIR LIBRARY_VERSION LIBRARY_SYSTEM_NAME
 )
 
 write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/CucumberConfigVersion.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/CwTCucumberConfigVersion.cmake
     VERSION ${LIBRARY_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 
 install(
-    EXPORT "CucumberTargets"
-    FILE "CucumberTargets${LIBRARY_SYSTEM_NAME}.cmake"
+    EXPORT "CwTCucumberTargets"
+    FILE "CwTCucumberTargets${LIBRARY_SYSTEM_NAME}.cmake"
     NAMESPACE cwt::
     EXCLUDE_FROM_ALL
-    DESTINATION lib/cmake/cucumber
+    DESTINATION lib/cmake/cwt_cucumber
     COMPONENT "cucumber"
 )
 
 install(
     TARGETS cucumber cucumber-no-main
-    EXPORT CucumberTargets
+    EXPORT CwTCucumberTargets
     EXCLUDE_FROM_ALL
     DESTINATION "lib"
     COMPONENT "cucumber"
@@ -81,9 +81,9 @@ install(
 )
 
 install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/CucumberConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/CucumberConfigVersion.cmake
+    FILES ${CMAKE_CURRENT_BINARY_DIR}/CwTCucumberConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/CwTCucumberConfigVersion.cmake
     EXCLUDE_FROM_ALL
-    DESTINATION lib/cmake/cucumber
+    DESTINATION lib/cmake/cwt_cucumber
     COMPONENT "cucumber"
 )
 
