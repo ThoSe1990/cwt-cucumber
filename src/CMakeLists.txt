@@ -27,6 +27,17 @@ if (BUILD_SHARED_LIBS)
     )
 endif()
 
+foreach( _target "cucumber" "cucumber-no-main")
+    target_include_directories(
+        ${_target}
+        PUBLIC # where top-level project will look for the library's public headers
+            $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+            # where external projects will look for the library's public headers
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cwtcucumber>
+    )
+
+endforeach()
+
 
 # install(
 #   TARGETS cucumber
@@ -39,7 +50,7 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
-set(INCLUDE_INSTALL_DIR "include")
+set(INCLUDE_INSTALL_DIR "include/cwtcucumber")
 set(LIBRARY_INSTALL_DIR "lib")
 set(LIBRARY_VERSION ${PROJECT_VERSION})
 set(LIBRARY_SYSTEM_NAME "${CMAKE_HOST_SYSTEM_NAME}")
@@ -73,7 +84,7 @@ install(
 
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-  DESTINATION "include"
+  DESTINATION "include/cwtcucumber"
   COMPONENT cucumber
   FILES_MATCHING PATTERN "*.hpp"
 )
