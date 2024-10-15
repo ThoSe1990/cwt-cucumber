@@ -33,7 +33,7 @@ foreach( _target "cucumber" "cucumber-no-main")
         PUBLIC # where top-level project will look for the library's public headers
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
             # where external projects will look for the library's public headers
-            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cwtcucumber>
+            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
 
 endforeach()
@@ -50,7 +50,7 @@ endforeach()
 
 include(CMakePackageConfigHelpers)
 
-set(INCLUDE_INSTALL_DIR "include/cwtcucumber")
+set(INCLUDE_INSTALL_DIR "include")
 set(LIBRARY_INSTALL_DIR "lib")
 set(LIBRARY_VERSION ${PROJECT_VERSION})
 set(LIBRARY_SYSTEM_NAME "${CMAKE_HOST_SYSTEM_NAME}")
