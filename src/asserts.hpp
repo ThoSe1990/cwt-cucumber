@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string_view>
 
 #include "util.hpp"
@@ -44,17 +45,18 @@ struct is_comparable<
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void equal(const T& lhs, const U& rhs)
+inline void equal(const T& lhs, const U& rhs,
+                  const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs == rhs,
-        std::format("Value {} is not equal to {} in following step:", lhs,
-                    rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not equal to {} in following step:", lhs, rhs));
+    cuke::internal::internal_assert(lhs == rhs, msg);
   }
   else
   {
@@ -71,17 +73,19 @@ inline void equal(const T& lhs, const U& rhs)
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void not_equal(const T& lhs, const U& rhs)
+inline void not_equal(
+    const T& lhs, const U& rhs,
+    const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs != rhs,
-        std::format("Value {} is not equal to {} in following step:", lhs,
-                    rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not equal to {} in following step:", lhs, rhs));
+    cuke::internal::internal_assert(lhs != rhs, msg);
   }
   else
   {
@@ -98,17 +102,18 @@ inline void not_equal(const T& lhs, const U& rhs)
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void greater(const T& lhs, const U& rhs)
+inline void greater(const T& lhs, const U& rhs,
+                    const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs > rhs,
-        std::format("Value {} is not greater than {} in following step:", lhs,
-                    rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not greater than {} in following step:", lhs, rhs));
+    cuke::internal::internal_assert(lhs > rhs, msg);
   }
   else
   {
@@ -126,18 +131,20 @@ inline void greater(const T& lhs, const U& rhs)
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void greater_or_equal(const T& lhs, const U& rhs)
+inline void greater_or_equal(
+    const T& lhs, const U& rhs,
+    const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs >= rhs,
-        std::format(
-            "Value {} is not greater or equal than {} in following step:", lhs,
-            rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not greater or equal than {} in following step:", lhs,
+        rhs));
+    cuke::internal::internal_assert(lhs >= rhs, msg);
   }
   else
   {
@@ -154,17 +161,18 @@ inline void greater_or_equal(const T& lhs, const U& rhs)
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void less(const T& lhs, const U& rhs)
+inline void less(const T& lhs, const U& rhs,
+                 const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs < rhs,
-        std::format("Value {} is not less than {} in following step:", lhs,
-                    rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not less than {} in following step:", lhs, rhs));
+    cuke::internal::internal_assert(lhs < rhs, msg);
   }
   else
   {
@@ -182,17 +190,19 @@ inline void less(const T& lhs, const U& rhs)
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
-inline void less_or_equal(const T& lhs, const U& rhs)
+inline void less_or_equal(
+    const T& lhs, const U& rhs,
+    const std::optional<std::string>& custom_msg = std::nullopt)
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    cuke::internal::internal_assert(
-        lhs <= rhs,
-        std::format("Value {} is not less or equal than {} in following step:",
-                    lhs, rhs));
+    std::string msg = custom_msg.value_or(std::format(
+        "Value {} is not less or equal than {} in following step:", lhs, rhs));
+    cuke::internal::internal_assert(lhs <= rhs, msg);
   }
   else
   {
@@ -205,23 +215,29 @@ inline void less_or_equal(const T& lhs, const U& rhs)
  * and scenario are set to Failed.
  *
  * @param condition Bool expression to be evaluated
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
-inline void is_true(bool condition)
+inline void is_true(bool condition,
+                    const std::optional<std::string>& custom_msg = std::nullopt)
 {
-  cuke::internal::internal_assert(
-      condition, "Expected given condition true, but its false:");
+  std::string msg =
+      custom_msg.value_or("Expected given condition true, but its false:");
+  cuke::internal::internal_assert(condition, msg);
 }
 /**
  * @brief Asserts the given condition to false. If it is true, the current step
  * and scenario are set to Failed.
  *
  * @param condition Bool expression to be evaluated
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
-inline void is_false(bool condition)
+inline void is_false(
+    bool condition, const std::optional<std::string>& custom_msg = std::nullopt)
 {
-  cuke::internal::internal_assert(
-      !condition, "Expected given condition true, but its false:");
+  std::string msg =
+      custom_msg.value_or("Expected given condition true, but its false:");
+  cuke::internal::internal_assert(!condition, msg);
 }
 };  // namespace cuke
