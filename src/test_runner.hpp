@@ -200,6 +200,16 @@ class test_runner
       : m_lines(lines), m_tags(tags)
   {
   }
+  
+  static void setup() 
+  {
+    cuke::registry().run_hook_before_all();
+  }
+
+  static void teardown() 
+  {
+    cuke::registry().run_hook_after_all();
+  }
 
   void set_quiet()
   {

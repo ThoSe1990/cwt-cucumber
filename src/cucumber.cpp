@@ -44,7 +44,8 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
   }
 
   cuke_args& args = program_arguments(argc, argv);
-
+  
+  cuke::test_runner::setup();
   for (const auto& feature : args.get_options().files)
   {
     cuke::parser p;
@@ -58,6 +59,7 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
     }
     p.for_each_scenario(runner);
   }
+  cuke::test_runner::setup();
 
   print_failed_scenarios();
   internal::println();
