@@ -1,7 +1,5 @@
 #include "../src/cucumber.hpp"
 #include "box.hpp"
-#include "defines.hpp"
-#include "get_args.hpp"
 
 GIVEN(init_box, "An empty box")
 {
@@ -66,6 +64,7 @@ THEN(test, "The {int} item is {string}")
   
   cuke::equal(item, cuke::context<box>().at(idx_zero_based));
 }
+
 THEN(check_box_size, "The box contains {int} item(s)")
 {
   const int items_count = CUKE_ARG(1);
