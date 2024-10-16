@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
-- Add CMake Packaging Targets [#18]
+
+## [2.2.0] 2024-10-16
 
 ### Added 
+- CMake packaging ([19](https://github.com/ThoSe1990/cwt-cucumber/pull/19))
 - Optional custom error messages for step asserts ([28](https://github.com/ThoSe1990/cwt-cucumber/pull/28))
 
 ### Fixed 
