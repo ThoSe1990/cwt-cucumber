@@ -8,9 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.0] 2024-10-16
+
 ### Added 
 - Step definitions with ordinal numbers 
 - Added hooks `BEFORE_ALL`, `AFTER_ALL`, executed once before and after the entire test run.
+
+## [2.0.0] 2024-08-19
+
+- Reimplementan of the parser to provide the abstract syntax tree 
+- cwt-cucumber traverses now through the AST to execute all tests 
 
 ## [1.2.2] 2024-03-12
 
