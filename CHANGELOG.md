@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added 
 - Step definitions with ordinal numbers 
+- Added hooks `BEFORE_ALL`, `AFTER_ALL`, executed once before and after the entire test run.
 
 ## [1.2.2] 2024-03-12
 
