@@ -1,14 +1,11 @@
 #include "../src/cucumber.hpp"
 #include "box.hpp"
-#include "defines.hpp"
-#include "get_args.hpp"
 
 GIVEN(init_box, "An empty box")
 {
   const box& my_box = cuke::context<box>();
   cuke::equal(my_box.items_count(), 0);
 }
-
 WHEN(add_item, "I place {int} x {string} in it")
 {
   const std::size_t count = CUKE_ARG(1);
@@ -57,6 +54,15 @@ WHEN(add_table_rows_hash, "I add the following item with rows_hash():")
 
   cuke::context<box>().add_items(hash_rows["ITEM"].to_string(),
                                  hash_rows["QUANTITY"].as<long>());
+}
+
+THEN(test, "The {int} item is {string}")
+{
+  const std::size_t number = CUKE_ARG(1);
+  const std::size_t idx_zero_based = number - 1;
+  const std::string item = CUKE_ARG(2);
+  
+  cuke::equal(item, cuke::context<box>().at(idx_zero_based));
 }
 
 THEN(check_box_size, "The box contains {int} item(s)")
