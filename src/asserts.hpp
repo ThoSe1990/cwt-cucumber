@@ -45,6 +45,7 @@ struct is_comparable<
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -72,6 +73,7 @@ inline void equal(const T& lhs, const U& rhs,
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -100,6 +102,7 @@ inline void not_equal(
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -128,6 +131,7 @@ inline void greater(const T& lhs, const U& rhs,
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -157,6 +161,7 @@ inline void greater_or_equal(
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -185,6 +190,7 @@ inline void less(const T& lhs, const U& rhs,
  *
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 template <typename T, typename U>
@@ -209,6 +215,7 @@ inline void less_or_equal(
  * and scenario are set to Failed.
  *
  * @param condition Bool expression to be evaluated
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 inline void is_true(bool condition,
@@ -223,6 +230,7 @@ inline void is_true(bool condition,
  * and scenario are set to Failed.
  *
  * @param condition Bool expression to be evaluated
+ * @param custom_msg Custom optional error message given by the developer
  *
  */
 inline void is_false(
