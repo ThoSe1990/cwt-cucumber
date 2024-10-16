@@ -7,14 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
-- Add CMake Packaging Targets [#18]
 
+## [2.2.0] 2024-10-16
+
+### Added 
+- CMake packaging ([19](https://github.com/ThoSe1990/cwt-cucumber/pull/19))
+- Optional custom error messages for step asserts ([28](https://github.com/ThoSe1990/cwt-cucumber/pull/28))
+
+### Fixed 
+- Before all hook call at the end of test run ([26](https://github.com/ThoSe1990/cwt-cucumber/pull/26)) 
 
 ## [2.1.0] 2024-10-16
 
 ### Added 
-- Step definitions with ordinal numbers 
-- Added hooks `BEFORE_ALL`, `AFTER_ALL`, executed once before and after the entire test run.
+- Step definitions with ordinal numbers ([23](https://github.com/ThoSe1990/cwt-cucumber/pull/23))
+- Added hooks `BEFORE_ALL`, `AFTER_ALL`, executed once before and after the entire test run ([24](https://github.com/ThoSe1990/cwt-cucumber/pull/24))
 
 ## [2.0.0] 2024-08-19
 
