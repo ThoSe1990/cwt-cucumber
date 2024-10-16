@@ -27,6 +27,8 @@ if (BUILD_SHARED_LIBS)
     )
 endif()
 
+include(GNUInstallDirs)
+
 foreach( _target "cucumber" "cucumber-no-main")
     target_include_directories(
         ${_target}
