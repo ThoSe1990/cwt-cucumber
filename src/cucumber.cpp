@@ -59,7 +59,7 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
     }
     p.for_each_scenario(runner);
   }
-  cuke::test_runner::setup();
+  cuke::test_runner::teardown();
 
   print_failed_scenarios();
   internal::println();
