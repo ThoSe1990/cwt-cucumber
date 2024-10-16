@@ -98,6 +98,17 @@ THEN(check_box_size, "The box contains {int} item(s)")
 }
 ```
 
+If custom error messages for steps are necessary, we can append a string which replaces the default error message:
+
+```cpp 
+THEN(check_box_size, "The box contains {int} item(s)")
+{
+  const int items_count = CUKE_ARG(1);
+  const box& my_box = cuke::context<box>();
+  cuke::equal(my_box.items_count(), items_count, "Items count is wrong at this point!");
+}
+```
+
 ### Steps and Value Access
 
 To implement a step, use a define with a function name and a step name. There is no technical difference between these definitions:
@@ -404,6 +415,14 @@ BEFORE_STEP(before_step)
 AFTER_STEP(after_step)
 {
   // this runs after every step
+}
+BEFORE_ALL(before_all)
+{
+  // this runs at program start 
+}
+AFTER_ALL(after_all)
+{
+  // this runs at program end 
 }
 ```
 
