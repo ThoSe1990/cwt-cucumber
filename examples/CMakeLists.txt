@@ -7,7 +7,8 @@ add_executable(${target}
 )
 install(
 	TARGETS ${target}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}
+	COMPONENT test
+
 )
 
 target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src)
