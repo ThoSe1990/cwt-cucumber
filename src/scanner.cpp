@@ -207,12 +207,12 @@ token scanner::number()
   }
   if (peek() == '.')
   {
-    is_double = true;
     advance();
   }
 
   while (is_digit(peek()))
   {
+    is_double = true;
     advance();
   }
 

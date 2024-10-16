@@ -178,15 +178,15 @@ TEST(scanner, long_value)
 {
   EXPECT_EQ(scanner("99").scan_token().type, token_type::long_value);
 }
-TEST(scanner, double_value_1)
+TEST(scanner, ordinal_number)
 {
-  EXPECT_EQ(scanner("99.").scan_token().type, token_type::double_value);
+  EXPECT_EQ(scanner("99.").scan_token().type, token_type::long_value);
 }
-TEST(scanner, double_value_2)
+TEST(scanner, double_value_1)
 {
   EXPECT_EQ(scanner("99.9").scan_token().type, token_type::double_value);
 }
-TEST(scanner, double_value_3)
+TEST(scanner, double_value_2)
 {
   EXPECT_EQ(scanner("99.99").scan_token().type, token_type::double_value);
 }

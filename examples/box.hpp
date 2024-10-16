@@ -20,7 +20,10 @@ class box
   {
     return m_items.size();
   }
-
+  [[nodiscard]] const std::string& at(const std::size_t idx) const 
+  {
+    return m_items.at(idx);
+  }
   void close() noexcept { m_is_open = false; }
 
  private:
