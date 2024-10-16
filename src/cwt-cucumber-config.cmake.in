@@ -1,0 +1,18 @@
+@PACKAGE_INIT@
+
+set(CWT-CUCUMBER_VERSION PACKAGE_LIBRARY_VERSION)
+
+set_and_check(CWT-CUCUMBER_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(CWT-CUCUMBER_LIBRARY_DIR "@PACKAGE_LIBRARY_INSTALL_DIR@")
+
+check_required_components(cwt-cucumber)
+
+include(CMakeFindDependencyMacro)
+
+if(NOT TARGET cwt::cucumber)
+    if(UNIX)
+        include(${CMAKE_CURRENT_LIST_DIR}/cwt-cucumber-TargetsLinux.cmake)
+    else()
+        include(${CMAKE_CURRENT_LIST_DIR}/cwt-cucumber-TargetsWindows.cmake)
+    endif()
+endif()
