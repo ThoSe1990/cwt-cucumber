@@ -59,7 +59,7 @@ write_basic_package_version_file(
 
 install(
     EXPORT "cwtcucumberTargets"
-    FILE "cwtcucumber-Targets${LIBRARY_SYSTEM_NAME}.cmake"
+    FILE "cwtcucumberTargets${LIBRARY_SYSTEM_NAME}.cmake"
     NAMESPACE cwt::
     DESTINATION lib/cmake/cwtcucumber
     COMPONENT "cucumber"
