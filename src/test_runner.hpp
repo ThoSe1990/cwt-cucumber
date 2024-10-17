@@ -6,6 +6,8 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <chrono>
+#include <thread>
 
 #include "ast.hpp"
 #include "registry.hpp"
@@ -100,6 +102,12 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
     results::steps_back().status = results::test_status::undefined;
   }
   update_step_status();
+  
+  if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
+  {
+    auto delay = std::stoi(env_p);
+    std::this_thread::sleep_for( std::chrono::milliseconds(delay));
+  }
 }
 
 namespace details
