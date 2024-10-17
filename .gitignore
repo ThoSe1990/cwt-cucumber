@@ -10,3 +10,4 @@ CMakeUserPresets.json
 .DS_Store
 src/version.hpp
 .devcontainer/
+CMakeLists.txt.user
