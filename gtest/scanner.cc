@@ -180,6 +180,9 @@ TEST(scanner, long_value)
 }
 TEST(scanner, ordinal_number)
 {
+  // TODO: this should be a long value but the . should not be consumed 
+  // bc what if the step has two sentences where the number is at the end 
+  // of one sentence 
   EXPECT_EQ(scanner("99.").scan_token().type, token_type::long_value);
 }
 TEST(scanner, double_value_1)
