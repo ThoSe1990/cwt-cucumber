@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -204,8 +205,8 @@ class test_runner
   test_runner() = default;
   test_runner(const std::vector<std::size_t>& lines) : m_lines(lines) {}
   test_runner(const std::vector<std::size_t>& lines,
-              const internal::tag_expression* tags)
-      : m_lines(lines), m_tags(tags)
+              const internal::tag_expression* tag_expression)
+      : m_lines(lines), m_tag_expression(tag_expression)
   {
   }
   
@@ -314,24 +315,44 @@ class test_runner
   [[nodiscard]] bool tags_valid(
       const std::vector<std::string>& tags) const noexcept
   {
-    if (m_tags == nullptr)
+    if (m_tag_expression == nullptr)
     {
       return true;
     }
-    return m_tags->evaluate(tags);
+    return m_tag_expression->evaluate(tags);
   }
   [[nodiscard]] bool has_background() const noexcept
   {
     return m_background != nullptr;
   }
-
+  void push_tags(const std::vector<std::string>& new_tags) 
+  {
+    if (!new_tags.empty()) 
+    {
+      m_tags.all.reserve(m_tags.all.size() + new_tags.size());
+      m_tags.all.insert(m_tags.all.end(), new_tags.begin(), new_tags.end());
+    }
+    m_tags.count_per_instance.push(new_tags.size());
+  }
+  void pop_tags() 
+  {
+    const std::size_t count = m_tags.count_per_instance.top();
+    m_tags.count_per_instance.pop();
+    if (count > 0)
+    {
+      m_tags.all.erase(m_tags.all.end() - count, m_tags.all.end());
+    } 
+  }
  private:
-  bool m_skip_all = false;
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
-  const internal::tag_expression* m_tags = nullptr;
+  const internal::tag_expression* m_tag_expression = nullptr;
   std::vector<std::size_t> m_lines;
+  struct {
+    std::vector<std::string> all; 
+    std::stack<std::size_t> count_per_instance; 
+  } m_tags;
 };
 
 }  // namespace cuke
