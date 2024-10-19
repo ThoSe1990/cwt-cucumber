@@ -205,14 +205,13 @@ token scanner::number()
   {
     advance();
   }
-  if (peek() == '.')
-  {
-    advance();
-  }
-
-  while (is_digit(peek()))
+  if (peek() == '.' && is_digit(peek_next()))
   {
     is_double = true;
+    advance();
+  }
+  while (is_digit(peek()))
+  {
     advance();
   }
 

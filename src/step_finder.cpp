@@ -2,6 +2,7 @@
 #include <string_view>
 
 #include "step_finder.hpp"
+#include "token.hpp"
 #include "util.hpp"
 
 namespace cuke::internal
@@ -29,6 +30,11 @@ bool step_finder::step_matches(std::string_view defined_step)
   for (;;)
   {
     auto [defined, feature] = next();
+    // NOTE: TODO
+    // if is parameter word maybe while(is_parameter_word to handle a sequence of {word})
+    // this kicks the scanner to the next and we can handle all as before
+    // in if (is_parameter(..)) ... 
+
     if (is_parameter(defined.type))
     {
       bool negative = false;
@@ -37,7 +43,13 @@ bool step_finder::step_matches(std::string_view defined_step)
         negative = true;
         feature = m_feature.scan_token();
       }
-      if (parameter_matches_value(defined.type, feature.type))
+      // NOTE: with this the token after {word} is always lost
+      // it wont work 
+      if (defined.type == token_type::parameter_word) 
+      {
+        m_values.push_back(make_word_parameter(feature));
+      }
+      else if (parameter_matches_value(defined.type, feature.type))
       {
         correct_floating_point_types(defined, feature);
         m_values.push_back(token_to_value(feature, negative));
@@ -104,8 +116,6 @@ bool step_finder::parameter_matches_value(token_type parameter, token_type type)
   {
     case token_type::parameter_int:
       return type == token_type::long_value;
-    case token_type::parameter_word:
-      return type == token_type::string_value;
     case token_type::parameter_string:
       return type == token_type::string_value;
     case token_type::parameter_byte:
@@ -141,9 +151,24 @@ bool step_finder::is_not_equal(const token& lhs, const token& rhs)
   return lhs.value != rhs.value;
 }
 
+cuke::value step_finder::make_word_parameter(const token begin) 
+{
+  token defined = m_defined.scan_token();
+  token feature = m_feature.scan_token(); 
+  token last = feature; 
+  while (defined.value != feature.value)  
+  {
+    last = feature;
+    feature = m_feature.scan_token();
+  } 
+  return cuke::value(create_string(begin, last));
+}
 std::pair<token, token> step_finder::next()
 {
-  return {m_defined.scan_token(), m_feature.scan_token()};
+  auto d = m_defined.scan_token(); auto f = m_feature.scan_token();
+  std::cout << d.value << " -- " << f.value << std::endl;
+  return {d,f};
+  // return {m_defined.scan_token(), m_feature.scan_token()};
 }
 
 }  // namespace cuke::internal
