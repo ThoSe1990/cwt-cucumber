@@ -105,7 +105,7 @@ bool step_finder::parameter_matches_value(token_type parameter, token_type type)
     case token_type::parameter_int:
       return type == token_type::long_value;
     case token_type::parameter_word:
-      return true; 
+      return type == token_type::string_value;
     case token_type::parameter_string:
       return type == token_type::string_value;
     case token_type::parameter_byte:
