@@ -2,13 +2,14 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iterator>
 #include <memory>
-#include <random>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <chrono>
 #include <thread>
+#include <unordered_set>
 
 #include "ast.hpp"
 #include "registry.hpp"
@@ -227,25 +228,22 @@ class test_runner
 
   void visit(const cuke::ast::feature_node& feature)
   {
+    push_tags(feature.tags());
     results::new_feature();
     m_printer->print(feature);
     if (feature.has_background())
     {
       m_background = &feature.background();
     }
-
-    m_skip_all = !tags_valid(feature.tags());
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
-    if (m_skip_all)
-    {
-      return;
-    }
+    push_tags(scenario.tags());
     results::new_scenario();
-    if (skip_scenario(m_lines, scenario.line()) || !tags_valid(scenario.tags()))
+    if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
     {
       results::scenarios_back().status = results::test_status::skipped;
+      pop_tags();
       return;
     }
     m_printer->print(scenario);
@@ -260,21 +258,24 @@ class test_runner
     update_scenario_status(scenario.name(), scenario.file(), scenario.line());
     cuke::internal::reset_context();
     m_printer->println();
+    pop_tags();
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
-    if (m_skip_all || !tags_valid(scenario_outline.tags()))
-    {
-      return;
-    }
+    push_tags(scenario_outline.tags());
     for (const cuke::ast::example_node& example : scenario_outline.examples())
     {
+      push_tags(example.tags());
+      if (!tags_valid()) 
+      {
+        pop_tags();
+        continue;
+      }
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario();
         std::size_t row_file_line = example.line_table_begin() + row;
-        if (skip_scenario(m_lines, row_file_line) ||
-            !tags_valid(example.tags()))
+        if (skip_scenario(m_lines, row_file_line))
         {
           results::scenarios_back().status = results::test_status::skipped;
           continue;
@@ -294,9 +295,15 @@ class test_runner
         cuke::internal::reset_context();
         m_printer->println();
       }
+      pop_tags();
     }
+    pop_tags();
   }
-
+  void clear_tags() noexcept 
+  {
+    m_tags.container.clear();
+    m_tags.count_per_instance.clear();
+  }
  private:
   void run_background() const noexcept
   {
@@ -312,14 +319,13 @@ class test_runner
   // TODO: refactor this, tags and files are not handled well in test_runner ...
   // should we put program_arguments into this class to make all available?
   // then we we'd execute for all files everything here ... idk now ...
-  [[nodiscard]] bool tags_valid(
-      const std::vector<std::string>& tags) const noexcept
+  [[nodiscard]] bool tags_valid() const noexcept
   {
     if (m_tag_expression == nullptr)
     {
       return true;
     }
-    return m_tag_expression->evaluate(tags);
+    return m_tag_expression->evaluate(this->m_tags.container);
   }
   [[nodiscard]] bool has_background() const noexcept
   {
@@ -327,20 +333,26 @@ class test_runner
   }
   void push_tags(const std::vector<std::string>& new_tags) 
   {
-    if (!new_tags.empty()) 
+    // NOTE: Usually we don't deal with too many tags so to keep things simple,
+    // I decided for this single push backs ... 
+    std::size_t inserted = 0;
+    for (const auto& tag : new_tags) 
     {
-      m_tags.all.reserve(m_tags.all.size() + new_tags.size());
-      m_tags.all.insert(m_tags.all.end(), new_tags.begin(), new_tags.end());
+      if (std::find(m_tags.container.begin(), m_tags.container.end(), tag) == m_tags.container.end()) 
+      {
+        m_tags.container.push_back(tag); 
+        ++inserted; 
+      }
     }
-    m_tags.count_per_instance.push(new_tags.size());
+    m_tags.count_per_instance.push_back(inserted);
   }
   void pop_tags() 
   {
-    const std::size_t count = m_tags.count_per_instance.top();
-    m_tags.count_per_instance.pop();
+    const std::size_t count = m_tags.count_per_instance.back();
+    m_tags.count_per_instance.pop_back();
     if (count > 0)
     {
-      m_tags.all.erase(m_tags.all.end() - count, m_tags.all.end());
+      m_tags.container.erase(m_tags.container.end() - count, m_tags.container.end());
     } 
   }
  private:
@@ -350,8 +362,8 @@ class test_runner
   const internal::tag_expression* m_tag_expression = nullptr;
   std::vector<std::size_t> m_lines;
   struct {
-    std::vector<std::string> all; 
-    std::stack<std::size_t> count_per_instance; 
+    std::vector<std::string> container; 
+    std::vector<std::size_t> count_per_instance; 
   } m_tags;
 };
 

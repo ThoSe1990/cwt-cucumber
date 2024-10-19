@@ -58,6 +58,7 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
       runner.set_quiet();
     }
     p.for_each_scenario(runner);
+    runner.clear_tags();
   }
   cuke::test_runner::teardown();
 
