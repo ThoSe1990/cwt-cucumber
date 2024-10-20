@@ -4,8 +4,6 @@
 #include "identifiers/spanish.hpp"
 #include "util.hpp"
 
-// TODO: delete include
-#include <iostream>
 namespace cuke::internal
 {
 static bool is_alpha(char c)
@@ -94,7 +92,6 @@ std::string_view scanner::make_string_view_here(std::size_t length)
 
 token scanner::make_token(token_type type) const
 {
-  auto sv = m_source.substr(m_start, m_pos - m_start);
   return token{type, m_source.substr(m_start, m_pos - m_start), m_line};
 }
 token scanner::make_token(token_type type, std::size_t length) const
@@ -132,10 +129,6 @@ char scanner::peek_next() const
   {
     return '\0';
   }
-}
-bool scanner::is_alpha(char c) const noexcept
-{
-  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 bool scanner::is_at_end() const { return m_pos >= m_source.size(); }
 bool scanner::three_consecutive(const char c) const
@@ -305,7 +298,7 @@ token scanner::doc_string()
 
 token scanner::word()
 {
-  while (!is_whitespace() && !end_of_line() && !is_at_end())
+  while (!is_whitespace() && peek() != '{' && !end_of_line() && !is_at_end())
   {
     advance();
   }
@@ -452,6 +445,16 @@ token scanner::scan_token()
   return word();
 }
 
+token scanner::scan_word(std::size_t length)
+{
+  skip();
+  m_start = m_pos;
+  for (int i = 0; i < length; ++i)
+  {
+    advance();
+  }
+  return make_token(token_type::word);
+}
 token scanner::scan_token_until(const token& end)
 {
   if (end.type == token_type::eof)

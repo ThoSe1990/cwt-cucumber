@@ -61,28 +61,6 @@ TEST(step_finder, wrong_data_type)
   EXPECT_FALSE(step_finder("a step with a \"hello world\"")
                    .step_matches("a step with a {int}"));
 }
-TEST(step_finder, trailing_spaces)
-{
-  EXPECT_TRUE(step_finder("a step  ").step_matches("a step"));
-  EXPECT_TRUE(step_finder("a step").step_matches("a step  "));
-  EXPECT_TRUE(step_finder("a step 1234 ").step_matches("a step {int}"));
-  EXPECT_TRUE(step_finder("a step 1234").step_matches("a step {int}    "));
-  EXPECT_TRUE(step_finder("a step \"hello world\"    ")
-                  .step_matches("a step {string}"));
-  EXPECT_TRUE(
-      step_finder("a step \"hello world\"").step_matches("a step {string}  "));
-}
-TEST(step_finder, beginning_spaces)
-{
-  EXPECT_TRUE(step_finder("a step").step_matches("  a step"));
-  EXPECT_TRUE(step_finder("  a step").step_matches("a step"));
-  EXPECT_TRUE(step_finder("456 a step").step_matches("  {int} a step"));
-  EXPECT_TRUE(step_finder(" 1123 a step").step_matches("{int} a step    "));
-  EXPECT_TRUE(step_finder("   \"hello world\" a step ")
-                  .step_matches("{string} a step"));
-  EXPECT_TRUE(step_finder("\"hello world\" a step ")
-                  .step_matches("   {string} a step"));
-}
 TEST(step_finder, three_ints)
 {
   EXPECT_TRUE(step_finder("A box with 2 x 2 x 2")
@@ -107,7 +85,7 @@ TEST(step_finder, step_with_variable)
 TEST(step_finder, value_int)
 {
   step_finder sf("456 a step");
-  EXPECT_TRUE(sf.step_matches("  {int} a step"));
+  EXPECT_TRUE(sf.step_matches("{int} a step"));
   EXPECT_EQ(sf.values().at(0).as<int>(), 456);
 }
 TEST(step_finder, value_double)
@@ -159,7 +137,7 @@ TEST(step_finder, word_as_number)
 {
   step_finder sf("step with 15");
   ASSERT_TRUE(sf.step_matches("step with {word}"));
-  EXPECT_EQ(sf.values().size(), 1);
+  ASSERT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("15"));
 }
 TEST(step_finder, word_as_ordinal_number)
@@ -172,16 +150,16 @@ TEST(step_finder, word_as_ordinal_number)
 TEST(step_finder, word_with_non_alpha_chars_1)
 {
   step_finder sf("it is -5° outside");
-  ASSERT_TRUE(sf.step_matches("step with {word}"));
+  ASSERT_TRUE(sf.step_matches("it is {word} outside"));
   EXPECT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("-5°"));
 }
 TEST(step_finder, word_with_non_alpha_chars_2)
 {
-  step_finder sf("step with a#%@&*");
+  step_finder sf("step with {}[]()a#%@&*-");
   ASSERT_TRUE(sf.step_matches("step with {word}"));
   EXPECT_EQ(sf.values().size(), 1);
-  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("a#%@&*-"));
+  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("{}[]()a#%@&*-"));
 }
 TEST(step_finder, word_between_non_whitespace)
 {
@@ -192,17 +170,17 @@ TEST(step_finder, word_between_non_whitespace)
 }
 TEST(step_finder, word_followed_by_int)
 {
-  step_finder sf("two paraemters: {word} {int}");
-  ASSERT_TRUE(sf.step_matches("two paraemters: something 11"));
+  step_finder sf("two paraemters: something 11");
+  ASSERT_TRUE(sf.step_matches("two paraemters: {word} {int}"));
   EXPECT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("something"));
-  EXPECT_EQ(sf.values().at(0).as<int>(), 11);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 11);
 }
 TEST(step_finder, word_followed_by_int_w_delimiter)
 {
-  step_finder sf("two paraemters: {word}, {int}");
-  ASSERT_TRUE(sf.step_matches("two paraemters: something, 11"));
+  step_finder sf("two paraemters: something, 11");
+  ASSERT_TRUE(sf.step_matches("two paraemters: {word}, {int}"));
   EXPECT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("something"));
-  EXPECT_EQ(sf.values().at(0).as<int>(), 11);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 11);
 }

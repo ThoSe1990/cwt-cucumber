@@ -35,11 +35,13 @@ class step_finder
   [[nodiscard]] std::pair<token, token> next();
   [[nodiscard]] cuke::value create_table();
   [[nodiscard]] cuke::value make_word_parameter(const token begin);
+  [[nodiscard]] token next_feature_token(const token& defined);
   void skip_linebreaks();
 
  private:
   scanner m_defined{""};
   scanner m_feature{""};
+  std::string m_feature_string;
   cuke::table::row m_hash_row;
   cuke::value_array m_values;
 };

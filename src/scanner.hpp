@@ -17,6 +17,7 @@ class scanner
   scanner(std::string_view source);
   scanner(std::string_view source, bool_operators);
   [[nodiscard]] token scan_token();
+  [[nodiscard]] token scan_word(std::size_t length);
   [[nodiscard]] token scan_token_until(const token& end);
   void reset();
 
@@ -29,7 +30,6 @@ class scanner
   [[nodiscard]] char peek() const;
   [[nodiscard]] char peek_next() const;
   [[nodiscard]] std::size_t chars_left() const;
-  [[nodiscard]] bool is_alpha(char c) const noexcept;
   [[nodiscard]] bool is_at_end() const;
   [[nodiscard]] bool is_whitespace() const;
   [[nodiscard]] bool three_consecutive(const char c) const;

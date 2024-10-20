@@ -193,11 +193,6 @@ inline constexpr std::string replace(const token& t, std::string_view r)
       return rm_3_at_start_and_end(t);
     }
     break;
-    case token_type::word:
-    {
-      return cuke::value(create_string(t.value));
-    }
-    break;
     case token_type::string_value:
     {
       return cuke::value(replace(t, "\""));
