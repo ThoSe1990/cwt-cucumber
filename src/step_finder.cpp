@@ -111,7 +111,7 @@ step_finder::step_finder(std::string_view feature)
 step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
     : m_feature_string(feature),
       m_feature(feature),
-      m_hash_row(std::move(std::move(hash_row)))
+      m_hash_row(std::move(hash_row))
 {
 }
 cuke::value_array& step_finder::values() noexcept { return m_values; }
@@ -178,7 +178,6 @@ bool step_finder::step_matches(std::string_view defined_step)
     std::regex regex_pattern(pattern);
     std::smatch match;
     std::string text = m_feature_string;
-
     while (std::regex_search(text, match, regex_pattern))
     {
       found = true;
@@ -240,8 +239,8 @@ bool step_finder::step_matches(std::string_view defined_step)
 //       }
 //       else if (feature.type == token_type::variable)
 //       {
-//         m_values.push_back(
-//             m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
+// m_values.push_back(
+//     m_hash_row[feature.value.substr(1, feature.value.size() - 2)]);
 //       }
 //       else
 //       {

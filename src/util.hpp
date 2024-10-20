@@ -194,6 +194,7 @@ inline constexpr std::string replace(const token& t, std::string_view r)
     }
     break;
     case token_type::string_value:
+    case token_type::word:
     {
       return cuke::value(replace(t, "\""));
     }
