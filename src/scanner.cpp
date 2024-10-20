@@ -1,10 +1,13 @@
+#include "token.hpp"
 #include "scanner.hpp"
 #include "identifiers/german.hpp"
 #include "identifiers/spanish.hpp"
+#include "util.hpp"
 
+// TODO: delete include
+#include <iostream>
 namespace cuke::internal
 {
-
 static bool is_alpha(char c)
 {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
@@ -84,9 +87,19 @@ char scanner::advance()
   return m_source[m_pos - 1];
 }
 
+std::string_view scanner::make_string_view_here(std::size_t length)
+{
+  return std::string_view(&m_source[m_pos], length);
+}
+
 token scanner::make_token(token_type type) const
 {
+  auto sv = m_source.substr(m_start, m_pos - m_start);
   return token{type, m_source.substr(m_start, m_pos - m_start), m_line};
+}
+token scanner::make_token(token_type type, std::size_t length) const
+{
+  return token{type, m_source.substr(m_start, length), m_line};
 }
 token scanner::make_token(token_type type, std::size_t start,
                           std::size_t end) const
@@ -144,6 +157,11 @@ std::size_t scanner::chars_left() const
     return 0;
   }
   return m_source.size() - 1 - m_pos;
+}
+bool scanner::is_whitespace() const
+{
+  const char c = peek();
+  return c == ' ' || c == '\t';
 }
 bool scanner::end_of_line() const
 {
@@ -287,7 +305,7 @@ token scanner::doc_string()
 
 token scanner::word()
 {
-  while (is_alpha(peek()))
+  while (!is_whitespace() && !end_of_line() && !is_at_end())
   {
     advance();
   }
@@ -432,6 +450,54 @@ token scanner::scan_token()
   }
 
   return word();
+}
+
+token scanner::scan_token_until(const token& end)
+{
+  if (end.type == token_type::eof)
+  {
+    while (!is_at_end())
+    {
+      advance();
+    }
+    return make_token(token_type::word);
+  }
+
+  else if (end.type == token_type::long_value ||
+           end.type == token_type::double_value)
+  {
+    while (!is_digit(m_source[m_pos]) && !is_whitespace())
+    {
+      advance();
+    }
+    return make_token(token_type::word);
+  }
+
+  else if (end.type == token_type::string_value)
+  {
+    while (peek() != '"' && !is_whitespace())
+    {
+      advance();
+    }
+    return make_token(token_type::word);
+  }
+
+  while (true)
+  {
+    auto sv = make_string_view_here(end.value.length());
+    if (sv == end.value)
+    {
+      token t = make_token(token_type::word);
+      t.value = rtrim(t.value);
+      return t;
+    }
+    if (end_of_line())
+    {
+      break;
+    }
+    advance();
+  }
+  return error_token("Scanner can't find given end token");
 }
 
 }  // namespace cuke::internal

@@ -148,19 +148,19 @@ TEST(step_finder, word_at_stepend)
   EXPECT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("something"));
 }
-TEST(step_finder, word_as_number)
-{
-  step_finder sf("step with 15");
-  ASSERT_TRUE(sf.step_matches("step with {word}"));
-  EXPECT_EQ(sf.values().size(), 1);
-  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("15"));
-}
 TEST(step_finder, word_at_stepbegin)
 {
   step_finder sf("something in step");
   ASSERT_TRUE(sf.step_matches("{word} in step"));
   EXPECT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("something"));
+}
+TEST(step_finder, word_as_number)
+{
+  step_finder sf("step with 15");
+  ASSERT_TRUE(sf.step_matches("step with {word}"));
+  EXPECT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("15"));
 }
 TEST(step_finder, word_as_ordinal_number)
 {

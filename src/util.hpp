@@ -193,8 +193,12 @@ inline constexpr std::string replace(const token& t, std::string_view r)
       return rm_3_at_start_and_end(t);
     }
     break;
-    case token_type::string_value:
     case token_type::word:
+    {
+      return cuke::value(create_string(t.value));
+    }
+    break;
+    case token_type::string_value:
     {
       return cuke::value(replace(t, "\""));
     }
@@ -356,6 +360,16 @@ template <typename Func, typename... Args>
   auto end = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> duration = end - start;
   return duration.count();
+}
+
+static std::string_view rtrim(std::string_view str)
+{
+  std::size_t end = str.size();
+  while (end > 0 && std::isspace(static_cast<unsigned char>(str[end - 1])))
+  {
+    --end;
+  }
+  return str.substr(0, end);
 }
 
 }  // namespace cuke::internal

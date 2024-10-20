@@ -8,7 +8,6 @@ enum class token_type
 {
   vertical,
   minus,
-
   language,
   feature,
   background,
@@ -16,9 +15,7 @@ enum class token_type
   scenario_outline,
   step,
   examples,
-
   variable,
-  
   tag,
   _and,
   _or,
@@ -26,16 +23,13 @@ enum class token_type
   _not,
   left_paren,
   right_paren,
-
   doc_string,
   long_value,
   double_value,
   float_value,
   string_value,
-
   word,
   linebreak,
-
   parameter_int,
   parameter_float,
   parameter_word,
@@ -45,7 +39,6 @@ enum class token_type
   parameter_short,
   parameter_long,
   parameter_unknown,
-
   error,
   eof,
   none
