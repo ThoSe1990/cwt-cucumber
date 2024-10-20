@@ -82,6 +82,33 @@ TEST(step_finder, step_with_variable)
   ASSERT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
 }
+TEST(step_finder, step_with_variables_1)
+{
+  cuke::value_array data{
+      cuke::value(std::string("value")), cuke::value(std::string("integer")),
+      cuke::value(std::string("some string value")), cuke::value(int(12))};
+  cuke::table t(data, 2);
+
+  step_finder sf("A Step with a <value> and <integer>", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {string} and {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
+  EXPECT_EQ(sf.values()[1].as<int>(), 12);
+}
+TEST(step_finder, step_with_variables_2)
+{
+  cuke::value_array data{
+      cuke::value(std::string("value")), cuke::value(std::string("integer")),
+      cuke::value(std::string("some string value")), cuke::value(int(12))};
+  cuke::table t(data, 2);
+
+  step_finder sf("A Step with a <value> <value> and <integer>", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {string} {string} and {int}"));
+  ASSERT_EQ(sf.values().size(), 3);
+  EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
+  EXPECT_EQ(sf.values()[1].as<std::string>(), std::string("some string value"));
+  EXPECT_EQ(sf.values()[2].as<int>(), 12);
+}
 TEST(step_finder, value_int)
 {
   step_finder sf("456 a step");

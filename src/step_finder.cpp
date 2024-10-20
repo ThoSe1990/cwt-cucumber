@@ -71,30 +71,29 @@ std::pair<std::string, std::vector<value_type>> create_regex_definition(
   return {result, types};
 }
 
-std::string create_regex_definition_angle_brackets(std::string_view input)
+std::string create_regex_definition_angle_brackets(const std::string& input)
 {
   std::string result;
-  result.reserve(input.size());  // Reserve space for efficiency
-
   size_t i = 0;
+
   while (i < input.size())
   {
-    if (input[i] == '<')
+    if (input[i] == '{')
     {
-      // Check for closing angle bracket
-      size_t end = input.find('>', i);
+      // Check if we have a placeholder
+      size_t end = input.find('}', i);
       if (end != std::string::npos)
       {
-        // Add the regex pattern to capture any non-whitespace characters
-        result += "([^\\s>]+)";  // Regex for anything between angle brackets
-        i = end + 1;             // Move past the closing bracket
-        continue;                // Skip the default processing
+        result += "(<(.*?)>)";
+        i = end + 1;
+        continue;  // Skip the rest of the loop
       }
     }
     // If not a placeholder, just copy the character
     result += input[i];
     ++i;
   }
+
   return result;
 }
 static void correct_floating_point_types(token& defined, token& feature)
@@ -105,20 +104,24 @@ static void correct_floating_point_types(token& defined, token& feature)
     feature.type = token_type::float_value;
   }
 }
-step_finder::step_finder(std::string_view feature) : m_feature_string(feature)
+step_finder::step_finder(std::string_view feature)
+    : m_feature(feature), m_feature_string(feature)
 {
 }
 step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
-    : m_feature(feature), m_hash_row(std::move(std::move(hash_row)))
+    : m_feature_string(feature),
+      m_feature(feature),
+      m_hash_row(std::move(std::move(hash_row)))
 {
 }
 cuke::value_array& step_finder::values() noexcept { return m_values; }
 bool step_finder::step_matches(std::string_view defined_step)
 {
+  std::cout << defined_step << std::endl;
   bool found = false;
   {
     auto [pattern, types] = create_regex_definition(defined_step);
-
+    pattern = "^" + pattern + "$";
     std::regex regex_pattern(pattern);
     std::smatch match;
     std::string text = m_feature_string;
@@ -129,8 +132,6 @@ bool step_finder::step_matches(std::string_view defined_step)
       for (size_t i = 1; i < match.size(); ++i)
       {
         const std::string& value = match[i];
-        std::cout << "type: " << int(types[i - 1]) << " value: " << value
-                  << std::endl;
         switch (types[i - 1])
         {
           case value_type::byte:
@@ -163,14 +164,16 @@ bool step_finder::step_matches(std::string_view defined_step)
       text = match.suffix().str();
     }
   }
-  return found;
   if (found)
   {
     return true;
   }
 
+  m_values.clear();
   {
-    auto pattern = create_regex_definition_angle_brackets(defined_step);
+    std::string str(defined_step);
+    auto pattern = create_regex_definition_angle_brackets(str);
+    pattern = "^" + pattern + "$";
 
     std::regex regex_pattern(pattern);
     std::smatch match;
@@ -179,11 +182,12 @@ bool step_finder::step_matches(std::string_view defined_step)
     while (std::regex_search(text, match, regex_pattern))
     {
       found = true;
-      for (size_t i = 1; i < match.size(); ++i)
+      for (size_t i = 2; i < match.size(); i += 2)
       {
         const std::string& value = match[i];
-        std::cout << " value: " << value << std::endl;
+        m_values.push_back(m_hash_row[value]);
       }
+      text = match.suffix().str();
     }
   }
 
