@@ -1,5 +1,4 @@
 #include <regex>
-#include <algorithm>
 #include <string_view>
 
 #include "step_finder.hpp"
