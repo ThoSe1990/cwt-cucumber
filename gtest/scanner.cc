@@ -53,7 +53,8 @@ TEST(scanner, right_paren)
 }
 TEST(scanner, and_token)
 {
-  EXPECT_EQ(scanner("and", bool_operators{}).scan_token().type, token_type::_and);
+  EXPECT_EQ(scanner("and", bool_operators{}).scan_token().type,
+            token_type::_and);
 }
 TEST(scanner, or_token)
 {
@@ -61,11 +62,13 @@ TEST(scanner, or_token)
 }
 TEST(scanner, not_token)
 {
-  EXPECT_EQ(scanner("not", bool_operators{}).scan_token().type, token_type::_not);
+  EXPECT_EQ(scanner("not", bool_operators{}).scan_token().type,
+            token_type::_not);
 }
 TEST(scanner, xor_token)
 {
-  EXPECT_EQ(scanner("xor", bool_operators{}).scan_token().type, token_type::_xor);
+  EXPECT_EQ(scanner("xor", bool_operators{}).scan_token().type,
+            token_type::_xor);
 }
 
 TEST(scanner, tag_paren_token)
@@ -113,11 +116,13 @@ TEST(scanner, parameter_word)
 }
 TEST(scanner, parameter_string)
 {
-  EXPECT_EQ(scanner("{string}").scan_token().type, token_type::parameter_string);
+  EXPECT_EQ(scanner("{string}").scan_token().type,
+            token_type::parameter_string);
 }
 TEST(scanner, parameter_double)
 {
-  EXPECT_EQ(scanner("{double}").scan_token().type, token_type::parameter_double);
+  EXPECT_EQ(scanner("{double}").scan_token().type,
+            token_type::parameter_double);
 }
 TEST(scanner, parameter_byte)
 {
@@ -178,7 +183,7 @@ TEST(scanner, long_value)
 {
   EXPECT_EQ(scanner("99").scan_token().type, token_type::long_value);
 }
-TEST(scanner, ordinal_number)
+TEST(scanner, ordinal_number_or_at_end_of_sentence)
 {
   EXPECT_EQ(scanner("99.").scan_token().type, token_type::long_value);
 }
@@ -243,4 +248,102 @@ TEST(scanner, verticals_and_text)
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
   EXPECT_EQ(s.scan_token().type, token_type::double_value);
   EXPECT_EQ(s.scan_token().type, token_type::vertical);
+}
+
+TEST(scanner, scan_token_until)
+{
+  const token delimiter{token_type::word, "World"};
+  scanner s("Hello World");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Hello"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("World"));
+}
+TEST(scanner, scan_token_until_wo_whitespace)
+{
+  const token delimiter{token_type::word, "World"};
+  scanner s("HelloWorld");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Hello"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("World"));
+}
+TEST(scanner, scan_token_until_end_of_line)
+{
+  const token delimiter{token_type::linebreak, "\n", 0};
+  scanner s("Hello\n");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Hello"));
+  EXPECT_EQ(s.scan_token().type, token_type::linebreak);
+}
+
+TEST(scanner, scan_token_until_end_of_file)
+{
+  const token delimiter{token_type::eof, "", 0};
+  scanner s("Hello");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Hello"));
+  EXPECT_EQ(s.scan_token().type, token_type::eof);
+}
+TEST(scanner, scan_token_until_chars)
+{
+  const token delimiter{token_type::word, "closed", 0};
+  scanner s("<unclosed");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("<un"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("closed"));
+}
+TEST(scanner, scan_token_until_number)
+{
+  const token delimiter{token_type::long_value, "", 0};
+  scanner s("Number 5");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("5"));
+}
+TEST(scanner, scan_token_until_number_wo_whitespace)
+{
+  const token delimiter{token_type::long_value, "", 0};
+  scanner s("Number5");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("5"));
+}
+TEST(scanner, scan_token_until_float)
+{
+  const token delimiter{token_type::double_value, "", 0};
+  scanner s("Number 5.5");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("5.5"));
+}
+TEST(scanner, scan_token_until_float_wo_whitespace)
+{
+  const token delimiter{token_type::double_value, "", 0};
+  scanner s("Number5.5");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("5.5"));
+}
+TEST(scanner, scan_token_until_string)
+{
+  const token delimiter{token_type::string_value, "", 0};
+  scanner s("Number \"something here\"");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("\"something here\""));
+}
+TEST(scanner, scan_token_until_string_wo_whitespace)
+{
+  const token delimiter{token_type::string_value, "", 0};
+  scanner s("Number\"something here\"");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("\"something here\""));
+}
+TEST(scanner, scan_token_until_word)
+{
+  const token delimiter{token_type::string_value, "", 0};
+  scanner s("Number word");
+
+  EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("word"));
 }

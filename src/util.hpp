@@ -358,4 +358,14 @@ template <typename Func, typename... Args>
   return duration.count();
 }
 
+static std::string_view rtrim(std::string_view str)
+{
+  std::size_t end = str.size();
+  while (end > 0 && std::isspace(static_cast<unsigned char>(str[end - 1])))
+  {
+    --end;
+  }
+  return str.substr(0, end);
+}
+
 }  // namespace cuke::internal

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - New `CWT_CUCUMBER_STEP_DELAY` environment variable to delay step execution ([32](https://github.com/ThoSe1990/cwt-cucumber/pull/32))
+- Expressions `{word}` and `{}` (anonymous) implemented. Note: both are treated as `std::string` ([36](https://github.com/ThoSe1990/cwt-cucumber/pull/36))
 
 ### Fixed
 - Tags aren't ineherited correctly, when using tag expression ([35](https://github.com/ThoSe1990/cwt-cucumber/pull/35))
