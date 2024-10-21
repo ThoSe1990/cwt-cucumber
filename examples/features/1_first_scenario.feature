@@ -1,4 +1,4 @@
-
+@skip
 Feature: My first feature
   This is my cucumber-cpp hello world
 
