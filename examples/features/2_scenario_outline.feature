@@ -12,3 +12,10 @@ Feature: My first feature
       | 1     | "apple"   |
       | 2     | "bananas" |
 
+  Scenario Outline: a scenario outline  
+    When A <word> and <anonymous>
+    Then They will match <expected_word> and <expected_anonymous>
+    
+    Examples:
+      | word  | anonymous | expected_word | expected_anonymous |
+      | 123   | 999       | "123"         | "999"              | 
