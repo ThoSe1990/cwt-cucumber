@@ -365,7 +365,7 @@ class step
       : m_callback(cb), m_definition(definition)
   {
     std::tie(m_regex_definition, m_types) =
-        create_regex_definition(m_definition);
+        create_regex_definition(add_escape_chars(m_definition));
   }
   const std::string& definition() const noexcept { return m_definition; }
   const std::string& regex_string() const noexcept

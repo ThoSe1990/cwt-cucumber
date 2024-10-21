@@ -56,12 +56,12 @@ WHEN(add_table_rows_hash, "I add the following item with rows_hash():")
                                  hash_rows["QUANTITY"].as<long>());
 }
 
-THEN(test, "The {int} item is {string}")
+THEN(test, "The {int}. item is {string}")
 {
   const std::size_t number = CUKE_ARG(1);
   const std::size_t idx_zero_based = number - 1;
   const std::string item = CUKE_ARG(2);
-  
+
   cuke::equal(item, cuke::context<box>().at(idx_zero_based));
 }
 

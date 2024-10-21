@@ -414,3 +414,12 @@ TEST(step_finder, anonymous_between_int_and_word)
             std::string("some blalba nonsense !@#$%^&* and a"));
   EXPECT_EQ(sf.values().at(2).as<std::string>(), std::string("word"));
 }
+TEST(step_finder, box_examples_1)
+{
+  auto [pattern, types] =
+      create_regex_definition("The box contains {int} item\\(s\\)");
+  step_finder sf("The box contains 2 item(s)");
+  ASSERT_TRUE(sf.step_matches(pattern, types));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 2);
+}

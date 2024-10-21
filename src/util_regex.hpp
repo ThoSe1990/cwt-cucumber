@@ -4,6 +4,7 @@
 
 #include <array>
 #include <vector>
+#include <unordered_set>
 
 namespace cuke::internal
 {
@@ -71,6 +72,23 @@ create_regex_definition(std::string_view input)
   }
   result = "^" + result + "$";
   return {result, types};
+}
+
+static const std::unordered_set<char> special_chars = {
+    '.', '^', '$', '*', '+', '?', '[', ']', '(', ')', '\\', '|'};
+
+static std::string add_escape_chars(const std::string& input)
+{
+  std::string result;
+  for (char c : input)
+  {
+    if (special_chars.find(c) != special_chars.end())
+    {
+      result += '\\';
+    }
+    result += c;
+  }
+  return result;
 }
 
 }  // namespace cuke::internal
