@@ -2,44 +2,36 @@
 #include <string_view>
 
 #include "step_finder.hpp"
+
 #include "token.hpp"
 #include "value.hpp"
+#include "util.hpp"
 
 namespace cuke::internal
 {
 
-enum class value_type
-{
-  byte,
-  short_,
-  int_,
-  long_,
-  float_,
-  double_,
-  word,
-  string,
-  anonymous
-};
-std::pair<std::string, std::vector<value_type>> create_regex_definition(
+std::pair<std::string, std::vector<token_type>> create_regex_definition(
     std::string_view input)
 {
   std::string result;
   result.reserve(input.size());  // Reserve space for efficiency
 
-  const std::unordered_map<std::string, std::pair<std::string, value_type>>
+  const std::unordered_map<std::string, std::pair<std::string, token_type>>
       conversions = {
-          {"{byte}", {"(-?\\d+|<[^>]+>)", value_type::byte}},
-          {"{int}", {"(-?\\d+|<[^>]+>)", value_type::int_}},
-          {"{short}", {"(-?\\d+|<[^>]+>)", value_type::short_}},
-          {"{long}", {"(-?\\d+|<[^>]+>)", value_type::long_}},
-          {"{float}", {"(-?\\d*\\.?\\d+|<[^>]+>)", value_type::float_}},
-          {"{double}", {"(-?\\d*\\.?\\d+|<[^>]+>)", value_type::double_}},
-          {"{word}", {"([^\\s<]+|<[^>]+>)", value_type::word}},
-          {"{string}", {"(\"[^\"]*\"|<[^>]+>)", value_type::string}},
-          {"{}", {"(.+|<[^>]+>)", value_type::anonymous}},
+          {"{byte}", {"(-?\\d+|<[^>]+>)", token_type::parameter_byte}},
+          {"{int}", {"(-?\\d+|<[^>]+>)", token_type::parameter_int}},
+          {"{short}", {"(-?\\d+|<[^>]+>)", token_type::parameter_int}},
+          {"{long}", {"(-?\\d+|<[^>]+>)", token_type::parameter_long}},
+          {"{float}",
+           {"(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_float}},
+          {"{double}",
+           {"(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_double}},
+          {"{word}", {"([^\\s<]+|<[^>]+>)", token_type::parameter_word}},
+          {"{string}", {"(\"[^\"]*\"|<[^>]+>)", token_type::parameter_string}},
+          {"{}", {"(.+|<[^>]+>)", token_type::parameter_anonymous}},
       };
 
-  std::vector<value_type> types;
+  std::vector<token_type> types;
 
   size_t i = 0;
   while (i < input.size())
@@ -57,7 +49,7 @@ std::pair<std::string, std::vector<value_type>> create_regex_definition(
           // Replace with regex pattern
           result += it->second.first;  // Add the regex pattern to the result
           types.push_back(
-              it->second.second);  // Add the corresponding value_type
+              it->second.second);  // Add the corresponding token_type
           i = end + 1;             // Move past the closing bracket
           continue;                // Skip the default processing
         }
@@ -106,34 +98,39 @@ bool step_finder::step_matches(std::string_view defined_step)
 
         switch (types[i - 1])
         {
-          case value_type::byte:
-          case value_type::short_:
-          case value_type::int_:
-          case value_type::long_:
+          case token_type::parameter_byte:
+          case token_type::parameter_short:
+          case token_type::parameter_int:
+          case token_type::parameter_long:
           {
             long long_value = std::stol(value);
             m_values.push_back(cuke::value(long_value));
           }
           break;
-          case value_type::float_:
+          case token_type::parameter_float:
           {
             float float_value = std::stof(value);
             m_values.push_back(cuke::value(float_value));
           }
           break;
-          case value_type::double_:
+          case token_type::parameter_double:
           {
             double double_value = std::stod(value);
             m_values.push_back(cuke::value(double_value));
           }
           break;
-          case value_type::anonymous:
-          case value_type::word:
+          case token_type::parameter_anonymous:
+          case token_type::parameter_word:
             m_values.push_back(cuke::value(value));
             break;
-          case value_type::string:
+          case token_type::parameter_string:
             m_values.push_back(cuke::value(value.substr(1, value.size() - 2)));
             break;
+          default:
+            println(
+                color::red,
+                std::format("step_finder: Can not convert {} to a cuke::value",
+                            value));
         }
       }
       text = match.suffix().str();

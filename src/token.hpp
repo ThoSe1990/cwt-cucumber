@@ -38,6 +38,7 @@ enum class token_type
   parameter_byte,
   parameter_short,
   parameter_long,
+  parameter_anonymous,
   parameter_unknown,
   error,
   eof,
