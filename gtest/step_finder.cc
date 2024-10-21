@@ -211,3 +211,71 @@ TEST(step_finder, word_followed_by_int_w_delimiter)
   EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("something"));
   EXPECT_EQ(sf.values().at(1).as<int>(), 11);
 }
+TEST(step_finder, variable_and_word)
+{
+  cuke::value_array data{cuke::value(std::string("value")),
+                         cuke::value(std::string("aWordOr2Here"))};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {word} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("aWordOr2Here"));
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, variable_and_string)
+{
+  cuke::value_array data{cuke::value(std::string("value")),
+                         cuke::value(std::string("some string value"))};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {string} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, variable_and_byte)
+{
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {byte} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<char>(), 99);
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, variable_and_short)
+{
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {short} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<char>(), 99);
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, variable_and_int)
+{
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {int} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<int>(), 99);
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, variable_and_long)
+{
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {long} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<long>(), 99);
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}

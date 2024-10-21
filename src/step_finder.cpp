@@ -1,4 +1,5 @@
 #include <regex>
+#include <unordered_set>
 #include <format>
 #include <string_view>
 
@@ -29,14 +30,14 @@ std::pair<std::string, std::vector<value_type>> create_regex_definition(
 
   const std::unordered_map<std::string, std::pair<std::string, value_type>>
       conversions = {
-          {"{byte}", {"(-?\\d+)", value_type::byte}},
-          {"{int}", {"(-?\\d+)", value_type::int_}},
-          {"{short}", {"(-?\\d+)", value_type::short_}},
-          {"{long}", {"(-?\\d+)", value_type::long_}},
-          {"{float}", {"(-?\\d*\\.?\\d+)", value_type::float_}},
-          {"{double}", {"(-?\\d*\\.?\\d+)", value_type::double_}},
-          {"{word}", {"([^\\s]+)", value_type::word}},
-          {"{string}", {"\"([^\"]*)\"", value_type::string}},
+          {"{byte}", {"(-?\\d+|<[^>]+>)", value_type::byte}},
+          {"{int}", {"(-?\\d+|<[^>]+>)", value_type::int_}},
+          {"{short}", {"(-?\\d+|<[^>]+>)", value_type::short_}},
+          {"{long}", {"(-?\\d+|<[^>]+>)", value_type::long_}},
+          {"{float}", {"(-?\\d*\\.?\\d+|<[^>]+>)", value_type::float_}},
+          {"{double}", {"(-?\\d*\\.?\\d+|<[^>]+>)", value_type::double_}},
+          {"{word}", {"([^\\s<]+|<[^>]+>)", value_type::word}},
+          {"{string}", {"(\"[^\"]*\"|<[^>]+>)", value_type::string}},
       };
 
   std::vector<value_type> types;
@@ -71,31 +72,6 @@ std::pair<std::string, std::vector<value_type>> create_regex_definition(
   return {result, types};
 }
 
-std::string create_regex_definition_angle_brackets(const std::string& input)
-{
-  std::string result;
-  size_t i = 0;
-
-  while (i < input.size())
-  {
-    if (input[i] == '{')
-    {
-      // Check if we have a placeholder
-      size_t end = input.find('}', i);
-      if (end != std::string::npos)
-      {
-        result += "(<(.*?)>)";
-        i = end + 1;
-        continue;  // Skip the rest of the loop
-      }
-    }
-    // If not a placeholder, just copy the character
-    result += input[i];
-    ++i;
-  }
-
-  return result;
-}
 static void correct_floating_point_types(token& defined, token& feature)
 {
   if (feature.type == token_type::double_value &&
@@ -117,7 +93,6 @@ step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
 cuke::value_array& step_finder::values() noexcept { return m_values; }
 bool step_finder::step_matches(std::string_view defined_step)
 {
-  std::cout << defined_step << std::endl;
   bool found = false;
   {
     auto [pattern, types] = create_regex_definition(defined_step);
@@ -125,13 +100,22 @@ bool step_finder::step_matches(std::string_view defined_step)
     std::regex regex_pattern(pattern);
     std::smatch match;
     std::string text = m_feature_string;
-
     while (std::regex_search(text, match, regex_pattern))
     {
       found = true;
-      for (size_t i = 1; i < match.size(); ++i)
+      for (std::size_t i = 1; i < match.size(); ++i)
       {
+        if (!match[i].matched)
+        {
+          continue;
+        }
         const std::string& value = match[i];
+        if (match[i].str()[0] == '<')
+        {
+          m_values.push_back(m_hash_row[value.substr(1, value.size() - 2)]);
+          continue;
+        }
+
         switch (types[i - 1])
         {
           case value_type::byte:
@@ -156,40 +140,16 @@ bool step_finder::step_matches(std::string_view defined_step)
           }
           break;
           case value_type::word:
-          case value_type::string:
             m_values.push_back(cuke::value(value));
+            break;
+          case value_type::string:
+            m_values.push_back(cuke::value(value.substr(1, value.size() - 2)));
             break;
         }
       }
       text = match.suffix().str();
     }
   }
-  if (found)
-  {
-    return true;
-  }
-
-  m_values.clear();
-  {
-    std::string str(defined_step);
-    auto pattern = create_regex_definition_angle_brackets(str);
-    pattern = "^" + pattern + "$";
-
-    std::regex regex_pattern(pattern);
-    std::smatch match;
-    std::string text = m_feature_string;
-    while (std::regex_search(text, match, regex_pattern))
-    {
-      found = true;
-      for (size_t i = 2; i < match.size(); i += 2)
-      {
-        const std::string& value = match[i];
-        m_values.push_back(m_hash_row[value]);
-      }
-      text = match.suffix().str();
-    }
-  }
-
   return found;
 }
 // bool step_finder::step_matches(std::string_view defined_step)
