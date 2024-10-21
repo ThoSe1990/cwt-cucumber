@@ -16,7 +16,7 @@ struct regex_conversion
   token_type type;
 };
 
-static constexpr const std::array<regex_conversion, 9> conversions = {{
+static /* constexpr */ const std::array<regex_conversion, 9> conversions = {{
     {"{byte}", "(-?\\d+|<[^>]+>)", token_type::parameter_byte},
     {"{int}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
     {"{short}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
@@ -28,7 +28,7 @@ static constexpr const std::array<regex_conversion, 9> conversions = {{
     {"{}", "(.+|<[^>]+>)", token_type::parameter_anonymous},
 }};
 
-static constexpr const regex_conversion& get_regex_conversion(
+static /* constexpr */ const regex_conversion& get_regex_conversion(
     std::string_view key)
 {
   auto it = std::find_if(conversions.begin(), conversions.end(),
@@ -43,7 +43,7 @@ static constexpr const regex_conversion& get_regex_conversion(
   throw std::runtime_error("Conversion not found");
 }
 
-static constexpr const std::pair<std::string, std::vector<token_type>>
+static /* constexpr */ const std::pair<std::string, std::vector<token_type>>
 create_regex_definition(std::string_view input)
 {
   std::string result;
