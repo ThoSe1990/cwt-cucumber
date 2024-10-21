@@ -6,6 +6,19 @@
 namespace cuke
 {
 
+namespace internal
+{
+
+runtime_options& get_runtime_options()
+{
+  static runtime_options opt;
+  return opt;
+}
+
+}  // namespace internal
+
+void skip_scenario() { internal::get_runtime_options().skip_scenario(true); }
+
 void cuke_args::initialize(int argc, const char* argv[])
 {
   clear();
@@ -29,10 +42,7 @@ void cuke_args::clear()
   m_args = std::span<const char*>();
   m_options = options{};
 }
-const options& cuke_args::get_options() const noexcept
-{
-  return m_options;
-}
+const options& cuke_args::get_options() const noexcept { return m_options; }
 
 void cuke_args::process_option(std::span<const char*>::iterator it)
 {
