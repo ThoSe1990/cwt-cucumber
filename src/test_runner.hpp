@@ -215,17 +215,9 @@ class test_runner
   {
   }
 
-  static void setup()
-  {
-    internal::get_runtime_options().skip_scenario(false);
-    cuke::registry().run_hook_before_all();
-  }
+  static void setup() { cuke::registry().run_hook_before_all(); }
 
-  static void teardown()
-  {
-    internal::get_runtime_options().skip_scenario(false);
-    cuke::registry().run_hook_after_all();
-  }
+  static void teardown() { cuke::registry().run_hook_after_all(); }
 
   void set_quiet()
   {
