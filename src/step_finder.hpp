@@ -3,6 +3,7 @@
 #include <string_view>
 #include <algorithm>
 
+#include "token.hpp"
 #include "value.hpp"
 #include "table.hpp"
 
@@ -26,6 +27,9 @@ class step_finder
         first, last, [this](const cuke::internal::step& s)
         { return step_matches(s.regex_string(), s.var_types()); });
   }
+
+ private:
+  void push_value(const std::string& value, token_type type);
 
  private:
   std::string m_feature_string;
