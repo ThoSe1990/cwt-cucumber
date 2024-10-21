@@ -7,6 +7,9 @@
 #include <stdexcept>
 #include <type_traits>
 
+#include "token.hpp"
+#include "util_regex.hpp"
+
 namespace cuke
 {
 /**
@@ -361,13 +364,22 @@ class step
   step(step_callback cb, const std::string& definition)
       : m_callback(cb), m_definition(definition)
   {
+    std::tie(m_regex_definition, m_types) =
+        create_regex_definition(m_definition);
   }
   const std::string& definition() const noexcept { return m_definition; }
+  const std::string& regex_string() const noexcept
+  {
+    return m_regex_definition;
+  }
+  const std::vector<token_type>& var_types() const noexcept { return m_types; }
   void call(const value_array& values) const { m_callback(values); }
 
  private:
   step_callback m_callback;
   std::string m_definition;
+  std::string m_regex_definition;
+  std::vector<token_type> m_types;
 };
 
 }  // namespace cuke::internal

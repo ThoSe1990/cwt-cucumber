@@ -18,12 +18,12 @@ step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
 {
 }
 cuke::value_array& step_finder::values() noexcept { return m_values; }
-bool step_finder::step_matches(std::string_view defined_step)
+bool step_finder::step_matches(const std::string& pattern,
+                               const std::vector<token_type>& types)
 {
   bool found = false;
   {
-    auto [pattern, types] = create_regex_definition(defined_step);
-    pattern = "^" + pattern + "$";
+    // auto [pattern, types] = create_regex_definition(defined_step);
     std::regex regex_pattern(pattern);
     std::smatch match;
     std::string text = m_feature_string;
