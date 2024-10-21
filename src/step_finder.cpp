@@ -1,4 +1,5 @@
 #include <regex>
+#include <algorithm>
 #include <string_view>
 
 #include "step_finder.hpp"
@@ -10,26 +11,48 @@
 namespace cuke::internal
 {
 
+namespace
+{
+
+struct regex_conversion
+{
+  std::string_view key;
+  std::string_view pattern;
+  token_type type;
+};
+
+constexpr const static std::array<regex_conversion, 9> conversions = {{
+    {"{byte}", "(-?\\d+|<[^>]+>)", token_type::parameter_byte},
+    {"{int}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
+    {"{short}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
+    {"{long}", "(-?\\d+|<[^>]+>)", token_type::parameter_long},
+    {"{float}", "(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_float},
+    {"{double}", "(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_double},
+    {"{word}", "([^\\s<]+|<[^>]+>)", token_type::parameter_word},
+    {"{string}", "(\"[^\"]*\"|<[^>]+>)", token_type::parameter_string},
+    {"{}", "(.+|<[^>]+>)", token_type::parameter_anonymous},
+}};
+
+constexpr static const regex_conversion& get_regex_conversion(
+    std::string_view key)
+{
+  auto it = std::find_if(conversions.begin(), conversions.end(),
+                         [&key](const regex_conversion& conversion)
+                         { return conversion.key == key; });
+
+  if (it != conversions.end())
+  {
+    return (*it);
+  }
+
+  throw std::runtime_error("Conversion not found");
+}
+
 std::pair<std::string, std::vector<token_type>> create_regex_definition(
     std::string_view input)
 {
   std::string result;
   result.reserve(input.size());  // Reserve space for efficiency
-
-  const std::unordered_map<std::string, std::pair<std::string, token_type>>
-      conversions = {
-          {"{byte}", {"(-?\\d+|<[^>]+>)", token_type::parameter_byte}},
-          {"{int}", {"(-?\\d+|<[^>]+>)", token_type::parameter_int}},
-          {"{short}", {"(-?\\d+|<[^>]+>)", token_type::parameter_int}},
-          {"{long}", {"(-?\\d+|<[^>]+>)", token_type::parameter_long}},
-          {"{float}",
-           {"(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_float}},
-          {"{double}",
-           {"(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_double}},
-          {"{word}", {"([^\\s<]+|<[^>]+>)", token_type::parameter_word}},
-          {"{string}", {"(\"[^\"]*\"|<[^>]+>)", token_type::parameter_string}},
-          {"{}", {"(.+|<[^>]+>)", token_type::parameter_anonymous}},
-      };
 
   std::vector<token_type> types;
 
@@ -38,30 +61,25 @@ std::pair<std::string, std::vector<token_type>> create_regex_definition(
   {
     if (input[i] == '{')
     {
-      // Check if we have a placeholder
       size_t end = input.find('}', i);
       if (end != std::string::npos)
       {
         std::string placeholder(input.substr(i, end - i + 1));
-        auto it = conversions.find(placeholder);
-        if (it != conversions.end())
-        {
-          // Replace with regex pattern
-          result += it->second.first;  // Add the regex pattern to the result
-          types.push_back(
-              it->second.second);  // Add the corresponding token_type
-          i = end + 1;             // Move past the closing bracket
-          continue;                // Skip the default processing
-        }
+        const auto& conversion = get_regex_conversion(placeholder);
+        result += conversion.pattern;
+        types.push_back(conversion.type);
+        i = end + 1;
+        continue;
       }
     }
-    // If not a placeholder, just copy the character
     result += input[i];
     ++i;
   }
 
   return {result, types};
 }
+
+}  // namespace
 
 step_finder::step_finder(std::string_view feature) : m_feature_string(feature)
 {
