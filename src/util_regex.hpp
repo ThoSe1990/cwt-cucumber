@@ -4,6 +4,7 @@
 
 #include <array>
 #include <vector>
+#include <algorithm>
 #include <unordered_set>
 
 namespace cuke::internal
