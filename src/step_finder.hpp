@@ -4,7 +4,6 @@
 #include <algorithm>
 
 #include "value.hpp"
-#include "scanner.hpp"
 #include "table.hpp"
 
 namespace cuke::internal
@@ -27,20 +26,6 @@ class step_finder
   }
 
  private:
-  [[nodiscard]] bool parameter_matches_value(token_type parameter,
-                                             token_type value);
-  [[nodiscard]] bool is_parameter(token_type parameter);
-  [[nodiscard]] bool is_at_end(const token& t);
-  [[nodiscard]] bool is_not_equal(const token& lhs, const token& rhs);
-  [[nodiscard]] std::pair<token, token> next();
-  [[nodiscard]] cuke::value create_table();
-  [[nodiscard]] cuke::value make_word_parameter(const token begin);
-  [[nodiscard]] token next_feature_token(const token& defined);
-  void skip_linebreaks();
-
- private:
-  scanner m_defined{""};
-  scanner m_feature{""};
   std::string m_feature_string;
   cuke::table::row m_hash_row;
   cuke::value_array m_values;
