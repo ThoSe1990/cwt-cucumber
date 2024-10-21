@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tags aren't ineherited correctly, when using tag expression ([35](https://github.com/ThoSe1990/cwt-cucumber/pull/35))
 - Integer and floating point types overwrite `{word}` and `{}` in examples table ([40](https://github.com/ThoSe1990/cwt-cucumber/pull/40))
 
+### Changed 
+- cuke::value::to_string uses now std::format instead of std::to_string ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+
 ## [2.2.0] 2024-10-16
 
 ### Added 

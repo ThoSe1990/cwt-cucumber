@@ -271,6 +271,6 @@ TEST_F(run_scenarios_4, floating_points_as_string)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
 
-  EXPECT_TRUE(word_value.starts_with("3.12"));
-  EXPECT_TRUE(anonymous_value.starts_with("-999.99"));
+  EXPECT_EQ(word_value, "3.12");
+  EXPECT_EQ(anonymous_value, "-999.99");
 }

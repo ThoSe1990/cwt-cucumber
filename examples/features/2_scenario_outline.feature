@@ -17,5 +17,5 @@ Feature: My first feature
     Then They will match <expected_word> and <expected_anonymous>
     
     Examples:
-      | word  | anonymous | expected_word | expected_anonymous |
-      | 123   | 999       | "123"         | "999"              | 
+      | word      | anonymous | expected_word | expected_anonymous |
+      | 123.123   | -999.9999 | "123.123"     | "-999.9999"        | 

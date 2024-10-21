@@ -260,13 +260,13 @@ class value
     switch (m_type)
     {
       case value_type::integral:
-        return std::to_string(copy_as<long>());
+        return std::format("{}", copy_as<long>());
       case value_type::_double:
-        return std::to_string(copy_as<double>());
+        return std::format("{}", copy_as<double>());
       case value_type::floating:
-        return std::to_string(copy_as<float>());
+        return std::format("{}", copy_as<float>());
       case value_type::boolean:
-        return std::to_string(copy_as<bool>());
+        return std::format("{}", copy_as<bool>());
       case value_type::string:
         return copy_as<std::string>();
       case value_type::string_array:

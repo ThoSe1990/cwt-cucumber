@@ -171,17 +171,17 @@ TEST(value, to_string_integral)
 TEST(value, to_string_floating)
 {
   cuke::value v(55.55f);
-  EXPECT_EQ(v.to_string(), std::to_string(55.55f));
+  EXPECT_EQ(v.to_string(), std::string("55.55"));
 }
 TEST(value, to_string_double)
 {
   cuke::value v(55.55);
-  EXPECT_EQ(v.to_string(), std::to_string(55.55));
+  EXPECT_EQ(v.to_string(), std::string("55.55"));
 }
 TEST(value, to_string_bool)
 {
   cuke::value v(true);
-  EXPECT_EQ(v.to_string(), std::string("1"));
+  EXPECT_EQ(v.to_string(), std::string("true"));
 }
 TEST(value, to_string_string)
 {
