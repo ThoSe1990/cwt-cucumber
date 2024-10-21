@@ -279,3 +279,53 @@ TEST(step_finder, variable_and_long)
   EXPECT_EQ(sf.values()[0].as<long>(), 99);
   EXPECT_EQ(sf.values()[1].as<int>(), 123);
 }
+TEST(step_finder, anonymous_placeholder)
+{
+  EXPECT_TRUE(step_finder("helLO !@#$%^&*())_{}[]").step_matches("{}"));
+}
+TEST(step_finder, anonymous_in_step_as_number)
+{
+  step_finder sf("step with 15");
+  ASSERT_TRUE(sf.step_matches("step with {}"));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<std::string>(), std::string("15"));
+}
+TEST(step_finder, anonymous_in_step_trailing_wo_whitespace)
+{
+  step_finder sf("step withtrailingCharsHere");
+  ASSERT_TRUE(sf.step_matches("step with{}"));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<std::string>(),
+            std::string("trailingCharsHere"));
+}
+TEST(step_finder, anonymous_in_sequence)
+{
+  step_finder sf("step with something here and here");
+  ASSERT_TRUE(sf.step_matches("step with {} {}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).as<std::string>(),
+            std::string("something here and"));
+  EXPECT_EQ(sf.values().at(1).as<std::string>(), std::string("here"));
+}
+TEST(step_finder, anonymous_in_step_with_variable)
+{
+  cuke::value_array data{cuke::value(std::string("value")),
+                         cuke::value(std::string("99"))};
+  cuke::table t(data, 1);
+
+  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  ASSERT_TRUE(sf.step_matches("A Step with a {} and an {int}"));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("99"));
+  EXPECT_EQ(sf.values()[1].as<int>(), 123);
+}
+TEST(step_finder, anonymous_between_int_and_word)
+{
+  step_finder sf("step with 123 some blalba nonsense !@#$%^&* and a word");
+  ASSERT_TRUE(sf.step_matches("step with {int} {} {word}"));
+  ASSERT_EQ(sf.values().size(), 3);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 123);
+  EXPECT_EQ(sf.values().at(1).as<std::string>(),
+            std::string("some blalba nonsense !@#$%^&* and a"));
+  EXPECT_EQ(sf.values().at(2).as<std::string>(), std::string("word"));
+}

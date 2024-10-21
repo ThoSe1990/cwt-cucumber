@@ -20,7 +20,8 @@ enum class value_type
   float_,
   double_,
   word,
-  string
+  string,
+  anonymous
 };
 std::pair<std::string, std::vector<value_type>> create_regex_definition(
     std::string_view input)
@@ -38,6 +39,7 @@ std::pair<std::string, std::vector<value_type>> create_regex_definition(
           {"{double}", {"(-?\\d*\\.?\\d+|<[^>]+>)", value_type::double_}},
           {"{word}", {"([^\\s<]+|<[^>]+>)", value_type::word}},
           {"{string}", {"(\"[^\"]*\"|<[^>]+>)", value_type::string}},
+          {"{}", {"(.+|<[^>]+>)", value_type::anonymous}},
       };
 
   std::vector<value_type> types;
@@ -139,6 +141,7 @@ bool step_finder::step_matches(std::string_view defined_step)
             m_values.push_back(cuke::value(double_value));
           }
           break;
+          case value_type::anonymous:
           case value_type::word:
             m_values.push_back(cuke::value(value));
             break;
