@@ -2,14 +2,12 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <iterator>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <chrono>
 #include <thread>
-#include <unordered_set>
 
 #include "ast.hpp"
 #include "registry.hpp"
@@ -17,6 +15,7 @@
 #include "test_results.hpp"
 #include "util.hpp"
 #include "context.hpp"
+#include "options.hpp"
 
 namespace cuke
 {
@@ -24,6 +23,11 @@ namespace cuke
 [[nodiscard]] static bool skip_scenario(const std::vector<std::size_t> lines,
                                         std::size_t line)
 {
+  if (internal::get_runtime_options().skip_scenario())
+  {
+    internal::get_runtime_options().skip_scenario(false);
+    return true;
+  }
   if (lines.empty())
   {
     return false;
@@ -104,11 +108,11 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
     results::steps_back().status = results::test_status::undefined;
   }
   update_step_status();
-  
+
   if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
   {
     auto delay = std::stoi(env_p);
-    std::this_thread::sleep_for( std::chrono::milliseconds(delay));
+    std::this_thread::sleep_for(std::chrono::milliseconds(delay));
   }
 }
 
@@ -210,16 +214,10 @@ class test_runner
       : m_lines(lines), m_tag_expression(tag_expression)
   {
   }
-  
-  static void setup() 
-  {
-    cuke::registry().run_hook_before_all();
-  }
 
-  static void teardown() 
-  {
-    cuke::registry().run_hook_after_all();
-  }
+  static void setup() { cuke::registry().run_hook_before_all(); }
+
+  static void teardown() { cuke::registry().run_hook_after_all(); }
 
   void set_quiet()
   {
@@ -239,6 +237,7 @@ class test_runner
   void visit(const cuke::ast::scenario_node& scenario)
   {
     push_tags(scenario.tags());
+    cuke::registry().run_hook_before(m_tags.container);
     results::new_scenario();
     if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
     {
@@ -247,14 +246,13 @@ class test_runner
       return;
     }
     m_printer->print(scenario);
-    cuke::registry().run_hook_before(scenario.tags());
     run_background();
     for (const cuke::ast::step_node& step : scenario.steps())
     {
       execute_step(step);
       m_printer->print(step, results::steps_back().status);
     }
-    cuke::registry().run_hook_after(scenario.tags());
+    cuke::registry().run_hook_after(m_tags.container);
     update_scenario_status(scenario.name(), scenario.file(), scenario.line());
     cuke::internal::reset_context();
     m_printer->println();
@@ -266,7 +264,7 @@ class test_runner
     for (const cuke::ast::example_node& example : scenario_outline.examples())
     {
       push_tags(example.tags());
-      if (!tags_valid()) 
+      if (!tags_valid())
       {
         pop_tags();
         continue;
@@ -275,13 +273,13 @@ class test_runner
       {
         results::new_scenario();
         std::size_t row_file_line = example.line_table_begin() + row;
+        cuke::registry().run_hook_before(m_tags.container);
         if (skip_scenario(m_lines, row_file_line))
         {
           results::scenarios_back().status = results::test_status::skipped;
           continue;
         }
         m_printer->print(scenario_outline);
-        cuke::registry().run_hook_before(scenario_outline.tags());
         run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
@@ -289,7 +287,7 @@ class test_runner
           m_printer->print(step, results::steps_back().status);
         }
         m_printer->print(example, row);
-        cuke::registry().run_hook_after(scenario_outline.tags());
+        cuke::registry().run_hook_after(m_tags.container);
         update_scenario_status(scenario_outline.name(), scenario_outline.file(),
                                row_file_line);
         cuke::internal::reset_context();
@@ -299,11 +297,12 @@ class test_runner
     }
     pop_tags();
   }
-  void clear_tags() noexcept 
+  void clear_tags() noexcept
   {
     m_tags.container.clear();
     m_tags.count_per_instance.clear();
   }
+
  private:
   void run_background() const noexcept
   {
@@ -331,39 +330,43 @@ class test_runner
   {
     return m_background != nullptr;
   }
-  void push_tags(const std::vector<std::string>& new_tags) 
+  void push_tags(const std::vector<std::string>& new_tags)
   {
     // NOTE: Usually we don't deal with too many tags so to keep things simple,
-    // I decided for this single push backs ... 
+    // I decided for this single push backs ...
     std::size_t inserted = 0;
-    for (const auto& tag : new_tags) 
+    for (const auto& tag : new_tags)
     {
-      if (std::find(m_tags.container.begin(), m_tags.container.end(), tag) == m_tags.container.end()) 
+      if (std::find(m_tags.container.begin(), m_tags.container.end(), tag) ==
+          m_tags.container.end())
       {
-        m_tags.container.push_back(tag); 
-        ++inserted; 
+        m_tags.container.push_back(tag);
+        ++inserted;
       }
     }
     m_tags.count_per_instance.push_back(inserted);
   }
-  void pop_tags() 
+  void pop_tags()
   {
     const std::size_t count = m_tags.count_per_instance.back();
     m_tags.count_per_instance.pop_back();
     if (count > 0)
     {
-      m_tags.container.erase(m_tags.container.end() - count, m_tags.container.end());
-    } 
+      m_tags.container.erase(m_tags.container.end() - count,
+                             m_tags.container.end());
+    }
   }
+
  private:
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
   const internal::tag_expression* m_tag_expression = nullptr;
   std::vector<std::size_t> m_lines;
-  struct {
-    std::vector<std::string> container; 
-    std::vector<std::size_t> count_per_instance; 
+  struct
+  {
+    std::vector<std::string> container;
+    std::vector<std::size_t> count_per_instance;
   } m_tags;
 };
 

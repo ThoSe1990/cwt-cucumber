@@ -47,6 +47,19 @@ class cuke_args
 
 namespace internal
 {
+
+class runtime_options
+{
+ public:
+  [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
+  void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
+
+ private:
+  bool m_skip_scenario{false};
+};
+
+runtime_options& get_runtime_options();
+
 static void do_print_help();
 [[nodiscard]] static bool print_help(int argc, const char* argv[])
 {
@@ -97,5 +110,7 @@ static void do_print_help()
   println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
 }  // namespace internal
+
+void skip_scenario();
 
 }  // namespace cuke

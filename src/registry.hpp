@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+
 #include "value.hpp"
 #include "hooks.hpp"
 
@@ -8,23 +9,24 @@ namespace cuke
 {
 namespace internal
 {
-  template<typename Hook> 
-  static void run_hook(const std::vector<Hook>& hooks)
-  {
-    std::for_each(hooks.begin(), hooks.end(), [](const auto& h){
-        h.call();
-    });
-  }
-  template<typename Hook> 
-  static void run_hook(const std::vector<Hook>& hooks, const std::vector<std::string>& tags)
-  {
-    std::for_each(hooks.begin(), hooks.end(), [&tags](const auto& h){
-      if (h.valid_tag(tags)) 
-      {
-        h.call();
-      }
-    });
-  }
+template <typename Hook>
+static void run_hook(const std::vector<Hook>& hooks)
+{
+  std::for_each(hooks.begin(), hooks.end(), [](const auto& h) { h.call(); });
+}
+template <typename Hook>
+static void run_hook(const std::vector<Hook>& hooks,
+                     const std::vector<std::string>& tags)
+{
+  std::for_each(hooks.begin(), hooks.end(),
+                [&tags](const auto& h)
+                {
+                  if (h.valid_tag(tags))
+                  {
+                    h.call();
+                  }
+                });
+}
 class registry
 {
  public:
@@ -49,7 +51,7 @@ class registry
   {
     m_hooks.before.push_back(h);
   }
-  
+
   [[nodiscard]] const std::vector<internal::hook>& hooks_before() const noexcept
   {
     return m_hooks.before;
@@ -67,7 +69,8 @@ class registry
   {
     m_hooks.after_all.push_back(h);
   }
-  [[nodiscard]] const std::vector<internal::hook>& hooks_after_all() const noexcept
+  [[nodiscard]] const std::vector<internal::hook>& hooks_after_all()
+      const noexcept
   {
     return m_hooks.after_all;
   }
@@ -75,7 +78,8 @@ class registry
   {
     m_hooks.before_all.push_back(h);
   }
-  [[nodiscard]] const std::vector<internal::hook>& hooks_before_all() const noexcept
+  [[nodiscard]] const std::vector<internal::hook>& hooks_before_all()
+      const noexcept
   {
     return m_hooks.before_all;
   }
@@ -107,22 +111,11 @@ class registry
   {
     run_hook(m_hooks.after, tags);
   }
-  void run_hook_before_step() const noexcept
-  {
-    run_hook(m_hooks.before_step);
-  }
-  void run_hook_after_step() const noexcept
-  {
-    run_hook(m_hooks.after_step);
-  }
-  void run_hook_before_all() const noexcept
-  {
-    run_hook(m_hooks.before_all);
-  }
-  void run_hook_after_all() const noexcept
-  {
-    run_hook(m_hooks.after_all);
-  }
+  void run_hook_before_step() const noexcept { run_hook(m_hooks.before_step); }
+  void run_hook_after_step() const noexcept { run_hook(m_hooks.after_step); }
+  void run_hook_before_all() const noexcept { run_hook(m_hooks.before_all); }
+  void run_hook_after_all() const noexcept { run_hook(m_hooks.after_all); }
+
  private:
   std::vector<internal::step> m_steps;
   struct
