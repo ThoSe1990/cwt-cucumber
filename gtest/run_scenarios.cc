@@ -190,3 +190,87 @@ TEST_F(run_scenarios_3, scenario_outline_w_background)
   p.for_each_scenario(runner);
   EXPECT_EQ(call_count, 6);
 }
+
+class run_scenarios_4 : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    word_value = "";
+    anonymous_value = "";
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step(
+        [](const cuke::value_array& values)
+        {
+          ASSERT_EQ(values.size(), 2);
+          ASSERT_EQ(values.at(0).type(), cuke::value_type::string);
+          ASSERT_EQ(values.at(1).type(), cuke::value_type::string);
+          word_value = values.at(0).as<std::string>();
+          anonymous_value = values.at(1).as<std::string>();
+        },
+        "a step with {word} and {}"));
+  }
+  static std::string word_value;
+  static std::string anonymous_value;
+};
+std::string run_scenarios_4::word_value = "";
+std::string run_scenarios_4::anonymous_value = "";
+
+TEST_F(run_scenarios_4, integer_values_as_string)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <word> and <anonymous> 
+    Examples: 
+      | word | anonymous |
+      | 123  | 999       |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  EXPECT_EQ(word_value, "123");
+  EXPECT_EQ(anonymous_value, "999");
+}
+TEST_F(run_scenarios_4, negative_integers_as_string)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <word> and <anonymous> 
+    Examples: 
+      | word | anonymous |
+      | -123 | -999      |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  EXPECT_EQ(word_value, "-123");
+  EXPECT_EQ(anonymous_value, "-999");
+}
+TEST_F(run_scenarios_4, floating_points_as_string)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <word> and <anonymous> 
+    Examples: 
+      | word | anonymous |
+      | 3.12 | -999.99   |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_TRUE(word_value.starts_with("3.12"));
+  EXPECT_TRUE(anonymous_value.starts_with("-999.99"));
+}
