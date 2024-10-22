@@ -18,8 +18,7 @@ step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
 {
 }
 cuke::value_array& step_finder::values() noexcept { return m_values; }
-bool step_finder::step_matches(const std::string& pattern,
-                               const std::vector<token_type>& types)
+bool step_finder::step_matches(const std::string& pattern)
 {
   bool found = false;
   {

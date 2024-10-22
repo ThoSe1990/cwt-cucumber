@@ -139,7 +139,7 @@ class step
   step(step_callback cb, const std::string& definition)
       : m_callback(cb), m_definition(definition)
   {
-    std::tie(m_regex_definition, m_types) =
+    m_regex_definition =
         create_regex_definition(add_escape_chars(m_definition));
   }
   const std::string& definition() const noexcept { return m_definition; }
@@ -147,7 +147,6 @@ class step
   {
     return m_regex_definition;
   }
-  const std::vector<token_type>& var_types() const noexcept { return m_types; }
   void call(const value_array& values,
             const std::vector<std::string>& doc_string, const table& t) const
   {
@@ -158,7 +157,6 @@ class step
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
-  std::vector<token_type> m_types;
 };
 
 }  // namespace cuke::internal
