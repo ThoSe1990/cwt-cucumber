@@ -30,6 +30,8 @@ Tested compilers: GCC 13, Clang17 and MSVC 19
 Full documentation: https://those1990.github.io/cwt-cucumber-docs  
 Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
 
+Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
+
 ## Getting Started
 
 Let us start with Cucumber. First of all build the project on your machine with CMake (you can use the Docker from this directory if you want): 
