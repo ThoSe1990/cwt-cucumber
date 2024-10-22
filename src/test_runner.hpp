@@ -12,6 +12,7 @@
 #include "ast.hpp"
 #include "registry.hpp"
 #include "step_finder.hpp"
+#include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
 #include "context.hpp"
@@ -139,12 +140,13 @@ class stdout_interface
       const cuke::ast::scenario_outline_node& scenario_outline) const noexcept
   {
   }
-  virtual void print(const cuke::ast::example_node& example,
-                     std::size_t row) const noexcept
+  virtual void print(const cuke::ast::step_node& step,
+                     results::test_status status) const noexcept
   {
   }
   virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status) const noexcept
+                     results::test_status status,
+                     const table::row& row) const noexcept
   {
   }
 };
@@ -170,13 +172,16 @@ class cuke_printer : public stdout_interface
     internal::print(scenario_outline.keyword(), ' ', scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
-  void print(const cuke::ast::example_node& example,
-             std::size_t row) const noexcept override
+  void print(const cuke::ast::step_node& step, results::test_status status,
+             const table::row& row) const noexcept override
   {
-    internal::println("  With Examples:");
-    auto table_strings = example.table().to_string_array();
-    internal::println("  ", table_strings[0]);
-    internal::println("  ", table_strings[row]);
+    const std::string step_w_example_variables =
+        internal::replace_variables(step.name(), row);
+    internal::print(internal::to_color(status), internal::step_prefix(status),
+                    step.keyword(), ' ', step_w_example_variables);
+    details::print_file_line(step);
+    print_doc_string(step);
+    print_table(step);
   }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
@@ -184,6 +189,11 @@ class cuke_printer : public stdout_interface
     internal::print(internal::to_color(status), internal::step_prefix(status),
                     step.keyword(), ' ', step.name());
     details::print_file_line(step);
+    print_doc_string(step);
+    print_table(step);
+  }
+  void print_doc_string(const cuke::ast::step_node& step) const noexcept
+  {
     step.if_has_doc_string_do(
         [](const std::vector<std::string>& doc_string)
         {
@@ -194,6 +204,9 @@ class cuke_printer : public stdout_interface
           }
           internal::println("\"\"\"");
         });
+  }
+  void print_table(const cuke::ast::step_node& step) const noexcept
+  {
     step.if_has_table_do(
         [](const cuke::table& t)
         {
@@ -285,9 +298,9 @@ class test_runner
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
-          m_printer->print(step, results::steps_back().status);
+          m_printer->print(step, results::steps_back().status,
+                           example.table().hash_row(row));
         }
-        m_printer->print(example, row);
         cuke::registry().run_hook_after(m_tags.container);
         update_scenario_status(scenario_outline.name(), scenario_outline.file(),
                                row_file_line);
