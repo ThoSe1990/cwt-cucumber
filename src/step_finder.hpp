@@ -29,9 +29,6 @@ class step_finder
   }
 
  private:
-  void push_value(const std::string& value, token_type type);
-
- private:
   std::string m_feature_string;
   cuke::table::row m_hash_row;
   cuke::value_array m_values;

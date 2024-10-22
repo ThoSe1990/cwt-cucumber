@@ -16,7 +16,7 @@ class hooks_before : public ::testing::Test
         cuke::internal::hook([]() { hook_called = true; }));
 
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&)
+        [](const cuke::value_array&, const auto&, const auto&)
         {
           ASSERT_TRUE(hook_called);
           step_called = true;
@@ -58,7 +58,7 @@ class hooks_after : public ::testing::Test
         cuke::internal::hook([]() { hook_called = true; }));
 
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&)
+        [](const cuke::value_array&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);
           step_called = true;
@@ -99,7 +99,7 @@ class hooks_after_tagged : public ::testing::Test
         cuke::internal::hook([]() { hook_called = true; }, "@tag"));
 
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&)
+        [](const cuke::value_array&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);
           step_called = true;
@@ -159,7 +159,7 @@ class hooks_before_all : public ::testing::Test
         cuke::internal::hook([]() { hook_called = true; }));
 
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&)
+        [](const cuke::value_array&, const auto&, const auto&)
         {
           ASSERT_TRUE(hook_called);
           step_called = true;
@@ -206,7 +206,7 @@ class hooks_after_all : public ::testing::Test
         cuke::internal::hook([]() { hook_called = true; }));
 
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&)
+        [](const cuke::value_array&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);
           step_called = true;
@@ -226,7 +226,7 @@ TEST_F(hooks_after_all, run_scenario)
     Scenario: First Scenario 
     Given a step 
   )*";
-  
+
   cuke::parser p;
   p.parse_script(script);
 

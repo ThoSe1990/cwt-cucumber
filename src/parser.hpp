@@ -114,24 +114,18 @@ template <typename... Ts>
 
 [[nodiscard]] static cuke::value parse_cell(lexer& lex)
 {
-  bool negative = lex.match(token_type::minus);
   token begin = lex.current();
+  [[maybe_unused]] bool negative = lex.match(token_type::minus);
 
   std::size_t count = advance_to_cell_end(lex);
 
-  if (count == 1)
-  {
-    return cuke::value(token_to_value(lex.previous(), negative));
-  }
-  else if (count > 1)
+  if (count > 0)
   {
     return cuke::value(create_string(begin, lex.previous()));
   }
-  else
-  {
-    lex.error_at(lex.current(), "Expect value in table cell");
-    return {};
-  }
+
+  lex.error_at(lex.current(), "Expect value in table cell");
+  return {};
 }
 
 [[nodiscard]] static cuke::value_array parse_row(lexer& lex)
@@ -325,10 +319,7 @@ class parser
 
   [[nodiscard]] bool error() const noexcept { return m_error; }
 
-  void parse_from_file(const feature_file& file)
-  {
-    parse_from_file(file.path);
-  }
+  void parse_from_file(const feature_file& file) { parse_from_file(file.path); }
 
   void parse_from_file(std::string_view filepath)
   {

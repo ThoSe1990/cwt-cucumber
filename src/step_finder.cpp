@@ -23,7 +23,6 @@ bool step_finder::step_matches(const std::string& pattern,
 {
   bool found = false;
   {
-    // auto [pattern, types] = create_regex_definition(defined_step);
     std::regex regex_pattern(pattern);
     std::smatch match;
     std::string text = m_feature_string;
@@ -39,12 +38,12 @@ bool step_finder::step_matches(const std::string& pattern,
         const std::string& value = match[i];
         if (match[i].str()[0] == '<')
         {
-          push_value(m_hash_row[value.substr(1, value.size() - 2)].to_string(),
-                     types[i - 1]);
+          m_values.push_back(
+              m_hash_row[value.substr(1, value.size() - 2)].to_string());
         }
         else
         {
-          push_value(value, types[i - 1]);
+          m_values.push_back(value);
         }
       }
       text = match.suffix().str();
@@ -53,51 +52,4 @@ bool step_finder::step_matches(const std::string& pattern,
   return found;
 }
 
-void step_finder::push_value(const std::string& value, token_type type)
-{
-  switch (type)
-  {
-    case token_type::parameter_byte:
-    case token_type::parameter_short:
-    case token_type::parameter_int:
-    case token_type::parameter_long:
-    {
-      long long_value = std::stol(value);
-      m_values.push_back(cuke::value(long_value));
-    }
-    break;
-    case token_type::parameter_float:
-    {
-      float float_value = std::stof(value);
-      m_values.push_back(cuke::value(float_value));
-    }
-    break;
-    case token_type::parameter_double:
-    {
-      double double_value = std::stod(value);
-      m_values.push_back(cuke::value(double_value));
-    }
-    break;
-    case token_type::parameter_anonymous:
-    case token_type::parameter_word:
-      m_values.push_back(cuke::value(value));
-      break;
-    case token_type::parameter_string:
-    {
-      if (value[0] == '"' && value[value.size() - 1] == '"')
-      {
-        m_values.push_back(cuke::value(value.substr(1, value.size() - 2)));
-      }
-      else
-      {
-        m_values.push_back(cuke::value(value));
-      }
-    }
-    break;
-    default:
-      println(color::red,
-              std::format("step_finder: Can not convert {} to a cuke::value",
-                          value));
-  }
-}
 }  // namespace cuke::internal

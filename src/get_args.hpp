@@ -1,37 +1,9 @@
 #pragma once
 
-#include <type_traits>
 #include "value.hpp"
 
 namespace cuke::internal
 {
-
-template <typename T, typename = void>
-struct conversion_impl
-{
-};
-
-template <typename T>
-class has_conversion
-{
-  using one = char;
-  struct two
-  {
-    char x[2];
-  };
-
-  template <typename C>
-  static one test(decltype(&C::get_arg));
-  template <typename C>
-  static two test(...);
-
- public:
-  static constexpr bool value = sizeof(test<T>(0)) == sizeof(char);
-};
-
-template <typename T>
-static constexpr bool has_conversion_v =
-    has_conversion<conversion_impl<T>>::value;
 
 struct conversion
 {
@@ -42,8 +14,7 @@ struct conversion
   template <typename T>
   operator T() const
   {
-    static_assert(has_conversion_v<T>, "conversion to T not supported");
-    return conversion_impl<T>::get_arg(v, file, line);
+    return v.as<T>();
   }
 };
 
@@ -62,139 +33,30 @@ inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
   }
 }
 
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
+class string_or_vector
 {
-  static T get_arg(const cuke::value& v, std::string_view file,
-                   std::size_t line)
-  {
-    static_assert(
-        !std::is_same_v<T, long long>,
-        "Value access: long long is not supported. Underlying type is long");
-    static_assert(
-        !std::is_same_v<T, unsigned long long>,
-        "Value access: long long is not supported. Underlying type is long");
-    if (v.type() == cuke::value_type::integral)
-    {
-      return v.copy_as<T>();
-    }
-    else
-    {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not an integral type", file, line));
-    }
-  }
-};
+ public:
+  string_or_vector(const std::vector<std::string>& data) : m_data(data) {}
 
-template <>
-struct conversion_impl<std::size_t>
-{
-  static std::size_t get_arg(const cuke::value& v, std::string_view file,
-                             std::size_t line)
+  operator std::string() const
   {
-    if (v.type() == cuke::value_type::integral)
+    std::ostringstream oss;
+    for (const auto& str : m_data)
     {
-      return v.copy_as<unsigned long>();
+      oss << str << ' ';
     }
-    else
+    std::string result = oss.str();
+    if (!result.empty())
     {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not an integral type", file, line));
+      result.pop_back();
     }
+    return result;
   }
-};
 
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
-                                           std::is_same_v<T, double>>>
-{
-  static double get_arg(const cuke::value& v, std::string_view file,
-                        std::size_t line)
-  {
-    if (v.type() == cuke::value_type::_double)
-    {
-      return v.copy_as<double>();
-    }
-    else
-    {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not a double", file, line));
-    }
-  }
-};
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
-                                           std::is_same_v<T, float>>>
-{
-  static float get_arg(const cuke::value& v, std::string_view file,
-                       std::size_t line)
-  {
-    if (v.type() == cuke::value_type::floating)
-    {
-      return v.copy_as<float>();
-    }
-    else
-    {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not a float", file, line));
-    }
-  }
-};
+  operator std::vector<std::string>() const { return m_data; }
 
-template <typename T>
-struct conversion_impl<
-    T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
-                        std::is_convertible_v<T, std::string_view>>>
-{
-  static const std::string get_arg(const cuke::value& v, std::string_view file,
-                                   std::size_t line)
-  {
-    if (v.type() != cuke::value_type::nil)
-    {
-      return v.to_string();
-    }
-    else
-    {
-      throw std::runtime_error(std::format(
-          "{}:{}: Nil value can not be converted to a string", file, line));
-    }
-  }
-};
-template <typename T>
-struct conversion_impl<
-    T, std::enable_if_t<std::is_same_v<T, std::vector<std::string>>>>
-{
-  static const std::vector<std::string>& get_arg(const cuke::value& v,
-                                                 std::string_view file,
-                                                 std::size_t line)
-  {
-    if (v.type() == cuke::value_type::string_array)
-    {
-      return v.as<std::vector<std::string>>();
-    }
-    else
-    {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not a table", file, line));
-    }
-  }
-};
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
-{
-  static const cuke::table& get_arg(const cuke::value& v, std::string_view file,
-                                    std::size_t line)
-  {
-    if (v.type() == cuke::value_type::table)
-    {
-      return *v.as<table_ptr>().get();
-    }
-    else
-    {
-      throw std::runtime_error(
-          std::format("{}:{}: Value is not a table", file, line));
-    }
-  }
+ private:
+  const std::vector<std::string> m_data;
 };
 
 }  // namespace cuke::internal
@@ -212,7 +74,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  */
 
 #define CUKE_ARG(index) \
-  cuke::internal::get_arg(values, index, __FILE__, __LINE__)
+  cuke::internal::get_arg(__cuke__values__, index, __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()
@@ -226,7 +88,8 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  *
  */
 #define CUKE_DOC_STRING() \
-  cuke::internal::get_arg(values, values.size(), __FILE__, __LINE__)
+  cuke::internal::string_or_vector(__cuke__doc__string__)
+
 /**
  * @def CUKE_TABLE()
  * @brief Access a table in a step. Use cuke::table (or const cuke::table&) as
@@ -237,5 +100,4 @@ struct conversion_impl<T, std::enable_if_t<std::is_same_v<T, cuke::table>>>
  * CUKE_ARG(..), with index == last.
  *
  */
-#define CUKE_TABLE() \
-  cuke::internal::get_arg(values, values.size(), __FILE__, __LINE__)
+#define CUKE_TABLE() __cuke__table__

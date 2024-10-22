@@ -12,12 +12,14 @@ class run_scenarios_tags : public ::testing::Test
     test_value = 0;
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&) { run_scenarios_tags::call_count++; },
-        "a step"));
+        [](const cuke::value_array&, const auto&, const auto&)
+        { run_scenarios_tags::call_count++; }, "a step"));
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values) { 
-        run_scenarios_tags::test_value = values.at(0).as<std::size_t>();
-        run_scenarios_tags::call_count++; },
+        [](const cuke::value_array& values, const auto&, const auto&)
+        {
+          run_scenarios_tags::test_value = values.at(0).as<std::size_t>();
+          run_scenarios_tags::call_count++;
+        },
         "a step with {int}"));
   }
 
@@ -62,7 +64,7 @@ TEST_F(run_scenarios_tags, tagged_scenario)
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
 }
- 
+
 TEST_F(run_scenarios_tags, tagged_scenarios_1)
 {
   const char* script = R"*(
@@ -86,7 +88,7 @@ TEST_F(run_scenarios_tags, tagged_scenarios_1)
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_tags::call_count, 0);
 }
- 
+
 TEST_F(run_scenarios_tags, tagged_scenarios_2)
 {
   const char* script = R"*(

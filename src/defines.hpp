@@ -7,20 +7,26 @@
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
-#define _STEP(function_name, step_definition)                      \
-  void function_name(const ::cuke::value_array& values);           \
-  namespace                                                        \
-  {                                                                \
-  struct CONCAT(function_name, _t)                                 \
-  {                                                                \
-    CONCAT(function_name, _t)()                                    \
-    {                                                              \
-      ::cuke::registry().push_step(                                \
-          ::cuke::internal::step(function_name, step_definition)); \
-    }                                                              \
-  } CONCAT(g_, function_name);                                     \
-  }                                                                \
-  void function_name([[maybe_unused]] const ::cuke::value_array& values)
+#define _STEP(function_name, step_definition)                                 \
+  void function_name(                                                         \
+      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
+      [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
+      [[maybe_unused]] const ::cuke::table& __cuke__table__);                 \
+  namespace                                                                   \
+  {                                                                           \
+  struct CONCAT(function_name, _t)                                            \
+  {                                                                           \
+    CONCAT(function_name, _t)()                                               \
+    {                                                                         \
+      ::cuke::registry().push_step(                                           \
+          ::cuke::internal::step(function_name, step_definition));            \
+    }                                                                         \
+  } CONCAT(g_, function_name);                                                \
+  }                                                                           \
+  void function_name(                                                         \
+      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
+      [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
+      [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
 /**
  * @def STEP(function_name, step_definition)
@@ -187,9 +193,7 @@
  */
 #define AFTER_STEP(function_name) _AFTER_STEP(function_name)
 
-
-
-#define _BEFORE_ALL(function_name)               \
+#define _BEFORE_ALL(function_name)                \
   void function_name();                           \
   namespace                                       \
   {                                               \
@@ -197,7 +201,7 @@
   {                                               \
     CONCAT(function_name, _t)()                   \
     {                                             \
-      ::cuke::registry().push_hook_before_all(   \
+      ::cuke::registry().push_hook_before_all(    \
           ::cuke::internal::hook(function_name)); \
     }                                             \
                                                   \
@@ -207,14 +211,14 @@
 
 /**
  * @def BEFORE_ALL(function_name)
- * @brief Creates a hook which is executed before any scenario/feature 
+ * @brief Creates a hook which is executed before any scenario/feature
  *
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
 #define BEFORE_ALL(function_name) _BEFORE_ALL(function_name)
 
-#define _AFTER_ALL(function_name)                \
+#define _AFTER_ALL(function_name)                 \
   void function_name();                           \
   namespace                                       \
   {                                               \
@@ -222,7 +226,7 @@
   {                                               \
     CONCAT(function_name, _t)()                   \
     {                                             \
-      ::cuke::registry().push_hook_after_all(    \
+      ::cuke::registry().push_hook_after_all(     \
           ::cuke::internal::hook(function_name)); \
     }                                             \
                                                   \
@@ -232,7 +236,7 @@
 
 /**
  * @def AFTER_ALL(function_name)
- * @brief Creates a hook which is executed after the test run  
+ * @brief Creates a hook which is executed after the test run
  *
  * @param function_name A unique function name, this function name has no
  * technical impact
