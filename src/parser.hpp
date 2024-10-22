@@ -112,34 +112,34 @@ template <typename... Ts>
   return count;
 }
 
-[[nodiscard]] static cuke::value parse_cell(lexer& lex)
+[[nodiscard]] static cuke::value parse_cell(lexer& lex,
+                                            bool remove_quotes_from_strings)
 {
-  bool negative = lex.match(token_type::minus);
   token begin = lex.current();
 
   std::size_t count = advance_to_cell_end(lex);
 
-  if (count == 1)
-  {
-    return cuke::value(token_to_value(lex.previous(), negative));
-  }
-  else if (count > 1)
-  {
-    return cuke::value(create_string(begin, lex.previous()));
-  }
-  else
+  if (count == 0)
   {
     lex.error_at(lex.current(), "Expect value in table cell");
     return {};
   }
+
+  cuke::value v(create_string(begin, lex.previous()));
+  if (remove_quotes_from_strings)
+  {
+    v.emplace_or_replace(remove_quotes(v.to_string()));
+  }
+  return v;
 }
 
-[[nodiscard]] static cuke::value_array parse_row(lexer& lex)
+[[nodiscard]] static cuke::value_array parse_row(
+    lexer& lex, bool remove_quotes_from_strings)
 {
   cuke::value_array v;
   while (!(lex.match(token_type::linebreak) || lex.match(token_type::eof)))
   {
-    v.push_back(parse_cell(lex));
+    v.push_back(parse_cell(lex, remove_quotes_from_strings));
     if (!lex.match(token_type::vertical))
     {
       v.clear();
@@ -150,18 +150,20 @@ template <typename... Ts>
   return v;
 }
 
-[[nodiscard]] static std::pair<cuke::table, std::size_t> parse_table(lexer& lex)
+[[nodiscard]] static std::pair<cuke::table, std::size_t> parse_table(
+    lexer& lex, bool remove_quotes_from_strings)
 {
   if (!lex.match(token_type::vertical))
   {
     return {};
   }
   std::size_t line_table_begin = lex.current().line;
-  cuke::table t(parse_row(lex));
+  cuke::table t(parse_row(lex, remove_quotes_from_strings));
   lex.skip_linebreaks();
   while (lex.match(token_type::vertical))
   {
-    if (!t.append_row(parse_row(lex)) || lex.error())
+    if (!t.append_row(parse_row(lex, remove_quotes_from_strings)) ||
+        lex.error())
     {
       lex.error_at(lex.current(), "Different row lengths in data table");
       return {};
@@ -180,7 +182,7 @@ template <typename... Ts>
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex);
     std::vector<std::string> doc_string = parse_doc_string(lex);
-    auto [data_table, line_table_begin] = parse_table(lex);
+    auto [data_table, line_table_begin] = parse_table(lex, true);
 
     steps.push_back(cuke::ast::step_node(
         std::move(key), std::move(name), lex.filepath(), line,
@@ -198,7 +200,7 @@ template <typename... Ts>
   auto [keyword, name] = parse_keyword_and_name(lex);
   auto description =
       parse_description(lex, token_type::vertical, token_type::eof);
-  auto [t, line_table_begin] = parse_table(lex);
+  auto [t, line_table_begin] = parse_table(lex, false);
   return cuke::ast::example_node(cuke::ast::example_node(
       std::move(keyword), std::move(name), lex.filepath(), line,
       std::move(tags), std::move(description), std::move(t), line_table_begin));
@@ -325,10 +327,7 @@ class parser
 
   [[nodiscard]] bool error() const noexcept { return m_error; }
 
-  void parse_from_file(const feature_file& file)
-  {
-    parse_from_file(file.path);
-  }
+  void parse_from_file(const feature_file& file) { parse_from_file(file.path); }
 
   void parse_from_file(std::string_view filepath)
   {

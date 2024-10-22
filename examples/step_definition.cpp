@@ -1,5 +1,33 @@
 #include "../src/cucumber.hpp"
+#include "asserts.hpp"
 #include "box.hpp"
+#include "context.hpp"
+#include "defines.hpp"
+#include "get_args.hpp"
+
+struct foo
+{
+  std::string word;
+  std::string anonymous;
+};
+
+WHEN(word_anonymous_given, "A {word} and {}")
+{
+  std::string word = CUKE_ARG(1);
+  cuke::context<foo>().word = word;
+
+  std::string anonymous = CUKE_ARG(2);
+  cuke::context<foo>().anonymous = anonymous;
+}
+
+THEN(word_anonymous_then, "They will match {string} and {string}")
+{
+  std::string expected_word = CUKE_ARG(1);
+  std::string expected_anonymous = CUKE_ARG(2);
+
+  cuke::equal(expected_word, cuke::context<foo>().word);
+  cuke::equal(expected_anonymous, cuke::context<foo>().anonymous);
+}
 
 GIVEN(init_box, "An empty box")
 {
@@ -35,7 +63,7 @@ WHEN(add_table_raw, "I add all items with raw():")
   const cuke::table& t = CUKE_TABLE();
   for (const cuke::table::row& row : t.raw())
   {
-    cuke::context<box>().add_items(row[0].to_string(), row[1].copy_as<long>());
+    cuke::context<box>().add_items(row[0].to_string(), row[1].as<long>());
   }
 }
 WHEN(add_table_hashes, "I add all items with hashes():")

@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tags aren't ineherited correctly, when using tag expression ([35](https://github.com/ThoSe1990/cwt-cucumber/pull/35))
 - Integer and floating point types overwrite `{word}` and `{}` in examples table ([40](https://github.com/ThoSe1990/cwt-cucumber/pull/40))
 
+### Changed 
+- cuke::value::to_string uses now std::format instead of std::to_string ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+- Unquotet strings are onlye for anonymous `{}` possible. Every `{string}` value has to use quotes ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+- Type missmatches (e.g. no quotes on `{string}`) lead to an undefined step ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+- Stdout print in `Scenario Outline`: Values are within the step. Table prefix removed ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+- Internals: ([42](https://github.com/ThoSe1990/cwt-cucumber/pull/42))
+  - Value representation is now a string: the interface in `cuke::value` is replaced with a simple string representation.
+  - Step matching: Introduced regex. Each step is converted into a regex pattern
+  - Scenario Outline: All steps do a search and replace for their variables. 
+
+
 ## [2.2.0] 2024-10-16
 
 ### Added 

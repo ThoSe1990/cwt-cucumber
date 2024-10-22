@@ -28,8 +28,8 @@ class registry_tests : public ::testing::Test
 
 TEST_F(registry_tests, steps)
 {
-  cuke::registry().push_step(
-      cuke::internal::step([](const cuke::value_array&) {}, "a step"));
+  cuke::registry().push_step(cuke::internal::step(
+      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
   EXPECT_EQ(cuke::registry().steps().size(), 1);
 }
 

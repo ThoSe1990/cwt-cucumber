@@ -25,7 +25,7 @@ class step_finder
   {
     return std::find_if(
         first, last, [this](const cuke::internal::step& s)
-        { return step_matches(s.regex_string(), s.var_types()); });
+        { return step_matches(s.regex_string(), s.value_types()); });
   }
 
  private:

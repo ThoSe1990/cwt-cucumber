@@ -122,7 +122,7 @@ TEST(step_finder, step_with_variable)
   cuke::table t(data, 1);
 
   auto [pattern, types] = create_regex_definition("A Step with a {string}");
-  step_finder sf("A Step with a <value>", t.hash_row(1));
+  step_finder sf("A Step with a \"<value>\"", t.hash_row(1));
   ASSERT_TRUE(sf.step_matches(pattern, types));
   ASSERT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
@@ -131,12 +131,12 @@ TEST(step_finder, step_with_variables_1)
 {
   cuke::value_array data{
       cuke::value(std::string("value")), cuke::value(std::string("integer")),
-      cuke::value(std::string("some string value")), cuke::value(int(12))};
+      cuke::value(std::string("some string value")), cuke::value("12")};
   cuke::table t(data, 2);
 
   auto [pattern, types] =
       create_regex_definition("A Step with a {string} and {int}");
-  step_finder sf("A Step with a <value> and <integer>", t.hash_row(1));
+  step_finder sf("A Step with a \"<value>\" and <integer>", t.hash_row(1));
   ASSERT_TRUE(sf.step_matches(pattern, types));
   ASSERT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
@@ -146,12 +146,13 @@ TEST(step_finder, step_with_variables_2)
 {
   cuke::value_array data{
       cuke::value(std::string("value")), cuke::value(std::string("integer")),
-      cuke::value(std::string("some string value")), cuke::value(int(12))};
+      cuke::value(std::string("some string value")), cuke::value("12")};
   cuke::table t(data, 2);
 
   auto [pattern, types] =
       create_regex_definition("A Step with a {string} {string} and {int}");
-  step_finder sf("A Step with a <value> <value> and <integer>", t.hash_row(1));
+  step_finder sf("A Step with a \"<value>\" \"<value>\" and <integer>",
+                 t.hash_row(1));
   ASSERT_TRUE(sf.step_matches(pattern, types));
   ASSERT_EQ(sf.values().size(), 3);
   EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
@@ -298,7 +299,7 @@ TEST(step_finder, variable_and_string)
 
   auto [pattern, types] =
       create_regex_definition("A Step with a {string} and an {int}");
-  step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
+  step_finder sf("A Step with a \"<value>\" and an 123", t.hash_row(1));
   ASSERT_TRUE(sf.step_matches(pattern, types));
   ASSERT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values()[0].as<std::string>(), std::string("some string value"));
@@ -306,7 +307,7 @@ TEST(step_finder, variable_and_string)
 }
 TEST(step_finder, variable_and_byte)
 {
-  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value("99")};
   cuke::table t(data, 1);
 
   auto [pattern, types] =
@@ -319,7 +320,7 @@ TEST(step_finder, variable_and_byte)
 }
 TEST(step_finder, variable_and_short)
 {
-  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value("99")};
   cuke::table t(data, 1);
 
   step_finder sf("A Step with a <value> and an 123", t.hash_row(1));
@@ -332,7 +333,7 @@ TEST(step_finder, variable_and_short)
 }
 TEST(step_finder, variable_and_int)
 {
-  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value("99")};
   cuke::table t(data, 1);
 
   auto [pattern, types] =
@@ -345,7 +346,7 @@ TEST(step_finder, variable_and_int)
 }
 TEST(step_finder, variable_and_long)
 {
-  cuke::value_array data{cuke::value(std::string("value")), cuke::value(99)};
+  cuke::value_array data{cuke::value(std::string("value")), cuke::value("99")};
   cuke::table t(data, 1);
 
   auto [pattern, types] =

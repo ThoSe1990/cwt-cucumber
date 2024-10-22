@@ -11,17 +11,16 @@ cuke::value_array make_matrix(std::size_t dim)
   std::size_t cells = dim * dim;
   for (std::size_t i = 0; i < cells; ++i)
   {
-    values.push_back(cuke::value(i));
+    values.push_back(cuke::value(std::to_string(i)));
   }
   return values;
 }
 
 TEST(table, init_table) { cuke::table t; }
-TEST(table, init_obj_ptr) { table_ptr t = std::make_unique<cuke::table>(); }
 TEST(table, inconsisten_table)
 {
-  cuke::value_array data{cuke::value(1), cuke::value(2), cuke::value(3),
-                         cuke::value(4), cuke::value(5)};
+  cuke::value_array data{cuke::value("1"), cuke::value("2"), cuke::value("3"),
+                         cuke::value("4"), cuke::value("5")};
   EXPECT_THROW({ cuke::table t(data, 2); }, std::runtime_error);
 }
 TEST(table, size)
@@ -87,11 +86,11 @@ TEST(table, hashes)
 
   values.push_back(cuke::value(std::string("Thomas")));
   values.push_back(cuke::value(std::string("Augsburg")));
-  values.push_back(cuke::value(34));
+  values.push_back(cuke::value("34"));
 
   values.push_back(cuke::value(std::string("Theodor")));
   values.push_back(cuke::value(std::string("Wonderland")));
-  values.push_back(cuke::value(999));
+  values.push_back(cuke::value("999"));
 
   cuke::table t(values, 3);
 
@@ -114,15 +113,15 @@ TEST(table, hashes_access_row_failing)
 
   values.push_back(cuke::value(std::string("Thomas")));
   values.push_back(cuke::value(std::string("Augsburg")));
-  values.push_back(cuke::value(34));
+  values.push_back(cuke::value("34"));
 
   values.push_back(cuke::value(std::string("Theodor")));
   values.push_back(cuke::value(std::string("Wonderland")));
-  values.push_back(cuke::value(999));
+  values.push_back(cuke::value("999"));
 
   values.push_back(cuke::value(std::string("Alf")));
   values.push_back(cuke::value(std::string("Melmac")));
-  values.push_back(cuke::value(12));
+  values.push_back(cuke::value("12"));
   cuke::table t(values, 3);
   EXPECT_THROW(
       { [[maybe_unused]] const cuke::table::row& data = t.hash_row(9); },
@@ -137,15 +136,15 @@ TEST(table, hashes_access_row)
 
   values.push_back(cuke::value(std::string("Thomas")));
   values.push_back(cuke::value(std::string("Augsburg")));
-  values.push_back(cuke::value(34));
+  values.push_back(cuke::value("34"));
 
   values.push_back(cuke::value(std::string("Theodor")));
   values.push_back(cuke::value(std::string("Wonderland")));
-  values.push_back(cuke::value(999));
+  values.push_back(cuke::value("999"));
 
   values.push_back(cuke::value(std::string("Alf")));
   values.push_back(cuke::value(std::string("Melmac")));
-  values.push_back(cuke::value(12));
+  values.push_back(cuke::value("12"));
   cuke::table t(values, 3);
 
   {
@@ -170,7 +169,7 @@ TEST(table, rows_hash)
   values.push_back(cuke::value(std::string("CITY")));
   values.push_back(cuke::value(std::string("Augsburg")));
   values.push_back(cuke::value(std::string("AGE")));
-  values.push_back(cuke::value(34));
+  values.push_back(cuke::value("34"));
 
   cuke::table t(values, 2);
   std::unordered_map<std::string, cuke::value> data = t.rows_hash();
@@ -188,11 +187,11 @@ TEST(table, rows_hash_more_than_2_cols)
 
   values.push_back(cuke::value(std::string("Thomas")));
   values.push_back(cuke::value(std::string("Augsburg")));
-  values.push_back(cuke::value(34));
+  values.push_back(cuke::value("34"));
 
   values.push_back(cuke::value(std::string("Theodor")));
   values.push_back(cuke::value(std::string("Wonderland")));
-  values.push_back(cuke::value(999));
+  values.push_back(cuke::value("999"));
 
   cuke::table t(values, 3);
   EXPECT_THROW(
@@ -200,7 +199,7 @@ TEST(table, rows_hash_more_than_2_cols)
 }
 TEST(table, initialize_w_single_row)
 {
-  cuke::value_array row{cuke::value(1), cuke::value(2), cuke::value(3)};
+  cuke::value_array row{cuke::value("1"), cuke::value("2"), cuke::value("3")};
   cuke::table t(std::move(row));
 
   ASSERT_TRUE(row.empty());
@@ -213,11 +212,11 @@ TEST(table, initialize_w_single_row)
 }
 TEST(table, append_row)
 {
-  cuke::value_array row{cuke::value(1), cuke::value(2), cuke::value(3)};
+  cuke::value_array row{cuke::value("1"), cuke::value("2"), cuke::value("3")};
   cuke::table t(std::move(row));
 
-  cuke::value_array append_me{cuke::value(100), cuke::value(101),
-                              cuke::value(102)};
+  cuke::value_array append_me{cuke::value("100"), cuke::value("101"),
+                              cuke::value("102")};
   ASSERT_TRUE(t.append_row(std::move(append_me)));
 
   ASSERT_TRUE(append_me.empty());
@@ -230,11 +229,11 @@ TEST(table, append_row)
 }
 TEST(table, append_row_failing_case)
 {
-  cuke::value_array row{cuke::value(1), cuke::value(2)};
+  cuke::value_array row{cuke::value("1"), cuke::value("2")};
   cuke::table t(std::move(row));
 
-  cuke::value_array append_me{cuke::value(100), cuke::value(101),
-                              cuke::value(102)};
+  cuke::value_array append_me{cuke::value("100"), cuke::value("101"),
+                              cuke::value("102")};
   ASSERT_FALSE(t.append_row(std::move(append_me)));
 
   ASSERT_FALSE(append_me.empty());
@@ -244,9 +243,9 @@ TEST(table, append_row_failing_case)
 TEST(table, to_string_1)
 {
   cuke::table t(cuke::value_array{cuke::value(std::string{"hello world"}),
-                                  cuke::value(2)});
+                                  cuke::value("2")});
   [[maybe_unused]] bool b = t.append_row(cuke::value_array{
-      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+      cuke::value(std::string{"hello world hello world"}), cuke::value("2")});
 
   auto lines = t.to_string_array();
   EXPECT_EQ(lines[0], std::string("| hello world             | 2 |"));
@@ -255,9 +254,9 @@ TEST(table, to_string_1)
 TEST(table, to_string_2)
 {
   cuke::table t(cuke::value_array{
-      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+      cuke::value(std::string{"hello world hello world"}), cuke::value("2")});
   [[maybe_unused]] bool b = t.append_row(cuke::value_array{
-      cuke::value(std::string{"hello world"}), cuke::value(2)});
+      cuke::value(std::string{"hello world"}), cuke::value("2")});
 
   auto lines = t.to_string_array();
   EXPECT_EQ(lines[0], std::string("| hello world hello world | 2 |"));
@@ -266,9 +265,9 @@ TEST(table, to_string_2)
 TEST(table, to_string_3)
 {
   cuke::table t(cuke::value_array{
-      cuke::value(std::string{"hello world hello world"}), cuke::value(2)});
+      cuke::value(std::string{"hello world hello world"}), cuke::value("2")});
   [[maybe_unused]] bool b = t.append_row(cuke::value_array{
-      cuke::value(std::string{"hello world"}), cuke::value(1234)});
+      cuke::value(std::string{"hello world"}), cuke::value("1234")});
 
   auto lines = t.to_string_array();
   EXPECT_EQ(lines[0], std::string("| hello world hello world | 2    |"));

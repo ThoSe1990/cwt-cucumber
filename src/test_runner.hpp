@@ -12,6 +12,7 @@
 #include "ast.hpp"
 #include "registry.hpp"
 #include "step_finder.hpp"
+#include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
 #include "context.hpp"
@@ -95,12 +96,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   if (it != cuke::registry().steps().end())
   {
     cuke::registry().run_hook_before_step();
-    step.if_has_doc_string_do([&finder](const auto& doc_string)
-                              { finder.values().push_back(doc_string); });
-    step.if_has_table_do(
-        [&finder](const cuke::table& t)
-        { finder.values().push_back(std::make_unique<cuke::table>(t)); });
-    it->call(finder.values());
+    it->call(finder.values(), step.doc_string(), step.data_table());
     cuke::registry().run_hook_after_step();
   }
   else
@@ -138,12 +134,13 @@ class stdout_interface
       const cuke::ast::scenario_outline_node& scenario_outline) const noexcept
   {
   }
-  virtual void print(const cuke::ast::example_node& example,
-                     std::size_t row) const noexcept
+  virtual void print(const cuke::ast::step_node& step,
+                     results::test_status status) const noexcept
   {
   }
   virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status) const noexcept
+                     results::test_status status,
+                     const table::row& row) const noexcept
   {
   }
 };
@@ -169,13 +166,16 @@ class cuke_printer : public stdout_interface
     internal::print(scenario_outline.keyword(), ' ', scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
-  void print(const cuke::ast::example_node& example,
-             std::size_t row) const noexcept override
+  void print(const cuke::ast::step_node& step, results::test_status status,
+             const table::row& row) const noexcept override
   {
-    internal::println("  With Examples:");
-    auto table_strings = example.table().to_string_array();
-    internal::println("  ", table_strings[0]);
-    internal::println("  ", table_strings[row]);
+    const std::string step_w_example_variables =
+        internal::replace_variables(step.name(), row);
+    internal::print(internal::to_color(status), internal::step_prefix(status),
+                    step.keyword(), ' ', step_w_example_variables);
+    details::print_file_line(step);
+    print_doc_string(step);
+    print_table(step);
   }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
@@ -183,6 +183,11 @@ class cuke_printer : public stdout_interface
     internal::print(internal::to_color(status), internal::step_prefix(status),
                     step.keyword(), ' ', step.name());
     details::print_file_line(step);
+    print_doc_string(step);
+    print_table(step);
+  }
+  void print_doc_string(const cuke::ast::step_node& step) const noexcept
+  {
     step.if_has_doc_string_do(
         [](const std::vector<std::string>& doc_string)
         {
@@ -193,6 +198,9 @@ class cuke_printer : public stdout_interface
           }
           internal::println("\"\"\"");
         });
+  }
+  void print_table(const cuke::ast::step_node& step) const noexcept
+  {
     step.if_has_table_do(
         [](const cuke::table& t)
         {
@@ -284,9 +292,9 @@ class test_runner
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
           execute_step(step, example.table().hash_row(row));
-          m_printer->print(step, results::steps_back().status);
+          m_printer->print(step, results::steps_back().status,
+                           example.table().hash_row(row));
         }
-        m_printer->print(example, row);
         cuke::registry().run_hook_after(m_tags.container);
         update_scenario_status(scenario_outline.name(), scenario_outline.file(),
                                row_file_line);
@@ -315,9 +323,6 @@ class test_runner
       }
     }
   }
-  // TODO: refactor this, tags and files are not handled well in test_runner ...
-  // should we put program_arguments into this class to make all available?
-  // then we we'd execute for all files everything here ... idk now ...
   [[nodiscard]] bool tags_valid() const noexcept
   {
     if (m_tag_expression == nullptr)
@@ -332,8 +337,6 @@ class test_runner
   }
   void push_tags(const std::vector<std::string>& new_tags)
   {
-    // NOTE: Usually we don't deal with too many tags so to keep things simple,
-    // I decided for this single push backs ...
     std::size_t inserted = 0;
     for (const auto& tag : new_tags)
     {

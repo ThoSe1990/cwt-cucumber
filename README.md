@@ -30,6 +30,8 @@ Tested compilers: GCC 13, Clang17 and MSVC 19
 Full documentation: https://those1990.github.io/cwt-cucumber-docs  
 Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
 
+Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
+
 ## Getting Started
 
 Let us start with Cucumber. First of all build the project on your machine with CMake (you can use the Docker from this directory if you want): 
@@ -129,7 +131,12 @@ STEP(your_function, "A {string}, an {int} and a {float}")
 }
 ```
 
-The values are implemted as [Cucumber expressions](https://github.com/cucumber/cucumber-expressions) and currently supported are: `{byte}`, `{short}`, `{int}`, `{long}`, `{float}`, `{double}`, `{string}`. 
+The values are implemted as [Cucumber expressions](https://github.com/cucumber/cucumber-expressions) and currently supported are: 
+- Integer values: `{byte}`, `{short}`, `{int}`, `{long}`, 
+- Floating point values: `{float}`, `{double}`
+- Strings (in quotes `".."` `{string}`
+- Word (w/o quotes) `{word}` -> read value as `std::string` in step definition
+- Anonymous, any character sequence `{}` -> read value as `std::string` in step definition
 
 ### Scenario Context
 
@@ -191,20 +198,13 @@ Feature: My first feature  ./examples/features/2_scenario_outline.feature:2
 
 Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
 [   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
-[   PASSED    ] I place <count> x <item> in it  ./examples/features/2_scenario_outline.feature:7
-[   PASSED    ] The box contains <count> item(s)  ./examples/features/2_scenario_outline.feature:8
-  With Examples:
-  | count | item      |
-  | 1     | "apple"   |
+[   PASSED    ] I place 1 x "apple" in it  ./examples/features/2_scenario_outline.feature:7
+[   PASSED    ] The box contains 1 item(s)  ./examples/features/2_scenario_outline.feature:8
 
 Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
 [   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
-[   PASSED    ] I place <count> x <item> in it  ./examples/features/2_scenario_outline.feature:7
-[   PASSED    ] The box contains <count> item(s)  ./examples/features/2_scenario_outline.feature:8
-  With Examples:
-  | count | item      |
-  | 2     | "bananas" |
-
+[   PASSED    ] I place 2 x "bananas" in it  ./examples/features/2_scenario_outline.feature:7
+[   PASSED    ] The box contains 2 item(s)  ./examples/features/2_scenario_outline.feature:8
 
 2 Scenarios (2 passed)
 6 Steps (6 passed)
@@ -251,9 +251,9 @@ To access a doc string use ``CUKE_DOC_STRING()``:
 // There is no parameter needed in your step
 WHEN(doc_string, "There is a doc string:")
 {
-  // and now you can use it here: 
   const std::string& str = CUKE_DOC_STRING();
-  // .. 
+  // or get each line in a vector: 
+  const std::vector<std::string>& v = CUKE_DOC_STRING();
 }
 ```
 
@@ -367,18 +367,28 @@ Use the terminal option `-t` or `--tags` to provide tags. This will then check t
 ```gherkin
 Feature: Scenarios with tags
 
-  @apples
-  Scenario: Apple
-    Given An empty box
-    When I place 2 x "apple" in it
-    Then The box contains 2 item(s)
-
   @apples @bananas
   Scenario: Apples and Bananas
     Given An empty box
     When I place 2 x "apple" in it
     And I place 2 x "banana" in it
     Then The box contains 4 item(s)
+
+  Scenario Outline: 
+    Given An empty box
+    When I place <count> x <fruit> in it
+    Then The box contains <expected> item(s)
+
+    @oranges 
+    Examples: 
+      | count | fruit    | expected |
+      | 1     | "orange" | 1        |
+
+    @oranges @others
+    Examples: 
+      | count | fruit        | expected |
+      | 3     | "oranges"    | 3        |
+      | 1     | "some stuff" | 1        |
 ```
 
 And when we run this with tags, we can control which scenarios are executed.
@@ -392,7 +402,7 @@ And this would just execute the second scenario due to the `and` condition:
 ./build/bin/box ./examples/features/4_tags.feature -t "@apples and @bananas"
 ```
 
-Note: Tags can be applied to `Feature:`, `Scenario:`, `Scenario Outline:` and `Examples:`.
+Note: Tags can be applied to `Feature:`, `Scenario:`, `Scenario Outline:` and `Examples:`. The tags are inherited to the next child. 
 
 ### Hooks 
 
@@ -483,6 +493,19 @@ The box is shipped!
 2 Scenarios (2 passed)
 6 Steps (6 passed)
 ```
+
+### Skip Steps 
+
+We can use `cuke::skip_scenario()` inside a hook `BEFORE_T` in order to skip a `Scenario`. This can be useful when using a `@skip`, `@ignore` or `@wip` tag: 
+
+```cpp
+BEFORE_T(skip, "@skip") 
+{ 
+    cuke::skip_scenario();
+}
+```
+
+Note: The hook `AFTER_ALL` still will be executed. The hook `AFTER` the skipped `Scenario` is not called.
 
 
 ### Run Single Scenarios / Directories
