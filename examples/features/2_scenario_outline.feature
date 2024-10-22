@@ -30,8 +30,8 @@ Feature: My first feature
     
     Examples:
       | word      | anonymous | expected word | expected anonymous |
-      | 123.123   | -999.9999 | 123.123       | -999.9999        | 
-      | "abc"     | -00:00,00 | "abc"         | -00:00,00        | 
+      | 123.123   | -999.    9999 | 123.123       | -999.    9999          | 
+      | "abc"     | -00:00,00 | "abc"         | -00:00,00          | 
 
 
 
