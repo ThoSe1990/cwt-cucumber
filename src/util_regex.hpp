@@ -17,15 +17,15 @@ struct regex_conversion
 };
 
 static /* constexpr */ const std::array<regex_conversion, 9> conversions = {{
-    {"{byte}", "(-?\\d+|<[^>]+>)", token_type::parameter_byte},
-    {"{int}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
-    {"{short}", "(-?\\d+|<[^>]+>)", token_type::parameter_int},
-    {"{long}", "(-?\\d+|<[^>]+>)", token_type::parameter_long},
-    {"{float}", "(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_float},
-    {"{double}", "(-?\\d*\\.?\\d+|<[^>]+>)", token_type::parameter_double},
-    {"{word}", "([^\\s<]+|<[^>]+>)", token_type::parameter_word},
-    {"{string}", "(\"[^\"]*\"|<[^>]+>)", token_type::parameter_string},
-    {"{}", "(.+|<[^>]+>)", token_type::parameter_anonymous},
+    {"{byte}", "(-?\\d+)", token_type::parameter_byte},
+    {"{int}", "(-?\\d+)", token_type::parameter_int},
+    {"{short}", "(-?\\d+)", token_type::parameter_int},
+    {"{long}", "(-?\\d+)", token_type::parameter_long},
+    {"{float}", "(-?\\d*\\.?\\d+)", token_type::parameter_float},
+    {"{double}", "(-?\\d*\\.?\\d+)", token_type::parameter_double},
+    {"{word}", "([^\\s<]+)", token_type::parameter_word},
+    {"{string}", "(\"[^\"]*\"|\".*?)", token_type::parameter_string},
+    {"{}", "(.+)", token_type::parameter_anonymous},
 }};
 
 static /* constexpr */ const regex_conversion& get_regex_conversion(
