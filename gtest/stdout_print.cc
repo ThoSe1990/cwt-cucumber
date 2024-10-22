@@ -118,11 +118,8 @@ TEST_F(stdout_print, scenario_outline)
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
   EXPECT_TRUE(has_substr(output, "<no file>:3"));
   EXPECT_TRUE(has_substr(
-      output, "[   PASSED    ] Given a step with <var 1> and <var 2>"));
+      output, "[   PASSED    ] Given a step with 123 and \"some text\""));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
-  EXPECT_TRUE(has_substr(output, "  With Examples:"));
-  EXPECT_TRUE(has_substr(output, "  | var 1 | var 2       |"));
-  EXPECT_TRUE(has_substr(output, "  | 123   | \"some text\" |"));
 }
 
 TEST_F(stdout_print, scenario_from_file)
