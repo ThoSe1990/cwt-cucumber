@@ -14,8 +14,11 @@ Feature: My first feature
 
   Scenario Outline: a scenario outline  
     When A <word> and <anonymous>
-    Then They will match <expected_word> and <expected_anonymous>
+    Then They will match <expected word> and <expected anonymous>
     
     Examples:
-      | word      | anonymous | expected_word | expected_anonymous |
+      | word      | anonymous | expected word | expected anonymous |
       | 123.123   | -999.9999 | "123.123"     | "-999.9999"        | 
+      | -123,123  | -999,9999 | "-123,123"    | "-999,9999"        | 
+      | "abc"     | -999,9999 | "abc"         | "-999,9999"        | 
+      | abc       | -00:00,00 | "abc"         | "-00:00,00"        | 

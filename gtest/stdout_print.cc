@@ -121,8 +121,8 @@ TEST_F(stdout_print, scenario_outline)
       output, "[   PASSED    ] Given a step with <var 1> and <var 2>"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
   EXPECT_TRUE(has_substr(output, "  With Examples:"));
-  EXPECT_TRUE(has_substr(output, "  | var 1 | var 2     |"));
-  EXPECT_TRUE(has_substr(output, "  | 123   | some text |"));
+  EXPECT_TRUE(has_substr(output, "  | var 1 | var 2       |"));
+  EXPECT_TRUE(has_substr(output, "  | 123   | \"some text\" |"));
 }
 
 TEST_F(stdout_print, scenario_from_file)

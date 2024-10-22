@@ -655,7 +655,7 @@ TEST(ast, parse_cell_integer)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_EQ(v.as<int>(), 1234);
 }
 TEST(ast, parse_cell_negative_integer)
@@ -664,7 +664,7 @@ TEST(ast, parse_cell_negative_integer)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_EQ(v.as<int>(), -1234);
 }
 TEST(ast, parse_cell_double)
@@ -673,7 +673,7 @@ TEST(ast, parse_cell_double)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_EQ(v.as<double>(), 1234.1234);
 }
 TEST(ast, parse_cell_string)
@@ -682,7 +682,7 @@ TEST(ast, parse_cell_string)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, true);
   EXPECT_EQ(v.as<std::string>(), std::string("hello world"));
 }
 TEST(ast, parse_cell_word)
@@ -691,7 +691,7 @@ TEST(ast, parse_cell_word)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_EQ(v.as<std::string>(), std::string("hello"));
 }
 TEST(ast, parse_cell_unquoted_string)
@@ -700,7 +700,7 @@ TEST(ast, parse_cell_unquoted_string)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_EQ(v.as<std::string>(),
             std::string("some arbitrary text and 1 2 3 numbers here"));
 }
@@ -710,7 +710,7 @@ TEST(ast, parse_cell_empty_cell)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  cuke::value v = cuke::internal::parse_cell(lex);
+  cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_TRUE(v.is_nil());
   EXPECT_TRUE(lex.error());
 }

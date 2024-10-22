@@ -27,7 +27,6 @@ class table
   table& operator=(const table&) = default;
   table& operator=(table&&) = default;
   table(value_array&& data);
-  // TODO data should be rvalue ref? value_array&& data
   table(value_array data, std::size_t col_count);
 
   /**
@@ -230,5 +229,11 @@ class table
   value_array m_data;
   std::size_t m_col_count{0};
 };
+
+namespace internal
+{
+[[nodiscard]] std::string replace_variables(const std::string& step,
+                                            const table::row& row);
+}  // namespace internal
 
 }  // namespace cuke

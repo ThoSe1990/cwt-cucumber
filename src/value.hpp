@@ -26,17 +26,11 @@ class value
 {
  public:
   value() = default;
-  value(const std::string& value)
-      : m_value(internal::quoted_string(value) ? internal::remove_quotes(value)
-                                               : value)
-  {
-  }
+  value(const std::string& value) : m_value(value) {}
 
   value& operator=(const value& other)
   {
-    m_value = (internal::quoted_string(other.m_value))
-                  ? internal::remove_quotes(other.m_value)
-                  : other.m_value;
+    m_value = other.m_value;
     return *this;
   }
 
@@ -139,10 +133,14 @@ class step
   step(step_callback cb, const std::string& definition)
       : m_callback(cb), m_definition(definition)
   {
-    m_regex_definition =
+    std::tie(m_regex_definition, m_value_types) =
         create_regex_definition(add_escape_chars(m_definition));
   }
   const std::string& definition() const noexcept { return m_definition; }
+  const std::vector<token_type>& value_types() const noexcept
+  {
+    return m_value_types;
+  }
   const std::string& regex_string() const noexcept
   {
     return m_regex_definition;
@@ -157,6 +155,7 @@ class step
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
+  std::vector<token_type> m_value_types;
 };
 
 }  // namespace cuke::internal

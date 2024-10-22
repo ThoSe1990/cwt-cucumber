@@ -3,7 +3,6 @@
 #include "token.hpp"
 
 #include <array>
-#include <vector>
 #include <algorithm>
 #include <unordered_set>
 
@@ -44,11 +43,13 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
   throw std::runtime_error("Conversion not found");
 }
 
-static /* constexpr */ const std::string create_regex_definition(
-    std::string_view input)
+static /* constexpr */ const std::pair<std::string, std::vector<token_type>>
+create_regex_definition(std::string_view input)
 {
   std::string result;
   result.reserve(input.size());
+
+  std::vector<token_type> types;
 
   size_t i = 0;
   while (i < input.size())
@@ -61,6 +62,7 @@ static /* constexpr */ const std::string create_regex_definition(
         std::string placeholder(input.substr(i, end - i + 1));
         const auto& conversion = get_regex_conversion(placeholder);
         result += conversion.pattern;
+        types.push_back(conversion.type);
         i = end + 1;
         continue;
       }
@@ -69,7 +71,7 @@ static /* constexpr */ const std::string create_regex_definition(
     ++i;
   }
   result = "^" + result + "$";
-  return result;
+  return {result, types};
 }
 
 static const std::unordered_set<char> special_chars = {

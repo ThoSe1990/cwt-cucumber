@@ -29,7 +29,9 @@ enum class color
 
 [[nodiscard]] inline std::string remove_quotes(const std::string& str)
 {
-  return str.substr(1, str.size() - 2);
+  return (str[0] == '"' && str[str.size() - 1] == '"')
+             ? str.substr(1, str.size() - 2)
+             : str;
 }
 
 [[nodiscard]] inline std::string create_string(std::string_view sv)

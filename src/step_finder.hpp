@@ -16,15 +16,20 @@ class step_finder
   step_finder(std::string_view feature);
   step_finder(std::string_view feature, cuke::table::row hash_row);
 
-  [[nodiscard]] bool step_matches(const std::string& pattern);
+  [[nodiscard]] bool step_matches(const std::string& pattern,
+                                  const std::vector<token_type>& types);
   [[nodiscard]] cuke::value_array& values() noexcept;
 
   template <typename Iterator>
   Iterator find(Iterator first, Iterator last)
   {
-    return std::find_if(first, last, [this](const cuke::internal::step& s)
-                        { return step_matches(s.regex_string()); });
+    return std::find_if(
+        first, last, [this](const cuke::internal::step& s)
+        { return step_matches(s.regex_string(), s.value_types()); });
   }
+
+ private:
+  void push_value(const std::string& value, token_type type);
 
  private:
   std::string m_feature_string;
