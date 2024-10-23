@@ -20,11 +20,16 @@ class box
   {
     return m_items.size();
   }
-  [[nodiscard]] const std::string& at(const std::size_t idx) const 
+  [[nodiscard]] const std::string& at(const std::size_t idx) const
   {
     return m_items.at(idx);
   }
   void close() noexcept { m_is_open = false; }
+
+  std::size_t count(std::string_view item)
+  {
+    return std::count(m_items.begin(), m_items.end(), item);
+  }
 
  private:
   bool m_is_open{true};

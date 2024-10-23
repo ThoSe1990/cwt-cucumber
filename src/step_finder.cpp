@@ -33,7 +33,7 @@ bool step_finder::step_matches(const std::string& pattern,
       found = true;
       for (std::size_t i = 1; i < match.size(); ++i)
       {
-        if (!match[i].matched)
+        if (!match[i].matched || types.empty())
         {
           continue;
         }

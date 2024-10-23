@@ -1,8 +1,9 @@
-
-
 #include "token.hpp"
 
+#include <iostream>
+
 #include <array>
+#include <regex>
 #include <algorithm>
 #include <unordered_set>
 
@@ -11,8 +12,8 @@ namespace cuke::internal
 
 struct regex_conversion
 {
-  std::string_view key;
-  std::string_view pattern;
+  std::string key;
+  std::string pattern;
   token_type type;
 };
 
@@ -35,7 +36,7 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
                          [&key](const regex_conversion& conversion)
                          { return conversion.key == key; });
 
-  if (it != conversions.end())
+  if (it != conversions.end()) [[likely]]
   {
     return (*it);
   }
@@ -43,39 +44,53 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
   throw std::runtime_error("Conversion not found");
 }
 
-static /* constexpr */ const std::pair<std::string, std::vector<token_type>>
-create_regex_definition(std::string_view input)
+[[nodiscard]] static std::string create_word_alternation(
+    const std::string& step)
 {
-  std::string result;
-  result.reserve(input.size());
+  std::string result = step;
+
+  result = std::regex_replace(result, std::regex("\\)"), ")?");
+  result = std::regex_replace(result, std::regex("\\("), "(?:");
+
+  std::regex pattern("(\\w+)/(\\w+)");
+  std::smatch match;
+
+  while (std::regex_search(result, match, pattern))
+  {
+    result = std::regex_replace(
+        result, pattern, "(?:" + match[1].str() + "|" + match[2].str() + ")",
+        std::regex_constants::format_first_only);
+  }
+
+  return result;
+}
+
+[[nodiscard]] static /* constexpr */ const std::pair<std::string,
+                                                     std::vector<token_type>>
+create_regex_definition(const std::string& step)
+{
+  std::string test = step;
+  std::string result = '^' + create_word_alternation(step);
+  std::regex pattern("\\{(.*?)\\}");
+  std::smatch match;
 
   std::vector<token_type> types;
 
-  size_t i = 0;
-  while (i < input.size())
+  while (std::regex_search(result, match, pattern))
   {
-    if (input[i] == '{')
-    {
-      size_t end = input.find('}', i);
-      if (end != std::string::npos)
-      {
-        std::string placeholder(input.substr(i, end - i + 1));
-        const auto& conversion = get_regex_conversion(placeholder);
-        result += conversion.pattern;
-        types.push_back(conversion.type);
-        i = end + 1;
-        continue;
-      }
-    }
-    result += input[i];
-    ++i;
+    const auto& conversion = get_regex_conversion(match[0].str());
+    result = std::regex_replace(result, pattern, conversion.pattern,
+                                std::regex_constants::format_first_only);
+    types.push_back(conversion.type);
   }
-  result = "^" + result + "$";
+
+  result += '$';
   return {result, types};
 }
 
 static const std::unordered_set<char> special_chars = {
-    '.', '^', '$', '*', '+', '?', '[', ']', '(', ')', '\\', '|'};
+    '.', '^', '$', '*', '+', '?', '[', ']', /* '(', ')', */ '\\',
+    /* '|' */};
 
 static std::string add_escape_chars(const std::string& input)
 {

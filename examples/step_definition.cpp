@@ -58,7 +58,7 @@ WHEN(doc_string_vector, "There is a doc string as vector:")
   }
   std::cout << "------------------------------------------" << '\n';
 }
-WHEN(add_table_raw, "I add all items with raw():")
+WHEN(add_table_raw, "I add all items with the raw function:")
 {
   const cuke::table& t = CUKE_TABLE();
   for (const cuke::table::row& row : t.raw())
@@ -66,7 +66,7 @@ WHEN(add_table_raw, "I add all items with raw():")
     cuke::context<box>().add_items(row[0].to_string(), row[1].as<long>());
   }
 }
-WHEN(add_table_hashes, "I add all items with hashes():")
+WHEN(add_table_hashes, "I add all items with the hashes function:")
 {
   const cuke::table& t = CUKE_TABLE();
   for (const auto& row : t.hashes())
@@ -75,7 +75,8 @@ WHEN(add_table_hashes, "I add all items with hashes():")
                                    row["QUANTITY"].as<long>());
   }
 }
-WHEN(add_table_rows_hash, "I add the following item with rows_hash():")
+WHEN(add_table_rows_hash,
+     "I add the following item with the rows_hash function:")
 {
   const cuke::table& t = CUKE_TABLE();
   cuke::table::pair hash_rows = t.rows_hash();
@@ -98,6 +99,13 @@ THEN(check_box_size, "The box contains {int} item(s)")
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
   cuke::equal(my_box.items_count(), items_count);
+}
+
+THEN(alternative_words, "{int} item(s) is/are {string}")
+{
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
+  cuke::equal(count, cuke::context<box>().count(item));
 }
 
 STEP(doc, "doc string:")
