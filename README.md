@@ -298,7 +298,7 @@ WHEN(add_table_raw, "I add all items with raw():")
   for (const auto& row : t.raw())
   {
     // and with the operator[] you get access to each cell in each row
-    cuke::context<box>().add_items(row[0].to_string(), row[1].copy_as<long>());
+    cuke::context<box>().add_items(row[0].to_string(), row[1].as<long>());
   }
 }
 ```
