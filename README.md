@@ -50,7 +50,7 @@ Feature: My first feature
   Scenario: First Scenario
     Given An empty box
     When I place 2 x "apple" in it
-    Then The box contains 2 item(s)
+    Then The box contains 2 items
 ```
 Now execute the first example from the example directory:
 
@@ -62,7 +62,7 @@ Feature: My first feature  ./examples/features/1_first_scenario.feature:2
 Scenario: First Scenario  ./examples/features/1_first_scenario.feature:5
 [   PASSED    ] An empty box  ./examples/features/1_first_scenario.feature:6
 [   PASSED    ] I place 2 x "apple" in it  ./examples/features/1_first_scenario.feature:7
-[   PASSED    ] The box contains 2 item(s)  ./examples/features/1_first_scenario.feature:8
+[   PASSED    ] The box contains 2 items  ./examples/features/1_first_scenario.feature:8
 
 1 Scenarios (1 passed)
 3 Steps (3 passed)
@@ -92,7 +92,7 @@ WHEN(add_item, "I place {int} x {string} in it")
   cuke::context<box>().add_items(item, count);
 }
 
-THEN(check_box_size, "The box contains {int} item(s)")
+THEN(check_box_size, "The box contains {int} items")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
@@ -103,7 +103,7 @@ THEN(check_box_size, "The box contains {int} item(s)")
 If custom error messages for steps are necessary, we can append a string which replaces the default error message:
 
 ```cpp 
-THEN(check_box_size, "The box contains {int} item(s)")
+THEN(check_box_size, "The box contains {int} items")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
@@ -153,7 +153,7 @@ WHEN(add_item, "I place {int} x {string} in it")
   cuke::context<box>().add_items(item, count);
 }
 
-THEN(check_box_size, "The box contains {int} item(s)")
+THEN(check_box_size, "The box contains {int} items")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
@@ -181,7 +181,7 @@ Feature: My first feature
   Scenario Outline: First Scenario Outline
     Given An empty box
     When I place <count> x <item> in it
-    Then The box contains <count> item(s)
+    Then The box contains <count> items
 
     Examples:
       | count | item      |
@@ -199,12 +199,12 @@ Feature: My first feature  ./examples/features/2_scenario_outline.feature:2
 Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
 [   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
 [   PASSED    ] I place 1 x "apple" in it  ./examples/features/2_scenario_outline.feature:7
-[   PASSED    ] The box contains 1 item(s)  ./examples/features/2_scenario_outline.feature:8
+[   PASSED    ] The box contains 1 items  ./examples/features/2_scenario_outline.feature:8
 
 Scenario Outline: First Scenario Outline  ./examples/features/2_scenario_outline.feature:5
 [   PASSED    ] An empty box  ./examples/features/2_scenario_outline.feature:6
 [   PASSED    ] I place 2 x "bananas" in it  ./examples/features/2_scenario_outline.feature:7
-[   PASSED    ] The box contains 2 item(s)  ./examples/features/2_scenario_outline.feature:8
+[   PASSED    ] The box contains 2 items  ./examples/features/2_scenario_outline.feature:8
 
 2 Scenarios (2 passed)
 6 Steps (6 passed)
@@ -222,12 +222,12 @@ Feature: We always need apples!
 
   Scenario: Apples Apples Apples
     When I place 1 x "apple" in it
-    Then The box contains 2 item(s)
+    Then The box contains 2 items
 
   Scenario: Apples and Bananas
     When I place 1 x "apple" in it
     And I place 1 x "banana" in it
-    Then The box contains 3 item(s)
+    Then The box contains 3 items
 ```
 
 ### Doc Strings
@@ -279,22 +279,22 @@ First we look at a raw table. This means there is no header line or identifiers 
 ```gherkin
 Scenario: Adding items with raw
   Given An empty box
-  When I add all items with raw():
+  When I add all items with the raw function:
     | apple      | 2 |
     | strawberry | 3 |
     | banana     | 5 |
-  Then The box contains 10 item(s)
+  Then The box contains 10 items
 ```
 
 You can iterate over this table with `raw()`:
 
 ```cpp
-WHEN(add_table_raw, "I add all items with raw():")
+WHEN(add_table_raw, "I add all items with the raw function:")
 {
   // create a table 
   const cuke::table& t = CUKE_TABLE();
 
-  // with raw() you iterate over all rows 
+  // with the raw function you iterate over all rows 
   for (const auto& row : t.raw())
   {
     // and with the operator[] you get access to each cell in each row
@@ -311,17 +311,17 @@ With an additional header in the table we can make this table more descriptive:
 ```gherkin
 Scenario: Adding items with hashes
   Given An empty box
-  When I add all items with hashes():
+  When I add all items with the hashes function:
     | ITEM   | QUANTITY |
     | apple  | 3        |
     | banana | 6        |
-  Then The box contains 9 item(s)
+  Then The box contains 9 items
 ```
 
 You can now iterate over the table using `hashes()` and  access the elements with string literals:
 
 ```cpp 
-WHEN(add_table_hashes, "I add all items with hashes():")
+WHEN(add_table_hashes, "I add all items with the hashes function:")
 {
   const cuke::table& t = CUKE_TABLE();
   for (const auto& row : t.hashes())
@@ -339,16 +339,16 @@ Another more descriptive way works for key value pairs, or rows hash. The first 
 ```gherkin
 Scenario: Adding items with rows_hash
   Given An empty box
-  When I add the following item with rows_hash():
+  When I add the following item with the rows_hash function:
     | ITEM     | really good apples |
     | QUANTITY | 3                  |
-  Then The box contains 3 item(s)
+  Then The box contains 3 items
 ```
 
 And with `cuke::table::pair hash_rows = t.rows_hash();` you can create this hash map. The access to each element is again by the string literal. 
 
 ```cpp 
-WHEN(add_table_rows_hash, "I add the following item with rows_hash():") 
+WHEN(add_table_rows_hash, "I add the following item with the rows_hash function:") 
 {
   const cuke::table& t = CUKE_TABLE();
   // cuke::table::pair is just an alias for a std::unordered_map which gets created in rows.hash()
@@ -372,12 +372,12 @@ Feature: Scenarios with tags
     Given An empty box
     When I place 2 x "apple" in it
     And I place 2 x "banana" in it
-    Then The box contains 4 item(s)
+    Then The box contains 4 items
 
   Scenario Outline: 
     Given An empty box
     When I place <count> x <fruit> in it
-    Then The box contains <expected> item(s)
+    Then The box contains <expected> items
 
     @oranges 
     Examples: 
@@ -461,13 +461,13 @@ Feature: Scenarios with tags
   Scenario: We want to ship cucumbers
     Given An empty box
     When I place 1 x "cucumber" in it
-    Then The box contains 1 item(s)
+    Then The box contains 1 items
 
   @important
   Scenario: Important items must be shipped immediately
     Given An empty box
     When I place 2 x "important items" in it
-    Then The box contains 2 item(s)
+    Then The box contains 2 items
 ```
 
 And now we can see that our box was shipped:
@@ -480,13 +480,13 @@ Feature: Scenarios with tags  ./examples/features/5_tagged_hooks.feature:1
 Scenario: We want to ship cucumbers  ./examples/features/5_tagged_hooks.feature:4
 [   PASSED    ] An empty box  ./examples/features/5_tagged_hooks.feature:5
 [   PASSED    ] I place 1 x "cucumber" in it  ./examples/features/5_tagged_hooks.feature:6
-[   PASSED    ] The box contains 1 item(s)  ./examples/features/5_tagged_hooks.feature:7
+[   PASSED    ] The box contains 1 items  ./examples/features/5_tagged_hooks.feature:7
 The box is shipped!
 
 Scenario: Important items must be shipped immediately  ./examples/features/5_tagged_hooks.feature:10
 [   PASSED    ] An empty box  ./examples/features/5_tagged_hooks.feature:11
 [   PASSED    ] I place 2 x "important items" in it  ./examples/features/5_tagged_hooks.feature:12
-[   PASSED    ] The box contains 2 item(s)  ./examples/features/5_tagged_hooks.feature:13
+[   PASSED    ] The box contains 2 items  ./examples/features/5_tagged_hooks.feature:13
 The box is shipped!
 
 

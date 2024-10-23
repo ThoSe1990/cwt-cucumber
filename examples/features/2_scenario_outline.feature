@@ -5,7 +5,7 @@ Feature: My first feature
   Scenario Outline: First Scenario Outline
     Given An empty box
     When I place <count> x <item> in it
-    Then The box contains <count> item(s)
+    Then The box contains <count> items
 
     Examples:
       | count | item      |

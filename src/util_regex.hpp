@@ -44,11 +44,33 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
   throw std::runtime_error("Conversion not found");
 }
 
+[[nodiscard]] static std::string create_word_alternation(
+    const std::string& step)
+{
+  std::string result = step;
+
+  result = std::regex_replace(result, std::regex("\\)"), ")?");
+  result = std::regex_replace(result, std::regex("\\("), "(?:");
+
+  std::regex pattern("(\\w+)/(\\w+)");
+  std::smatch match;
+
+  while (std::regex_search(result, match, pattern))
+  {
+    result = std::regex_replace(
+        result, pattern, "(" + match[1].str() + "|" + match[2].str() + ")",
+        std::regex_constants::format_first_only);
+  }
+
+  return result;
+}
+
 [[nodiscard]] static /* constexpr */ const std::pair<std::string,
                                                      std::vector<token_type>>
 create_regex_definition(const std::string& step)
 {
-  std::string result = '^' + step;
+  std::string test = step;
+  std::string result = '^' + create_word_alternation(step);
   std::regex pattern("\\{(.*?)\\}");
   std::smatch match;
 
@@ -63,12 +85,12 @@ create_regex_definition(const std::string& step)
   }
 
   result += '$';
-
   return {result, types};
 }
 
 static const std::unordered_set<char> special_chars = {
-    '.', '^', '$', '*', '+', '?', '[', ']', '(', ')', '\\', '|'};
+    '.', '^', '$', '*', '+', '?', '[', ']', /* '(', ')', */ '\\',
+    /* '|' */};
 
 static std::string add_escape_chars(const std::string& input)
 {

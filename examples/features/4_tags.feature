@@ -4,25 +4,25 @@ Feature: Scenarios with tags
   Scenario: Tomatoes 
     Given An empty box
     When I place 5 x "Tomatoes" in it
-    Then The box contains 5 item(s)
+    Then The box contains 5 items
 
   @apples
   Scenario: Apple
     Given An empty box
     When I place 2 x "apple" in it
-    Then The box contains 2 item(s)
+    Then The box contains 2 items
 
   @apples @bananas
   Scenario: Apples and Bananas
     Given An empty box
     When I place 2 x "apple" in it
     And I place 2 x "banana" in it
-    Then The box contains 4 item(s)
+    Then The box contains 4 items
 
   Scenario Outline: 
     Given An empty box
     When I place <count> x <fruit> in it
-    Then The box contains <expected> item(s)
+    Then The box contains <expected> items
 
     @oranges 
     Examples: 

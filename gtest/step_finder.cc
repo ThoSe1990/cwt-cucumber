@@ -418,9 +418,26 @@ TEST(step_finder, anonymous_between_int_and_word)
 TEST(step_finder, box_examples_1)
 {
   auto [pattern, types] =
-      create_regex_definition("The box contains {int} item\\(s\\)");
-  step_finder sf("The box contains 2 item(s)");
+      create_regex_definition("The box contains {int} items");
+  step_finder sf("The box contains 2 items");
   ASSERT_TRUE(sf.step_matches(pattern, types));
   ASSERT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<int>(), 2);
+}
+
+TEST(step_finder, step_alternation_1)
+{
+  auto [pattern, types] = create_regex_definition("The book(s) is/are good");
+  {
+    step_finder sf("The book is good");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+  }
+  {  // yes this is weird but valid
+    step_finder sf("The books is good");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+  }
+  {
+    step_finder sf("The books are good");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+  }
 }

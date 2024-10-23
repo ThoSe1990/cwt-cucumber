@@ -58,7 +58,7 @@ WHEN(doc_string_vector, "There is a doc string as vector:")
   }
   std::cout << "------------------------------------------" << '\n';
 }
-WHEN(add_table_raw, "I add all items with raw():")
+WHEN(add_table_raw, "I add all items with the raw function:")
 {
   const cuke::table& t = CUKE_TABLE();
   for (const cuke::table::row& row : t.raw())
@@ -66,7 +66,7 @@ WHEN(add_table_raw, "I add all items with raw():")
     cuke::context<box>().add_items(row[0].to_string(), row[1].as<long>());
   }
 }
-WHEN(add_table_hashes, "I add all items with hashes():")
+WHEN(add_table_hashes, "I add all items with the hashes function:")
 {
   const cuke::table& t = CUKE_TABLE();
   for (const auto& row : t.hashes())
@@ -75,7 +75,8 @@ WHEN(add_table_hashes, "I add all items with hashes():")
                                    row["QUANTITY"].as<long>());
   }
 }
-WHEN(add_table_rows_hash, "I add the following item with rows_hash():")
+WHEN(add_table_rows_hash,
+     "I add the following item with the rows_hash function:")
 {
   const cuke::table& t = CUKE_TABLE();
   cuke::table::pair hash_rows = t.rows_hash();
