@@ -2,13 +2,16 @@
 
 ## [Unreleased]
 
+
+## [2.3.1] 2024-10-23
+
 ### Added 
 - Alternative words in steps ([45](https://github.com/ThoSe1990/cwt-cucumber/pull/45))
   - Backslash to toggle between two words (e.g. `is/are` allows `is` and `are` in steps) 
   - Parenthesis to make words or characters optional (e.g. `item(s)` will allow `item` and `items` in steps)
 
 
-## [2.2.0] 2024-10-23
+## [2.3.0] 2024-10-23
 
 ### Added
 - New `CWT_CUCUMBER_STEP_DELAY` environment variable to delay step execution ([32](https://github.com/ThoSe1990/cwt-cucumber/pull/32))
