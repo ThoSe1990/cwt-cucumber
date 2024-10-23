@@ -441,3 +441,32 @@ TEST(step_finder, step_alternation_1)
     EXPECT_TRUE(sf.step_matches(pattern, types));
   }
 }
+TEST(step_finder, step_alternation_2)
+{
+  auto [pattern, types] = create_regex_definition(
+      "The book(s) is/are good and has/have {int} reader(s)");
+  {
+    step_finder sf("The book is good and has 5 readers");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+    ASSERT_EQ(sf.values().size(), 1);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 5);
+  }
+  {
+    step_finder sf("The book is good and has 1 reader");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+    ASSERT_EQ(sf.values().size(), 1);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  }
+  {
+    step_finder sf("The books are good and have 20 readers");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+    ASSERT_EQ(sf.values().size(), 1);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 20);
+  }
+  {
+    step_finder sf("The books are good and have 1 reader");
+    EXPECT_TRUE(sf.step_matches(pattern, types));
+    ASSERT_EQ(sf.values().size(), 1);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  }
+}

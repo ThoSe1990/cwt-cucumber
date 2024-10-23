@@ -5,22 +5,10 @@ Feature: My first feature
     Given An empty box
     When I place 1 x "apple" in it
     Then The box contains 1 item
-
-  Scenario: First Scenario
-    Given An empty box
-    When I place 2 x "banana" in it
-    Then The box contains 2 items
     
-  @skip  
-  Scenario: This wont run 
+  Scenario: Alternative Words 
     Given An empty box
-    When I place 1 x "whatever" in it
-    Then This would fail because there is no such step
-
-  Scenario: Second Scenario
-    Given An empty box
-    When I place 1 x "apple" in it
-    And I place 1 x "banana" in it
-    Then The 1. item is "apple"
-    And The 2. item is "banana"
-
+    When I place 1 x "banana" in it
+    Then 1 item is "banana" 
+    And I place 1 x "banana" in it 
+    Then 2 items are "banana" 

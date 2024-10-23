@@ -111,6 +111,30 @@ THEN(check_box_size, "The box contains {int} items")
 }
 ```
 
+### Alternative Words in Steps 
+
+We can use the backslash between two words and parenthesis around words or characters in order to use alternative words in step definitions. Consider Following step: 
+
+```cpp 
+THEN(alternative_words, "{int} item(s) is/are {string}")
+{
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
+  cuke::equal(count, cuke::context<box>().count(item));
+}
+```
+
+And now I can write this Scenario: 
+
+```gherkin 
+  Scenario: Alternative Words 
+    Given An empty box
+    When I place 1 x "banana" in it
+    Then 1 item is "banana" 
+    And I place 1 x "banana" in it 
+    Then 2 items are "banana" 
+```
+
 ### Steps and Value Access
 
 To implement a step, use a define with a function name and a step name. There is no technical difference between these definitions:

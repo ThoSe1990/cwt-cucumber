@@ -101,6 +101,13 @@ THEN(check_box_size, "The box contains {int} item(s)")
   cuke::equal(my_box.items_count(), items_count);
 }
 
+THEN(alternative_words, "{int} item(s) is/are {string}")
+{
+  const std::size_t count = CUKE_ARG(1);
+  const std::string item = CUKE_ARG(2);
+  cuke::equal(count, cuke::context<box>().count(item));
+}
+
 STEP(doc, "doc string:")
 {
   std::string s = CUKE_ARG(1);

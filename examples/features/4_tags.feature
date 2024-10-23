@@ -6,6 +6,12 @@ Feature: Scenarios with tags
     When I place 5 x "Tomatoes" in it
     Then The box contains 5 items
 
+  @skip  
+  Scenario: This wont run 
+    Given An empty box
+    When I place 1 x "whatever" in it
+    Then This would fail because there is no such step
+
   @apples
   Scenario: Apple
     Given An empty box

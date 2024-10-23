@@ -58,7 +58,7 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
   while (std::regex_search(result, match, pattern))
   {
     result = std::regex_replace(
-        result, pattern, "(" + match[1].str() + "|" + match[2].str() + ")",
+        result, pattern, "(?:" + match[1].str() + "|" + match[2].str() + ")",
         std::regex_constants::format_first_only);
   }
 
