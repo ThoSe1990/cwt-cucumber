@@ -10,6 +10,7 @@
 #include <thread>
 
 #include "ast.hpp"
+#include "parser.hpp"
 #include "registry.hpp"
 #include "step_finder.hpp"
 #include "table.hpp"
@@ -215,21 +216,30 @@ class cuke_printer : public stdout_interface
 class test_runner
 {
  public:
-  test_runner() = default;
-  test_runner(const std::vector<std::size_t>& lines) : m_lines(lines) {}
-  test_runner(const std::vector<std::size_t>& lines,
-              const internal::tag_expression* tag_expression)
-      : m_lines(lines), m_tag_expression(tag_expression)
+  test_runner()
+      : m_args(program_arguments()),
+        m_tag_expression(m_args.get_options().tag_expression)
   {
+    if (m_args.get_options().quiet)
+    {
+      m_printer.reset(std::make_unique<stdout_interface>().release());
+    }
   }
+  void setup() { cuke::registry().run_hook_before_all(); }
 
-  static void setup() { cuke::registry().run_hook_before_all(); }
+  void teardown() { cuke::registry().run_hook_after_all(); }
 
-  static void teardown() { cuke::registry().run_hook_after_all(); }
-
-  void set_quiet()
+  void run()
   {
-    m_printer.reset(std::make_unique<stdout_interface>().release());
+    for (const auto& feature : m_args.get_options().files)
+    {
+      init_feature(feature);
+
+      parser p;
+      p.parse_from_file(feature.path);
+      p.for_each_scenario(*this);
+      clear_tags();
+    }
   }
 
   void visit(const cuke::ast::feature_node& feature)
@@ -312,6 +322,11 @@ class test_runner
   }
 
  private:
+  void init_feature(const feature_file& feature) noexcept
+  {
+    m_lines = feature.lines_to_run;
+    m_background = nullptr;
+  }
   void run_background() const noexcept
   {
     if (has_background())
@@ -325,11 +340,11 @@ class test_runner
   }
   [[nodiscard]] bool tags_valid() const noexcept
   {
-    if (m_tag_expression == nullptr)
+    if (m_tag_expression.empty())
     {
       return true;
     }
-    return m_tag_expression->evaluate(this->m_tags.container);
+    return m_tag_expression.evaluate(this->m_tags.container);
   }
   [[nodiscard]] bool has_background() const noexcept
   {
@@ -361,10 +376,11 @@ class test_runner
   }
 
  private:
+  const cuke::cuke_args m_args;
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
-  const internal::tag_expression* m_tag_expression = nullptr;
+  const internal::tag_expression m_tag_expression;
   std::vector<std::size_t> m_lines;
   struct
   {

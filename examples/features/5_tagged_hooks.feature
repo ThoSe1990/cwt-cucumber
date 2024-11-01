@@ -10,4 +10,4 @@ Feature: Scenarios with tags
   Scenario: Important items must be shipped immediately
     Given An empty box
     When I place 2 x "important items" in it
-    Then The box contains 2 items
+    Then The box contains 2 item

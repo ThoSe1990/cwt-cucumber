@@ -23,6 +23,12 @@ void cuke_args::initialize(int argc, const char* argv[])
 {
   clear();
   m_args = std::span<const char*>(argv, argc);
+  if (m_args.size() == 1)
+  {
+    m_options.print_help = true;
+    return;
+  }
+
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {
     std::string_view sv{*it};
@@ -50,7 +56,11 @@ void cuke_args::process_option(std::span<const char*>::iterator it)
   if (option.starts_with("-t") || option.starts_with("--tags"))
   {
     std::string_view arg(*std::next(it));
-    m_options.tags = cuke::internal::tag_expression(arg);
+    m_options.tag_expression = arg;
+  }
+  else if (option.starts_with("-h") || option.starts_with("--help"))
+  {
+    m_options.print_help = true;
   }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {

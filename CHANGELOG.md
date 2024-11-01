@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+### Added 
+- `cwt_cucumber` object for embedding CWT Cucumber and executing tests ([49](https://github.com/ThoSe1990/cwt-cucumber/pull/49))
 
 ## [2.3.1] 2024-10-23
 

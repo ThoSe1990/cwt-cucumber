@@ -183,12 +183,10 @@ TEST_F(hooks_before_all, run_scenario)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::test_runner::setup();
-
   cuke::test_runner runner;
+  runner.setup();
   p.for_each_scenario(runner);
-
-  cuke::test_runner::teardown();
+  runner.teardown();
 
   EXPECT_TRUE(hooks_before_all::hook_called);
   EXPECT_TRUE(hooks_before_all::step_called);
@@ -230,12 +228,10 @@ TEST_F(hooks_after_all, run_scenario)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::test_runner::setup();
-
   cuke::test_runner runner;
+  runner.setup();
   p.for_each_scenario(runner);
-
-  cuke::test_runner::teardown();
+  runner.teardown();
 
   EXPECT_TRUE(hooks_after_all::hook_called);
   EXPECT_TRUE(hooks_after_all::step_called);

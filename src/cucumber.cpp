@@ -9,10 +9,6 @@
 namespace cuke
 {
 
-// TODO:
-// - suppress prints when quiet -> use singleton args, initialialize properly
-//
-
 void print_failed_scenarios()
 {
   bool first = true;
@@ -38,35 +34,45 @@ void print_failed_scenarios()
 
 cuke::results::test_status entry_point(int argc, const char* argv[])
 {
-  if (cuke::internal::print_help(argc, argv))
+  cwt_cucumber cucumber(argc, argv);
+  if (cucumber.print_help())
   {
-    return cuke::results::final_result();
+    return cuke::results::test_status::passed;
   }
+  cucumber.run_tests();
+  cucumber.print_results();
+  return cucumber.final_result();
+}
 
-  cuke_args& args = program_arguments(argc, argv);
-  
-  cuke::test_runner::setup();
-  for (const auto& feature : args.get_options().files)
-  {
-    cuke::parser p;
-    p.parse_from_file(feature.path);
-
-    cuke::test_runner runner(feature.lines_to_run,
-                             &args.get_options().tags);
-    if (args.get_options().quiet)
-    {
-      runner.set_quiet();
-    }
-    p.for_each_scenario(runner);
-    runner.clear_tags();
-  }
-  cuke::test_runner::teardown();
-
+cwt_cucumber::cwt_cucumber(int argc, const char* argv[])
+{
+  program_arguments().initialize(argc, argv);
+}
+void cwt_cucumber::run_tests() const noexcept
+{
+  cuke::test_runner runner;
+  runner.setup();
+  runner.run();
+  runner.teardown();
+}
+void cwt_cucumber::print_results() const noexcept
+{
   print_failed_scenarios();
   internal::println();
   internal::println(results::scenarios_to_string());
   internal::println(results::steps_to_string());
-
+}
+bool cwt_cucumber::print_help() const noexcept
+{
+  if (m_args.get_options().print_help)
+  {
+    internal::print_help_screen();
+    return true;
+  }
+  return false;
+}
+results::test_status cwt_cucumber::final_result() const noexcept
+{
   return cuke::results::final_result();
 }
 

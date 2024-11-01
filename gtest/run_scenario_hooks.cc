@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <valarray>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"

@@ -4,6 +4,8 @@
 #include <gtest/gtest.h>
 
 #include "../src/options.hpp"
+#include "../src/tags.hpp"
+
 #include "test_paths.hpp"
 
 TEST(options, init_obj)
@@ -11,7 +13,7 @@ TEST(options, init_obj)
   cuke::cuke_args targs;
   EXPECT_FALSE(targs.get_options().quiet);
   EXPECT_TRUE(targs.get_options().files.empty());
-  EXPECT_TRUE(targs.get_options().tags.empty());
+  EXPECT_TRUE(targs.get_options().tag_expression.empty());
 }
 TEST(options, file_path_doesnt_exist)
 {
@@ -35,9 +37,8 @@ TEST(options, file_path_does_exist)
 
 namespace details
 {
-[[nodiscard]] bool has_file(
-    const std::vector<cuke::feature_file>& container,
-    std::string_view file_name)
+[[nodiscard]] bool has_file(const std::vector<cuke::feature_file>& container,
+                            std::string_view file_name)
 {
   for (const cuke::feature_file& file : container)
   {
@@ -106,13 +107,12 @@ TEST(options, tag_expression_1)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_FALSE(targs.get_options().tags.empty());
-  EXPECT_TRUE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag1"}}));
-  EXPECT_TRUE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag2"}}));
-  EXPECT_FALSE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag3"}}));
+  ASSERT_FALSE(targs.get_options().tag_expression.empty());
+
+  cuke::internal::tag_expression tags(targs.get_options().tag_expression);
+  EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
+  EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
+  EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
 }
 TEST(options, tag_expression_2)
 {
@@ -120,11 +120,10 @@ TEST(options, tag_expression_2)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_FALSE(targs.get_options().tags.empty());
-  EXPECT_TRUE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag1"}}));
-  EXPECT_TRUE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag2"}}));
-  EXPECT_FALSE(
-      targs.get_options().tags.evaluate(std::vector{std::string{"@tag3"}}));
+  ASSERT_FALSE(targs.get_options().tag_expression.empty());
+
+  cuke::internal::tag_expression tags(targs.get_options().tag_expression);
+  EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
+  EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
+  EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
 }

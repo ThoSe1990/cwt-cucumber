@@ -7,7 +7,6 @@
 
 #include "util.hpp"
 #include "version.hpp"
-#include "tags.hpp"
 
 namespace cuke
 {
@@ -21,7 +20,8 @@ struct feature_file
 struct options
 {
   bool quiet{false};
-  cuke::internal::tag_expression tags;
+  bool print_help{false};
+  std::string tag_expression;
   std::vector<feature_file> files;
 };
 
@@ -48,41 +48,7 @@ class cuke_args
 namespace internal
 {
 
-class runtime_options
-{
- public:
-  [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
-  void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
-
- private:
-  bool m_skip_scenario{false};
-};
-
-runtime_options& get_runtime_options();
-
-static void do_print_help();
-[[nodiscard]] static bool print_help(int argc, const char* argv[])
-{
-  std::span<const char*> program_arguments(argv, argc);
-
-  if (program_arguments.size() == 1)
-  {
-    do_print_help();
-    return true;
-  }
-  else if (program_arguments.size() == 2)
-  {
-    std::string_view arg = program_arguments[1];
-    if (arg == std::string_view("-h") || arg == std::string_view("--help"))
-    {
-      do_print_help();
-      return true;
-    }
-  }
-  return false;
-}
-
-static void do_print_help()
+static void print_help_screen()
 {
   println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
                       cuke::version::as_string()));
@@ -109,6 +75,19 @@ static void do_print_help()
   println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
   println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
+
+class runtime_options
+{
+ public:
+  [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
+  void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
+
+ private:
+  bool m_skip_scenario{false};
+};
+
+runtime_options& get_runtime_options();
+
 }  // namespace internal
 
 void skip_scenario();
