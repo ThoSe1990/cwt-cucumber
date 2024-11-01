@@ -6,6 +6,18 @@
 #include "../src/parser.hpp"
 #include "test_paths.hpp"
 
+namespace
+{
+cuke::cuke_args make_args(std::string_view file_arg)
+{
+  const char* argv[] = {"program", file_arg.data()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::cuke_args targs;
+  targs.initialize(argc, argv);
+  return targs;
+}
+}  // namespace
+
 class file_io : public ::testing::Test
 {
  protected:
@@ -26,11 +38,9 @@ class file_io : public ::testing::Test
 
 TEST_F(file_io, run_scenario)
 {
-  cuke::parser p;
-  p.parse_from_file(
-      std::format("{}/test_files/example.feature", unittests::test_dir()));
-  cuke::test_runner runner;
-  p.for_each_scenario(runner);
+  cuke::test_runner runner(make_args(
+      std::format("{}/test_files/example.feature", unittests::test_dir())));
+  runner.run();
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   ASSERT_EQ(cuke::results::features_back().scenarios.size(), 7);
   EXPECT_EQ(cuke::results::features_back().status,
@@ -52,20 +62,9 @@ template <typename T>
 
 TEST_F(file_io, run_single_scenario)
 {
-  std::string file_arg =
-      std::format("{}/test_files/example.feature:3", unittests::test_dir());
-  const char* argv[] = {"program", file_arg.c_str()};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::cuke_args targs;
-  targs.initialize(argc, argv);
-
-  const cuke::feature_file& file = targs.get_options().files.back();
-
-  cuke::parser p;
-  p.parse_from_file(file.path);
-
-  cuke::test_runner runner(file.lines_to_run);
-  p.for_each_scenario(runner);
+  cuke::test_runner runner(make_args(
+      std::format("{}/test_files/example.feature:3", unittests::test_dir())));
+  runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
@@ -75,20 +74,9 @@ TEST_F(file_io, run_single_scenario)
 }
 TEST_F(file_io, run_single_scenario_wrong_line)
 {
-  std::string file_arg =
-      std::format("{}/test_files/example.feature:4", unittests::test_dir());
-  const char* argv[] = {"program", file_arg.c_str()};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::cuke_args targs;
-  targs.initialize(argc, argv);
-
-  const cuke::feature_file& file = targs.get_options().files.back();
-
-  cuke::parser p;
-  p.parse_from_file(file.path);
-
-  cuke::test_runner runner(file.lines_to_run);
-  p.for_each_scenario(runner);
+  cuke::test_runner runner(make_args(
+      std::format("{}/test_files/example.feature:4", unittests::test_dir())));
+  runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
@@ -100,18 +88,9 @@ TEST_F(file_io, run_single_scenario_outline)
 {
   std::string file_arg =
       std::format("{}/test_files/example.feature:21", unittests::test_dir());
-  const char* argv[] = {"program", file_arg.c_str()};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::cuke_args targs;
-  targs.initialize(argc, argv);
 
-  const cuke::feature_file& file = targs.get_options().files.back();
-
-  cuke::parser p;
-  p.parse_from_file(file.path);
-
-  cuke::test_runner runner(file.lines_to_run);
-  p.for_each_scenario(runner);
+  cuke::test_runner runner(make_args(file_arg));
+  runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
@@ -123,18 +102,8 @@ TEST_F(file_io, run_multiple_scenario)
 {
   std::string file_arg = std::format("{}/test_files/example.feature:3:21:11",
                                      unittests::test_dir());
-  const char* argv[] = {"program", file_arg.c_str()};
-  int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::cuke_args targs;
-  targs.initialize(argc, argv);
-
-  const cuke::feature_file& file = targs.get_options().files.back();
-
-  cuke::parser p;
-  p.parse_from_file(file.path);
-
-  cuke::test_runner runner(file.lines_to_run);
-  p.for_each_scenario(runner);
+  cuke::test_runner runner(make_args(file_arg));
+  runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;

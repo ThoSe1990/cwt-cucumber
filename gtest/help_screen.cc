@@ -7,28 +7,40 @@ using namespace cuke::internal;
 TEST(help_screen, check_print_1)
 {
   int test_argc = 1;
-  const char* test_argv[] = {"some-executable"}; 
-  
-  EXPECT_TRUE(print_help(test_argc, test_argv));
+  const char* test_argv[] = {"some-executable"};
+
+  cuke::cuke_args args;
+  args.initialize(test_argc, test_argv);
+
+  EXPECT_TRUE(args.get_options().print_help);
 }
 TEST(help_screen, check_print_2)
 {
   int test_argc = 2;
-  const char* test_argv[] = {"some-executable", "-h"}; 
-  
-  EXPECT_TRUE(print_help(test_argc, test_argv));
+  const char* test_argv[] = {"some-executable", "-h"};
+
+  cuke::cuke_args args;
+  args.initialize(test_argc, test_argv);
+
+  EXPECT_TRUE(args.get_options().print_help);
 }
 TEST(help_screen, check_print_3)
 {
   int test_argc = 2;
-  const char* test_argv[] = {"some-executable", "--help"}; 
-  
-  EXPECT_TRUE(print_help(test_argc, test_argv));
+  const char* test_argv[] = {"some-executable", "--help"};
+
+  cuke::cuke_args args;
+  args.initialize(test_argc, test_argv);
+
+  EXPECT_TRUE(args.get_options().print_help);
 }
 TEST(help_screen, check_print_4)
 {
-  int test_argc = 2;
-  const char* test_argv[] = {"some-executable", "some other arg", "--help"}; 
-  
-  EXPECT_FALSE(print_help(test_argc, test_argv));
+  int test_argc = 3;
+  const char* test_argv[] = {"some-executable", "some other arg", "--help"};
+
+  cuke::cuke_args args;
+  args.initialize(test_argc, test_argv);
+
+  EXPECT_TRUE(args.get_options().print_help);
 }

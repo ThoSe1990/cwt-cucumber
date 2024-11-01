@@ -7,7 +7,6 @@
 
 #include "util.hpp"
 #include "version.hpp"
-#include "tags.hpp"
 
 namespace cuke
 {
@@ -21,7 +20,8 @@ struct feature_file
 struct options
 {
   bool quiet{false};
-  cuke::internal::tag_expression tags;
+  bool print_help{false};
+  std::string tag_expression;
   std::vector<feature_file> files;
 };
 
@@ -45,6 +45,34 @@ class cuke_args
 [[nodiscard]] cuke_args& program_arguments(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
+static void print_help()
+{
+  internal::println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
+                                cuke::version::as_string()));
+  internal::println("Usage:");
+  internal::println("  ./<your-executable> ./<file>.feature [options]");
+  internal::println("  ./<your-executable> ./<dir> [options]\n");
+
+  internal::println(
+      "Executing single scenarios from line (multiple lines possible): ");
+  internal::println("  <your-executable> ./<file>.feature:4");
+  internal::println("  <your-executable> ./<file>.feature:4:10:15\n");
+
+  internal::println("Options:");
+  internal::println("  -h --help\t\t\tPrint the help screen to stdout");
+  internal::println(
+      "  -q --quiet\t\t\tQuiet mode, only the final result will be printed to "
+      "stdout.");
+  internal::println(
+      "  -t --tags \"expression\"\tProvide a tag expression to execute only "
+      "Features/Scenarios with given tags");
+  internal::println("\t\t\t\tExamples:");
+  internal::println("\t\t\t\t  \"@tag1\"");
+  internal::println("\t\t\t\t  \"@tag1 or @tag2\"");
+  internal::println("\t\t\t\t  \"not @tag2\"");
+  internal::println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
+  internal::println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
+}
 namespace internal
 {
 
@@ -60,55 +88,6 @@ class runtime_options
 
 runtime_options& get_runtime_options();
 
-static void do_print_help();
-[[nodiscard]] static bool print_help(int argc, const char* argv[])
-{
-  std::span<const char*> program_arguments(argv, argc);
-
-  if (program_arguments.size() == 1)
-  {
-    do_print_help();
-    return true;
-  }
-  else if (program_arguments.size() == 2)
-  {
-    std::string_view arg = program_arguments[1];
-    if (arg == std::string_view("-h") || arg == std::string_view("--help"))
-    {
-      do_print_help();
-      return true;
-    }
-  }
-  return false;
-}
-
-static void do_print_help()
-{
-  println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
-                      cuke::version::as_string()));
-  println("Usage:");
-  println("  ./<your-executable> ./<file>.feature [options]");
-  println("  ./<your-executable> ./<dir> [options]\n");
-
-  println("Executing single scenarios from line (multiple lines possible): ");
-  println("  <your-executable> ./<file>.feature:4");
-  println("  <your-executable> ./<file>.feature:4:10:15\n");
-
-  println("Options:");
-  println("  -h --help\t\t\tPrint the help screen to stdout");
-  println(
-      "  -q --quiet\t\t\tQuiet mode, only the final result will be printed to "
-      "stdout.");
-  println(
-      "  -t --tags \"expression\"\tProvide a tag expression to execute only "
-      "Features/Scenarios with given tags");
-  println("\t\t\t\tExamples:");
-  println("\t\t\t\t  \"@tag1\"");
-  println("\t\t\t\t  \"@tag1 or @tag2\"");
-  println("\t\t\t\t  \"not @tag2\"");
-  println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
-  println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
-}
 }  // namespace internal
 
 void skip_scenario();

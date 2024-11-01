@@ -3,6 +3,18 @@
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
 
+namespace
+{
+cuke::cuke_args make_args(std::string_view tags)
+{
+  const char* argv[] = {"program", "-t", tags.data()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::cuke_args args;
+  args.initialize(argc, argv);
+  return args;
+}
+}  // namespace
+
 class run_scenarios_tags : public ::testing::Test
 {
  protected:
@@ -40,10 +52,9 @@ TEST_F(run_scenarios_tags, tagged_feature)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
 }
 TEST_F(run_scenarios_tags, tagged_scenario)
@@ -58,10 +69,9 @@ TEST_F(run_scenarios_tags, tagged_scenario)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
 }
 
@@ -82,10 +92,9 @@ TEST_F(run_scenarios_tags, tagged_scenarios_1)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("not @tag1");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("not @tag1"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 0);
 }
 
@@ -106,10 +115,9 @@ TEST_F(run_scenarios_tags, tagged_scenarios_2)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 2);
 }
 TEST_F(run_scenarios_tags, tagged_scenarios_3)
@@ -129,10 +137,10 @@ TEST_F(run_scenarios_tags, tagged_scenarios_3)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 or @tag2 and not @tag3");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1 or @tag2 and not @tag3"));
+  runner.run();
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
 }
 TEST_F(run_scenarios_tags, tagged_scenario_outline_1)
@@ -154,10 +162,9 @@ TEST_F(run_scenarios_tags, tagged_scenario_outline_1)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 2);
 }
 TEST_F(run_scenarios_tags, tagged_scenario_outline_2)
@@ -180,10 +187,9 @@ TEST_F(run_scenarios_tags, tagged_scenario_outline_2)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 and @tag2");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1 and @tag2"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
   EXPECT_EQ(run_scenarios_tags::test_value, 99);
 }
@@ -208,10 +214,9 @@ TEST_F(run_scenarios_tags, tagged_scenario_outline_3)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 and @tag2");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1 and @tag2"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 2);
 }
 TEST_F(run_scenarios_tags, tagged_scenario_outline_4)
@@ -235,8 +240,7 @@ TEST_F(run_scenarios_tags, tagged_scenario_outline_4)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 and @tag2 and @tag3");
-  cuke::test_runner runner({}, &tags);
+  cuke::test_runner runner(make_args("@tag1 and @tag2 and @tag3"));
 
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
@@ -266,10 +270,9 @@ TEST_F(run_scenarios_tags, tagged_scenario_and_scenario_outline_1)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 and not @tag2");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1 and not @tag2"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
   EXPECT_EQ(run_scenarios_tags::test_value, 0);
 }
@@ -297,10 +300,9 @@ TEST_F(run_scenarios_tags, tagged_scenario_and_scenario_outline_2)
   cuke::parser p;
   p.parse_script(script);
 
-  cuke::internal::tag_expression tags("@tag1 and @tag3");
-  cuke::test_runner runner({}, &tags);
-
+  cuke::test_runner runner(make_args("@tag1 and @tag3"));
   p.for_each_scenario(runner);
+
   EXPECT_EQ(run_scenarios_tags::call_count, 1);
   EXPECT_EQ(run_scenarios_tags::test_value, 99);
 }

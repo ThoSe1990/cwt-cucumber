@@ -9,6 +9,7 @@
 #include "util.hpp"
 #include "table.hpp"
 #include "options.hpp"
+#include "lexer.hpp"
 
 namespace cuke::internal
 {
