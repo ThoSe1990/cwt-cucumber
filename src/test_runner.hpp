@@ -216,9 +216,9 @@ class cuke_printer : public stdout_interface
 class test_runner
 {
  public:
-  test_runner() = default;
-  test_runner(const cuke_args& args)
-      : m_args(args), m_tag_expression(m_args.get_options().tag_expression)
+  test_runner()
+      : m_args(program_arguments()),
+        m_tag_expression(m_args.get_options().tag_expression)
   {
     if (m_args.get_options().quiet)
     {

@@ -9,6 +9,11 @@
 class stdout_print : public ::testing::Test
 {
  protected:
+  void TearDown() override
+  {
+    auto& args = cuke::program_arguments(0, {});
+    args.clear();
+  }
   void SetUp() override
   {
     testing::internal::CaptureStdout();
@@ -136,7 +141,7 @@ TEST_F(stdout_print, scenario_from_file)
   cuke::parser p;
   p.parse_from_file(file);
 
-  cuke::test_runner runner(targs);
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
 
   std::string output = testing::internal::GetCapturedStdout();
@@ -278,7 +283,7 @@ TEST_F(stdout_print, scenario_fail_final_form_file)
   cuke::parser p;
   p.parse_from_file(file);
 
-  cuke::test_runner runner(targs);
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
 
   cuke::print_failed_scenarios();
@@ -305,7 +310,7 @@ TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
   cuke::parser p;
   p.parse_from_file(file);
 
-  cuke::test_runner runner(targs);
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
 
   cuke::print_failed_scenarios();
@@ -332,7 +337,7 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   cuke::parser p;
   p.parse_from_file(file);
 
-  cuke::test_runner runner(targs);
+  cuke::test_runner runner;
   p.for_each_scenario(runner);
 
   cuke::print_failed_scenarios();

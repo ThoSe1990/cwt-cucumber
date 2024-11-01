@@ -3,18 +3,18 @@
 #include <algorithm>
 
 #include "../src/test_runner.hpp"
-#include "../src/parser.hpp"
+
 #include "test_paths.hpp"
 
 namespace
 {
-cuke::cuke_args make_args(std::string_view file_arg)
+void make_args(std::string_view file_arg)
 {
   const char* argv[] = {"program", file_arg.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  return targs;
+  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
 }
 }  // namespace
 
@@ -33,13 +33,16 @@ class file_io : public ::testing::Test
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
+    auto& args = cuke::program_arguments(0, {});
+    args.clear();
   }
 };
 
 TEST_F(file_io, run_scenario)
 {
-  cuke::test_runner runner(make_args(
-      std::format("{}/test_files/example.feature", unittests::test_dir())));
+  make_args(
+      std::format("{}/test_files/example.feature", unittests::test_dir()));
+  cuke::test_runner runner;
   runner.run();
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   ASSERT_EQ(cuke::results::features_back().scenarios.size(), 7);
@@ -62,8 +65,9 @@ template <typename T>
 
 TEST_F(file_io, run_single_scenario)
 {
-  cuke::test_runner runner(make_args(
-      std::format("{}/test_files/example.feature:3", unittests::test_dir())));
+  make_args(
+      std::format("{}/test_files/example.feature:3", unittests::test_dir()));
+  cuke::test_runner runner;
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -74,8 +78,9 @@ TEST_F(file_io, run_single_scenario)
 }
 TEST_F(file_io, run_single_scenario_wrong_line)
 {
-  cuke::test_runner runner(make_args(
-      std::format("{}/test_files/example.feature:4", unittests::test_dir())));
+  make_args(
+      std::format("{}/test_files/example.feature:4", unittests::test_dir()));
+  cuke::test_runner runner;
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -88,8 +93,8 @@ TEST_F(file_io, run_single_scenario_outline)
 {
   std::string file_arg =
       std::format("{}/test_files/example.feature:21", unittests::test_dir());
-
-  cuke::test_runner runner(make_args(file_arg));
+  make_args(file_arg);
+  cuke::test_runner runner;
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
@@ -102,7 +107,8 @@ TEST_F(file_io, run_multiple_scenario)
 {
   std::string file_arg = std::format("{}/test_files/example.feature:3:21:11",
                                      unittests::test_dir());
-  cuke::test_runner runner(make_args(file_arg));
+  make_args(file_arg);
+  cuke::test_runner runner;
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);

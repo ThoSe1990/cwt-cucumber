@@ -46,11 +46,11 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
 
 cwt_cucumber::cwt_cucumber(int argc, const char* argv[])
 {
-  m_args.initialize(argc, argv);
+  program_arguments().initialize(argc, argv);
 }
 void cwt_cucumber::run_tests() const noexcept
 {
-  cuke::test_runner runner(m_args);
+  cuke::test_runner runner;
   runner.setup();
   runner.run();
   runner.teardown();
