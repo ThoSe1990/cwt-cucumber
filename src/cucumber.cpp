@@ -37,7 +37,6 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
   cwt_cucumber cucumber(argc, argv);
   if (cucumber.print_help())
   {
-    print_help();
     return cuke::results::test_status::passed;
   }
   cucumber.run_tests();
@@ -65,7 +64,12 @@ void cwt_cucumber::print_results() const noexcept
 }
 bool cwt_cucumber::print_help() const noexcept
 {
-  return m_args.get_options().print_help;
+  if (m_args.get_options().print_help)
+  {
+    internal::print_help_screen();
+    return true;
+  }
+  return false;
 }
 results::test_status cwt_cucumber::final_result() const noexcept
 {

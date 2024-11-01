@@ -19,7 +19,7 @@ class cwt_cucumber
   cwt_cucumber(int argc, const char* argv[]);
   void run_tests() const noexcept;
   void print_results() const noexcept;
-  [[nodiscard]] bool print_help() const noexcept;
+  bool print_help() const noexcept;
   [[nodiscard]] results::test_status final_result() const noexcept;
 
  private:
