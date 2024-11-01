@@ -242,11 +242,6 @@ class test_runner
     }
   }
 
-  void set_quiet()
-  {
-    m_printer.reset(std::make_unique<stdout_interface>().release());
-  }
-
   void visit(const cuke::ast::feature_node& feature)
   {
     push_tags(feature.tags());

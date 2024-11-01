@@ -306,7 +306,6 @@ TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
   p.parse_from_file(file);
 
   cuke::test_runner runner(targs);
-  runner.set_quiet();
   p.for_each_scenario(runner);
 
   cuke::print_failed_scenarios();
@@ -334,7 +333,6 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   p.parse_from_file(file);
 
   cuke::test_runner runner(targs);
-  runner.set_quiet();
   p.for_each_scenario(runner);
 
   cuke::print_failed_scenarios();
