@@ -52,31 +52,31 @@ class cuke_args
 
 static void print_help_screen()
 {
-  internal::println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
+  println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
                                 cuke::version::as_string()));
-  internal::println("Usage:");
-  internal::println("  ./<your-executable> ./<file>.feature [options]");
-  internal::println("  ./<your-executable> ./<dir> [options]\n");
+  println("Usage:");
+  println("  ./<your-executable> ./<file>.feature [options]");
+  println("  ./<your-executable> ./<dir> [options]\n");
 
-  internal::println(
+  println(
       "Executing single scenarios from line (multiple lines possible): ");
-  internal::println("  <your-executable> ./<file>.feature:4");
-  internal::println("  <your-executable> ./<file>.feature:4:10:15\n");
+  println("  <your-executable> ./<file>.feature:4");
+  println("  <your-executable> ./<file>.feature:4:10:15\n");
 
-  internal::println("Options:");
-  internal::println("  -h --help\t\t\tPrint the help screen to stdout");
-  internal::println(
+  println("Options:");
+  println("  -h --help\t\t\tPrint the help screen to stdout");
+  println(
       "  -q --quiet\t\t\tQuiet mode, only the final result will be printed to "
       "stdout.");
-  internal::println(
+  println(
       "  -t --tags \"expression\"\tProvide a tag expression to execute only "
       "Features/Scenarios with given tags");
-  internal::println("\t\t\t\tExamples:");
-  internal::println("\t\t\t\t  \"@tag1\"");
-  internal::println("\t\t\t\t  \"@tag1 or @tag2\"");
-  internal::println("\t\t\t\t  \"not @tag2\"");
-  internal::println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
-  internal::println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
+  println("\t\t\t\tExamples:");
+  println("\t\t\t\t  \"@tag1\"");
+  println("\t\t\t\t  \"@tag1 or @tag2\"");
+  println("\t\t\t\t  \"not @tag2\"");
+  println("\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
+  println("\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
 }
 
 namespace internal

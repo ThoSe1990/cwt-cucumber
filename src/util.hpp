@@ -110,41 +110,6 @@ inline void print_impl(const T& t)
   std::cout << t;
 }
 
-template <typename... Args>
-inline void print(color c, Args&&... args)
-{
-  auto it = color_codes.find(c);
-  if (it != color_codes.end())
-  {
-    std::cout << it->second;
-    (print_impl(std::forward<Args>(args)), ...);
-    std::cout << color_codes.at(color::standard);
-  }
-  else
-  {
-    std::cerr << "Color code " << to_uint(c) << " not found!\n";
-  }
-}
-template <typename... Args>
-inline void print(Args&&... args)
-{
-  (print_impl(std::forward<Args>(args)), ...);
-}
-template <typename... Args>
-inline void println(Args&&... args)
-{
-  (print_impl(std::forward<Args>(args)), ...);
-  std::cout << '\n';
-}
-template <typename... Args>
-inline void println(color c, Args&&... args)
-{
-  print(c, std::forward<Args>(args)...);
-  std::cout << '\n';
-}
-inline void println() { std::cout << '\n'; }
-inline void println(std::string_view msg) { println(color::standard, msg); }
-
 [[nodiscard]] inline std::string to_string(cuke::results::test_status status)
 {
   switch (status)
@@ -263,3 +228,45 @@ static std::string_view rtrim(std::string_view str)
 }
 
 }  // namespace cuke::internal
+
+namespace cuke
+{
+
+template <typename... Args>
+inline void print(internal::color c, Args&&... args)
+{
+  auto it = internal::color_codes.find(c);
+  if (it != internal::color_codes.end())
+  {
+    std::cout << it->second;
+    (internal::print_impl(std::forward<Args>(args)), ...);
+    std::cout << internal::color_codes.at(internal::color::standard);
+  }
+  else
+  {
+    std::cerr << "Color code " << to_uint(c) << " not found!\n";
+  }
+}
+template <typename... Args>
+inline void print(Args&&... args)
+{
+  (internal::print_impl(std::forward<Args>(args)), ...);
+}
+template <typename... Args>
+inline void println(Args&&... args)
+{
+  (internal::print_impl(std::forward<Args>(args)), ...);
+  std::cout << '\n';
+}
+template <typename... Args>
+inline void println(internal::color c, Args&&... args)
+{
+  print(c, std::forward<Args>(args)...);
+  std::cout << '\n';
+}
+inline void println() { std::cout << '\n'; }
+inline void println(std::string_view msg)
+{
+  println(internal::color::standard, msg);
+}
+}  // namespace cuke

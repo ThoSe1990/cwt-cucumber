@@ -58,7 +58,7 @@ class value
     }
     catch (...)
     {
-      internal::println(
+      println(
           internal::color::red,
           std::format("cuke::value::as: Cannot convert {} to integral type",
                       m_value));
@@ -75,7 +75,7 @@ class value
     }
     catch (...)
     {
-      internal::println(
+      println(
           internal::color::red,
           std::format(
               "cuke::value::as: Cannot convert {} to floating point type",
