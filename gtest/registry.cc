@@ -99,7 +99,7 @@ TEST_F(registry_tests, sort_by_type_1)
 
   ASSERT_EQ(cuke::registry().steps().size(), 3);
 
-  cuke::sort_steps_by_type();
+  cuke::registry().sort_steps_by_type();
 
   EXPECT_EQ(cuke::registry().steps().at(0).step_type(), step::type::given);
   EXPECT_EQ(cuke::registry().steps().at(1).step_type(), step::type::step);
@@ -138,7 +138,7 @@ TEST_F(registry_tests, sort_by_type_2)
 
   ASSERT_EQ(cuke::registry().steps().size(), 9);
 
-  cuke::sort_steps_by_type();
+  cuke::registry().sort_steps_by_type();
 
   EXPECT_EQ(cuke::registry().steps().at(0).step_type(), step::type::given);
   EXPECT_EQ(cuke::registry().steps().at(1).step_type(), step::type::given);

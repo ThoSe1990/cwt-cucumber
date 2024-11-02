@@ -3,4 +3,20 @@
 
 #include "registry.hpp"
 
-std::string to_human_readable_string() { return ""; }
+namespace cuke::catalog
+{
+std::string as_readable_text()
+{
+  std::string result{"Step Definitions (catalog):\n"};
+  result.append("---------------------------\n");
+  for (const auto step : cuke::registry().steps())
+  {
+    result.append(to_string(step.step_type()));
+    result += ' ';
+    result.append(step.definition());
+    result += '\n';
+  }
+  return result;
+}
+
+}  // namespace cuke::catalog

@@ -5,6 +5,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.template ${CMAKE_CURRENT_SOUR
 set(cucumber-src 
   ${CMAKE_CURRENT_SOURCE_DIR}/test_results.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/registry.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/catalog.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/context.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/cucumber.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp

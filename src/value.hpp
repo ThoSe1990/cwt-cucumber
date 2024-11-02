@@ -168,6 +168,21 @@ class step
   type m_type;
 };
 
+[[nodiscard]] static std::string to_string(step::type type)
+{
+  switch (type)
+  {
+    case step::type::given:
+      return "Given";
+    case step::type::when:
+      return "When";
+    case step::type::then:
+      return "Then";
+    case step::type::step:
+      return "Step";
+  }
+}
+
 }  // namespace cuke::internal
 
 #include "table.hpp"
