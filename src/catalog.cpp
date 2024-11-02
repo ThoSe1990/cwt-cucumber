@@ -1,7 +1,8 @@
-
 #include "catalog.hpp"
 
 #include "registry.hpp"
+
+#include <nlohmann/json.hpp>
 
 namespace cuke::catalog
 {
