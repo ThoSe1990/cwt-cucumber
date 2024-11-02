@@ -97,3 +97,14 @@ Step h
 
   EXPECT_EQ(expected, cuke::catalog::as_readable_text());
 }
+
+TEST_F(catalog, json_init)
+{
+  cuke::registry().push_step(cuke::internal::step(
+      [](const cuke::value_array& values, const auto&, const auto&) {},
+      "a step with {int} and {string}"));
+  cuke::registry().push_step(cuke::internal::step(
+      [](const cuke::value_array& values, const auto&, const auto&) {},
+      "another step with {word} and {}"));
+  std::cout << cuke::catalog::as_json() << std::endl;
+}
