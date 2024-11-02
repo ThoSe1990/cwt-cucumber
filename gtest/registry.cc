@@ -67,3 +67,86 @@ TEST_F(registry_tests, step_hook_after)
   cuke::registry().push_hook_after_step(cuke::internal::hook([]() {}));
   EXPECT_EQ(cuke::registry().hooks_after_step().size(), 1);
 }
+TEST_F(registry_tests, default_order)
+{
+  using namespace cuke::internal;
+  cuke::registry().push_step(step(
+      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {},
+           "another step"));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {},
+           "a given step", step::type::given));
+
+  ASSERT_EQ(cuke::registry().steps().size(), 3);
+
+  EXPECT_EQ(cuke::registry().steps().at(0).step_type(), step::type::step);
+  EXPECT_EQ(cuke::registry().steps().at(1).step_type(), step::type::step);
+  EXPECT_EQ(cuke::registry().steps().at(2).step_type(), step::type::given);
+}
+TEST_F(registry_tests, sort_by_type_1)
+{
+  using namespace cuke::internal;
+  cuke::registry().push_step(step(
+      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {},
+           "another step"));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {},
+           "a given step", step::type::given));
+
+  ASSERT_EQ(cuke::registry().steps().size(), 3);
+
+  cuke::sort_steps_by_type();
+
+  EXPECT_EQ(cuke::registry().steps().at(0).step_type(), step::type::given);
+  EXPECT_EQ(cuke::registry().steps().at(1).step_type(), step::type::step);
+  EXPECT_EQ(cuke::registry().steps().at(2).step_type(), step::type::step);
+}
+TEST_F(registry_tests, sort_by_type_2)
+{
+  using namespace cuke::internal;
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "a",
+           step::type::when));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "b",
+           step::type::then));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "c",
+           step::type::given));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "d",
+           step::type::given));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "e",
+           step::type::then));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "f",
+           step::type::when));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "g",
+           step::type::when));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "h",
+           step::type::step));
+  cuke::registry().push_step(
+      step([](const cuke::value_array&, const auto&, const auto&) {}, "i",
+           step::type::when));
+
+  ASSERT_EQ(cuke::registry().steps().size(), 9);
+
+  cuke::sort_steps_by_type();
+
+  EXPECT_EQ(cuke::registry().steps().at(0).step_type(), step::type::given);
+  EXPECT_EQ(cuke::registry().steps().at(1).step_type(), step::type::given);
+  EXPECT_EQ(cuke::registry().steps().at(2).step_type(), step::type::when);
+  EXPECT_EQ(cuke::registry().steps().at(3).step_type(), step::type::when);
+  EXPECT_EQ(cuke::registry().steps().at(4).step_type(), step::type::when);
+  EXPECT_EQ(cuke::registry().steps().at(5).step_type(), step::type::when);
+  EXPECT_EQ(cuke::registry().steps().at(6).step_type(), step::type::then);
+  EXPECT_EQ(cuke::registry().steps().at(7).step_type(), step::type::then);
+  EXPECT_EQ(cuke::registry().steps().at(8).step_type(), step::type::step);
+}

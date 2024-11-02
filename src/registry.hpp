@@ -30,6 +30,12 @@ static void run_hook(const std::vector<Hook>& hooks,
 class registry
 {
  public:
+  template <typename Compare>
+  void sort_steps(Compare compare)
+  {
+    std::sort(m_steps.begin(), m_steps.end(), compare);
+  }
+
   void clear() noexcept
   {
     m_steps.clear();
@@ -132,5 +138,6 @@ class registry
 }  // namespace internal
 
 [[nodiscard]] internal::registry& registry();
+void sort_steps_by_type();
 
 }  // namespace cuke

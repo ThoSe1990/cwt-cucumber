@@ -129,8 +129,17 @@ using step_callback = void (*)(const cuke::value_array& args,
 class step
 {
  public:
-  step(step_callback cb, const std::string& definition)
-      : m_callback(cb), m_definition(definition)
+  enum class type
+  {
+    given,
+    when,
+    then,
+    step
+  };
+
+  step(step_callback cb, const std::string& definition,
+       type step_type = type::step)
+      : m_callback(cb), m_definition(definition), m_type(step_type)
   {
     std::tie(m_regex_definition, m_value_types) =
         create_regex_definition(add_escape_chars(m_definition));
@@ -149,12 +158,14 @@ class step
   {
     m_callback(values, doc_string, t);
   }
+  type step_type() const noexcept { return m_type; }
 
  private:
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
   std::vector<token_type> m_value_types;
+  type m_type;
 };
 
 }  // namespace cuke::internal

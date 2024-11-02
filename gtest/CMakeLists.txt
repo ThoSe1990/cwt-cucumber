@@ -9,6 +9,7 @@ if(GTest_FOUND)
   add_executable(${target} 
     ${CMAKE_CURRENT_SOURCE_DIR}/ast.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/ast_visitor.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/catalog.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/context.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/file_io.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
