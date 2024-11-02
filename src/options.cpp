@@ -1,6 +1,7 @@
 #include <optional>
 
 #include "options.hpp"
+#include "catalog.hpp"
 #include "util.hpp"
 
 namespace cuke
@@ -65,6 +66,14 @@ void cuke_args::process_option(std::span<const char*>::iterator it)
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
     m_options.quiet = true;
+  }
+  else if (option == "--steps-catalog")
+  {
+    m_options.catalog.readable_text = true;
+  }
+  else if (option == "--steps-catalog-json")
+  {
+    m_options.catalog.json = true;
   }
 }
 

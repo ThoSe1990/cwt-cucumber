@@ -5,6 +5,7 @@
 #include "context.hpp"   // NOLINT
 #include "get_args.hpp"  // NOLINT
 
+#include "options.hpp"
 #include "test_results.hpp"
 
 namespace cuke
@@ -19,11 +20,8 @@ class cwt_cucumber
   cwt_cucumber(int argc, const char* argv[]);
   void run_tests() const noexcept;
   void print_results() const noexcept;
-  bool print_help() const noexcept;
+  const options& get_options() const noexcept;
   [[nodiscard]] results::test_status final_result() const noexcept;
-
- private:
-  cuke_args m_args;
 };
 
 }  // namespace cuke

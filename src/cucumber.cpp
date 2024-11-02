@@ -1,7 +1,8 @@
 #include "cucumber.hpp"
 #include <algorithm>
 #include "options.hpp"
-#include "parser.hpp"
+#include "catalog.hpp"
+#include "registry.hpp"
 #include "test_results.hpp"
 #include "test_runner.hpp"
 #include "util.hpp"
@@ -35,8 +36,15 @@ void print_failed_scenarios()
 cuke::results::test_status entry_point(int argc, const char* argv[])
 {
   cwt_cucumber cucumber(argc, argv);
-  if (cucumber.print_help())
+  if (cucumber.get_options().print_help)
   {
+    print_help_screen();
+    return cuke::results::test_status::passed;
+  }
+  if (cucumber.get_options().catalog.readable_text)
+  {
+    cuke::registry().sort_steps_by_type();
+    internal::print(cuke::catalog::as_readable_text());
     return cuke::results::test_status::passed;
   }
   cucumber.run_tests();
@@ -62,14 +70,10 @@ void cwt_cucumber::print_results() const noexcept
   internal::println(results::scenarios_to_string());
   internal::println(results::steps_to_string());
 }
-bool cwt_cucumber::print_help() const noexcept
+
+const options& cwt_cucumber::get_options() const noexcept
 {
-  if (m_args.get_options().print_help)
-  {
-    internal::print_help_screen();
-    return true;
-  }
-  return false;
+  return program_arguments().get_options();
 }
 results::test_status cwt_cucumber::final_result() const noexcept
 {
