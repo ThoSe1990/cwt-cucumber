@@ -3,6 +3,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version.template ${CMAKE_CURRENT_SOUR
 
 find_package(nlohmann_json)
 
+
 set(cucumber-src 
   ${CMAKE_CURRENT_SOURCE_DIR}/test_results.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/registry.cpp
@@ -18,9 +19,13 @@ set(cucumber-src
 )
 
 add_library(cucumber ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
-target_link_libraries(cucumber nlohmann_json::nlohmann_json)
 add_library(cucumber-no-main ${cucumber-src} )
-target_link_libraries(cucumber-no-main nlohmann_json::nlohmann_json)
+
+if (nlohmann_json_FOUND)
+    target_link_libraries(cucumber nlohmann_json::nlohmann_json)
+    target_link_libraries(cucumber-no-main nlohmann_json::nlohmann_json)
+    add_compile_definitions(HAS_JSON)
+endif()
 
 if (BUILD_SHARED_LIBS)
     set_target_properties(cucumber PROPERTIES

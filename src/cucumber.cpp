@@ -26,8 +26,8 @@ void print_failed_scenarios()
                         first = false;
                       }
                       print(internal::color::red, scenario.name);
-                      println(internal::color::black, "  ",
-                                        scenario.file, ':', scenario.line);
+                      println(internal::color::black, "  ", scenario.file, ':',
+                              scenario.line);
                     }
                   });
   }
@@ -36,15 +36,12 @@ void print_failed_scenarios()
 cuke::results::test_status entry_point(int argc, const char* argv[])
 {
   cwt_cucumber cucumber(argc, argv);
-  if (cucumber.get_options().print_help)
+  if (cucumber.print_help())
   {
-    print_help_screen();
     return cuke::results::test_status::passed;
   }
-  if (cucumber.get_options().catalog.readable_text)
+  if (cucumber.export_catalog())
   {
-    cuke::registry().sort_steps_by_type();
-    print(cuke::catalog::as_readable_text());
     return cuke::results::test_status::passed;
   }
   cucumber.run_tests();
@@ -74,6 +71,29 @@ void cwt_cucumber::print_results() const noexcept
 const options& cwt_cucumber::get_options() const noexcept
 {
   return program_arguments().get_options();
+}
+bool cwt_cucumber::print_help() const noexcept
+{
+  if (get_options().print_help)
+  {
+    print_help_screen();
+    return true;
+  }
+  return false;
+}
+bool cwt_cucumber::export_catalog() const noexcept
+{
+  if (get_options().catalog.readable_text)
+  {
+    catalog::print_readable_text_to_sink();
+    return true;
+  }
+  if (get_options().catalog.json)
+  {
+    catalog::print_json_to_sink();
+    return true;
+  }
+  return false;
 }
 results::test_status cwt_cucumber::final_result() const noexcept
 {

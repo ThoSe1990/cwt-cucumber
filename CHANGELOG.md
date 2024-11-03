@@ -4,6 +4,8 @@
 
 ### Added 
 - `cwt_cucumber` object for embedding CWT Cucumber and executing tests ([49](https://github.com/ThoSe1990/cwt-cucumber/pull/49))
+- `--steps-catalog [optional: file]` to print the implemented steps as readable text to stdout or a given file ()
+- `--steps-catalog-json [optional: file]` to print the implemented steps as json to stdout or a given file ()
 
 ## [2.3.1] 2024-10-23
 

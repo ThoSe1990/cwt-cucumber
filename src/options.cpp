@@ -1,4 +1,7 @@
+#include <filesystem>
+#include <iostream>
 #include <optional>
+#include <ostream>
 
 #include "options.hpp"
 #include "catalog.hpp"
@@ -35,7 +38,7 @@ void cuke_args::initialize(int argc, const char* argv[])
     std::string_view sv{*it};
     if (sv.starts_with('-'))
     {
-      process_option(it);
+      process_option(it, m_args.end());
     }
     else
     {
@@ -51,12 +54,20 @@ void cuke_args::clear()
 }
 const options& cuke_args::get_options() const noexcept { return m_options; }
 
-void cuke_args::process_option(std::span<const char*>::iterator it)
+void cuke_args::process_option(std::span<const char*>::iterator it,
+                               std::span<const char*>::iterator end)
 {
   std::string_view option(*it);
   if (option.starts_with("-t") || option.starts_with("--tags"))
   {
-    std::string_view arg(*std::next(it));
+    auto next_it = std::next(it);
+    if (next_it == end)
+    {
+      println(internal::color::red,
+              "Expect tag expression after '--tags/-t' option");
+      return;
+    }
+    std::string_view arg(*next_it);
     m_options.tag_expression = arg;
   }
   else if (option.starts_with("-h") || option.starts_with("--help"))
@@ -69,10 +80,12 @@ void cuke_args::process_option(std::span<const char*>::iterator it)
   }
   else if (option == "--steps-catalog")
   {
+    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
     m_options.catalog.readable_text = true;
   }
   else if (option == "--steps-catalog-json")
   {
+    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
     m_options.catalog.json = true;
   }
 }

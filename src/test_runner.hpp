@@ -217,10 +217,9 @@ class test_runner
 {
  public:
   test_runner()
-      : m_args(program_arguments()),
-        m_tag_expression(m_args.get_options().tag_expression)
+      : m_tag_expression(program_arguments().get_options().tag_expression)
   {
-    if (m_args.get_options().quiet)
+    if (program_arguments().get_options().quiet)
     {
       m_printer.reset(std::make_unique<stdout_interface>().release());
     }
@@ -231,7 +230,7 @@ class test_runner
 
   void run()
   {
-    for (const auto& feature : m_args.get_options().files)
+    for (const auto& feature : program_arguments().get_options().files)
     {
       init_feature(feature);
 
@@ -376,7 +375,6 @@ class test_runner
   }
 
  private:
-  const cuke::cuke_args m_args;
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
