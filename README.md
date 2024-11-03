@@ -22,6 +22,7 @@
     1. [Hooks](#hooks)
     1. [Tagged Hooks](#tagged-hooks)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+1. [Catalog](#catalog)
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
@@ -38,7 +39,15 @@ Let us start with Cucumber. First of all build the project on your machine with 
 
 ```shell
 cmake -S . -B ./build
-cmake --build ./build
+cmake --build ./build -j12
+```
+
+Provide `nlohmann-json 3.10.5`, in order to enable the [Catalog](#catalog) as json export. You can do so yourself or use `conan 2.x`, so that CMake's `find_package(nlohmann_json)` succeeds: 
+
+```shell 
+conan install . -of ./build --build missing
+cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE="./build/conan_toolchain.cmake"
+cmake --build ./build -j12
 ```
 
 Now, consider a simple box where we can put items. To run Cucumber tests, we create a scenario: 
@@ -549,6 +558,121 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```shell
 ./build/bin/box ./examples/features
 ```
+## Catalog 
+
+Run the compiled executable with the option `--steps-catalog` or `--steps-catalog-json` in order to print all implemented steps to stdout or a file. To print to a file just append a filepath to `--steps-catalog`. This does not write to `.feature` files and overwrites existing files. 
+
+```shell 
+./build/bin/box --steps-catalog
+
+Step Definitions (catalog):
+---------------------------
+Given An empty box
+When A {word} and {}
+When I place {int} x {string} in it
+When There is a doc string:
+When There is a doc string as vector:
+When I add all items with the raw function:
+When I add all items with the hashes function:
+When I add the following item with the rows_hash function:
+Then They will match {string} and {string}
+Then The {int}. item is {string}
+Then The box contains {int} item(s)
+Then {int} item(s) is/are {string}
+Step doc string:
+```
+
+```shell 
+./build/bin/box --steps-catalog-json
+
+{
+  "steps_catalog": [
+    {
+      "definition": "An empty box",
+      "type": "Given",
+      "var_types": []
+    },
+    {
+      "definition": "A {word} and {}",
+      "type": "When",
+      "var_types": [
+        "word",
+        "anonymous"
+      ]
+    },
+    {
+      "definition": "I place {int} x {string} in it",
+      "type": "When",
+      "var_types": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "definition": "There is a doc string:",
+      "type": "When",
+      "var_types": []
+    },
+    {
+      "definition": "There is a doc string as vector:",
+      "type": "When",
+      "var_types": []
+    },
+    {
+      "definition": "I add all items with the raw function:",
+      "type": "When",
+      "var_types": []
+    },
+    {
+      "definition": "I add all items with the hashes function:",
+      "type": "When",
+      "var_types": []
+    },
+    {
+      "definition": "I add the following item with the rows_hash function:",
+      "type": "When",
+      "var_types": []
+    },
+    {
+      "definition": "They will match {string} and {string}",
+      "type": "Then",
+      "var_types": [
+        "string",
+        "string"
+      ]
+    },
+    {
+      "definition": "The {int}. item is {string}",
+      "type": "Then",
+      "var_types": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "definition": "The box contains {int} item(s)",
+      "type": "Then",
+      "var_types": [
+        "int"
+      ]
+    },
+    {
+      "definition": "{int} item(s) is/are {string}",
+      "type": "Then",
+      "var_types": [
+        "int",
+        "string"
+      ]
+    },
+    {
+      "definition": "doc string:",
+      "type": "Step",
+      "var_types": []
+    }
+  ]
+}
+```
+
 
 ## Disclaimer
 
