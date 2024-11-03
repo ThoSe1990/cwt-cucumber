@@ -7,7 +7,7 @@
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
-#define _STEP(function_name, step_definition)                                 \
+#define _STEP(function_name, step_definition, type)                           \
   void function_name(                                                         \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
@@ -19,7 +19,7 @@
     CONCAT(function_name, _t)()                                               \
     {                                                                         \
       ::cuke::registry().push_step(                                           \
-          ::cuke::internal::step(function_name, step_definition));            \
+          ::cuke::internal::step(function_name, step_definition, type));      \
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
   }                                                                           \
@@ -38,14 +38,14 @@
  * files later
  */
 #define STEP(function_name, step_definition) \
-  _STEP(function_name, step_definition)
+  _STEP(function_name, step_definition, cuke::internal::step::type::step)
 
 /**
  * @def GIVEN(function_name, step_definition)
  * @brief An alias to STEP(name,step) to increase readability of your code
  */
 #define GIVEN(function_name, step_definition) \
-  STEP(function_name, step_definition)
+  _STEP(function_name, step_definition, cuke::internal::step::type::given)
 
 /**
  * @def WHEN(function_name, step_definition)
@@ -53,7 +53,7 @@
  * readability of your code
  */
 #define WHEN(function_name, step_definition) \
-  STEP(function_name, step_definition)
+  _STEP(function_name, step_definition, cuke::internal::step::type::when)
 
 /**
  * @def THEN(function_name, step_definition)
@@ -61,7 +61,7 @@
  * readability of your code
  */
 #define THEN(function_name, step_definition) \
-  STEP(function_name, step_definition)
+  _STEP(function_name, step_definition, cuke::internal::step::type::then)
 
 #define _BEFORE(function_name, tag_expression)                    \
   void function_name();                                           \

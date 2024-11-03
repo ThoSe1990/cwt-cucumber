@@ -1,7 +1,8 @@
 #include "cucumber.hpp"
 #include <algorithm>
 #include "options.hpp"
-#include "parser.hpp"
+#include "catalog.hpp"
+#include "registry.hpp"
 #include "test_results.hpp"
 #include "test_runner.hpp"
 #include "util.hpp"
@@ -21,12 +22,12 @@ void print_failed_scenarios()
                     {
                       if (first)
                       {
-                        internal::println("Failed Scenarios:");
+                        println("Failed Scenarios:");
                         first = false;
                       }
-                      internal::print(internal::color::red, scenario.name);
-                      internal::println(internal::color::black, "  ",
-                                        scenario.file, ':', scenario.line);
+                      print(internal::color::red, scenario.name);
+                      println(internal::color::black, "  ", scenario.file, ':',
+                              scenario.line);
                     }
                   });
   }
@@ -36,6 +37,10 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
 {
   cwt_cucumber cucumber(argc, argv);
   if (cucumber.print_help())
+  {
+    return cuke::results::test_status::passed;
+  }
+  if (cucumber.export_catalog())
   {
     return cuke::results::test_status::passed;
   }
@@ -58,15 +63,35 @@ void cwt_cucumber::run_tests() const noexcept
 void cwt_cucumber::print_results() const noexcept
 {
   print_failed_scenarios();
-  internal::println();
-  internal::println(results::scenarios_to_string());
-  internal::println(results::steps_to_string());
+  println();
+  println(results::scenarios_to_string());
+  println(results::steps_to_string());
+}
+
+const options& cwt_cucumber::get_options() const noexcept
+{
+  return program_arguments().get_options();
 }
 bool cwt_cucumber::print_help() const noexcept
 {
-  if (m_args.get_options().print_help)
+  if (get_options().print_help)
   {
-    internal::print_help_screen();
+    print_help_screen();
+    return true;
+  }
+  return false;
+}
+bool cwt_cucumber::export_catalog(
+    std::size_t json_indents /* = 2 */) const noexcept
+{
+  if (get_options().catalog.readable_text)
+  {
+    catalog::print_readable_text_to_sink();
+    return true;
+  }
+  if (get_options().catalog.json)
+  {
+    catalog::print_json_to_sink(json_indents);
     return true;
   }
   return false;

@@ -58,7 +58,7 @@ class value
     }
     catch (...)
     {
-      internal::println(
+      println(
           internal::color::red,
           std::format("cuke::value::as: Cannot convert {} to integral type",
                       m_value));
@@ -75,7 +75,7 @@ class value
     }
     catch (...)
     {
-      internal::println(
+      println(
           internal::color::red,
           std::format(
               "cuke::value::as: Cannot convert {} to floating point type",
@@ -129,8 +129,17 @@ using step_callback = void (*)(const cuke::value_array& args,
 class step
 {
  public:
-  step(step_callback cb, const std::string& definition)
-      : m_callback(cb), m_definition(definition)
+  enum class type
+  {
+    given,
+    when,
+    then,
+    step
+  };
+
+  step(step_callback cb, const std::string& definition,
+       type step_type = type::step)
+      : m_callback(cb), m_definition(definition), m_type(step_type)
   {
     std::tie(m_regex_definition, m_value_types) =
         create_regex_definition(add_escape_chars(m_definition));
@@ -149,13 +158,30 @@ class step
   {
     m_callback(values, doc_string, t);
   }
+  type step_type() const noexcept { return m_type; }
 
  private:
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
   std::vector<token_type> m_value_types;
+  type m_type;
 };
+
+[[nodiscard]] static std::string to_string(step::type type)
+{
+  switch (type)
+  {
+    case step::type::given:
+      return "Given";
+    case step::type::when:
+      return "When";
+    case step::type::then:
+      return "Then";
+    case step::type::step:
+      return "Step";
+  }
+}
 
 }  // namespace cuke::internal
 

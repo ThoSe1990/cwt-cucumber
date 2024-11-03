@@ -335,7 +335,7 @@ class parser
     const std::string script = internal::read_file(filepath);
     if (script.empty())
     {
-      internal::println(internal::color::red, "Error: File not found '",
+      println(internal::color::red, "Error: File not found '",
                         filepath, "'");
       return;
     }
@@ -375,7 +375,7 @@ class parser
     m_head.set_feature(parse_feature(lex));
     if (lex.error())
     {
-      internal::println(internal::color::red,
+      println(internal::color::red,
                         "Error while parsing script, Gherkin AST deleted");
       m_error = true;
       m_head.clear();

@@ -119,7 +119,7 @@ namespace details
 template <typename T>
 void print_file_line(const T& t)
 {
-  internal::println(internal::color::black, "  ", t.file(), ':', t.line());
+  ::cuke::println(internal::color::black, "  ", t.file(), ':', t.line());
 }
 
 }  // namespace details
@@ -149,22 +149,22 @@ class stdout_interface
 class cuke_printer : public stdout_interface
 {
  public:
-  virtual void println() const noexcept override { internal::println(); }
+  virtual void println() const noexcept override { ::cuke::println(); }
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
-    internal::print(feature.keyword(), ' ', feature.name());
+    ::cuke::print(feature.keyword(), ' ', feature.name());
     details::print_file_line(feature);
-    internal::println();
+    println();
   }
   void print(const cuke::ast::scenario_node& scenario) const noexcept override
   {
-    internal::print(scenario.keyword(), ' ', scenario.name());
+    ::cuke::print(scenario.keyword(), ' ', scenario.name());
     details::print_file_line(scenario);
   }
   void print(const cuke::ast::scenario_outline_node& scenario_outline)
       const noexcept override
   {
-    internal::print(scenario_outline.keyword(), ' ', scenario_outline.name());
+    ::cuke::print(scenario_outline.keyword(), ' ', scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
   void print(const cuke::ast::step_node& step, results::test_status status,
@@ -172,8 +172,8 @@ class cuke_printer : public stdout_interface
   {
     const std::string step_w_example_variables =
         internal::replace_variables(step.name(), row);
-    internal::print(internal::to_color(status), internal::step_prefix(status),
-                    step.keyword(), ' ', step_w_example_variables);
+    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+                  step.keyword(), ' ', step_w_example_variables);
     details::print_file_line(step);
     print_doc_string(step);
     print_table(step);
@@ -181,8 +181,8 @@ class cuke_printer : public stdout_interface
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
-    internal::print(internal::to_color(status), internal::step_prefix(status),
-                    step.keyword(), ' ', step.name());
+    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+                  step.keyword(), ' ', step.name());
     details::print_file_line(step);
     print_doc_string(step);
     print_table(step);
@@ -192,12 +192,12 @@ class cuke_printer : public stdout_interface
     step.if_has_doc_string_do(
         [](const std::vector<std::string>& doc_string)
         {
-          internal::println("\"\"\"");
+          ::cuke::println("\"\"\"");
           for (const std::string& line : doc_string)
           {
-            internal::println(line);
+            ::cuke::println(line);
           }
-          internal::println("\"\"\"");
+          ::cuke::println("\"\"\"");
         });
   }
   void print_table(const cuke::ast::step_node& step) const noexcept
@@ -207,7 +207,7 @@ class cuke_printer : public stdout_interface
         {
           for (const std::string& row : t.to_string_array())
           {
-            internal::println("  ", row);
+            ::cuke::println("  ", row);
           }
         });
   }
@@ -217,10 +217,9 @@ class test_runner
 {
  public:
   test_runner()
-      : m_args(program_arguments()),
-        m_tag_expression(m_args.get_options().tag_expression)
+      : m_tag_expression(program_arguments().get_options().tag_expression)
   {
-    if (m_args.get_options().quiet)
+    if (program_arguments().get_options().quiet)
     {
       m_printer.reset(std::make_unique<stdout_interface>().release());
     }
@@ -231,7 +230,7 @@ class test_runner
 
   void run()
   {
-    for (const auto& feature : m_args.get_options().files)
+    for (const auto& feature : program_arguments().get_options().files)
     {
       init_feature(feature);
 
@@ -376,7 +375,6 @@ class test_runner
   }
 
  private:
-  const cuke::cuke_args m_args;
   const cuke::ast::background_node* m_background = nullptr;
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();

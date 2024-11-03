@@ -30,6 +30,12 @@ static void run_hook(const std::vector<Hook>& hooks,
 class registry
 {
  public:
+  void sort_steps_by_type()
+  {
+    sort_steps([](const internal::step& lhs, const internal::step& rhs)
+               { return lhs.step_type() < rhs.step_type(); });
+  }
+
   void clear() noexcept
   {
     m_steps.clear();
@@ -117,6 +123,12 @@ class registry
   void run_hook_after_all() const noexcept { run_hook(m_hooks.after_all); }
 
  private:
+  template <typename Compare>
+  void sort_steps(Compare compare)
+  {
+    std::sort(m_steps.begin(), m_steps.end(), compare);
+  }
+
   std::vector<internal::step> m_steps;
   struct
   {

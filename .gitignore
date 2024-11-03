@@ -11,3 +11,4 @@ CMakeUserPresets.json
 src/version.hpp
 .devcontainer/
 CMakeLists.txt.user
+test*
