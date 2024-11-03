@@ -24,7 +24,7 @@ class cwt_cucumber
 
   const options& get_options() const noexcept;
   bool print_help() const noexcept;
-  bool export_catalog() const noexcept;
+  bool export_catalog(std::size_t json_indents = 2) const noexcept;
 };
 
 }  // namespace cuke

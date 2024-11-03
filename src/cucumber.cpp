@@ -81,7 +81,8 @@ bool cwt_cucumber::print_help() const noexcept
   }
   return false;
 }
-bool cwt_cucumber::export_catalog() const noexcept
+bool cwt_cucumber::export_catalog(
+    std::size_t json_indents /* = 2 */) const noexcept
 {
   if (get_options().catalog.readable_text)
   {
@@ -90,7 +91,7 @@ bool cwt_cucumber::export_catalog() const noexcept
   }
   if (get_options().catalog.json)
   {
-    catalog::print_json_to_sink();
+    catalog::print_json_to_sink(json_indents);
     return true;
   }
   return false;
