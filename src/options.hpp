@@ -124,13 +124,13 @@ static void print_help_screen()
       "  -q --quiet\t\t\t\tQuiet mode, only the final result will be printed "
       "to stdout.");
   println(
-      "  --step-catalog [opt: file]\t\tWrite the implemented steps as "
+      "  --steps-catalog [opt: file]\t\tWrite the implemented steps as "
       "readable text to stdout or a file");
   println(
       "\t\t\t\t\tthis overwrites existing files, does not write to "
       "'.feature' files or directories");
   println(
-      "  --step-catalog-json [opt: file]\tWrite the implemented steps as "
+      "  --steps-catalog-json [opt: file]\tWrite the implemented steps as "
       "readable text to stdout or a file");
   println(
       "\t\t\t\t\tthis overwrites existing files, does not write to "
