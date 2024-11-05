@@ -14,19 +14,19 @@ struct regex_conversion
 {
   std::string key;
   std::string pattern;
-  token_type type;
+  std::string type_info;
 };
 
 static /* constexpr */ const std::array<regex_conversion, 9> conversions = {{
-    {"{byte}", "(-?\\d+)", token_type::parameter_byte},
-    {"{int}", "(-?\\d+)", token_type::parameter_int},
-    {"{short}", "(-?\\d+)", token_type::parameter_int},
-    {"{long}", "(-?\\d+)", token_type::parameter_long},
-    {"{float}", "(-?\\d*\\.?\\d+)", token_type::parameter_float},
-    {"{double}", "(-?\\d*\\.?\\d+)", token_type::parameter_double},
-    {"{word}", "([^\\s<]+)", token_type::parameter_word},
-    {"{string}", "(\"[^\"]*\"|\".*?)", token_type::parameter_string},
-    {"{}", "(.+)", token_type::parameter_anonymous},
+    {"{byte}", "(-?\\d+)", "byte"},
+    {"{int}", "(-?\\d+)", "int"},
+    {"{short}", "(-?\\d+)", "short"},
+    {"{long}", "(-?\\d+)", "long"},
+    {"{float}", "(-?\\d*\\.?\\d+)", "float"},
+    {"{double}", "(-?\\d*\\.?\\d+)", "double"},
+    {"{word}", "([^\\s<]+)", "word"},
+    {"{string}", "\"(.*?)\"", "string"},
+    {"{}", "(.+)", "anonymous"},
 }};
 
 static /* constexpr */ const regex_conversion& get_regex_conversion(
@@ -66,7 +66,7 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
 }
 
 [[nodiscard]] static /* constexpr */ const std::pair<std::string,
-                                                     std::vector<token_type>>
+                                                     std::vector<std::string>>
 create_regex_definition(const std::string& step)
 {
   std::string test = step;
@@ -74,18 +74,18 @@ create_regex_definition(const std::string& step)
   std::regex pattern("\\{(.*?)\\}");
   std::smatch match;
 
-  std::vector<token_type> types;
+  std::vector<std::string> type_info;
 
   while (std::regex_search(result, match, pattern))
   {
     const auto& conversion = get_regex_conversion(match[0].str());
     result = std::regex_replace(result, pattern, conversion.pattern,
                                 std::regex_constants::format_first_only);
-    types.push_back(conversion.type);
+    type_info.push_back(conversion.type_info);
   }
 
   result += '$';
-  return {result, types};
+  return {result, type_info};
 }
 
 static const std::unordered_set<char> special_chars = {
