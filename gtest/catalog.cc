@@ -104,6 +104,7 @@ TEST_F(catalog, as_json_1)
   "steps_catalog": [
     {
       "definition": "a step with {int} and {string}",
+      "function": "",
       "type": "Step",
       "var_types": [
         "int",
@@ -112,6 +113,7 @@ TEST_F(catalog, as_json_1)
     },
     {
       "definition": "another step with {word} and {}",
+      "function": "",
       "type": "Step",
       "var_types": [
         "word",
@@ -136,29 +138,29 @@ TEST_F(catalog, as_json_2)
   using namespace cuke::internal;
 
   const std::string expected =
-      R"({"steps_catalog":[{"definition":"lets start with {}, {double} and {int}","type":"Given","var_types":["anonymous","double","int"]},{"definition":"lets start with {float} and {double}","type":"Given","var_types":["float","double"]},{"definition":"something with {string} and {long} happens","type":"When","var_types":["string","long"]},{"definition":"{float} added to {double}","type":"When","var_types":["float","double"]},{"definition":"step with {byte} and {word}","type":"Then","var_types":["byte","word"]},{"definition":"we have a lot {},{double},{int},{word},{string},{string},{int},{int},{string},{float},{byte}","type":"Then","var_types":["anonymous","double","int","word","string","string","int","int","string","float","byte"]}]})";
+      R"({"steps_catalog":[{"definition":"lets start with {}, {double} and {int}","function":"func3","type":"Given","var_types":["anonymous","double","int"]},{"definition":"lets start with {float} and {double}","function":"func4","type":"Given","var_types":["float","double"]},{"definition":"something with {string} and {long} happens","function":"func2","type":"When","var_types":["string","long"]},{"definition":"{float} added to {double}","function":"func5","type":"When","var_types":["float","double"]},{"definition":"step with {byte} and {word}","function":"func1","type":"Then","var_types":["byte","word"]},{"definition":"we have a lot {},{double},{int},{word},{string},{string},{int},{int},{string},{float},{byte}","function":"func6","type":"Then","var_types":["anonymous","double","int","word","string","string","int","int","string","float","byte"]}]})";
 
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
-      "step with {byte} and {word}", step::type::then));
+      "step with {byte} and {word}", step::type::then, "func1"));
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
-      "something with {string} and {long} happens", step::type::when));
+      "something with {string} and {long} happens", step::type::when, "func2"));
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
-      "lets start with {}, {double} and {int}", step::type::given));
+      "lets start with {}, {double} and {int}", step::type::given, "func3"));
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
-      "lets start with {float} and {double}", step::type::given));
+      "lets start with {float} and {double}", step::type::given, "func4"));
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
-      "{float} added to {double}", step::type::when));
+      "{float} added to {double}", step::type::when, "func5"));
   cuke::registry().push_step(cuke::internal::step(
       [](const cuke::value_array& values, const auto&, const auto&) {},
       "we have a lot "
       "{},{double},{int},{word},{string},{string},{int},{int},{string},{float},"
       "{byte}",
-      step::type::then));
+      step::type::then, "func6"));
 
   EXPECT_EQ(expected, cuke::catalog::as_json(-1));
 }
