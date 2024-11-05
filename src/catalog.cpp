@@ -37,6 +37,7 @@ std::string as_json(std::size_t indents /* = 2 */)
 
   for (const auto& step : cuke::registry().steps())
   {
+    json field_func_name = {{"function", step.function_name()}};
     json field_step = {{"definition", step.definition()}};
     json field_type = {{"type", to_string(step.step_type())}};
 
@@ -47,6 +48,7 @@ std::string as_json(std::size_t indents /* = 2 */)
     }
 
     json step_entry = {{"type", field_type["type"]},
+                       {"function", field_func_name["function"]},
                        {"definition", field_step["definition"]},
                        {"var_types", field_var_types}};
 

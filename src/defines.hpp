@@ -18,8 +18,8 @@
   {                                                                           \
     CONCAT(function_name, _t)()                                               \
     {                                                                         \
-      ::cuke::registry().push_step(                                           \
-          ::cuke::internal::step(function_name, step_definition, type));      \
+      ::cuke::registry().push_step(::cuke::internal::step(                    \
+          function_name, step_definition, type, #function_name));             \
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
   }                                                                           \

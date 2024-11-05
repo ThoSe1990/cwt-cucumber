@@ -5,7 +5,6 @@
 #include <format>
 #include <type_traits>
 
-#include "token.hpp"
 #include "util.hpp"
 #include "util_regex.hpp"
 
@@ -136,12 +135,16 @@ class step
   };
 
   step(step_callback cb, const std::string& definition,
-       type step_type = type::step)
-      : m_callback(cb), m_definition(definition), m_type(step_type)
+       type step_type = type::step, const std::string& function_name = "")
+      : m_callback(cb),
+        m_definition(definition),
+        m_type(step_type),
+        m_function_name(function_name)
   {
     std::tie(m_regex_definition, m_type_info) =
         create_regex_definition(add_escape_chars(m_definition));
   }
+  const std::string& function_name() const noexcept { return m_function_name; }
   const std::string& definition() const noexcept { return m_definition; }
   const std::vector<std::string>& type_info() const noexcept
   {
@@ -163,6 +166,7 @@ class step
   std::string m_definition;
   std::string m_regex_definition;
   std::vector<std::string> m_type_info;
+  std::string m_function_name;
   type m_type;
 };
 
