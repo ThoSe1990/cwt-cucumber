@@ -47,37 +47,6 @@ enum class token_type
   none
 };
 
-[[nodiscard]] static std::string to_string(token_type type)
-{
-  switch (type)
-  {
-    case token_type::parameter_byte:
-      return "byte";
-    case token_type::parameter_short:
-      return "short";
-    case token_type::parameter_int:
-      return "int";
-    case token_type::parameter_long:
-      return "long";
-    case token_type::parameter_float:
-      return "float";
-    case token_type::parameter_double:
-      return "double";
-    case token_type::parameter_string:
-      return "string";
-    case token_type::parameter_word:
-      return "word";
-    case token_type::parameter_anonymous:
-      return "anonymous";
-    default:
-      return std::format(
-          "token_type: to_string function for type {} not implemented",
-          static_cast<int>(type));
-  }
-
-  return "asdf";
-}
-
 struct token
 {
   token_type type;

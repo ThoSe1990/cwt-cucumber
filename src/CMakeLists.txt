@@ -24,7 +24,7 @@ add_library(cucumber-no-main ${cucumber-src} )
 if (nlohmann_json_FOUND)
     target_link_libraries(cucumber nlohmann_json::nlohmann_json)
     target_link_libraries(cucumber-no-main nlohmann_json::nlohmann_json)
-    add_compile_definitions(HAS_JSON)
+    add_compile_definitions(WITH_JSON)
 endif()
 
 if (BUILD_SHARED_LIBS)

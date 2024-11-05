@@ -1,9 +1,6 @@
 #include "../src/cucumber.hpp"
 #include "asserts.hpp"
 #include "box.hpp"
-#include "context.hpp"
-#include "defines.hpp"
-#include "get_args.hpp"
 
 struct foo
 {

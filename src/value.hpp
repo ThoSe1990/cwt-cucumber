@@ -58,10 +58,9 @@ class value
     }
     catch (...)
     {
-      println(
-          internal::color::red,
-          std::format("cuke::value::as: Cannot convert {} to integral type",
-                      m_value));
+      println(internal::color::red,
+              std::format("cuke::value::as: Cannot convert {} to integral type",
+                          m_value));
       return T();
     }
   }
@@ -75,11 +74,10 @@ class value
     }
     catch (...)
     {
-      println(
-          internal::color::red,
-          std::format(
-              "cuke::value::as: Cannot convert {} to floating point type",
-              m_value));
+      println(internal::color::red,
+              std::format(
+                  "cuke::value::as: Cannot convert {} to floating point type",
+                  m_value));
       return T();  // Return default initialized value
     }
   }
@@ -141,13 +139,13 @@ class step
        type step_type = type::step)
       : m_callback(cb), m_definition(definition), m_type(step_type)
   {
-    std::tie(m_regex_definition, m_value_types) =
+    std::tie(m_regex_definition, m_type_info) =
         create_regex_definition(add_escape_chars(m_definition));
   }
   const std::string& definition() const noexcept { return m_definition; }
-  const std::vector<token_type>& value_types() const noexcept
+  const std::vector<std::string>& type_info() const noexcept
   {
-    return m_value_types;
+    return m_type_info;
   }
   const std::string& regex_string() const noexcept
   {
@@ -164,7 +162,7 @@ class step
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
-  std::vector<token_type> m_value_types;
+  std::vector<std::string> m_type_info;
   type m_type;
 };
 
