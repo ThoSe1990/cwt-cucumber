@@ -1,6 +1,3 @@
-#include "token.hpp"
-
-#include <iostream>
 
 #include <array>
 #include <regex>
@@ -17,17 +14,27 @@ struct regex_conversion
   std::string type_info;
 };
 
-static /* constexpr */ const std::array<regex_conversion, 9> conversions = {{
-    {"{byte}", "(-?\\d+)", "byte"},
-    {"{int}", "(-?\\d+)", "int"},
-    {"{short}", "(-?\\d+)", "short"},
-    {"{long}", "(-?\\d+)", "long"},
-    {"{float}", "(-?\\d*\\.?\\d+)", "float"},
-    {"{double}", "(-?\\d*\\.?\\d+)", "double"},
-    {"{word}", "([^\\s<]+)", "word"},
-    {"{string}", "\"(.*?)\"", "string"},
-    {"{}", "(.+)", "anonymous"},
-}};
+static /* constexpr */ const std::array<regex_conversion, 10> conversions = {
+    {{"{byte}", "(-?\\d+)", "byte"},
+     {"{int}", "(-?\\d+)", "int"},
+     {"{short}", "(-?\\d+)", "short"},
+     {"{long}", "(-?\\d+)", "long"},
+     {"{float}", "(-?\\d*\\.?\\d+)", "float"},
+     {"{double}", "(-?\\d*\\.?\\d+)", "double"},
+     {"{word}", "([^\\s<]+)", "word"},
+     {"{string}", "\"(.*?)\"", "string"},
+     {"{}", "(.+)", "anonymous"},
+     {"{pair of integers}", "var1 = (\\d+), var2 = (\\d+)", "two integers"}}};
+
+static /* constexpr */ const std::array<regex_conversion, 1> custom_conversion =
+    {{{"{pair of integers}", "var1 = (\\d+), var2 = (\\d+)", "two integers"}}};
+
+// TODO: tests ...
+static std::size_t count_capture_groups(const std::string& pattern)
+{
+  std::regex re(pattern);
+  return re.mark_count();
+}
 
 static /* constexpr */ const regex_conversion& get_regex_conversion(
     std::string_view key)

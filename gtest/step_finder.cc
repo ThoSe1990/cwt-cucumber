@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <utility>
+#include "registry.hpp"
 
 #include "../src/step_finder.hpp"
 
@@ -465,4 +467,37 @@ TEST(step_finder, step_alternation_2)
     ASSERT_EQ(sf.values().size(), 1);
     EXPECT_EQ(sf.values().at(0).as<int>(), 1);
   }
+}
+
+#include "get_args.hpp"
+template <typename Ret, typename... Args, std::size_t... I>
+Ret get_custom_value(const std::string& id, const std::vector<cuke::value>& vec,
+                     std::size_t start, std::index_sequence<I...>)
+{
+  return cuke::registry().invoke<Ret, Args...>(
+      id, cuke::internal::get_arg(vec, start + I)...);
+}
+// TODO: make it productive
+TEST(PROTOTYPE, pair_of_int)
+{
+  auto lambda = [](int a, int b) -> std::pair<int, int>
+  {
+    std::cout << "lambda: " << a << ' ' << b << std::endl;
+    return std::make_pair(a, b);
+  };
+  cuke::registry().push_custom_callback<std::pair<int, int>, int, int>(
+      "{pair of integers}", lambda);
+  auto [pattern, types] = create_regex_definition("this is {pair of integers}");
+  step_finder sf("this is var1 = 123, var2 = 99");
+  EXPECT_TRUE(sf.step_matches(pattern));
+  std::cout << sf.values().size() << std::endl;
+
+  std::pair<int, int> test = get_custom_value<std::pair<int, int>, int, int>(
+      "{pair of integers}", sf.values(), 0, std::make_index_sequence<2>{});
+
+  EXPECT_EQ(test.first, 123);
+  EXPECT_EQ(test.second, 99);
+
+  std::cout << sf.values().size() << std::endl;
+  std::cout << "pari: " << test.first << ' ' << test.second << std::endl;
 }

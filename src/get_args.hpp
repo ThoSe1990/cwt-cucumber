@@ -18,6 +18,19 @@ struct conversion
   }
 };
 
+inline conversion get_arg(const cuke::value_array& values, std::size_t idx)
+{
+  // TODO: zero based !!!
+  std::size_t zero_based_idx = idx;  //  - 1;
+  if (zero_based_idx < values.max_size())
+  {
+    return conversion(values[zero_based_idx]);
+  }
+  else
+  {
+    throw std::runtime_error(std::format("Index out of range"));
+  }
+}
 inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
                           std::string_view file, std::size_t line)
 {

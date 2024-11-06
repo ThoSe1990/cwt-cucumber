@@ -9,6 +9,35 @@ namespace cuke
 {
 namespace internal
 {
+
+class callback_base
+{
+ public:
+  virtual ~callback_base() = default;
+};
+
+template <typename Ret, typename... Args>
+class callable : public callback_base
+{
+ public:
+  virtual Ret invoke(Args&&... args) = 0;
+};
+
+template <typename Func, typename Ret, typename... Args>
+class callable_impl : public callable<Ret, Args&&...>
+{
+ public:
+  explicit callable_impl(Func func) : m_func(std::move(func)) {}
+
+  Ret invoke(Args&&... args) override
+  {
+    return m_func(std::forward<Args>(args)...);
+  }
+
+ private:
+  Func m_func;
+};
+
 template <typename Hook>
 static void run_hook(const std::vector<Hook>& hooks)
 {
@@ -45,6 +74,36 @@ class registry
     m_hooks.after_step.clear();
     m_hooks.before_all.clear();
     m_hooks.after_all.clear();
+  }
+
+  template <typename Ret, typename... Args, typename Func>
+  void push_custom_callback(const std::string& id, Func&& callback)
+  {
+    using callable_t = callable_impl<std::decay_t<Func>, Ret, Args...>;
+    std::cout << "push id " << id << std::endl;
+    m_custom_type_callbacks[id] =
+        std::make_unique<callable_t>(std::forward<Func>(callback));
+  }
+
+  template <typename Ret, typename... Args>
+  Ret invoke(const std::string& id, Args&&... args)
+  {
+    auto it = m_custom_type_callbacks.find(id);
+    if (it != m_custom_type_callbacks.end())
+    {
+      auto* callback = static_cast<callable<Ret, Args&&...>*>(it->second.get());
+      if (callback)
+      {
+        return callback->invoke(std::forward<Args>(args)...);
+      }
+      else
+      {
+        // TODO: proper error
+        throw std::bad_cast();
+      }
+    }
+    // TODO: proper error
+    throw std::runtime_error("Callback not found for ID: " + id);
   }
 
   void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
@@ -139,6 +198,8 @@ class registry
     std::vector<internal::hook> before_step;
     std::vector<internal::hook> after_step;
   } m_hooks;
+  std::unordered_map<std::string, std::unique_ptr<callback_base>>
+      m_custom_type_callbacks;
 };
 
 }  // namespace internal
