@@ -10,6 +10,8 @@
 #define _STEP(function_name, step_definition, type)                           \
   void function_name(                                                         \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
+      [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
+          __cuke__parameter_info__,                                           \
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__);                 \
   namespace                                                                   \
@@ -25,6 +27,8 @@
   }                                                                           \
   void function_name(                                                         \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
+      [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
+          __cuke__parameter_info__,                                           \
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 

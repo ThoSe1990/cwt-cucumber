@@ -11,7 +11,7 @@ class run_scenarios_1 : public ::testing::Test
     call_count = 0;
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&)
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { run_scenarios_1::call_count++; }, "a step"));
   }
 
@@ -103,7 +103,7 @@ class run_scenarios_2 : public ::testing::Test
     expected_string = "";
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
         {
           run_scenarios_2::expected_int = values[0].as<unsigned int>();
           run_scenarios_2::expected_string = values[1].as<std::string>();
@@ -159,7 +159,7 @@ class run_scenarios_3 : public ::testing::Test
     call_count = 0;
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
         { ++call_count; }, "a step with {int}"));
   }
   static std::size_t call_count;
@@ -200,7 +200,7 @@ class run_scenarios_4 : public ::testing::Test
     anonymous_value = "";
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
         {
           ASSERT_EQ(values.size(), 2);
           word_value = values.at(0).as<std::string>();

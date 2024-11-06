@@ -1,5 +1,6 @@
 #pragma once
 
+#include "param_info.hpp"
 #include "value.hpp"
 
 namespace cuke::internal
@@ -59,13 +60,15 @@ inline conversion get_arg(const cuke::value_array::iterator begin,
   }
 }
 
-inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
-                          std::string_view file, std::size_t line)
+inline conversion get_arg(const cuke::value_array& values,
+                          const std::vector<param_info>& parameter,
+                          std::size_t idx, std::string_view file,
+                          std::size_t line)
 {
   std::size_t zero_based_idx = idx - 1;
   if (zero_based_idx < values.max_size())
   {
-    return conversion(values[zero_based_idx]);
+    return conversion(values[zero_based_idx + parameter[idx].offset]);
   }
   else
   {
@@ -167,8 +170,9 @@ class string_or_vector
  * @return The value from the index in the given step
  */
 
-#define CUKE_ARG(index) \
-  cuke::internal::get_arg(__cuke__values__, index, __FILE__, __LINE__)
+#define CUKE_ARG(index)                                                      \
+  cuke::internal::get_arg(__cuke__values__, __cuke__parameter_info__, index, \
+                          __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()

@@ -121,6 +121,7 @@ namespace cuke::internal
 {
 
 using step_callback = void (*)(const cuke::value_array& args,
+                               const std::vector<param_info>& info,
                                const std::vector<std::string>& doc_string,
                                const cuke::table& t);
 class step
@@ -157,7 +158,7 @@ class step
   void call(const value_array& values,
             const std::vector<std::string>& doc_string, const table& t) const
   {
-    m_callback(values, doc_string, t);
+    m_callback(values, m_type_info, doc_string, t);
   }
   type step_type() const noexcept { return m_type; }
 
