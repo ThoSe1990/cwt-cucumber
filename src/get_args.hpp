@@ -4,6 +4,32 @@
 
 namespace cuke::internal
 {
+template <typename T, typename = void>
+struct conversion_impl
+{
+};
+
+template <typename T>
+class has_conversion
+{
+  using one = char;
+  struct two
+  {
+    char x[2];
+  };
+
+  template <typename C>
+  static one test(decltype(&C::get_arg));
+  template <typename C>
+  static two test(...);
+
+ public:
+  static constexpr bool value = sizeof(test<T>(0)) == sizeof(char);
+};
+
+template <typename T>
+static constexpr bool has_conversion_v =
+    has_conversion<conversion_impl<T>>::value;
 
 struct conversion
 {
@@ -14,7 +40,8 @@ struct conversion
   template <typename T>
   operator T() const
   {
-    return v.as<T>();
+    static_assert(has_conversion_v<T>, "conversion to T not supported");
+    return conversion_impl<T>::get_arg(v, file, line);
   }
 };
 
@@ -32,6 +59,58 @@ inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
         std::format("{}:{}: Index out of range", file, line));
   }
 }
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
+{
+  static T get_arg(const cuke::value& v, std::string_view file,
+                   std::size_t line)
+  {
+    return v.as<T>();
+  }
+};
+template <>
+struct conversion_impl<std::size_t>
+{
+  static std::size_t get_arg(const cuke::value& v, std::string_view file,
+                             std::size_t line)
+  {
+    return v.as<std::size_t>();
+  }
+};
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                           std::is_same_v<T, double>>>
+{
+  static double get_arg(const cuke::value& v, std::string_view file,
+                        std::size_t line)
+  {
+    return v.as<T>();
+  }
+};
+
+template <typename T>
+struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
+                                           std::is_same_v<T, float>>>
+{
+  static float get_arg(const cuke::value& v, std::string_view file,
+                       std::size_t line)
+  {
+    return v.as<T>();
+  }
+};
+template <typename T>
+struct conversion_impl<
+    T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
+                        std::is_convertible_v<T, std::string_view>>>
+{
+  static const std::string get_arg(const cuke::value& v, std::string_view file,
+                                   std::size_t line)
+  {
+    return v.as<T>();
+  }
+};
 
 class string_or_vector
 {
