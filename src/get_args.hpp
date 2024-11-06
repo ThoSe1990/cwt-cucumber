@@ -45,6 +45,20 @@ struct conversion
   }
 };
 
+inline conversion get_arg(const cuke::value_array::iterator begin,
+                          std::size_t count, std::size_t idx)
+{
+  std::size_t zero_based_idx = idx - 1;
+  if (zero_based_idx < count)
+  {
+    return conversion(*(begin + zero_based_idx));
+  }
+  else
+  {
+    throw std::runtime_error(std::format("Index out of range"));
+  }
+}
+
 inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
                           std::string_view file, std::size_t line)
 {
@@ -100,6 +114,7 @@ struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
     return v.as<T>();
   }
 };
+
 template <typename T>
 struct conversion_impl<
     T, std::enable_if_t<std::is_convertible_v<T, std::string> ||

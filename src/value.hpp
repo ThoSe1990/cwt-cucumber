@@ -115,6 +115,20 @@ class value
 
 using value_array = std::vector<value>;
 
+// class value_array : public std::vector<value>
+// {
+//  public:
+//   using std::vector<value>::vector;
+//
+//   value_array make_subarray(std::size_t idx)
+//   {
+//     if (idx >= this->size())
+//     {
+//       return value_array{};
+//     }
+//     return value_array(this->begin() + idx, this->end());
+//   }
+// };
 }  // namespace cuke
 
 namespace cuke::internal

@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include "get_args.hpp"
 
 #include "../src/value.hpp"
 
@@ -54,4 +55,12 @@ TEST(value, to_string_string)
 {
   cuke::value v(std::string("hello world"));
   EXPECT_EQ(v.to_string(), std::string("hello world"));
+}
+
+TEST(value_array, get_arg_w_iterator)
+{
+  cuke::value_array v{cuke::value("1"), cuke::value("2"), cuke::value("3"),
+                      cuke::value("4")};
+  int i = cuke::internal::get_arg(v.begin() + 1, v.size() - 1, 2);
+  EXPECT_EQ(i, 3);
 }
