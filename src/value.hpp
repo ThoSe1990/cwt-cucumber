@@ -7,6 +7,7 @@
 
 #include "util.hpp"
 #include "util_regex.hpp"
+#include "param_info.hpp"
 
 namespace cuke
 {
@@ -114,21 +115,6 @@ class value
 };
 
 using value_array = std::vector<value>;
-
-// class value_array : public std::vector<value>
-// {
-//  public:
-//   using std::vector<value>::vector;
-//
-//   value_array make_subarray(std::size_t idx)
-//   {
-//     if (idx >= this->size())
-//     {
-//       return value_array{};
-//     }
-//     return value_array(this->begin() + idx, this->end());
-//   }
-// };
 }  // namespace cuke
 
 namespace cuke::internal
@@ -160,7 +146,7 @@ class step
   }
   const std::string& function_name() const noexcept { return m_function_name; }
   const std::string& definition() const noexcept { return m_definition; }
-  const std::vector<std::string>& type_info() const noexcept
+  const std::vector<param_info>& type_info() const noexcept
   {
     return m_type_info;
   }
@@ -179,7 +165,7 @@ class step
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
-  std::vector<std::string> m_type_info;
+  std::vector<param_info> m_type_info;
   std::string m_function_name;
   type m_type;
 };

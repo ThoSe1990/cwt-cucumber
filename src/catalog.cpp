@@ -42,9 +42,9 @@ std::string as_json(std::size_t indents /* = 2 */)
     json field_type = {{"type", to_string(step.step_type())}};
 
     json field_var_types = json::array();
-    for (const auto& var_type : step.type_info())
+    for (const auto& info : step.type_info())
     {
-      field_var_types.push_back(var_type);
+      field_var_types.push_back(info.description);
     }
 
     json step_entry = {{"type", field_type["type"]},
