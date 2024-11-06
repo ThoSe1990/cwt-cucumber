@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "../src/value.hpp"
+#include "../src/table.hpp"
 
 using namespace cuke::internal;
 

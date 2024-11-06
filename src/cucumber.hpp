@@ -1,5 +1,6 @@
 #pragma once
 
+#include "table.hpp"     // NOLINT
 #include "defines.hpp"   // NOLINT
 #include "asserts.hpp"   // NOLINT
 #include "context.hpp"   // NOLINT
