@@ -11,6 +11,23 @@ namespace cuke
 {
 namespace internal
 {
+
+// TODO: create a macro e.g. CUKE_PARAM_ARG(idx) for this
+static const cuke::value& get_param_value(
+    cuke::value_array::const_iterator begin, std::size_t values_count,
+    std::size_t idx)
+{
+  std::size_t zero_based_idx = idx - 1;
+  if (zero_based_idx < values_count)
+  {
+    return *(begin + zero_based_idx);
+  }
+  else
+  {
+    throw std::runtime_error(std::format("Index out of range"));
+  }
+}
+
 template <typename Hook>
 static void run_hook(const std::vector<Hook>& hooks)
 {
@@ -156,17 +173,50 @@ class registry
   struct
   {
     const std::unordered_map<std::string, expression> standard = {
-        {"{byte}", {"{byte}", "(-?\\d+)", "byte"}},
-        {"{int}", {"{int}", "(-?\\d+)", "int"}},
-        {"{short}", {"{short}", "(-?\\d+)", "short"}},
-        {"{long}", {"{long}", "(-?\\d+)", "long"}},
-        {"{float}", {"{float}", "(-?\\d*\\.?\\d+)", "float"}},
-        {"{double}", {"{double}", "(-?\\d*\\.?\\d+)", "double"}},
-        {"{word}", {"{word}", "([^\\s<]+)", "word"}},
-        {"{string}", {"{string}", "\"(.*?)\"", "string"}},
-        {"{}", {"{}", "(.+)", "anonymous"}},
+        {"{byte}",
+         {"{byte}", "(-?\\d+)", "byte",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<long long>(); }}},
+        {"{int}",
+         {"{int}", "(-?\\d+)", "int",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<long long>(); }}},
+        {"{short}",
+         {"{short}", "(-?\\d+)", "short",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<long long>(); }}},
+        {"{long}",
+         {"{long}", "(-?\\d+)", "long",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<long long>(); }}},
+        {"{float}",
+         {"{float}", "(-?\\d*\\.?\\d+)", "float",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<float>(); }}},
+        {"{double}",
+         {"{double}", "(-?\\d*\\.?\\d+)", "double",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).as<double>(); }}},
+        {"{word}",
+         {"{word}", "([^\\s<]+)", "word",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).to_string(); }}},
+        {"{string}",
+         {"{string}", "\"(.*?)\"", "string",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).to_string(); }}},
+        {"{}",
+         {"{}", "(.+)", "anonymous",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          { return get_param_value(begin, count, count).to_string(); }}},
         {"{pair of integers}",
-         {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers"}}};
+         {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          {
+            int var1 = get_param_value(begin, count, 1).as<long long>();
+            int var2 = get_param_value(begin, count, 2).as<long long>();
+            return std::make_pair(var1, var2);
+          }}}};
     const std::unordered_map<std::string, expression> custom;
   } m_expressions;
 };

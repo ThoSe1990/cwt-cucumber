@@ -1,77 +1,17 @@
 #pragma once
 
+#include <stdexcept>
 #include <string_view>
-#include <unordered_map>
+// #include <unordered_map>
 
-#include "any.hpp"
+// #include "any.hpp"
 #include "param_info.hpp"
+#include "util.hpp"
 #include "value.hpp"
+#include "registry.hpp"
 
 namespace cuke::internal
 {
-template <typename T, typename = void>
-struct conversion_impl
-{
-};
-// TODO: this can be removed and use cuke::any all the time
-// essentially how it was / is on main branch
-template <typename T>
-class has_conversion
-{
-  using one = char;
-  struct two
-  {
-    char x[2];
-  };
-
-  template <typename C>
-  static one test(decltype(&C::get_arg));
-  template <typename C>
-  static two test(...);
-
- public:
-  static constexpr bool value = sizeof(test<T>(0)) == sizeof(char);
-};
-
-template <typename T>
-static constexpr bool has_conversion_v =
-    has_conversion<conversion_impl<T>>::value;
-
-
-
-// TODO: create a macro e.g. CUKE_PARAM_ARG(idx) for this
-static const cuke::value& get_param_value(
-    cuke::value_array::const_iterator begin, std::size_t values_count,
-    std::size_t idx)
-{
-  std::size_t zero_based_idx = idx - 1;
-  if (zero_based_idx < values_count)
-  {
-    return *(begin + zero_based_idx);
-  }
-  else
-  {
-    throw std::runtime_error(std::format("Index out of range"));
-  }
-}
-
-// #define CUKE_PARAM_ARG(idx)
-
-using converter = any (*)(cuke::value_array::const_iterator begin,
-                          std::size_t count);
-// TODO: this can probably live in the regex map, since we have the key there
-static std::unordered_map<std::string_view, converter> conversion_map = {
-    // {"{int}",
-    //  [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-    //  { return get_param_value(begin, count, 1).as<long long>(); }},
-    {"{pair of integers}",
-     [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-     {
-       // TODO: This becomes CUKE_PARAM_ARG:
-       int var1 = get_param_value(begin, count, 1).as<long long>();
-       int var2 = get_param_value(begin, count, 2).as<long long>();
-       return std::make_pair(var1, var2);
-     }}};
 
 struct conversion
 {
@@ -84,35 +24,18 @@ struct conversion
   // TODO: add values count
 
   // TODO: POC: hardcoded value 2 here -> add value count
-  operator std::pair<int, int>() const { return conversion_map[key](begin, 2); }
+  // operator std::pair<int, int>() const { return conversion_map[key](begin,
+  // 2); }
+  operator std::pair<int, int>() const
+  {
+    return cuke::registry().get_expression(key).callback(begin, 2);
+  }
   template <typename T>
   operator T() const
   {
-    // TODO: move conversion_map to registry
-    if (conversion_map.contains(key))
-    {
-      // FIXME: Use values count instead of 1
-      return conversion_map[key](begin, 1);
-    }
-    // TODO: remove conversion_impl because static casts will fail here
-    // static_assert(has_conversion_v<T>, "conversion to T not supported");
-    return conversion_impl<T>::get_arg(*(begin + idx), file, line);
+    return cuke::registry().get_expression(key).callback(begin, idx + 1);
   }
 };
-
-inline conversion get_arg(const cuke::value_array::iterator begin,
-                          std::size_t count, std::size_t idx)
-{
-  std::size_t zero_based_idx = idx - 1;
-  if (zero_based_idx < count)
-  {
-    return conversion(begin, zero_based_idx);
-  }
-  else
-  {
-    throw std::runtime_error(std::format("Index out of range"));
-  }
-}
 
 inline conversion get_arg(cuke::value_array::const_iterator begin,
                           std::size_t values_count,
@@ -132,59 +55,6 @@ inline conversion get_arg(cuke::value_array::const_iterator begin,
         std::format("{}:{}: Index out of range", file, line));
   }
 }
-
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_integral_v<T>>>
-{
-  static T get_arg(const cuke::value& v, std::string_view file,
-                   std::size_t line)
-  {
-    return v.as<T>();
-  }
-};
-template <>
-struct conversion_impl<std::size_t>
-{
-  static std::size_t get_arg(const cuke::value& v, std::string_view file,
-                             std::size_t line)
-  {
-    return v.as<std::size_t>();
-  }
-};
-
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
-                                           std::is_same_v<T, double>>>
-{
-  static double get_arg(const cuke::value& v, std::string_view file,
-                        std::size_t line)
-  {
-    return v.as<T>();
-  }
-};
-
-template <typename T>
-struct conversion_impl<T, std::enable_if_t<std::is_floating_point_v<T> &&
-                                           std::is_same_v<T, float>>>
-{
-  static float get_arg(const cuke::value& v, std::string_view file,
-                       std::size_t line)
-  {
-    return v.as<T>();
-  }
-};
-
-template <typename T>
-struct conversion_impl<
-    T, std::enable_if_t<std::is_convertible_v<T, std::string> ||
-                        std::is_convertible_v<T, std::string_view>>>
-{
-  static const std::string get_arg(const cuke::value& v, std::string_view file,
-                                   std::size_t line)
-  {
-    return v.as<T>();
-  }
-};
 
 class string_or_vector
 {
