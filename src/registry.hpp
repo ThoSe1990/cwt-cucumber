@@ -29,6 +29,7 @@ static void run_hook(const std::vector<Hook>& hooks,
                   }
                 });
 }
+
 class registry
 {
  public:
@@ -47,37 +48,16 @@ class registry
     m_hooks.after_step.clear();
     m_hooks.before_all.clear();
     m_hooks.after_all.clear();
-    m_custom_conversions.clear();
   }
 
-  // TODO: refactor this if POC works
-  void push_custom_conversion(const expression& conversion)
+  [[nodiscard]] const expression& get_expression(std::string_view key) const
   {
-    if (std::find_if(m_custom_conversions.begin(), m_custom_conversions.end(),
-                     [&conversion](const expression& current) {
-                       return conversion.key == current.key;
-                     }) != m_custom_conversions.end())
+    if (m_expressions.standard.contains(key.data()))
     {
-      // TODO: is this possible at compile time?
-      throw std::runtime_error(
-          std::format("Custom type '{}' already exists", conversion.key));
-    }
-    m_custom_conversions.push_back(conversion);
-  }
-  // TODO: refactor this if POC works
-  [[nodiscard]] const expression& get_custom_conversion(
-      std::string_view key) const
-  {
-    auto it = std::find_if(
-        m_custom_conversions.begin(), m_custom_conversions.end(),
-        [&key](const expression& current) { return key == current.key; });
-    if (it != m_custom_conversions.end())
-    {
-      // TODO: is this possible at compile time?
-      return *it;
+      return m_expressions.standard.at(key.data());
     }
     throw std::runtime_error(
-        std::format("Custom type '{}' already exists", key));
+        std::format("Expression '{}' does not exists", key));
   }
 
   void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
@@ -172,7 +152,23 @@ class registry
     std::vector<internal::hook> before_step;
     std::vector<internal::hook> after_step;
   } m_hooks;
-  std::vector<expression> m_custom_conversions;
+
+  struct
+  {
+    const std::unordered_map<std::string, expression> standard = {
+        {"{byte}", {"{byte}", "(-?\\d+)", "byte"}},
+        {"{int}", {"{int}", "(-?\\d+)", "int"}},
+        {"{short}", {"{short}", "(-?\\d+)", "short"}},
+        {"{long}", {"{long}", "(-?\\d+)", "long"}},
+        {"{float}", {"{float}", "(-?\\d*\\.?\\d+)", "float"}},
+        {"{double}", {"{double}", "(-?\\d*\\.?\\d+)", "double"}},
+        {"{word}", {"{word}", "([^\\s<]+)", "word"}},
+        {"{string}", {"{string}", "\"(.*?)\"", "string"}},
+        {"{}", {"{}", "(.+)", "anonymous"}},
+        {"{pair of integers}",
+         {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers"}}};
+    const std::unordered_map<std::string, expression> custom;
+  } m_expressions;
 };
 
 }  // namespace internal

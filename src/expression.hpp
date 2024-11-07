@@ -2,13 +2,13 @@
 
 #include <string>
 
-namespace cuke::internal
+namespace cuke
 {
 struct expression
 {
-  const std::string key;
-  const std::string pattern;
-  const std::string type_info;
+  std::string key;
+  std::string pattern;
+  std::string type_info;
 };
 
-}  // namespace cuke::internal
+}  // namespace cuke

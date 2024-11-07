@@ -1,9 +1,5 @@
 #pragma once
-#include <array>
 #include <regex>
-#include <format>
-#include <algorithm>
-#include <stdexcept>
 #include <unordered_set>
 
 #include "param_info.hpp"
@@ -12,37 +8,6 @@
 
 namespace cuke::internal
 {
-// TODO: move this to the cuke::registry
-static /* constexpr */ const std::array<const expression, 10>
-    default_conversions = {{
-        {"{byte}", "(-?\\d+)", "byte"},
-        {"{int}", "(-?\\d+)", "int"},
-        {"{short}", "(-?\\d+)", "short"},
-        {"{long}", "(-?\\d+)", "long"},
-        {"{float}", "(-?\\d*\\.?\\d+)", "float"},
-        {"{double}", "(-?\\d*\\.?\\d+)", "double"},
-        {"{word}", "([^\\s<]+)", "word"},
-        {"{string}", "\"(.*?)\"", "string"},
-        {"{}", "(.+)", "anonymous"},
-        {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers"}
-        //  "var1 = (\\d+), var2 = (\\d+)", "two integers"}
-    }};
-
-static /* constexpr */ const expression& get_regex_conversion(
-    std::string_view key)
-{
-  auto it = std::find_if(default_conversions.begin(), default_conversions.end(),
-                         [&key](const expression& conversion)
-                         { return conversion.key == key; });
-
-  if (it != default_conversions.end()) [[likely]]
-  {
-    return (*it);
-  }
-  throw std::runtime_error(
-      std::format("Regex conversion for key '{}' not found!", key));
-  // return cuke::registry().get_custom_conversion(key);
-}
 
 [[nodiscard]] static std::string create_word_alternation(
     const std::string& step)
@@ -80,7 +45,7 @@ create_regex_definition(const std::string& step)
 
   while (std::regex_search(result, match, pattern))
   {
-    const auto& conversion = get_regex_conversion(match[0].str());
+    const auto& conversion = cuke::registry().get_expression(match[0].str());
     result = std::regex_replace(result, pattern, conversion.pattern,
                                 std::regex_constants::format_first_only);
     const std::size_t value_count = std::regex(conversion.pattern).mark_count();
