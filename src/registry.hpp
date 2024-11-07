@@ -1,9 +1,11 @@
 #pragma once
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "step.hpp"
 #include "hooks.hpp"
+#include "regex_conversion.hpp"
 
 namespace cuke
 {
@@ -45,6 +47,35 @@ class registry
     m_hooks.after_step.clear();
     m_hooks.before_all.clear();
     m_hooks.after_all.clear();
+    m_custom_conversions.clear();
+  }
+
+  void push_custom_conversion(const regex_conversion& conversion)
+  {
+    if (std::find_if(m_custom_conversions.begin(), m_custom_conversions.end(),
+                     [&conversion](const regex_conversion& current) {
+                       return conversion.key == current.key;
+                     }) != m_custom_conversions.end())
+    {
+      // TODO: is this possible at compile time?
+      throw std::runtime_error(
+          std::format("Custom type '{}' already exists", conversion.key));
+    }
+    m_custom_conversions.push_back(conversion);
+  }
+  [[nodiscard]] const regex_conversion& get_custom_conversion(
+      std::string_view key) const
+  {
+    auto it = std::find_if(
+        m_custom_conversions.begin(), m_custom_conversions.end(),
+        [&key](const regex_conversion& current) { return key == current.key; });
+    if (it != m_custom_conversions.end())
+    {
+      // TODO: is this possible at compile time?
+      return *it;
+    }
+    throw std::runtime_error(
+        std::format("Custom type '{}' already exists", key));
   }
 
   void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
@@ -139,6 +170,7 @@ class registry
     std::vector<internal::hook> before_step;
     std::vector<internal::hook> after_step;
   } m_hooks;
+  std::vector<regex_conversion> m_custom_conversions;
 };
 
 }  // namespace internal

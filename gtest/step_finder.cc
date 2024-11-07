@@ -2,6 +2,8 @@
 
 #include "../src/regex_conversion.hpp"
 #include "../src/step_finder.hpp"
+#include "../src/util_regex.hpp"
+#include "registry.hpp"
 
 using namespace cuke::internal;
 
@@ -468,10 +470,17 @@ TEST(step_finder, step_alternation_2)
   }
 }
 
-TEST(step_finder, custom_conversions_1)
+class custom_types : public ::testing::Test
 {
-  custom_conversions.push_back({"{custom type}", "var1 = (\\d+), var2 = (\\d+)",
-                                "just two variables ... "});
+ protected:
+  void SetUp() override { cuke::registry().clear(); }
+};
+
+TEST_F(custom_types, custom_conversions_1)
+{
+  cuke::registry().push_custom_conversion({"{custom type}",
+                                           "var1 = (\\d+), var2 = (\\d+)",
+                                           "just two variables ... "});
   auto [pattern, types] = create_regex_definition("I have {custom type}");
   ASSERT_EQ(types.size(), 1);
   EXPECT_EQ(types.at(0).offset, 0);
@@ -483,12 +492,12 @@ TEST(step_finder, custom_conversions_1)
   ASSERT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values().at(0).as<int>(), 123);
   EXPECT_EQ(sf.values().at(1).as<int>(), 999);
-  custom_conversions.clear();
 }
-TEST(step_finder, custom_conversions_2)
+TEST_F(custom_types, custom_conversions_2)
 {
-  custom_conversions.push_back({"{custom type}", "var1 = (\\d+), var2 = (\\d+)",
-                                "just two variables ... "});
+  cuke::registry().push_custom_conversion({"{custom type}",
+                                           "var1 = (\\d+), var2 = (\\d+)",
+                                           "just two variables ... "});
   auto [pattern, types] =
       create_regex_definition("I have {custom type} and {int}");
   ASSERT_EQ(types.size(), 2);
@@ -502,5 +511,4 @@ TEST(step_finder, custom_conversions_2)
   EXPECT_EQ(sf.values().at(0).as<int>(), 123);
   EXPECT_EQ(sf.values().at(1).as<int>(), 999);
   EXPECT_EQ(sf.values().at(2).as<int>(), 5);
-  custom_conversions.clear();
 }

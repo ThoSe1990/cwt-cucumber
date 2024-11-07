@@ -24,7 +24,8 @@ class run_scenario_hooks : public ::testing::Test
     cuke::registry().push_hook_after_step(hook([]() { ++after_step_calls; }));
 
     cuke::registry().push_step(step(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "a step"));
   }
 
   static std::size_t before_calls;
@@ -82,16 +83,15 @@ class run_scenario_hook_skip : public ::testing::Test
   void SetUp() override
   {
     calls = 0;
-
     cuke::registry().clear();
 
-    cuke::registry().push_step(step(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&) { ++calls; },
-        "a step"));
+    cuke::registry().push_step(
+        step([](const cuke::value_array&, const auto&, const auto&, const auto&)
+             { ++calls; }, "a step"));
 
-    cuke::registry().push_step(step(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&) { ++calls; },
-        "a step with {int}"));
+    cuke::registry().push_step(
+        step([](const cuke::value_array&, const auto&, const auto&, const auto&)
+             { ++calls; }, "a step with {int}"));
 
     cuke::registry().push_hook_before(
         hook([]() { cuke::skip_scenario(); }, "@skip"));

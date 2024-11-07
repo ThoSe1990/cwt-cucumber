@@ -1,5 +1,7 @@
 #include "step.hpp"
 
+#include "util_regex.hpp"
+
 namespace cuke::internal
 {
 

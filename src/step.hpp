@@ -3,6 +3,7 @@
 #include <string>
 
 #include "value.hpp"
+#include "param_info.hpp"
 
 namespace cuke::internal
 {

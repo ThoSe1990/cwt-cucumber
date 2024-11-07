@@ -6,8 +6,6 @@
 #include <type_traits>
 
 #include "util.hpp"
-#include "util_regex.hpp"
-#include "param_info.hpp"
 
 namespace cuke
 {
@@ -78,7 +76,7 @@ class value
               std::format(
                   "cuke::value::as: Cannot convert {} to floating point type",
                   m_value));
-      return T();  // Return default initialized value
+      return T();
     }
   }
   template <typename T>

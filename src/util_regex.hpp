@@ -7,6 +7,7 @@
 
 #include "param_info.hpp"
 #include "regex_conversion.hpp"
+#include "registry.hpp"
 
 namespace cuke::internal
 {
@@ -27,28 +28,16 @@ static /* constexpr */ const std::array<regex_conversion, 9>
 static /* constexpr */ const regex_conversion& get_regex_conversion(
     std::string_view key)
 {
-  {
-    auto it =
-        std::find_if(default_conversions.begin(), default_conversions.end(),
-                     [&key](const regex_conversion& conversion)
-                     { return conversion.key == key; });
+  auto it = std::find_if(default_conversions.begin(), default_conversions.end(),
+                         [&key](const regex_conversion& conversion)
+                         { return conversion.key == key; });
 
-    if (it != default_conversions.end()) [[likely]]
-    {
-      return (*it);
-    }
-  }
+  if (it != default_conversions.end()) [[likely]]
   {
-    auto it = std::find_if(custom_conversions.begin(), custom_conversions.end(),
-                           [&key](const regex_conversion& conversion)
-                           { return conversion.key == key; });
-
-    if (it != custom_conversions.end()) [[likely]]
-    {
-      return (*it);
-    }
+    return (*it);
   }
-  throw std::runtime_error(std::format("No conversion to '{}' found.", key));
+
+  return cuke::registry().get_custom_conversion(key);
 }
 
 [[nodiscard]] static std::string create_word_alternation(
@@ -93,7 +82,8 @@ create_regex_definition(const std::string& step)
     const std::size_t value_count = std::regex(conversion.pattern).mark_count();
     const std::size_t zero_based_v_count = value_count - 1;
 
-    type_info.push_back({offset, value_count, conversion.type_info});
+    type_info.push_back(
+        {offset, value_count, conversion.key, conversion.type_info});
 
     if (value_count > 0)
     {

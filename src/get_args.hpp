@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <string_view>
+#include <unordered_map>
+
 #include "param_info.hpp"
 #include "value.hpp"
 
@@ -32,17 +36,105 @@ template <typename T>
 static constexpr bool has_conversion_v =
     has_conversion<conversion_impl<T>>::value;
 
-struct conversion
+// Base class for type erasure
+class any_base
 {
-  const cuke::value& v;
-  std::string_view file;
-  std::size_t line;
+ public:
+  virtual ~any_base() = default;
+  virtual std::unique_ptr<any_base> clone() const = 0;
+};
+
+// Template derived class for a specific type
+template <typename T>
+class any_impl : public any_base
+{
+ public:
+  any_impl(T value) : m_value(std::move(value)) {}
+
+  std::unique_ptr<any_base> clone() const override
+  {
+    return std::make_unique<any_impl<T>>(m_value);
+  }
+
+  T get() const { return m_value; }
+
+  template <typename U>
+  U convert() const
+  {
+    return static_cast<U>(m_value);
+  }
+
+ private:
+  T m_value;
+};
+
+// Custom any class that can hold multiple types
+class any
+{
+ public:
+  // Constructor for different types
+  template <typename T>
+  any(T value) : m_data(std::make_unique<any_impl<T>>(std::move(value)))
+  {
+  }
+
+  // Copy constructor
+  any(const any& other) : m_data(other.m_data->clone()) {}
 
   template <typename T>
   operator T() const
   {
+    auto ptr = static_cast<any_impl<T>*>(m_data.get());
+    if (!ptr)
+    {
+      throw std::runtime_error("Invalid cast.");
+    }
+    return ptr->get();
+  }
+
+ private:
+  std::unique_ptr<any_base> m_data;
+};
+
+static const cuke::value& get_param_value(
+    cuke::value_array::const_iterator begin, std::size_t values_count,
+    std::size_t idx)
+{
+  std::size_t zero_based_idx = idx - 1;
+  if (zero_based_idx < values_count)
+  {
+    return *(begin + zero_based_idx);
+  }
+  else
+  {
+    throw std::runtime_error(std::format("Index out of range"));
+  }
+}
+
+using converter = any (*)(cuke::value_array::const_iterator begin,
+                          std::size_t count);
+static std::unordered_map<std::string_view, converter> conversion_map = {
+    {"{int}",
+     [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+     { return get_param_value(begin, count, 1).as<long long>(); }}};
+
+struct conversion
+{
+  cuke::value_array::const_iterator begin;
+  std::size_t idx;
+  std::string_view file;
+  std::size_t line;
+  std::string_view key;
+
+  template <typename T>
+  operator T() const
+  {
+    if (conversion_map.contains(key))
+    {
+      return conversion_map[key](begin, 1);
+    }
     static_assert(has_conversion_v<T>, "conversion to T not supported");
-    return conversion_impl<T>::get_arg(v, file, line);
+    return conversion_impl<T>::get_arg(*(begin + idx), file, line);
   }
 };
 
@@ -52,7 +144,7 @@ inline conversion get_arg(const cuke::value_array::iterator begin,
   std::size_t zero_based_idx = idx - 1;
   if (zero_based_idx < count)
   {
-    return conversion(*(begin + zero_based_idx));
+    return conversion(begin, zero_based_idx);
   }
   else
   {
@@ -60,15 +152,17 @@ inline conversion get_arg(const cuke::value_array::iterator begin,
   }
 }
 
-inline conversion get_arg(const cuke::value_array& values,
+inline conversion get_arg(cuke::value_array::const_iterator begin,
+                          std::size_t values_count,
                           const std::vector<param_info>& parameter,
                           std::size_t idx, std::string_view file,
                           std::size_t line)
 {
   std::size_t zero_based_idx = idx - 1;
-  if (zero_based_idx < values.max_size())
+  if (zero_based_idx < values_count)
   {
-    return conversion(values[zero_based_idx + parameter[idx].offset]);
+    return conversion{begin, zero_based_idx + parameter[zero_based_idx].offset,
+                      file, line, parameter[zero_based_idx].key};
   }
   else
   {
@@ -171,8 +265,8 @@ class string_or_vector
  */
 
 #define CUKE_ARG(index)                                                      \
-  cuke::internal::get_arg(__cuke__values__, __cuke__parameter_info__, index, \
-                          __FILE__, __LINE__)
+  cuke::internal::get_arg(__cuke__values__.begin(), __cuke__values__.size(), \
+                          __cuke__parameter_info__, index, __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()
