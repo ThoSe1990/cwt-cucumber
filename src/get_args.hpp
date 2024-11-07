@@ -2,11 +2,8 @@
 
 #include <stdexcept>
 #include <string_view>
-// #include <unordered_map>
 
-// #include "any.hpp"
 #include "param_info.hpp"
-#include "util.hpp"
 #include "value.hpp"
 #include "registry.hpp"
 
@@ -15,25 +12,19 @@ namespace cuke::internal
 
 struct conversion
 {
-  // TODO: check members.
+  // TODO: refactor, check members.
   cuke::value_array::const_iterator begin;
   std::size_t idx;
   std::string_view file;
   std::size_t line;
   std::string_view key;
-  // TODO: add values count
+  std::size_t values_count;
 
-  // TODO: POC: hardcoded value 2 here -> add value count
-  // operator std::pair<int, int>() const { return conversion_map[key](begin,
-  // 2); }
-  operator std::pair<int, int>() const
-  {
-    return cuke::registry().get_expression(key).callback(begin, 2);
-  }
   template <typename T>
   operator T() const
   {
-    return cuke::registry().get_expression(key).callback(begin, idx + 1);
+    return cuke::registry().get_expression(key).callback(begin + idx,
+                                                         values_count);
   }
 };
 
@@ -46,8 +37,12 @@ inline conversion get_arg(cuke::value_array::const_iterator begin,
   std::size_t zero_based_idx = idx - 1;
   if (zero_based_idx < values_count)
   {
-    return conversion{begin, zero_based_idx + parameter[zero_based_idx].offset,
-                      file, line, parameter[zero_based_idx].key};
+    return conversion{begin,
+                      zero_based_idx + parameter[zero_based_idx].offset,
+                      file,
+                      line,
+                      parameter[zero_based_idx].key,
+                      values_count};
   }
   else
   {

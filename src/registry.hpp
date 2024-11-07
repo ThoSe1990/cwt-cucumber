@@ -172,43 +172,45 @@ class registry
 
   struct
   {
+    // FIXME:
+    //  TODO: do prooper initializiation, this is ugly
     const std::unordered_map<std::string, expression> standard = {
         {"{byte}",
          {"{byte}", "(-?\\d+)", "byte",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<long long>(); }}},
         {"{int}",
          {"{int}", "(-?\\d+)", "int",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<long long>(); }}},
         {"{short}",
          {"{short}", "(-?\\d+)", "short",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<long long>(); }}},
         {"{long}",
          {"{long}", "(-?\\d+)", "long",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<long long>(); }}},
         {"{float}",
          {"{float}", "(-?\\d*\\.?\\d+)", "float",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<float>(); }}},
+          { return get_param_value(begin, count, 1).as<float>(); }}},
         {"{double}",
          {"{double}", "(-?\\d*\\.?\\d+)", "double",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).as<double>(); }}},
+          { return get_param_value(begin, count, 1).as<double>(); }}},
         {"{word}",
          {"{word}", "([^\\s<]+)", "word",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).to_string(); }}},
+          { return get_param_value(begin, count, 1).to_string(); }}},
         {"{string}",
          {"{string}", "\"(.*?)\"", "string",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).to_string(); }}},
+          { return get_param_value(begin, count, 1).to_string(); }}},
         {"{}",
          {"{}", "(.+)", "anonymous",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, count).to_string(); }}},
+          { return get_param_value(begin, count, 1).to_string(); }}},
         {"{pair of integers}",
          {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
