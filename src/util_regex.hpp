@@ -7,13 +7,13 @@
 #include <unordered_set>
 
 #include "param_info.hpp"
-#include "regex_conversion.hpp"
+#include "expression.hpp"
 #include "registry.hpp"
 
 namespace cuke::internal
 {
 // TODO: move this to the cuke::registry
-static /* constexpr */ const std::array<const regex_conversion, 10>
+static /* constexpr */ const std::array<const expression, 10>
     default_conversions = {{
         {"{byte}", "(-?\\d+)", "byte"},
         {"{int}", "(-?\\d+)", "int"},
@@ -28,11 +28,11 @@ static /* constexpr */ const std::array<const regex_conversion, 10>
         //  "var1 = (\\d+), var2 = (\\d+)", "two integers"}
     }};
 
-static /* constexpr */ const regex_conversion& get_regex_conversion(
+static /* constexpr */ const expression& get_regex_conversion(
     std::string_view key)
 {
   auto it = std::find_if(default_conversions.begin(), default_conversions.end(),
-                         [&key](const regex_conversion& conversion)
+                         [&key](const expression& conversion)
                          { return conversion.key == key; });
 
   if (it != default_conversions.end()) [[likely]]

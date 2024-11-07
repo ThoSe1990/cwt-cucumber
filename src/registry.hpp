@@ -5,7 +5,7 @@
 
 #include "step.hpp"
 #include "hooks.hpp"
-#include "regex_conversion.hpp"
+#include "expression.hpp"
 
 namespace cuke
 {
@@ -51,10 +51,10 @@ class registry
   }
 
   // TODO: refactor this if POC works
-  void push_custom_conversion(const regex_conversion& conversion)
+  void push_custom_conversion(const expression& conversion)
   {
     if (std::find_if(m_custom_conversions.begin(), m_custom_conversions.end(),
-                     [&conversion](const regex_conversion& current) {
+                     [&conversion](const expression& current) {
                        return conversion.key == current.key;
                      }) != m_custom_conversions.end())
     {
@@ -65,12 +65,12 @@ class registry
     m_custom_conversions.push_back(conversion);
   }
   // TODO: refactor this if POC works
-  [[nodiscard]] const regex_conversion& get_custom_conversion(
+  [[nodiscard]] const expression& get_custom_conversion(
       std::string_view key) const
   {
     auto it = std::find_if(
         m_custom_conversions.begin(), m_custom_conversions.end(),
-        [&key](const regex_conversion& current) { return key == current.key; });
+        [&key](const expression& current) { return key == current.key; });
     if (it != m_custom_conversions.end())
     {
       // TODO: is this possible at compile time?
@@ -172,7 +172,7 @@ class registry
     std::vector<internal::hook> before_step;
     std::vector<internal::hook> after_step;
   } m_hooks;
-  std::vector<regex_conversion> m_custom_conversions;
+  std::vector<expression> m_custom_conversions;
 };
 
 }  // namespace internal

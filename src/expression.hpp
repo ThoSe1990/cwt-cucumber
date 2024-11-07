@@ -4,7 +4,7 @@
 
 namespace cuke::internal
 {
-struct regex_conversion
+struct expression
 {
   const std::string key;
   const std::string pattern;

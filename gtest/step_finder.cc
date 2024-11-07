@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/regex_conversion.hpp"
+#include "../src/expression.hpp"
 #include "../src/step_finder.hpp"
 #include "../src/util_regex.hpp"
 #include "registry.hpp"
