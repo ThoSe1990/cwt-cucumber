@@ -13,7 +13,8 @@ template <typename T, typename = void>
 struct conversion_impl
 {
 };
-
+// TODO: this can be removed and use cuke::any all the time
+// essentially how it was / is on main branch
 template <typename T>
 class has_conversion
 {
@@ -36,7 +37,7 @@ template <typename T>
 static constexpr bool has_conversion_v =
     has_conversion<conversion_impl<T>>::value;
 
-// Base class for type erasure
+// TODO: move this into any.hpp
 class any_base
 {
  public:
@@ -44,7 +45,6 @@ class any_base
   virtual std::unique_ptr<any_base> clone() const = 0;
 };
 
-// Template derived class for a specific type
 template <typename T>
 class any_impl : public any_base
 {
@@ -68,17 +68,14 @@ class any_impl : public any_base
   T m_value;
 };
 
-// Custom any class that can hold multiple types
 class any
 {
  public:
-  // Constructor for different types
   template <typename T>
   any(T value) : m_data(std::make_unique<any_impl<T>>(std::move(value)))
   {
   }
 
-  // Copy constructor
   any(const any& other) : m_data(other.m_data->clone()) {}
 
   template <typename T>
@@ -132,6 +129,7 @@ static std::unordered_map<std::string_view, converter> conversion_map = {
 
 struct conversion
 {
+  // TODO: check members.
   cuke::value_array::const_iterator begin;
   std::size_t idx;
   std::string_view file;
@@ -144,6 +142,7 @@ struct conversion
   template <typename T>
   operator T() const
   {
+    // TODO: move conversion_map to registry
     if (conversion_map.contains(key))
     {
       // FIXME: Use values count instead of 1
