@@ -2,6 +2,7 @@
 
 #include "util_regex.hpp"
 
+#include <iostream>
 namespace cuke::internal
 {
 

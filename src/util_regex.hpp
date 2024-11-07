@@ -3,6 +3,7 @@
 #include <regex>
 #include <format>
 #include <algorithm>
+#include <stdexcept>
 #include <unordered_set>
 
 #include "param_info.hpp"
@@ -11,8 +12,8 @@
 
 namespace cuke::internal
 {
-
-static /* constexpr */ const std::array<regex_conversion, 9>
+// TODO: move this to the cuke::registry
+static /* constexpr */ const std::array<const regex_conversion, 10>
     default_conversions = {{
         {"{byte}", "(-?\\d+)", "byte"},
         {"{int}", "(-?\\d+)", "int"},
@@ -23,6 +24,8 @@ static /* constexpr */ const std::array<regex_conversion, 9>
         {"{word}", "([^\\s<]+)", "word"},
         {"{string}", "\"(.*?)\"", "string"},
         {"{}", "(.+)", "anonymous"},
+        {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers"}
+        //  "var1 = (\\d+), var2 = (\\d+)", "two integers"}
     }};
 
 static /* constexpr */ const regex_conversion& get_regex_conversion(
@@ -36,8 +39,9 @@ static /* constexpr */ const regex_conversion& get_regex_conversion(
   {
     return (*it);
   }
-
-  return cuke::registry().get_custom_conversion(key);
+  throw std::runtime_error(
+      std::format("Regex conversion for key '{}' not found!", key));
+  // return cuke::registry().get_custom_conversion(key);
 }
 
 [[nodiscard]] static std::string create_word_alternation(

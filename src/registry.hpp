@@ -50,6 +50,7 @@ class registry
     m_custom_conversions.clear();
   }
 
+  // TODO: refactor this if POC works
   void push_custom_conversion(const regex_conversion& conversion)
   {
     if (std::find_if(m_custom_conversions.begin(), m_custom_conversions.end(),
@@ -63,6 +64,7 @@ class registry
     }
     m_custom_conversions.push_back(conversion);
   }
+  // TODO: refactor this if POC works
   [[nodiscard]] const regex_conversion& get_custom_conversion(
       std::string_view key) const
   {

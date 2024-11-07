@@ -96,6 +96,7 @@ class any
   std::unique_ptr<any_base> m_data;
 };
 
+// TODO: create a macro e.g. CUKE_PARAM_ARG(idx) for this
 static const cuke::value& get_param_value(
     cuke::value_array::const_iterator begin, std::size_t values_count,
     std::size_t idx)
@@ -111,12 +112,23 @@ static const cuke::value& get_param_value(
   }
 }
 
+// #define CUKE_PARAM_ARG(idx)
+
 using converter = any (*)(cuke::value_array::const_iterator begin,
                           std::size_t count);
+// TODO: this can probably live in the regex map, since we have the key there
 static std::unordered_map<std::string_view, converter> conversion_map = {
-    {"{int}",
+    // {"{int}",
+    //  [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+    //  { return get_param_value(begin, count, 1).as<long long>(); }},
+    {"{pair of integers}",
      [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-     { return get_param_value(begin, count, 1).as<long long>(); }}};
+     {
+       // TODO: This becomes CUKE_PARAM_ARG:
+       int var1 = get_param_value(begin, count, 1).as<long long>();
+       int var2 = get_param_value(begin, count, 2).as<long long>();
+       return std::make_pair(var1, var2);
+     }}};
 
 struct conversion
 {
@@ -125,15 +137,20 @@ struct conversion
   std::string_view file;
   std::size_t line;
   std::string_view key;
+  // TODO: add values count
 
+  // TODO: POC: hardcoded value 2 here -> add value count
+  operator std::pair<int, int>() const { return conversion_map[key](begin, 2); }
   template <typename T>
   operator T() const
   {
     if (conversion_map.contains(key))
     {
+      // FIXME: Use values count instead of 1
       return conversion_map[key](begin, 1);
     }
-    static_assert(has_conversion_v<T>, "conversion to T not supported");
+    // TODO: remove conversion_impl because static casts will fail here
+    // static_assert(has_conversion_v<T>, "conversion to T not supported");
     return conversion_impl<T>::get_arg(*(begin + idx), file, line);
   }
 };

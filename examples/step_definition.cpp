@@ -1,6 +1,22 @@
 #include "../src/cucumber.hpp"
 #include "asserts.hpp"
 #include "box.hpp"
+#include "context.hpp"
+
+WHEN(custom_par_when, "this is {pair of integers}")
+{
+  std::pair<int, int> p = CUKE_ARG(1);
+  std::cout << "Pair initialized with CUKE_ARG(1) and two values: " << p.first
+            << ' ' << p.second << std::endl;
+  cuke::context<const std::pair<int, int>>(p);
+}
+THEN(custom_par_then, "their values are {int} and {int}")
+{
+  const int var1 = CUKE_ARG(1);
+  const int var2 = CUKE_ARG(2);
+  cuke::equal(cuke::context<std::pair<int, int>>().first, var1);
+  cuke::equal(cuke::context<const std::pair<int, int>>().second, var2);
+}
 
 struct foo
 {
