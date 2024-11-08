@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../src/expression.hpp"
+#include "../src/get_args.hpp"
 #include "../src/step_finder.hpp"
 #include "../src/util_regex.hpp"
 #include "registry.hpp"
@@ -471,45 +471,113 @@ TEST(step_finder, step_alternation_2)
 }
 
 // TODO: do when refactoring POC
-// class custom_types : public ::testing::Test
-// {
-//  protected:
-//   void SetUp() override { cuke::registry().clear(); }
-// };
-//
-// TEST_F(custom_types, custom_conversions_1)
-// {
-//   cuke::registry().push_custom_conversion({"{custom type}",
-//                                            "var1 = (\\d+), var2 = (\\d+)",
-//                                            "just two variables ... "});
-//   auto [pattern, types] = create_regex_definition("I have {custom type}");
-//   ASSERT_EQ(types.size(), 1);
-//   EXPECT_EQ(types.at(0).offset, 0);
-//   EXPECT_EQ(types.at(0).param_count, 2);
-//   EXPECT_EQ(types.at(0).description, std::string("just two variables ... "));
-//
-//   step_finder sf("I have var1 = 123, var2 = 999");
-//   ASSERT_TRUE(sf.step_matches(pattern));
-//   ASSERT_EQ(sf.values().size(), 2);
-//   EXPECT_EQ(sf.values().at(0).as<int>(), 123);
-//   EXPECT_EQ(sf.values().at(1).as<int>(), 999);
-// }
-// TEST_F(custom_types, custom_conversions_2)
-// {
-//   cuke::registry().push_custom_conversion({"{custom type}",
-//                                            "var1 = (\\d+), var2 = (\\d+)",
-//                                            "just two variables ... "});
-//   auto [pattern, types] =
-//       create_regex_definition("I have {custom type} and {int}");
-//   ASSERT_EQ(types.size(), 2);
-//   EXPECT_EQ(types.at(1).offset, 1);
-//   EXPECT_EQ(types.at(1).param_count, 1);
-//   EXPECT_EQ(types.at(1).description, std::string("int"));
-//
-//   step_finder sf("I have var1 = 123, var2 = 999 and 5");
-//   ASSERT_TRUE(sf.step_matches(pattern));
-//   ASSERT_EQ(sf.values().size(), 3);
-//   EXPECT_EQ(sf.values().at(0).as<int>(), 123);
-//   EXPECT_EQ(sf.values().at(1).as<int>(), 999);
-//   EXPECT_EQ(sf.values().at(2).as<int>(), 5);
-// }
+class custom_types : public ::testing::Test
+{
+ protected:
+  void SetUp() override { cuke::registry().clear(); }
+};
+
+TEST_F(custom_types, custom_conversions_1)
+{
+  cuke::registry().push_expression(
+      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] = create_regex_definition("I have {pair of integers}");
+  ASSERT_EQ(types.size(), 1);
+  EXPECT_EQ(types.at(0).offset, 0);
+  EXPECT_EQ(types.at(0).param_count, 2);
+  EXPECT_EQ(types.at(0).description, std::string("two integers"));
+
+  step_finder sf("I have var1 = 123, var2 = 999");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 123);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 999);
+}
+TEST_F(custom_types, custom_conversions_2)
+{
+  cuke::registry().push_expression(
+      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {pair of integers} and {int}");
+  ASSERT_EQ(types.size(), 2);
+  EXPECT_EQ(types.at(1).offset, 1);
+  EXPECT_EQ(types.at(1).param_count, 1);
+  EXPECT_EQ(types.at(1).description, std::string("int"));
+
+  step_finder sf("I have var1 = 123, var2 = 999 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 3);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 123);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 999);
+  EXPECT_EQ(sf.values().at(2).as<int>(), 5);
+}
+TEST_F(custom_types, custom_conversions_3)
+{
+  cuke::registry().push_expression(
+      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {pair of integers} and {int}");
+  step_finder sf("I have var1 = 123, var2 = 999 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  std::pair<int, int> p = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 1, "", 0);
+  int i = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                  types, 2, "", 0);
+
+  EXPECT_EQ(p.first, 123);
+  EXPECT_EQ(p.second, 999);
+  EXPECT_EQ(i, 5);
+}
+TEST_F(custom_types, custom_conversions_4)
+{
+  cuke::registry().push_expression(
+      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {} {pair of integers} {} and {int}");
+  step_finder sf(
+      "I have some text before my type: var1 = 123, var2 = 999 <- and after it "
+      "... and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  std::string anonymous_1 = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 1, "", 0);
+  ASSERT_EQ(anonymous_1, std::string("some text before my type:"));
+
+  std::pair<int, int> p = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 2, "", 0);
+  ASSERT_EQ(p.first, 123);
+  ASSERT_EQ(p.second, 999);
+
+  std::string anonymous_2 = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 3, "", 0);
+  ASSERT_EQ(anonymous_2, std::string("<- and after it ..."));
+
+  int i = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                  types, 4, "", 0);
+  EXPECT_EQ(i, 5);
+}

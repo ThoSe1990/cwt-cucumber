@@ -25,6 +25,31 @@ TEST(value, long_value)
   EXPECT_EQ(v.as<long>(), 123);
   EXPECT_EQ(v.as<unsigned long>(), 123);
 }
+TEST(value, bool_value_implicit)
+{
+  cuke::value v{"true"};
+  bool b = true;
+  EXPECT_TRUE(b);
+}
+TEST(value, integer_values_implicit)
+{
+  cuke::value v{"123"};
+  int i = v;
+  unsigned int ui = v;
+  long l = v;
+  unsigned long ul = v;
+  long long ll = v;
+  unsigned long long ull = v;
+  std::size_t st = v;
+  EXPECT_EQ(i, 123);
+  EXPECT_EQ(ui, 123);
+  EXPECT_EQ(l, 123);
+  EXPECT_EQ(ul, 123);
+  EXPECT_EQ(ll, 123);
+  EXPECT_EQ(ull, 123);
+  EXPECT_EQ(st, 123);
+}
+
 TEST(value, std_size_t)
 {
   cuke::value v("234");
@@ -41,10 +66,22 @@ TEST(value, string_value)
   cuke::value v{std::string{"hello value"}};
   EXPECT_EQ(v.as<std::string>(), "hello value");
 }
+TEST(value, string_value_implicit)
+{
+  cuke::value v{std::string{"hello value"}};
+  std::string str = v;
+  EXPECT_EQ(str, "hello value");
+}
 TEST(value, string_view_value)
 {
   cuke::value v{"hello value"};
   EXPECT_EQ(v.as<std::string_view>(), "hello value");
+}
+TEST(value, string_view_value_implicit)
+{
+  cuke::value v{"hello value"};
+  std::string_view sv = v;
+  EXPECT_EQ(sv, "hello value");
 }
 TEST(value, emplace_value)
 {

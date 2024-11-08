@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <format>
 #include <stdexcept>
 
 #include "step.hpp"
@@ -65,6 +66,17 @@ class registry
     m_hooks.after_step.clear();
     m_hooks.before_all.clear();
     m_hooks.after_all.clear();
+    m_expressions.custom.clear();
+  }
+
+  void push_expression(const expression& custom_expression)
+  {
+    if (m_expressions.custom.contains(custom_expression.key))
+    {
+      throw std::runtime_error(std::format(
+          "Custom parameter type '{}' already exists.", custom_expression.key));
+    }
+    m_expressions.custom[custom_expression.key] = custom_expression;
   }
 
   [[nodiscard]] const expression& get_expression(std::string_view key) const
@@ -72,6 +84,10 @@ class registry
     if (m_expressions.standard.contains(key.data()))
     {
       return m_expressions.standard.at(key.data());
+    }
+    if (m_expressions.custom.contains(key.data()))
+    {
+      return m_expressions.custom.at(key.data());
     }
     throw std::runtime_error(
         std::format("Expression '{}' does not exists", key));
@@ -178,15 +194,15 @@ class registry
         {"{byte}",
          {"{byte}", "(-?\\d+)", "byte",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<int>(); }}},
         {"{int}",
          {"{int}", "(-?\\d+)", "int",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<int>(); }}},
         {"{short}",
          {"{short}", "(-?\\d+)", "short",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<long long>(); }}},
+          { return get_param_value(begin, count, 1).as<short>(); }}},
         {"{long}",
          {"{long}", "(-?\\d+)", "long",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
@@ -211,15 +227,8 @@ class registry
          {"{}", "(.+)", "anonymous",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).to_string(); }}},
-        {"{pair of integers}",
-         {"{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          {
-            int var1 = get_param_value(begin, count, 1).as<long long>();
-            int var2 = get_param_value(begin, count, 2).as<long long>();
-            return std::make_pair(var1, var2);
-          }}}};
-    const std::unordered_map<std::string, expression> custom;
+    };
+    std::unordered_map<std::string, expression> custom;
   } m_expressions;
 };
 
