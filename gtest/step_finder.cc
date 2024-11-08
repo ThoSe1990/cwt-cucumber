@@ -675,3 +675,27 @@ TEST_F(custom_types, custom_conversion_6)
                                        types, 5, "", 0);
   EXPECT_EQ(number, 99);
 }
+TEST_F(custom_types, custom_conversions_7)
+{
+  cuke::registry().push_expression(
+      "{another int}",
+      {R"(int = (\d+) and int = (\d+))", "",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int i1 = get_param_value(begin, count, 1);
+         int i2 = get_param_value(begin, count, 2);
+         return i1 + i2;
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {another int} and {int}");
+  step_finder sf("I have int = 3 and int = 90 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  int i1 = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                   types, 1, "", 0);
+  int i2 = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                   types, 2, "", 0);
+
+  EXPECT_EQ(i1, 93);
+  EXPECT_EQ(i2, 5);
+}
