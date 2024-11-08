@@ -10,13 +10,6 @@ struct date
   int day;
   std::string month;
   int year;
-
-  // Function to output the date in a readable format
-  void print() const
-  {
-    std::cout << std::setw(2) << std::setfill('0') << day << "/" << std::setw(2)
-              << std::setfill('0') << month << "/" << year << std::endl;
-  }
 };
 
 struct date_range
@@ -45,11 +38,12 @@ CUSTOM_PARAMETER(
 
 WHEN(using_date, "{} {date}")
 {
-  std::string some_description = CUKE_ARG(1);
+  std::string event = CUKE_ARG(1);
   date_range dr = CUKE_ARG(2);
-  std::cout << "begin: " << dr.start.month << ' ' << dr.start.day << ", "
+  std::cout << "Event: " << event << std::endl;
+  std::cout << "Begin: " << dr.start.month << ' ' << dr.start.day << ", "
             << dr.start.year << std::endl;
-  std::cout << "end: " << dr.end.month << ' ' << dr.end.day << ", "
+  std::cout << "End: " << dr.end.month << ' ' << dr.end.day << ", "
             << dr.end.year << std::endl;
   cuke::context<date_range>(dr);
 }
