@@ -20,7 +20,7 @@ struct date_range
 
 CUSTOM_PARAMETER(
     custom_date, "{date}",
-    R"(([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+    R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
     "a custom date pattern")
 {
   date begin;
@@ -36,7 +36,7 @@ CUSTOM_PARAMETER(
   return date_range{begin, end};
 }
 
-WHEN(using_date, "{} {date}")
+WHEN(using_date, "{} is {date}")
 {
   std::string event = CUKE_ARG(1);
   date_range dr = CUKE_ARG(2);
