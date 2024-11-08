@@ -10,3 +10,7 @@ Feature: Custom Parameters
   Scenario: Date example
     When A cool event is from April 25, 2025 to Mai 13, 2025
     Then The beginning month is April and the ending month is Mai
+
+  Scenario: Christmas market  
+    When The Christmas Market in Augsburg is from November 25, 2024 to December 24, 2024
+    Then The beginning month is November and the ending month is December
