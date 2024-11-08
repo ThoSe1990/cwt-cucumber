@@ -12,13 +12,10 @@ namespace cuke::internal
 
 struct conversion
 {
-  // TODO: refactor, check members.
   cuke::value_array::const_iterator begin;
   std::size_t idx;
-  std::string_view file;
-  std::size_t line;
-  std::string_view key;
   std::size_t values_count;
+  std::string_view key;
 
   template <typename T>
   operator T() const
@@ -37,12 +34,8 @@ inline conversion get_arg(cuke::value_array::const_iterator begin,
   std::size_t zero_based_idx = idx - 1;
   if (zero_based_idx < values_count)
   {
-    return conversion{begin,
-                      zero_based_idx + parameter[zero_based_idx].offset,
-                      file,
-                      line,
-                      parameter[zero_based_idx].key,
-                      values_count};
+    return conversion{begin, zero_based_idx + parameter[zero_based_idx].offset,
+                      values_count, parameter[zero_based_idx].key};
   }
   else
   {
