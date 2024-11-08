@@ -8,7 +8,7 @@
 #define CONCAT(a, b) _CONCAT_(a, b)
 
 #define _STEP(function_name, step_definition, type)                           \
-  void function_name(                                                         \
+  void static function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
@@ -25,7 +25,7 @@
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
   }                                                                           \
-  void function_name(                                                         \
+  void static function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
