@@ -585,3 +585,93 @@ TEST_F(custom_types, custom_conversions_4)
                                   types, 4, "", 0);
   EXPECT_EQ(i, 5);
 }
+
+struct date
+{
+  int day;
+  std::string month;
+  int year;
+};
+
+struct date_range
+{
+  date start;
+  date end;
+};
+
+static cuke::internal::any make_date_range(
+    cuke::value_array::const_iterator values_begin, std::size_t count)
+{
+  date begin;
+  begin.month = get_param_value(values_begin, count, 1).as<std::string>();
+  begin.day = get_param_value(values_begin, count, 2).as<int>();
+  begin.year = get_param_value(values_begin, count, 3).as<int>();
+
+  date end;
+  end.month = get_param_value(values_begin, count, 4).as<std::string>();
+  end.day = get_param_value(values_begin, count, 5).as<int>();
+  end.year = get_param_value(values_begin, count, 6).as<int>();
+
+  return date_range{begin, end};
+}
+
+TEST_F(custom_types, custom_conversion_5)
+{
+  cuke::registry().push_expression(
+      "{date}",
+      {R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+       "", make_date_range});
+  auto [pattern, types] = create_regex_definition("{} is {date}");
+  step_finder sf(
+      "The Christmas Market in Augsburg is from November 25, 2024 to December "
+      "24, 2024");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  date_range dr = cuke::internal::get_arg(sf.values().begin(),
+                                          sf.values().size(), types, 2, "", 0);
+  EXPECT_EQ(dr.start.day, 25);
+  EXPECT_EQ(dr.start.month, std::string("November"));
+  EXPECT_EQ(dr.start.year, 2024);
+  EXPECT_EQ(dr.end.day, 24);
+  EXPECT_EQ(dr.end.month, std::string("December"));
+  EXPECT_EQ(dr.end.year, 2024);
+}
+TEST_F(custom_types, custom_conversion_6)
+{
+  cuke::registry().push_expression(
+      "{date}",
+      {R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+       "", make_date_range});
+  auto [pattern, types] = create_regex_definition(
+      "{} is {date} and a {string} is {date} and {int}");
+  step_finder sf(
+      "The Christmas Market in Augsburg is from November 25, 2024 to December "
+      "24, 2024 and a \"new cool event\" is from January 30, 2025 to February "
+      "9, 2025 and 99");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  {
+    date_range dr = cuke::internal::get_arg(
+        sf.values().begin(), sf.values().size(), types, 2, "", 0);
+    EXPECT_EQ(dr.start.day, 25);
+    EXPECT_EQ(dr.start.month, std::string("November"));
+    EXPECT_EQ(dr.start.year, 2024);
+    EXPECT_EQ(dr.end.day, 24);
+    EXPECT_EQ(dr.end.month, std::string("December"));
+    EXPECT_EQ(dr.end.year, 2024);
+  }
+  std::string new_event = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 3, "", 0);
+  EXPECT_EQ(new_event, std::string("new cool event"));
+  {
+    date_range dr = cuke::internal::get_arg(
+        sf.values().begin(), sf.values().size(), types, 4, "", 0);
+    EXPECT_EQ(dr.start.day, 30);
+    EXPECT_EQ(dr.start.month, std::string("January"));
+    EXPECT_EQ(dr.start.year, 2025);
+    EXPECT_EQ(dr.end.day, 9);
+    EXPECT_EQ(dr.end.month, std::string("February"));
+    EXPECT_EQ(dr.end.year, 2025);
+  }
+  int number = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                       types, 5, "", 0);
+  EXPECT_EQ(number, 99);
+}
