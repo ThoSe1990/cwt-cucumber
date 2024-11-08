@@ -1,8 +1,10 @@
-#pragma once 
+#pragma once
 
 #include <memory>
+#include <format>
 
-namespace cuke::internal {
+namespace cuke::internal
+{
 
 class any_base
 {
@@ -50,8 +52,9 @@ class any
     auto ptr = static_cast<any_impl<T>*>(m_data.get());
     if (!ptr)
     {
-      // TODO: proper error 
-      throw std::runtime_error("Invalid cast.");
+      throw std::runtime_error(
+          std::format("internal::cuke::any: Can not convert to type '{}'",
+                      typeid(T).name()));
     }
     return ptr->get();
   }
@@ -60,4 +63,4 @@ class any
   std::unique_ptr<any_base> m_data;
 };
 
-} // namespace cuke::internal
+}  // namespace cuke::internal
