@@ -480,7 +480,8 @@ class custom_types : public ::testing::Test
 TEST_F(custom_types, custom_conversions_1)
 {
   cuke::registry().push_expression(
-      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
        [](cuke::value_array::const_iterator begin, std::size_t count) -> any
        {
          int var1 = get_param_value(begin, count, 1);
@@ -502,7 +503,8 @@ TEST_F(custom_types, custom_conversions_1)
 TEST_F(custom_types, custom_conversions_2)
 {
   cuke::registry().push_expression(
-      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
        [](cuke::value_array::const_iterator begin, std::size_t count) -> any
        {
          int var1 = get_param_value(begin, count, 1);
@@ -526,7 +528,8 @@ TEST_F(custom_types, custom_conversions_2)
 TEST_F(custom_types, custom_conversions_3)
 {
   cuke::registry().push_expression(
-      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
        [](cuke::value_array::const_iterator begin, std::size_t count) -> any
        {
          int var1 = get_param_value(begin, count, 1);
@@ -550,7 +553,8 @@ TEST_F(custom_types, custom_conversions_3)
 TEST_F(custom_types, custom_conversions_4)
 {
   cuke::registry().push_expression(
-      {"{pair of integers}", R"(var1 = (\d+), var2 = (\d+))", "two integers",
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
        [](cuke::value_array::const_iterator begin, std::size_t count) -> any
        {
          int var1 = get_param_value(begin, count, 1);

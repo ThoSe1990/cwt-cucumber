@@ -51,8 +51,7 @@ create_regex_definition(const std::string& step)
     const std::size_t value_count = std::regex(conversion.pattern).mark_count();
     const std::size_t zero_based_v_count = value_count - 1;
 
-    type_info.push_back(
-        {offset, value_count, conversion.key, conversion.type_info});
+    type_info.push_back({offset, value_count, key, conversion.type_info});
 
     if (value_count > 0)
     {

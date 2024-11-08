@@ -45,7 +45,7 @@
     CONCAT(function_name, _t)()                                            \
     {                                                                      \
       ::cuke::registry().push_expression(                                  \
-          ::cuke::expression{key, pattern, description, function_name});   \
+          key, ::cuke::expression{pattern, description, function_name});   \
     }                                                                      \
   } CONCAT(g_, function_name);                                             \
   }                                                                        \

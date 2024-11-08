@@ -11,8 +11,6 @@ using expression_callback = internal::any (*)(
 
 struct expression
 {
-  // TODO: remove key here, since it's the same key as in registry's map
-  std::string key;
   std::string pattern;
   std::string type_info;
   expression_callback callback;

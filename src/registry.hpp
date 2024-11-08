@@ -69,14 +69,15 @@ class registry
     m_expressions.custom.clear();
   }
 
-  void push_expression(const expression& custom_expression)
+  void push_expression(std::string_view key,
+                       const expression& custom_expression)
   {
-    if (m_expressions.custom.contains(custom_expression.key))
+    if (m_expressions.custom.contains(key.data()))
     {
-      throw std::runtime_error(std::format(
-          "Custom parameter type '{}' already exists.", custom_expression.key));
+      throw std::runtime_error(
+          std::format("Custom parameter type '{}' already exists.", key));
     }
-    m_expressions.custom[custom_expression.key] = custom_expression;
+    m_expressions.custom[key.data()] = custom_expression;
   }
   [[nodiscard]] bool has_expression(std::string_view key) const noexcept
   {
@@ -220,39 +221,39 @@ class registry
     //  TODO: do prooper initializiation, this is ugly
     const std::unordered_map<std::string, expression> standard = {
         {"{byte}",
-         {"{byte}", "(-?\\d+)", "byte",
+         {"(-?\\d+)", "byte",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<int>(); }}},
         {"{int}",
-         {"{int}", "(-?\\d+)", "int",
+         {"(-?\\d+)", "int",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<int>(); }}},
         {"{short}",
-         {"{short}", "(-?\\d+)", "short",
+         {"(-?\\d+)", "short",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<short>(); }}},
         {"{long}",
-         {"{long}", "(-?\\d+)", "long",
+         {"(-?\\d+)", "long",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<long long>(); }}},
         {"{float}",
-         {"{float}", "(-?\\d*\\.?\\d+)", "float",
+         {"(-?\\d*\\.?\\d+)", "float",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<float>(); }}},
         {"{double}",
-         {"{double}", "(-?\\d*\\.?\\d+)", "double",
+         {"(-?\\d*\\.?\\d+)", "double",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).as<double>(); }}},
         {"{word}",
-         {"{word}", "([^\\s<]+)", "word",
+         {"([^\\s<]+)", "word",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).to_string(); }}},
         {"{string}",
-         {"{string}", "\"(.*?)\"", "string",
+         {"\"(.*?)\"", "string",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).to_string(); }}},
         {"{}",
-         {"{}", "(.+)", "anonymous",
+         {"(.+)", "anonymous",
           [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           { return get_param_value(begin, count, 1).to_string(); }}},
     };
