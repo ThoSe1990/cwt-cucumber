@@ -29,6 +29,13 @@ static const cuke::value& get_param_value(
   }
 }
 
+template <typename T>
+static any make_parameter_value(cuke::value_array::const_iterator begin,
+                                std::size_t count)
+{
+  return get_param_value(begin, count, 1).as<T>();
+}
+
 template <typename Hook>
 static void run_hook(const std::vector<Hook>& hooks)
 {
@@ -217,46 +224,18 @@ class registry
 
   struct
   {
-    // FIXME:
-    //  TODO: do prooper initializiation, this is ugly
     const std::unordered_map<std::string, expression> standard = {
-        {"{byte}",
-         {"(-?\\d+)", "byte",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<int>(); }}},
-        {"{int}",
-         {"(-?\\d+)", "int",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<int>(); }}},
-        {"{short}",
-         {"(-?\\d+)", "short",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<short>(); }}},
-        {"{long}",
-         {"(-?\\d+)", "long",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<long long>(); }}},
-        {"{float}",
-         {"(-?\\d*\\.?\\d+)", "float",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<float>(); }}},
+        {"{byte}", {"(-?\\d+)", "byte", make_parameter_value<char>}},
+        {"{int}", {"(-?\\d+)", "int", make_parameter_value<int>}},
+        {"{short}", {"(-?\\d+)", "short", make_parameter_value<short>}},
+        {"{long}", {"(-?\\d+)", "long", make_parameter_value<long>}},
+        {"{float}", {"(-?\\d*\\.?\\d+)", "float", make_parameter_value<float>}},
         {"{double}",
-         {"(-?\\d*\\.?\\d+)", "double",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).as<double>(); }}},
-        {"{word}",
-         {"([^\\s<]+)", "word",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).to_string(); }}},
+         {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
+        {"{word}", {"([^\\s<]+)", "word", make_parameter_value<std::string>}},
         {"{string}",
-         {"\"(.*?)\"", "string",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).to_string(); }}},
-        {"{}",
-         {"(.+)", "anonymous",
-          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
-          { return get_param_value(begin, count, 1).to_string(); }}},
-    };
+         {"\"(.*?)\"", "string", make_parameter_value<std::string>}},
+        {"{}", {"(.+)", "anonymous", make_parameter_value<std::string>}}};
     std::unordered_map<std::string, expression> custom;
   } m_expressions;
 };
