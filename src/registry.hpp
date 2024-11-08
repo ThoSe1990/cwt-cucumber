@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <format>
 #include <stdexcept>
+#include <string_view>
 
 #include "step.hpp"
 #include "hooks.hpp"
@@ -13,7 +14,6 @@ namespace cuke
 namespace internal
 {
 
-// TODO: create a macro e.g. CUKE_PARAM_ARG(idx) for this
 static const cuke::value& get_param_value(
     cuke::value_array::const_iterator begin, std::size_t values_count,
     std::size_t idx)
@@ -78,7 +78,11 @@ class registry
     }
     m_expressions.custom[custom_expression.key] = custom_expression;
   }
-
+  [[nodiscard]] bool has_expression(std::string_view key) const noexcept
+  {
+    return m_expressions.standard.contains(key.data()) ||
+           m_expressions.custom.contains(key.data());
+  }
   [[nodiscard]] const expression& get_expression(std::string_view key) const
   {
     if (m_expressions.standard.contains(key.data()))
@@ -91,6 +95,30 @@ class registry
     }
     throw std::runtime_error(
         std::format("Expression '{}' does not exists", key));
+  }
+  std::string create_expression_key_regex_pattern() const noexcept
+  {
+    std::stringstream pattern;
+    pattern << "(";
+    bool first = true;
+    for (auto it = m_expressions.standard.begin();
+         it != m_expressions.standard.end(); ++it)
+    {
+      if (!first)
+      {
+        pattern << "|";
+      }
+      first = false;
+      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+    }
+    for (auto it = m_expressions.custom.begin();
+         it != m_expressions.custom.end(); ++it)
+    {
+      pattern << "|";
+      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+    }
+    pattern << ")";
+    return pattern.str();
   }
 
   void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }

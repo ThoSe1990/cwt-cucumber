@@ -2,6 +2,74 @@
 #include "asserts.hpp"
 #include "box.hpp"
 #include "context.hpp"
+#include "defines.hpp"
+#include "get_args.hpp"
+
+struct date
+{
+  int day;
+  std::string month;
+  int year;
+
+  // Function to output the date in a readable format
+  void print() const
+  {
+    std::cout << std::setw(2) << std::setfill('0') << day << "/" << std::setw(2)
+              << std::setfill('0') << month << "/" << year << std::endl;
+  }
+};
+
+struct date_range
+{
+  date start;
+  date end;
+};
+
+CUSTOM_PARAMETER(
+    custom_date, "{date}",
+    R"(([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+    "a custom date pattern")
+{
+  date begin;
+  begin.month = std::string(CUKE_PARAM_ARG(1));
+  begin.day = int(CUKE_PARAM_ARG(2));
+  begin.year = CUKE_PARAM_ARG(3).as<int>();
+
+  date end;
+  end.month = std::string(CUKE_PARAM_ARG(4));
+  end.day = int(CUKE_PARAM_ARG(5));
+  end.year = CUKE_PARAM_ARG(6).as<int>();
+
+  return date_range{begin, end};
+}
+
+WHEN(using_date, "{} {date}")
+{
+  std::string some_description = CUKE_ARG(1);
+  date_range dr = CUKE_ARG(2);
+  std::cout << "begin: " << dr.start.month << ' ' << dr.start.day << ", "
+            << dr.start.year << std::endl;
+  std::cout << "end: " << dr.end.month << ' ' << dr.end.day << ", "
+            << dr.end.year << std::endl;
+  cuke::context<date_range>(dr);
+}
+THEN(checking_months,
+     "The beginning month is {word} and the ending month is {word}")
+{
+  std::string start = CUKE_ARG(1);
+  std::string end = CUKE_ARG(2);
+
+  cuke::equal(cuke::context<date_range>().start.month, start);
+  cuke::equal(cuke::context<date_range>().end.month, end);
+}
+
+CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))",
+                 "two integers")
+{
+  int var1 = CUKE_PARAM_ARG(1);
+  int var2 = CUKE_PARAM_ARG(2);
+  return std::make_pair(var1, var2);
+}
 
 WHEN(custom_par_when, "this is {pair of integers}")
 {
@@ -10,6 +78,7 @@ WHEN(custom_par_when, "this is {pair of integers}")
             << ' ' << p.second << std::endl;
   cuke::context<const std::pair<int, int>>(p);
 }
+
 THEN(custom_par_then, "their values are {int} and {int}")
 {
   const int var1 = CUKE_ARG(1);

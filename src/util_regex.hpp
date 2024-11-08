@@ -36,16 +36,16 @@ create_regex_definition(const std::string& step)
 {
   std::string test = step;
   std::string result = '^' + create_word_alternation(step);
-  std::regex pattern("\\{(.*?)\\}");
+  std::regex pattern(cuke::registry().create_expression_key_regex_pattern());
   std::smatch match;
-
   std::vector<param_info> type_info;
 
   std::size_t offset = 0;
 
   while (std::regex_search(result, match, pattern))
   {
-    const auto& conversion = cuke::registry().get_expression(match[0].str());
+    const std::string key = match[0].str();
+    const auto& conversion = cuke::registry().get_expression(key);
     result = std::regex_replace(result, pattern, conversion.pattern,
                                 std::regex_constants::format_first_only);
     const std::size_t value_count = std::regex(conversion.pattern).mark_count();

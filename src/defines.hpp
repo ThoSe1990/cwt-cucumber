@@ -1,14 +1,16 @@
 #pragma once
 
+#include "any.hpp"
 #include "value.hpp"
 #include "hooks.hpp"
 #include "registry.hpp"
+#include "expression.hpp"
 
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
 #define _STEP(function_name, step_definition, type)                           \
-  void static function_name(                                                  \
+  static void function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
@@ -25,21 +27,45 @@
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
   }                                                                           \
-  void static function_name(                                                  \
+  static void function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
-/**
- * @def STEP(function_name, step_definition)
- * @brief Creates a Cucumber step, which is then available in your feature files
- *
- * @param function_name A unique function name, this function name has no
- * technical impact
- * @param step_definition The step definition string which is used by feature
- * files later
+#define CUSTOM_PARAMETER(function_name, key, pattern, description)         \
+  static ::cuke::internal::any function_name(                              \
+      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
+      [[maybe_unused]] std::size_t __cuke__values__count__);               \
+  namespace                                                                \
+  {                                                                        \
+  struct CONCAT(function_name, _t)                                         \
+  {                                                                        \
+    CONCAT(function_name, _t)()                                            \
+    {                                                                      \
+      ::cuke::registry().push_expression(                                  \
+          ::cuke::expression{key, pattern, description, function_name});   \
+    }                                                                      \
+  } CONCAT(g_, function_name);                                             \
+  }                                                                        \
+  static ::cuke::internal::any function_name(                              \
+      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
+      [[maybe_unused]] std::size_t __cuke__values__count__)
+
+#define CUKE_PARAM_ARG(idx)                                                    \
+  ::cuke::internal::get_param_value(__cuke__values__, __cuke__values__count__, \
+                                    idx)
+
+/**                                                                           \
+ * @def STEP(function_name, step_definition)                                  \
+ * @brief Creates a Cucumber step, which is then available in your feature    \
+ * files                                                                      \
+ *                                                                            \
+ * @param function_name A unique function name, this function name has no     \
+ * technical impact                                                           \
+ * @param step_definition The step definition string which is used by feature \
+ * files later                                                                \
  */
 #define STEP(function_name, step_definition) \
   _STEP(function_name, step_definition, cuke::internal::step::type::step)
