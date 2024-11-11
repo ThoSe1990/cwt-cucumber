@@ -567,11 +567,17 @@ If you want to execute all feature files in a directory (and subdirectory), just
 
 CWT-Cucumber supports custom parameter types. This means that we can define custom expressions in our steps to introduce custom types (so to speak) and make the step definition more understandable.  
   
-In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function name, "{here goes your type}", "regex pattern", "description")`.  
+In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function-name, "{here goes your type}", "regex pattern", "description")`.  
+
+- Function-name: A defined function name (same as in steps) 
+- Custom-Type: Define the type you want, **with curly braces** as string 
+- Regex-Pattern: The regex pattern to match the step, you can use raw string literals, which makes it easier to write regex pattern (see below)
+- Description: A string value to give a meaning full description. This will be printed to the catalog and has no effect on the scenarios.
   
 In order to access the capture groups, use `CUKE_PARAM_ARG(index)` where the index starts at 1 from left to right.
+
+**Note: You must explicitly return the dedicated type in the callback. The implementation uses type erasure and does not know which type will be used later.**
   
-Note: For string values you can use raw string literals, which makes it easier to write regex pattern (see below).  
   
 Find all implementations in `examples/step_definition.cpp` and the examples in `examples/features/8_custom_parameters.feature`. 
 
