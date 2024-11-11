@@ -29,8 +29,8 @@ CUSTOM_PARAMETER(
   begin.year = CUKE_PARAM_ARG(3).as<int>();
 
   date end;
-  end.month = std::string(CUKE_PARAM_ARG(4));
-  end.day = int(CUKE_PARAM_ARG(5));
+  end.month = static_cast<std::string>(CUKE_PARAM_ARG(4));
+  end.day = static_cast<int>(CUKE_PARAM_ARG(5));
   end.year = CUKE_PARAM_ARG(6).as<int>();
 
   return date_range{begin, end};
