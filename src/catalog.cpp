@@ -23,6 +23,26 @@ std::string as_readable_text()
     result.append(step.definition());
     result += '\n';
   }
+
+  if (cuke::registry().custom_expressions().size() > 0)
+  {
+    result += '\n';
+    result.append(std::string("Custom Parameter Types:\n"));
+    result.append(std::string("-----------------------\n"));
+    for (auto& [key, value] : cuke::registry().custom_expressions())
+    {
+      result.append(key);
+      result.append("\n  ");
+      result.append(std::string("Comment: "));
+      result.append(value.type_info);
+      result.append("\n  ");
+      result.append(std::string("Pattern: "));
+      result.append(value.pattern);
+      result += '\n';
+    }
+    result += '\n';
+  }
+
   return result;
 }
 
