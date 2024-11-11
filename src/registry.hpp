@@ -76,6 +76,11 @@ class registry
     m_expressions.custom.clear();
   }
 
+  [[nodiscard]] std::unordered_map<std::string, expression> custom_expressions()
+      const noexcept
+  {
+    return m_expressions.custom;
+  }
   void push_expression(std::string_view key,
                        const expression& custom_expression)
   {

@@ -54,6 +54,19 @@ std::string as_json(std::size_t indents /* = 2 */)
 
     steps_catalog["steps_catalog"].push_back(step_entry);
   }
+  for (auto& [key, value] : cuke::registry().custom_expressions())
+  {
+    json field_type = {{"type", key}};
+    json field_pattern = {{"pattern", value.pattern}};
+    json field_comment = {{"comment", value.type_info}};
+
+    json type_entry = {
+        {"type", field_type["type"]},
+        {"pattern", field_pattern["pattern"]},
+        {"comment", field_comment["comment"]},
+    };
+    steps_catalog["types"].push_back(type_entry);
+  }
 
   return steps_catalog.dump(indents);
 #endif  // WITH_JSON
