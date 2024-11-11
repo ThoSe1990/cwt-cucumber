@@ -6,6 +6,10 @@
 - `cwt_cucumber` object for embedding CWT Cucumber and executing tests ([49](https://github.com/ThoSe1990/cwt-cucumber/pull/49))
 - `--steps-catalog [optional: file]` to print the implemented steps as readable text to stdout or a given file (this does not write to '.feature' files) ([50](https://github.com/ThoSe1990/cwt-cucumber/pull/50))
 - `--steps-catalog-json [optional: file]` to print the implemented steps as json to stdout or a given file (this does not write to '.feature' files) ([50](https://github.com/ThoSe1990/cwt-cucumber/pull/50)) ([54](https://github.com/ThoSe1990/cwt-cucumber/pull/54))
+- Custom Parameter Types ([56](https://github.com/ThoSe1990/cwt-cucumber/pull/56))
+  - Define custom types with `CUSTOM_PARAMETER(function-name, "{your type}", "regex pattern", "description") { your callback implementation }` 
+  - In your callback implement how to consume capture groups
+  - Access capture groups with `CUKE_PARAM_ARG(index)`, where index starts at 1 and goes from left to write
 
 ## [2.3.1] 2024-10-23
 
