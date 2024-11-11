@@ -22,6 +22,9 @@
     1. [Hooks](#hooks)
     1. [Tagged Hooks](#tagged-hooks)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+1. [Custom Parameter Types](#custom-parameter-types)
+    1. [Example: Pair of Integers](#example-pair-of-integers)
+    1. [Example: Date-Range](#example-date-range)
 1. [Catalog](#catalog)
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
@@ -170,6 +173,7 @@ The values are implemted as [Cucumber expressions](https://github.com/cucumber/c
 - Strings (in quotes `".."` `{string}`
 - Word (w/o quotes) `{word}` -> read value as `std::string` in step definition
 - Anonymous, any character sequence `{}` -> read value as `std::string` in step definition
+- Custom Parameter Types: `{your type comes here}` -> check [Custom Parameter Types](#custom-parameter-types) for examples and how to use them 
 
 ### Scenario Context
 
@@ -558,6 +562,118 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```shell
 ./build/bin/box ./examples/features
 ```
+
+## Custom Parameter Types
+
+CWT-Cucumber supports custom parameter types. This means that we can define custom expressions in our steps to introduce custom types (so to speak) and make the step definition more understandable.  
+  
+In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function name, "{here goes your type}", "regex pattern", "description")`.  
+  
+In order to access the capture groups, use `CUKE_PARAM_ARG(index)` where the index starts at 1 from left to right.
+  
+Note: For string values you can use raw string literals, which makes it easier to write regex pattern (see below).  
+  
+Find all implementations in `examples/step_definition.cpp` and the examples in `examples/features/8_custom_parameters.feature`. 
+
+### Example: Pair of Integers
+
+Lets define a type `{pair of integers}`, which will create a `std::pair<int,int>`: 
+
+```cpp 
+CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers")
+{
+  int var1 = CUKE_PARAM_ARG(1);
+  int var2 = CUKE_PARAM_ARG(2);
+  return std::make_pair(var1, var2);
+}
+```
+
+And now we can use this type in our step definition. And note this type no uses a single index with `CUKE_ARG(1)` and returns a `std::pair<int,int>`:
+
+```cpp 
+WHEN(custom_par_when, "this is {pair of integers}")
+{
+  std::pair<int, int> p = CUKE_ARG(1);
+  cuke::context<const std::pair<int, int>>(p);
+}
+```
+
+And a possible scenario looks like this: 
+
+```gherkin
+Scenario: An example 
+    When this is var1=123, var2=99
+    Then their values are 123 and 99
+```
+
+### Example: Date-Range
+
+A more complex example is defined below. We want to parse a range between two dates. The Dates are supposed to be written like this: `November 11, 2024`. Here we use this regex pattern: `from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4})`.  
+
+In our implementation we define a struct which represents a `date` and a `date_range`: 
+
+```cpp 
+struct date
+{
+  int day;
+  std::string month;
+  int year;
+};
+
+struct date_range
+{
+  date start;
+  date end;
+};
+```
+  
+We want now that our type `{date}` returns a `date_range` and we define it as following:  
+
+```cpp
+CUSTOM_PARAMETER(
+    custom_date, 
+    "{date}",
+    R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+    "a custom date pattern")
+{
+  date begin;
+  begin.month = std::string(CUKE_PARAM_ARG(1));
+  begin.day = int(CUKE_PARAM_ARG(2));
+  begin.year = CUKE_PARAM_ARG(3).as<int>();
+
+  date end;
+  end.month = static_cast<std::string>(CUKE_PARAM_ARG(4));
+  end.day = static_cast<int>(CUKE_PARAM_ARG(5));
+  end.year = CUKE_PARAM_ARG(6).as<int>();
+
+  return date_range{begin, end};
+}
+```
+
+Note: When using structs, we have to be explicit about the types. You can either use static_casts or bracket initialization or you call `.as<..>()` on `CUKE_PARAM_ARG`.   
+  
+And this is now our step we want to use, where we put an arbitrary string in front to describe the date range:   
+  
+```cpp
+WHEN(using_date, "{} is {date}")
+{
+  std::string event = CUKE_ARG(1);
+  date_range dr = CUKE_ARG(2);
+  cuke::context<date_range>(dr);
+}
+```
+
+Note: that the first argument here returns a string where we get the event and the second argument is `date_range`.
+   
+Now we can use this for a Scenario (check the full implementation in `examples/step_definition.cpp`):
+
+```gherkin 
+Scenario: Date example
+    When A cool event is from April 25, 2025 to Mai 13, 2025
+    Then The beginning month is April and the ending month is Mai
+```
+
+
 ## Catalog 
 
 Run the compiled executable with the option `--steps-catalog` or `--steps-catalog-json` in order to print all implemented steps to stdout or a file. To print to a file just append a filepath to `--steps-catalog`. This does not write to `.feature` files and overwrites existing files. 
