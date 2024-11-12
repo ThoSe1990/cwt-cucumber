@@ -23,6 +23,26 @@ std::string as_readable_text()
     result.append(step.definition());
     result += '\n';
   }
+
+  if (cuke::registry().custom_expressions().size() > 0)
+  {
+    result += '\n';
+    result.append(std::string("Custom Parameter Types:\n"));
+    result.append(std::string("-----------------------\n"));
+    for (auto& [key, value] : cuke::registry().custom_expressions())
+    {
+      result.append(key);
+      result.append("\n  ");
+      result.append(std::string("Comment: "));
+      result.append(value.type_info);
+      result.append("\n  ");
+      result.append(std::string("Pattern: "));
+      result.append(value.pattern);
+      result += '\n';
+    }
+    result += '\n';
+  }
+
   return result;
 }
 
@@ -42,9 +62,9 @@ std::string as_json(std::size_t indents /* = 2 */)
     json field_type = {{"type", to_string(step.step_type())}};
 
     json field_var_types = json::array();
-    for (const auto& var_type : step.type_info())
+    for (const auto& info : step.type_info())
     {
-      field_var_types.push_back(var_type);
+      field_var_types.push_back(info.description);
     }
 
     json step_entry = {{"type", field_type["type"]},
@@ -53,6 +73,19 @@ std::string as_json(std::size_t indents /* = 2 */)
                        {"var_types", field_var_types}};
 
     steps_catalog["steps_catalog"].push_back(step_entry);
+  }
+  for (auto& [key, value] : cuke::registry().custom_expressions())
+  {
+    json field_type = {{"type", key}};
+    json field_pattern = {{"pattern", value.pattern}};
+    json field_comment = {{"comment", value.type_info}};
+
+    json type_entry = {
+        {"type", field_type["type"]},
+        {"pattern", field_pattern["pattern"]},
+        {"comment", field_comment["comment"]},
+    };
+    steps_catalog["types"].push_back(type_entry);
   }
 
   return steps_catalog.dump(indents);

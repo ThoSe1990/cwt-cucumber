@@ -1,5 +1,5 @@
 
-set(target box)
+set(target example)
 
 add_executable(${target} 
   ${CMAKE_CURRENT_SOURCE_DIR}/step_definition.cpp

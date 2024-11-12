@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 
+#include "../src/get_args.hpp"
 #include "../src/step_finder.hpp"
+#include "../src/util_regex.hpp"
+#include "registry.hpp"
 
 using namespace cuke::internal;
 
@@ -465,4 +468,234 @@ TEST(step_finder, step_alternation_2)
     ASSERT_EQ(sf.values().size(), 1);
     EXPECT_EQ(sf.values().at(0).as<int>(), 1);
   }
+}
+
+// TODO: do when refactoring POC
+class custom_types : public ::testing::Test
+{
+ protected:
+  void SetUp() override { cuke::registry().clear(); }
+};
+
+TEST_F(custom_types, custom_conversions_1)
+{
+  cuke::registry().push_expression(
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] = create_regex_definition("I have {pair of integers}");
+  ASSERT_EQ(types.size(), 1);
+  EXPECT_EQ(types.at(0).offset, 0);
+  EXPECT_EQ(types.at(0).param_count, 2);
+  EXPECT_EQ(types.at(0).description, std::string("two integers"));
+
+  step_finder sf("I have var1 = 123, var2 = 999");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 123);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 999);
+}
+TEST_F(custom_types, custom_conversions_2)
+{
+  cuke::registry().push_expression(
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {pair of integers} and {int}");
+  ASSERT_EQ(types.size(), 2);
+  EXPECT_EQ(types.at(1).offset, 1);
+  EXPECT_EQ(types.at(1).param_count, 1);
+  EXPECT_EQ(types.at(1).description, std::string("int"));
+
+  step_finder sf("I have var1 = 123, var2 = 999 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 3);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 123);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 999);
+  EXPECT_EQ(sf.values().at(2).as<int>(), 5);
+}
+TEST_F(custom_types, custom_conversions_3)
+{
+  cuke::registry().push_expression(
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {pair of integers} and {int}");
+  step_finder sf("I have var1 = 123, var2 = 999 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  std::pair<int, int> p = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 1, "", 0);
+  int i = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                  types, 2, "", 0);
+
+  EXPECT_EQ(p.first, 123);
+  EXPECT_EQ(p.second, 999);
+  EXPECT_EQ(i, 5);
+}
+TEST_F(custom_types, custom_conversions_4)
+{
+  cuke::registry().push_expression(
+      "{pair of integers}",
+      {R"(var1 = (\d+), var2 = (\d+))", "two integers",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int var1 = get_param_value(begin, count, 1);
+         int var2 = get_param_value(begin, count, 2);
+         return std::make_pair(var1, var2);
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {} {pair of integers} {} and {int}");
+  step_finder sf(
+      "I have some text before my type: var1 = 123, var2 = 999 <- and after it "
+      "... and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  std::string anonymous_1 = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 1, "", 0);
+  ASSERT_EQ(anonymous_1, std::string("some text before my type:"));
+
+  std::pair<int, int> p = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 2, "", 0);
+  ASSERT_EQ(p.first, 123);
+  ASSERT_EQ(p.second, 999);
+
+  std::string anonymous_2 = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 3, "", 0);
+  ASSERT_EQ(anonymous_2, std::string("<- and after it ..."));
+
+  int i = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                  types, 4, "", 0);
+  EXPECT_EQ(i, 5);
+}
+
+struct date
+{
+  int day;
+  std::string month;
+  int year;
+};
+
+struct date_range
+{
+  date start;
+  date end;
+};
+
+static cuke::internal::any make_date_range(
+    cuke::value_array::const_iterator values_begin, std::size_t count)
+{
+  date begin;
+  begin.month = get_param_value(values_begin, count, 1).as<std::string>();
+  begin.day = get_param_value(values_begin, count, 2).as<int>();
+  begin.year = get_param_value(values_begin, count, 3).as<int>();
+
+  date end;
+  end.month = get_param_value(values_begin, count, 4).as<std::string>();
+  end.day = get_param_value(values_begin, count, 5).as<int>();
+  end.year = get_param_value(values_begin, count, 6).as<int>();
+
+  return date_range{begin, end};
+}
+
+TEST_F(custom_types, custom_conversion_5)
+{
+  cuke::registry().push_expression(
+      "{date}",
+      {R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+       "", make_date_range});
+  auto [pattern, types] = create_regex_definition("{} is {date}");
+  step_finder sf(
+      "The Christmas Market in Augsburg is from November 25, 2024 to December "
+      "24, 2024");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  date_range dr = cuke::internal::get_arg(sf.values().begin(),
+                                          sf.values().size(), types, 2, "", 0);
+  EXPECT_EQ(dr.start.day, 25);
+  EXPECT_EQ(dr.start.month, std::string("November"));
+  EXPECT_EQ(dr.start.year, 2024);
+  EXPECT_EQ(dr.end.day, 24);
+  EXPECT_EQ(dr.end.month, std::string("December"));
+  EXPECT_EQ(dr.end.year, 2024);
+}
+TEST_F(custom_types, custom_conversion_6)
+{
+  cuke::registry().push_expression(
+      "{date}",
+      {R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+       "", make_date_range});
+  auto [pattern, types] = create_regex_definition(
+      "{} is {date} and a {string} is {date} and {int}");
+  step_finder sf(
+      "The Christmas Market in Augsburg is from November 25, 2024 to December "
+      "24, 2024 and a \"new cool event\" is from January 30, 2025 to February "
+      "9, 2025 and 99");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  {
+    date_range dr = cuke::internal::get_arg(
+        sf.values().begin(), sf.values().size(), types, 2, "", 0);
+    EXPECT_EQ(dr.start.day, 25);
+    EXPECT_EQ(dr.start.month, std::string("November"));
+    EXPECT_EQ(dr.start.year, 2024);
+    EXPECT_EQ(dr.end.day, 24);
+    EXPECT_EQ(dr.end.month, std::string("December"));
+    EXPECT_EQ(dr.end.year, 2024);
+  }
+  std::string new_event = cuke::internal::get_arg(
+      sf.values().begin(), sf.values().size(), types, 3, "", 0);
+  EXPECT_EQ(new_event, std::string("new cool event"));
+  {
+    date_range dr = cuke::internal::get_arg(
+        sf.values().begin(), sf.values().size(), types, 4, "", 0);
+    EXPECT_EQ(dr.start.day, 30);
+    EXPECT_EQ(dr.start.month, std::string("January"));
+    EXPECT_EQ(dr.start.year, 2025);
+    EXPECT_EQ(dr.end.day, 9);
+    EXPECT_EQ(dr.end.month, std::string("February"));
+    EXPECT_EQ(dr.end.year, 2025);
+  }
+  int number = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                       types, 5, "", 0);
+  EXPECT_EQ(number, 99);
+}
+TEST_F(custom_types, custom_conversions_7)
+{
+  cuke::registry().push_expression(
+      "{another int}",
+      {R"(int = (\d+) and int = (\d+))", "",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       {
+         int i1 = get_param_value(begin, count, 1);
+         int i2 = get_param_value(begin, count, 2);
+         return i1 + i2;
+       }});
+  auto [pattern, types] =
+      create_regex_definition("I have {another int} and {int}");
+  step_finder sf("I have int = 3 and int = 90 and 5");
+  ASSERT_TRUE(sf.step_matches(pattern));
+
+  int i1 = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                   types, 1, "", 0);
+  int i2 = cuke::internal::get_arg(sf.values().begin(), sf.values().size(),
+                                   types, 2, "", 0);
+
+  EXPECT_EQ(i1, 93);
+  EXPECT_EQ(i2, 5);
 }

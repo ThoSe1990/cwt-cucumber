@@ -1,14 +1,41 @@
 #pragma once
 
 #include <algorithm>
+#include <format>
+#include <stdexcept>
+#include <string_view>
 
-#include "value.hpp"
+#include "step.hpp"
 #include "hooks.hpp"
+#include "expression.hpp"
 
 namespace cuke
 {
 namespace internal
 {
+
+static const cuke::value& get_param_value(
+    cuke::value_array::const_iterator begin, std::size_t values_count,
+    std::size_t idx)
+{
+  std::size_t zero_based_idx = idx - 1;
+  if (zero_based_idx < values_count)
+  {
+    return *(begin + zero_based_idx);
+  }
+  else
+  {
+    throw std::runtime_error(std::format("Index out of range"));
+  }
+}
+
+template <typename T>
+static any make_parameter_value(cuke::value_array::const_iterator begin,
+                                std::size_t count)
+{
+  return get_param_value(begin, count, 1).as<T>();
+}
+
 template <typename Hook>
 static void run_hook(const std::vector<Hook>& hooks)
 {
@@ -27,6 +54,7 @@ static void run_hook(const std::vector<Hook>& hooks,
                   }
                 });
 }
+
 class registry
 {
  public:
@@ -45,6 +73,65 @@ class registry
     m_hooks.after_step.clear();
     m_hooks.before_all.clear();
     m_hooks.after_all.clear();
+    m_expressions.custom.clear();
+  }
+
+  [[nodiscard]] std::unordered_map<std::string, expression> custom_expressions()
+      const noexcept
+  {
+    return m_expressions.custom;
+  }
+  void push_expression(std::string_view key,
+                       const expression& custom_expression)
+  {
+    if (m_expressions.custom.contains(key.data()))
+    {
+      throw std::runtime_error(
+          std::format("Custom parameter type '{}' already exists.", key));
+    }
+    m_expressions.custom[key.data()] = custom_expression;
+  }
+  [[nodiscard]] bool has_expression(std::string_view key) const noexcept
+  {
+    return m_expressions.standard.contains(key.data()) ||
+           m_expressions.custom.contains(key.data());
+  }
+  [[nodiscard]] const expression& get_expression(std::string_view key) const
+  {
+    if (m_expressions.standard.contains(key.data()))
+    {
+      return m_expressions.standard.at(key.data());
+    }
+    if (m_expressions.custom.contains(key.data()))
+    {
+      return m_expressions.custom.at(key.data());
+    }
+    throw std::runtime_error(
+        std::format("Expression '{}' does not exists", key));
+  }
+  std::string create_expression_key_regex_pattern() const noexcept
+  {
+    std::stringstream pattern;
+    pattern << "(";
+    bool first = true;
+    for (auto it = m_expressions.standard.begin();
+         it != m_expressions.standard.end(); ++it)
+    {
+      if (!first)
+      {
+        pattern << "|";
+      }
+      first = false;
+      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+    }
+    for (auto it = m_expressions.custom.begin();
+         it != m_expressions.custom.end(); ++it)
+    {
+      pattern << "|";
+      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+    }
+    pattern << ")";
+    return pattern.str();
   }
 
   void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
@@ -139,6 +226,23 @@ class registry
     std::vector<internal::hook> before_step;
     std::vector<internal::hook> after_step;
   } m_hooks;
+
+  struct
+  {
+    const std::unordered_map<std::string, expression> standard = {
+        {"{byte}", {"(-?\\d+)", "byte", make_parameter_value<char>}},
+        {"{int}", {"(-?\\d+)", "int", make_parameter_value<int>}},
+        {"{short}", {"(-?\\d+)", "short", make_parameter_value<short>}},
+        {"{long}", {"(-?\\d+)", "long", make_parameter_value<long>}},
+        {"{float}", {"(-?\\d*\\.?\\d+)", "float", make_parameter_value<float>}},
+        {"{double}",
+         {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
+        {"{word}", {"([^\\s<]+)", "word", make_parameter_value<std::string>}},
+        {"{string}",
+         {"\"(.*?)\"", "string", make_parameter_value<std::string>}},
+        {"{}", {"(.+)", "anonymous", make_parameter_value<std::string>}}};
+    std::unordered_map<std::string, expression> custom;
+  } m_expressions;
 };
 
 }  // namespace internal

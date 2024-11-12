@@ -22,14 +22,16 @@
     1. [Hooks](#hooks)
     1. [Tagged Hooks](#tagged-hooks)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+1. [Custom Parameter Types](#custom-parameter-types)
+    1. [Example: Pair of Integers](#example-pair-of-integers)
+    1. [Example: Date-Range](#example-date-range)
 1. [Catalog](#catalog)
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
 
 
 Tested compilers: GCC 13, Clang17 and MSVC 19  
-Full documentation: https://those1990.github.io/cwt-cucumber-docs  
-Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
+Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
 
 Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
 
@@ -64,7 +66,7 @@ Feature: My first feature
 Now execute the first example from the example directory:
 
 ```shell
-./build/bin/box ./examples/features/1_first_scenario.feature
+./build/bin/example ./examples/features/1_first_scenario.feature
 
 Feature: My first feature  ./examples/features/1_first_scenario.feature:2
 
@@ -170,6 +172,7 @@ The values are implemted as [Cucumber expressions](https://github.com/cucumber/c
 - Strings (in quotes `".."` `{string}`
 - Word (w/o quotes) `{word}` -> read value as `std::string` in step definition
 - Anonymous, any character sequence `{}` -> read value as `std::string` in step definition
+- Custom Parameter Types: `{your type comes here}` -> check [Custom Parameter Types](#custom-parameter-types) for examples and how to use them 
 
 ### Scenario Context
 
@@ -225,7 +228,7 @@ Feature: My first feature
 Which gives this output:
 
 ```shell
-./build/bin/box ./examples/features/2_scenario_outline.feature
+./build/bin/example ./examples/features/2_scenario_outline.feature
 
 Feature: My first feature  ./examples/features/2_scenario_outline.feature:2
 
@@ -428,11 +431,11 @@ And when we run this with tags, we can control which scenarios are executed.
 
 This executes both scenarios:
 ```shell
-./build/bin/box ./examples/features/4_tags.feature -t "@apples or @bananas"
+./build/bin/example ./examples/features/4_tags.feature -t "@apples or @bananas"
 ```
 And this would just execute the second scenario due to the `and` condition:
 ```shell
-./build/bin/box ./examples/features/4_tags.feature -t "@apples and @bananas"
+./build/bin/example ./examples/features/4_tags.feature -t "@apples and @bananas"
 ```
 
 Note: Tags can be applied to `Feature:`, `Scenario:`, `Scenario Outline:` and `Examples:`. The tags are inherited to the next child. 
@@ -506,7 +509,7 @@ Feature: Scenarios with tags
 And now we can see that our box was shipped:
 
 ```shell
-./build/bin/box ./examples/features/5_tagged_hooks.feature
+./build/bin/example ./examples/features/5_tagged_hooks.feature
 
 Feature: Scenarios with tags  ./examples/features/5_tagged_hooks.feature:1
 
@@ -547,23 +550,152 @@ If you only want to run single scenarios, you can append the appropriate line to
 
 This runs a Scenario in Line 6:
 ```shell
-./build/bin/box ./examples/features/box.feature:6
+./build/bin/example ./examples/features/box.feature:6
 ```
 This runs each Scenario in line 6, 11, 14:
 ```shell
-./build/bin/box ./examples/features/box.feature:6:11:14
+./build/bin/example ./examples/features/box.feature:6:11:14
 ```
 
 If you want to execute all feature files in a directory (and subdirectory), just pass the directory as argument:
 ```shell
-./build/bin/box ./examples/features
+./build/bin/example ./examples/features
 ```
+
+## Custom Parameter Types
+
+CWT-Cucumber supports custom parameter types. This means that we can define custom expressions in our steps to introduce custom types (so to speak) and make the step definition more understandable.  
+  
+In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function-name, "{here goes your type}", "regex pattern", "description")`.  
+
+- Function-name: A defined function name (same as in steps) 
+- Custom-Type: Define the type you want, **with curly braces** as string 
+- Regex-Pattern: The regex pattern to match the step, you can use raw string literals, which makes it easier to write regex pattern (see below)
+- Description: A string value to give a meaning full description. This will be printed to the catalog and has no effect on the scenarios.
+  
+In order to access the capture groups, use `CUKE_PARAM_ARG(index)` where the index starts at 1 from left to right.
+
+**Note: You must explicitly return the dedicated type in the callback. The implementation uses type erasure and does not know which type will be used later.**
+  
+  
+Find all implementations in `examples/step_definition.cpp` and the examples in `examples/features/8_custom_parameters.feature`. 
+
+### Example: Pair of Integers
+
+Lets define a type `{pair of integers}`, which will create a `std::pair<int,int>`: 
+
+```cpp 
+CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))", "two integers")
+{
+  int var1 = CUKE_PARAM_ARG(1);
+  int var2 = CUKE_PARAM_ARG(2);
+  return std::make_pair(var1, var2);
+}
+```
+
+And now we can use this type in our step definition. And note this type no uses a single index with `CUKE_ARG(1)` and returns a `std::pair<int,int>`:
+
+```cpp 
+WHEN(custom_par_when, "this is {pair of integers}")
+{
+  std::pair<int, int> p = CUKE_ARG(1);
+  cuke::context<const std::pair<int, int>>(p);
+}
+```
+
+And a possible scenario looks like this: 
+
+```gherkin
+Scenario: An example 
+    When this is var1=123, var2=99
+    Then their values are 123 and 99
+```
+
+### Example: Date-Range
+
+A more complex example is defined below. We want to parse an event (which is represented as string) and two dates. Therefore we add following regex patterns:
+- Event in single quotes: `'(.*?)'` and
+- The dates in the format: `from November 11, 2024 to December 12, 2024`: `from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4})`.  
+  
+`{event}` is fairly easy here: 
+
+```cpp
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
+{
+  return CUKE_PARAM_ARG(1).to_string();
+}
+```
+
+`{date}` requires two structs and in with it we want to `date_range`:
+
+```cpp 
+struct date
+{
+  int day;
+  std::string month;
+  int year;
+};
+
+struct date_range
+{
+  date start;
+  date end;
+};
+```
+  
+In order to create the `date_range` we implement now the custom parameter: 
+
+```cpp
+CUSTOM_PARAMETER(
+    custom_date, 
+    "{date}",
+    R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
+    "a custom date pattern")
+{
+  date begin;
+  begin.month = std::string(CUKE_PARAM_ARG(1));
+  begin.day = int(CUKE_PARAM_ARG(2));
+  begin.year = CUKE_PARAM_ARG(3).as<int>();
+
+  date end;
+  end.month = static_cast<std::string>(CUKE_PARAM_ARG(4));
+  end.day = static_cast<int>(CUKE_PARAM_ARG(5));
+  end.year = CUKE_PARAM_ARG(6).as<int>();
+
+  return date_range{begin, end};
+}
+```
+
+Note: When using structs, we have to be explicit about the types. You can either use static_casts or bracket initialization or you call `.as<..>()` on `CUKE_PARAM_ARG`.   
+  
+And this is now our step we want to use, where we put an arbitrary string in front to describe the date range:   
+  
+```cpp
+WHEN(using_date, "{event} is {date}")
+{
+  std::string event = CUKE_ARG(1);
+  date_range dr = CUKE_ARG(2);
+  cuke::context<date_range>(dr);
+}
+```
+
+Note: that the first argument here returns a string where we get the event and the second argument is `date_range`.
+   
+Now we can use this for a Scenario (check the full implementation in `examples/step_definition.cpp`):
+
+```gherkin 
+Scenario: Date example
+    When 'The public festival in town' is from April 25, 2025 to Mai 13, 2025
+    Then The beginning month is April and the ending month is Mai
+```
+
+
 ## Catalog 
 
 Run the compiled executable with the option `--steps-catalog` or `--steps-catalog-json` in order to print all implemented steps to stdout or a file. To print to a file just append a filepath to `--steps-catalog`. This does not write to `.feature` files and overwrites existing files. 
 
 ```shell 
-./build/bin/box --steps-catalog
+./build/bin/example --steps-catalog
 
 Step Definitions (catalog):
 ---------------------------
@@ -583,7 +715,7 @@ Step doc string:
 ```
 
 ```shell 
-./build/bin/box --steps-catalog-json
+./build/bin/example --steps-catalog-json
 
 {
   "steps_catalog": [

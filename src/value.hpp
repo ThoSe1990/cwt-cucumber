@@ -6,7 +6,6 @@
 #include <type_traits>
 
 #include "util.hpp"
-#include "util_regex.hpp"
 
 namespace cuke
 {
@@ -33,6 +32,12 @@ class value
   }
 
   ~value() = default;
+
+  template <typename T>
+  operator T() const
+  {
+    return this->as<T>();
+  }
 
   /**
    * @brief Checks if the cuke::value is nil
@@ -77,7 +82,7 @@ class value
               std::format(
                   "cuke::value::as: Cannot convert {} to floating point type",
                   m_value));
-      return T();  // Return default initialized value
+      return T();
     }
   }
   template <typename T>
@@ -116,75 +121,3 @@ class value
 using value_array = std::vector<value>;
 
 }  // namespace cuke
-
-namespace cuke::internal
-{
-
-using step_callback = void (*)(const cuke::value_array& args,
-                               const std::vector<std::string>& doc_string,
-                               const cuke::table& t);
-class step
-{
- public:
-  enum class type
-  {
-    given,
-    when,
-    then,
-    step
-  };
-
-  step(step_callback cb, const std::string& definition,
-       type step_type = type::step, const std::string& function_name = "")
-      : m_callback(cb),
-        m_definition(definition),
-        m_type(step_type),
-        m_function_name(function_name)
-  {
-    std::tie(m_regex_definition, m_type_info) =
-        create_regex_definition(add_escape_chars(m_definition));
-  }
-  const std::string& function_name() const noexcept { return m_function_name; }
-  const std::string& definition() const noexcept { return m_definition; }
-  const std::vector<std::string>& type_info() const noexcept
-  {
-    return m_type_info;
-  }
-  const std::string& regex_string() const noexcept
-  {
-    return m_regex_definition;
-  }
-  void call(const value_array& values,
-            const std::vector<std::string>& doc_string, const table& t) const
-  {
-    m_callback(values, doc_string, t);
-  }
-  type step_type() const noexcept { return m_type; }
-
- private:
-  step_callback m_callback;
-  std::string m_definition;
-  std::string m_regex_definition;
-  std::vector<std::string> m_type_info;
-  std::string m_function_name;
-  type m_type;
-};
-
-[[nodiscard]] static std::string to_string(step::type type)
-{
-  switch (type)
-  {
-    case step::type::given:
-      return "Given";
-    case step::type::when:
-      return "When";
-    case step::type::then:
-      return "Then";
-    case step::type::step:
-      return "Step";
-  }
-}
-
-}  // namespace cuke::internal
-
-#include "table.hpp"

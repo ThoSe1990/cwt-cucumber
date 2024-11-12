@@ -27,10 +27,10 @@ class run_scenarios_tags : public ::testing::Test
     test_value = 0;
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&)
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { run_scenarios_tags::call_count++; }, "a step"));
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
         {
           run_scenarios_tags::test_value = values.at(0).as<std::size_t>();
           run_scenarios_tags::call_count++;

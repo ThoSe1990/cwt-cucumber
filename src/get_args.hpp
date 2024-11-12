@@ -1,30 +1,41 @@
 #pragma once
 
+#include <stdexcept>
+#include <string_view>
+
+#include "param_info.hpp"
 #include "value.hpp"
+#include "registry.hpp"
 
 namespace cuke::internal
 {
 
 struct conversion
 {
-  const cuke::value& v;
-  std::string_view file;
-  std::size_t line;
+  cuke::value_array::const_iterator begin;
+  std::size_t idx;
+  std::size_t values_count;
+  std::string_view key;
 
   template <typename T>
   operator T() const
   {
-    return v.as<T>();
+    return cuke::registry().get_expression(key).callback(begin + idx,
+                                                         values_count);
   }
 };
 
-inline conversion get_arg(const cuke::value_array& values, std::size_t idx,
-                          std::string_view file, std::size_t line)
+inline conversion get_arg(cuke::value_array::const_iterator begin,
+                          std::size_t values_count,
+                          const std::vector<param_info>& parameter,
+                          std::size_t idx, std::string_view file,
+                          std::size_t line)
 {
   std::size_t zero_based_idx = idx - 1;
-  if (zero_based_idx < values.max_size())
+  if (zero_based_idx < values_count)
   {
-    return conversion(values[zero_based_idx]);
+    return conversion{begin, zero_based_idx + parameter[zero_based_idx].offset,
+                      values_count, parameter[zero_based_idx].key};
   }
   else
   {
@@ -73,8 +84,9 @@ class string_or_vector
  * @return The value from the index in the given step
  */
 
-#define CUKE_ARG(index) \
-  cuke::internal::get_arg(__cuke__values__, index, __FILE__, __LINE__)
+#define CUKE_ARG(index)                                                      \
+  cuke::internal::get_arg(__cuke__values__.begin(), __cuke__values__.size(), \
+                          __cuke__parameter_info__, index, __FILE__, __LINE__)
 
 /**
  * @def CUKE_DOC_STRING()

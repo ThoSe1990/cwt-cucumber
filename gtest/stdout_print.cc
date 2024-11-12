@@ -21,13 +21,15 @@ class stdout_print : public ::testing::Test
     cuke::results::test_results().clear();
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "a step"));
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&)
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { cuke::is_true(false); }, "this fails"));
-    cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&) {},
-        "a step with {int} and {string}"));
+    cuke::registry().push_step(
+        cuke::internal::step([](const cuke::value_array& values, const auto&,
+                                const auto&, const auto&) {},
+                             "a step with {int} and {string}"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,

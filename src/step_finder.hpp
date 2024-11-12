@@ -6,6 +6,7 @@
 #include "token.hpp"
 #include "value.hpp"
 #include "table.hpp"
+#include "step.hpp"
 
 namespace cuke::internal
 {

@@ -24,9 +24,9 @@ class file_io : public ::testing::Test
   void SetUp() override
   {
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&) {},
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step with {int} and {string}"));
   }
   void TearDown() override

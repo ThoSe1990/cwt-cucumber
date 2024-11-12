@@ -29,7 +29,7 @@ class registry_tests : public ::testing::Test
 TEST_F(registry_tests, steps)
 {
   cuke::registry().push_step(cuke::internal::step(
-      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+      [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
   EXPECT_EQ(cuke::registry().steps().size(), 1);
 }
 
@@ -71,12 +71,12 @@ TEST_F(registry_tests, default_order)
 {
   using namespace cuke::internal;
   cuke::registry().push_step(step(
-      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+      [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {},
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {},
            "another step"));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {},
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {},
            "a given step", step::type::given));
 
   ASSERT_EQ(cuke::registry().steps().size(), 3);
@@ -89,12 +89,12 @@ TEST_F(registry_tests, sort_by_type_1)
 {
   using namespace cuke::internal;
   cuke::registry().push_step(step(
-      [](const cuke::value_array&, const auto&, const auto&) {}, "a step"));
+      [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {},
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {},
            "another step"));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {},
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {},
            "a given step", step::type::given));
 
   ASSERT_EQ(cuke::registry().steps().size(), 3);
@@ -109,31 +109,31 @@ TEST_F(registry_tests, sort_by_type_2)
 {
   using namespace cuke::internal;
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "a",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a",
            step::type::when));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "b",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "b",
            step::type::then));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "c",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "c",
            step::type::given));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "d",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "d",
            step::type::given));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "e",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "e",
            step::type::then));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "f",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "f",
            step::type::when));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "g",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "g",
            step::type::when));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "h",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "h",
            step::type::step));
   cuke::registry().push_step(
-      step([](const cuke::value_array&, const auto&, const auto&) {}, "i",
+      step([](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "i",
            step::type::when));
 
   ASSERT_EQ(cuke::registry().steps().size(), 9);
