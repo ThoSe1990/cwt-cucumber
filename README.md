@@ -66,7 +66,7 @@ Feature: My first feature
 Now execute the first example from the example directory:
 
 ```shell
-./build/bin/box ./examples/features/1_first_scenario.feature
+./build/bin/example ./examples/features/1_first_scenario.feature
 
 Feature: My first feature  ./examples/features/1_first_scenario.feature:2
 
@@ -228,7 +228,7 @@ Feature: My first feature
 Which gives this output:
 
 ```shell
-./build/bin/box ./examples/features/2_scenario_outline.feature
+./build/bin/example ./examples/features/2_scenario_outline.feature
 
 Feature: My first feature  ./examples/features/2_scenario_outline.feature:2
 
@@ -431,11 +431,11 @@ And when we run this with tags, we can control which scenarios are executed.
 
 This executes both scenarios:
 ```shell
-./build/bin/box ./examples/features/4_tags.feature -t "@apples or @bananas"
+./build/bin/example ./examples/features/4_tags.feature -t "@apples or @bananas"
 ```
 And this would just execute the second scenario due to the `and` condition:
 ```shell
-./build/bin/box ./examples/features/4_tags.feature -t "@apples and @bananas"
+./build/bin/example ./examples/features/4_tags.feature -t "@apples and @bananas"
 ```
 
 Note: Tags can be applied to `Feature:`, `Scenario:`, `Scenario Outline:` and `Examples:`. The tags are inherited to the next child. 
@@ -509,7 +509,7 @@ Feature: Scenarios with tags
 And now we can see that our box was shipped:
 
 ```shell
-./build/bin/box ./examples/features/5_tagged_hooks.feature
+./build/bin/example ./examples/features/5_tagged_hooks.feature
 
 Feature: Scenarios with tags  ./examples/features/5_tagged_hooks.feature:1
 
@@ -550,16 +550,16 @@ If you only want to run single scenarios, you can append the appropriate line to
 
 This runs a Scenario in Line 6:
 ```shell
-./build/bin/box ./examples/features/box.feature:6
+./build/bin/example ./examples/features/box.feature:6
 ```
 This runs each Scenario in line 6, 11, 14:
 ```shell
-./build/bin/box ./examples/features/box.feature:6:11:14
+./build/bin/example ./examples/features/box.feature:6:11:14
 ```
 
 If you want to execute all feature files in a directory (and subdirectory), just pass the directory as argument:
 ```shell
-./build/bin/box ./examples/features
+./build/bin/example ./examples/features
 ```
 
 ## Custom Parameter Types
@@ -695,7 +695,7 @@ Scenario: Date example
 Run the compiled executable with the option `--steps-catalog` or `--steps-catalog-json` in order to print all implemented steps to stdout or a file. To print to a file just append a filepath to `--steps-catalog`. This does not write to `.feature` files and overwrites existing files. 
 
 ```shell 
-./build/bin/box --steps-catalog
+./build/bin/example --steps-catalog
 
 Step Definitions (catalog):
 ---------------------------
@@ -715,7 +715,7 @@ Step doc string:
 ```
 
 ```shell 
-./build/bin/box --steps-catalog-json
+./build/bin/example --steps-catalog-json
 
 {
   "steps_catalog": [
