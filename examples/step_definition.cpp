@@ -36,7 +36,12 @@ CUSTOM_PARAMETER(
   return date_range{begin, end};
 }
 
-WHEN(using_date, "{} is {date}")
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
+{
+  return CUKE_PARAM_ARG(1).to_string();
+}
+
+WHEN(using_date, "{event} is {date}")
 {
   std::string event = CUKE_ARG(1);
   date_range dr = CUKE_ARG(2);

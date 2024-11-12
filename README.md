@@ -31,8 +31,7 @@
 
 
 Tested compilers: GCC 13, Clang17 and MSVC 19  
-Full documentation: https://those1990.github.io/cwt-cucumber-docs  
-Conan Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
+Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan  
 
 Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
 
@@ -614,9 +613,20 @@ Scenario: An example
 
 ### Example: Date-Range
 
-A more complex example is defined below. We want to parse a range between two dates. The Dates are supposed to be written like this: `November 11, 2024`. Here we use this regex pattern: `from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4})`.  
+A more complex example is defined below. We want to parse an event between single quotes and the date as a a range when the event happens. Therefore we need to regex patterns:
+- Event in single quotes: `'(.*?)'` and
+- The dates in the format: `from November 11, 2024 to December 12, 2024`: `from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4})`.  
+  
+`{event}` is fairly easy here: 
 
-In our implementation we define a struct which represents a `date` and a `date_range`: 
+```cpp
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
+{
+  return CUKE_PARAM_ARG(1).to_string();
+}
+```
+
+`{date}` will requre two structs and should in the end return a `date_range`:
 
 ```cpp 
 struct date
@@ -633,7 +643,7 @@ struct date_range
 };
 ```
   
-We want now that our type `{date}` returns a `date_range` and we define it as following:  
+In order to create the `date_range` we implement now the custom parameter: 
 
 ```cpp
 CUSTOM_PARAMETER(
@@ -661,7 +671,7 @@ Note: When using structs, we have to be explicit about the types. You can either
 And this is now our step we want to use, where we put an arbitrary string in front to describe the date range:   
   
 ```cpp
-WHEN(using_date, "{} is {date}")
+WHEN(using_date, "{event} is {date}")
 {
   std::string event = CUKE_ARG(1);
   date_range dr = CUKE_ARG(2);
@@ -675,7 +685,7 @@ Now we can use this for a Scenario (check the full implementation in `examples/s
 
 ```gherkin 
 Scenario: Date example
-    When A cool event is from April 25, 2025 to Mai 13, 2025
+    When 'The public festival in town' is from April 25, 2025 to Mai 13, 2025
     Then The beginning month is April and the ending month is Mai
 ```
 
