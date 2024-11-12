@@ -613,7 +613,7 @@ Scenario: An example
 
 ### Example: Date-Range
 
-A more complex example is defined below. We want to parse an event between single quotes and the date as a a range when the event happens. Therefore we need to regex patterns:
+A more complex example is defined below. We want to parse an event (which is represented as string) and two dates. Therefore we add following regex patterns:
 - Event in single quotes: `'(.*?)'` and
 - The dates in the format: `from November 11, 2024 to December 12, 2024`: `from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4})`.  
   
@@ -626,7 +626,7 @@ CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
 }
 ```
 
-`{date}` will requre two structs and should in the end return a `date_range`:
+`{date}` requires two structs and in with it we want to `date_range`:
 
 ```cpp 
 struct date
