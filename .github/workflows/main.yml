@@ -51,29 +51,29 @@ jobs:
   MSVC:
     runs-on: windows-latest 
     steps:
-      - name: Checkout code
+      - name: checkout repo
         uses: actions/checkout@v2
-      - name: Set up Python
+      - name: set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.12'
-      - name: Install pip tools
+      - name: install pip tools
         run: |
           python -m pip install --upgrade pip
           pip install cmake conan
-      - name: Conan
+      - name: conan
         run: |
           conan --version 
           conan profile detect
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
           conan profile show
-      - name: Build 
+      - name: build 
         run: |
           conan install . -of build --build missing
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake" -DMSVC_STATIC=ON 
           cmake --build ./build --config Release -j12
-      - name: Unittests
+      - name: unittests
         run: .\build\bin\Release\unittests.exe
-      - name: Example
-        run: .\build\bin\Release\example.exe 
+      - name: example
+        run: .\build\bin\Release\example.exe ./examples
