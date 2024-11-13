@@ -34,7 +34,6 @@ class value
 
   ~value() = default;
 
-  operator std::string() const { return std::string(m_value); }
   operator const std::string&() const { return m_value; }
 
   template <typename T>
