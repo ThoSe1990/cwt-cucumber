@@ -78,24 +78,24 @@ jobs:
         run: |
           conan --version  # Check Conan version
           conan profile detect
-          conan profile show 
+          powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
+          powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
         
 
           # powershell -Command "(gc C:\Users\RunnerAdmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\RunnerAdmin\.conan2\profiles\default"
           # powershell -Command "(gc C:\Users\RunnerAdmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\RunnerAdmin\.conan2\profiles\default"
-
-      # - name: Conan Install and Build
-      #   run: |
       #     set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.7\x64\Scripts
-      #     conan install . -of build --build missing
-      #     cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
-      #     cmake --build ./build --config Release -j6
-      #
-      # - name: Run Unittests
-      #   run: .\build\bin\Release\unittests.exe
-      #
-      # - name: Run Example
-      #   run: |
-      #     dir .\build\bin\Release
-      #     .\build\bin\Release\example.exe
-      #     .\build\bin\Release\example.exe ./examples/features
+
+      - name: Conan Install and Build
+        run: |
+          conan install . -of build --build missing
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
+          cmake --build ./build --config Release -j6
+
+      - name: Run Unittests
+        run: .\build\bin\Release\unittests.exe
+
+      - name: Run Example
+        run: |
+          .\build\bin\Release\example.exe
+          .\build\bin\Release\example.exe ./examples/features
