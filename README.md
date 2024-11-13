@@ -566,12 +566,12 @@ If you want to execute all feature files in a directory (and subdirectory), just
 
 CWT-Cucumber supports custom parameter types. This means that we can define custom expressions in our steps to introduce custom types (so to speak) and make the step definition more understandable.  
   
-In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function-name, "{here goes your type}", "regex pattern", "optional: description")`.  
+In general: A custom parameter type is an individually defined type that we can use in the step definition. So we give the parameter a function name (as in a step), give the custom type a meaningful name, a description and a regex pattern. Then we implement a callback to consume the capture groups from the regex pattern. Here we use `CUSTOM_PARAMETER(function-name, "{here goes your type}", "regex pattern", "description")`.  
 
 - Function-name: A defined function name (same as in steps) 
 - Custom-Type: Define the type you want, **with curly braces** as string 
 - Regex-Pattern: The regex pattern to match the step, you can use raw string literals, which makes it easier to write regex pattern (see below)
-- **Optional** description: A string value to give a meaning full description. This will be printed to the catalog and has no effect on the scenarios.
+- Description: A string value to give a meaning full description. This will be printed to the catalog and has no effect on the scenarios.
   
 In order to access the capture groups, use `CUKE_PARAM_ARG(index)` where the index starts at 1 from left to right.
 
@@ -585,7 +585,7 @@ Find all implementations in `examples/step_definition.cpp` and the examples in `
 Lets define a type `{pair of integers}`, which will create a `std::pair<int,int>`: 
 
 ```cpp 
-CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))")
+CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))", "a pair of integers")
 {
   int var1 = CUKE_PARAM_ARG(1);
   int var2 = CUKE_PARAM_ARG(2);
@@ -620,7 +620,7 @@ A more complex example is defined below. We want to parse an event (which is rep
 `{event}` is fairly easy here: 
 
 ```cpp
-CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')")
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
 {
   return CUKE_PARAM_ARG(1).to_string();
 }
