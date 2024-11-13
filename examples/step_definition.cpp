@@ -36,7 +36,7 @@ CUSTOM_PARAMETER(
   return date_range{begin, end};
 }
 
-CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')")
 {
   return CUKE_PARAM_ARG(1).to_string();
 }

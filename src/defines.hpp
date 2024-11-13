@@ -34,7 +34,8 @@
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
-#define CUSTOM_PARAMETER(function_name, key, pattern, description)         \
+
+#define _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)         \
   static ::cuke::internal::any function_name(                              \
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__);               \
@@ -52,6 +53,16 @@
   static ::cuke::internal::any function_name(                              \
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__)
+
+
+#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define CUSTOM_PARAMETER(...) GET_MACRO(__VA_ARGS__, _CUSTOM_PARAMETER_WITH_DESC, _CUSTOM_PARAMETER_NO_DESC)(__VA_ARGS__)
+
+#define _CUSTOM_PARAMETER_WITH_DESC(function_name, key, pattern, description) \
+    _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
+
+#define _CUSTOM_PARAMETER_NO_DESC(function_name, key, pattern) \
+    _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, "No description provided")
 
 #define CUKE_PARAM_ARG(idx)                                                    \
   ::cuke::internal::get_param_value(__cuke__values__, __cuke__values__count__, \
