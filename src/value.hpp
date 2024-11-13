@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include <vector>
 #include <string>
 #include <format>
@@ -33,12 +34,13 @@ class value
 
   ~value() = default;
 
+  operator const std::string&() const { return m_value; }
+
   template <typename T>
   operator T() const
   {
     return this->as<T>();
   }
-
   /**
    * @brief Checks if the cuke::value is nil
    * @return True if it is a nil type, else its false
@@ -112,7 +114,8 @@ class value
    * @brief Converts the underlying value to a string. If not possible, this
    * function throws a std::runtime_error
    */
-  [[nodiscard]] std::string to_string() const { return m_value; }
+  [[nodiscard]] std::string to_string() { return m_value; }
+  [[nodiscard]] const std::string& to_string() const { return m_value; }
 
  private:
   std::string m_value;

@@ -11,7 +11,7 @@ on:
     branches: [ "**" ]
 
 jobs:
-  build-gcc:
+  gcc:
     runs-on: ubuntu-latest
     container: those90/ci-image:1.0
     env:
@@ -22,18 +22,15 @@ jobs:
       - name: build
         run: |
           conan install . -of ./build_gcc --build missing 
-          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake
-          ls -la ./gtest
-          ls -la ./gtest/test_files
-          cat ./gtest/test_paths.hpp
-          echo "****"
-          pwd
-          echo "****"
+          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
+      - name: example 
+        run: ./build_gcc/bin/example ./examples
 
-  build-clang:
+
+  Clang:
     runs-on: ubuntu-latest
     container: those90/ci-image:1.0
     env:
@@ -45,10 +42,38 @@ jobs:
         run: |
           conan install . -of ./build_clang --build missing -pr clang
           cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
-          ls -la ./gtest
-          ls -la ./gtest/test_files
-          cat ./gtest/test_paths.hpp
           cmake --build ./build_clang -j12      
       - name: unittests
         run: ./build_clang/bin/unittests
+      - name: examples 
+        run: ./build_clang/bin/example ./examples
 
+  MSVC:
+    runs-on: windows-latest 
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v2
+      - name: set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.12'
+      - name: install pip tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install cmake conan
+      - name: conan
+        run: |
+          conan --version 
+          conan profile detect
+          powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
+          powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
+          conan profile show
+      - name: build 
+        run: |
+          conan install . -of build --build missing
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake" -DMSVC_STATIC=ON 
+          cmake --build ./build --config Release -j12
+      - name: unittests
+        run: .\build\bin\Release\unittests.exe
+      - name: example
+        run: .\build\bin\Release\example.exe ./examples

@@ -1,7 +1,9 @@
 #pragma once
 
+#include <iterator>
 #include <stdexcept>
 #include <string_view>
+#include <type_traits>
 
 #include "param_info.hpp"
 #include "value.hpp"
@@ -20,8 +22,16 @@ struct conversion
   template <typename T>
   operator T() const
   {
-    return cuke::registry().get_expression(key).callback(begin + idx,
-                                                         values_count);
+    // NOTE: MSVC treats std::size_t differently then mac/linux
+    if constexpr (std::is_same_v<T, std::size_t>)
+    {
+      return make_parameter_value<std::size_t>(begin + idx, values_count);
+    }
+    else
+    {
+      return cuke::registry().get_expression(key).callback(begin + idx,
+                                                           values_count);
+    }
   }
 };
 

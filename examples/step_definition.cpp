@@ -24,21 +24,22 @@ CUSTOM_PARAMETER(
     "a custom date pattern")
 {
   date begin;
-  begin.month = std::string(CUKE_PARAM_ARG(1));
+  begin.month = CUKE_PARAM_ARG(1).to_string();
   begin.day = int(CUKE_PARAM_ARG(2));
   begin.year = CUKE_PARAM_ARG(3).as<int>();
 
   date end;
-  end.month = static_cast<std::string>(CUKE_PARAM_ARG(4));
+  end.month = CUKE_PARAM_ARG(4).to_string();
   end.day = static_cast<int>(CUKE_PARAM_ARG(5));
   end.year = CUKE_PARAM_ARG(6).as<int>();
 
   return date_range{begin, end};
 }
 
-CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')")
+CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
 {
-  return CUKE_PARAM_ARG(1).to_string();
+  std::string event = CUKE_PARAM_ARG(1);
+  return event;
 }
 
 WHEN(using_date, "{event} is {date}")
