@@ -34,11 +34,8 @@ class value
 
   ~value() = default;
 
-  operator std::string() const { return this->to_string(); }
-  operator std::string_view() const
-  {
-    return std::string_view{this->to_string().data()};
-  }
+  operator std::string() const { return m_value; }
+
   template <typename T>
   operator T() const
   {
