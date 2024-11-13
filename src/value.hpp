@@ -34,7 +34,7 @@ class value
 
   ~value() = default;
 
-  operator std::string() const { return m_value; }
+  explicit operator std::string() const { return m_value; }
 
   template <typename T,
             typename = std::enable_if_t<!std::is_same_v<T, std::string>>>
