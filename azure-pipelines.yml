@@ -24,6 +24,8 @@ jobs:
         conan install . -of build --build missing
         cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
         cmake --build ./build --config Release -j6
+        dir 
+        dir  .\build
         .\build\bin\Release\unittests.exe
         .\build\bin\Release\example.exe --steps-catalog 
         .\build\bin\Release\example.exe examples
