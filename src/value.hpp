@@ -36,7 +36,8 @@ class value
 
   operator std::string() const { return m_value; }
 
-  template <typename T>
+  template <typename T,
+            typename = std::enable_if_t<!std::is_same_v<T, std::string>>>
   operator T() const
   {
     return this->as<T>();
