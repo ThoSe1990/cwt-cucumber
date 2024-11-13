@@ -34,8 +34,7 @@
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
-
-#define _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)         \
+#define _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \
   static ::cuke::internal::any function_name(                              \
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__);               \
@@ -54,19 +53,43 @@
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__)
 
-
 #define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
-#define CUSTOM_PARAMETER(...) GET_MACRO(__VA_ARGS__, _CUSTOM_PARAMETER_WITH_DESC, _CUSTOM_PARAMETER_NO_DESC)(__VA_ARGS__)
+/**
+ * @def CUSTOM_PARAMETER(function_name, key, pattern, opt: description)
+ * @brief Creates a custom expression type to use in steps.
+ *
+ * @param function_name A unique function name in order to find the callback.
+ * The function name has no technical impact.
+ * @param key The unique key for the expression. Provide this value with curly
+ * braces, e.g. '{my custom parameter}'
+ * @param pattern The regex pattern to match the step in the feature file with
+ * the given expression.
+ * @param description Optional description: This description is only printed as
+ * is in the steps-catalog.
+ */
+#define CUSTOM_PARAMETER(...)                         \
+  GET_MACRO(__VA_ARGS__, _CUSTOM_PARAMETER_WITH_DESC, \
+            _CUSTOM_PARAMETER_NO_DESC)                \
+  (__VA_ARGS__)
 
 #define _CUSTOM_PARAMETER_WITH_DESC(function_name, key, pattern, description) \
-    _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
+  _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
 
 #define _CUSTOM_PARAMETER_NO_DESC(function_name, key, pattern) \
-    _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, "No description provided")
+  _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, "No description found")
 
-#define CUKE_PARAM_ARG(idx)                                                    \
+/**
+ * @def CUKE_PARAM_ARG(index)
+ * @brief Access capture groups from a custom expression in its callback.
+ * ``CUKE_PARAM_ARG`` starts at index 1 on the first capture group from the left
+ * side.
+ *
+ * @param index Variable index to access
+ * @return The value from the index in the given step
+ */
+#define CUKE_PARAM_ARG(index)                                                  \
   ::cuke::internal::get_param_value(__cuke__values__, __cuke__values__count__, \
-                                    idx)
+                                    index)
 
 /**                                                                           \
  * @def STEP(function_name, step_definition)                                  \
