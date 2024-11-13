@@ -32,6 +32,9 @@ jobs:
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
+      - name: example 
+        run: ./build_gcc/bin/example ./examples
+
 
   build-clang:
     runs-on: ubuntu-latest
@@ -51,4 +54,6 @@ jobs:
           cmake --build ./build_clang -j12      
       - name: unittests
         run: ./build_clang/bin/unittests
+      - name: examples 
+        run: ./build_clang/bin/example ./examples
 
