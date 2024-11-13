@@ -63,12 +63,12 @@ create_regex_definition(const std::string& step)
   return {result, type_info};
 }
 
-static const std::unordered_set<char> special_chars = {
-    '.', '^', '$', '*', '+', '?', '[', ']', /* '(', ')', */ '\\',
-    /* '|' */};
-
 static std::string add_escape_chars(const std::string& input)
 {
+  static const std::unordered_set<char> special_chars = {
+      '.', '^', '$', '*', '+', '?', '[', ']', /* '(', ')', */ '\\',
+      /* '|' */};
+
   std::string result;
   for (char c : input)
   {
