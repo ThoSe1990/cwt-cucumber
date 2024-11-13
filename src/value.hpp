@@ -34,15 +34,18 @@ class value
 
   ~value() = default;
 
-  explicit operator std::string() const { return m_value; }
-
-  template <typename T,
-            typename = std::enable_if_t<!std::is_same_v<T, std::string>>>
+  template <typename T>
   operator T() const
   {
-    return this->as<T>();
+    if constexpr (std::is_convertible_v<std::string, T>)
+    {
+      return m_value;
+    }
+    else
+    {
+      return this->as<T>();
+    }
   }
-
   /**
    * @brief Checks if the cuke::value is nil
    * @return True if it is a nil type, else its false
