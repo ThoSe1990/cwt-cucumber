@@ -576,8 +576,7 @@ In general: A custom parameter type is an individually defined type that we can 
 In order to access the capture groups, use `CUKE_PARAM_ARG(index)` where the index starts at 1 from left to right.
 
 **Note: You must explicitly return the dedicated type in the callback. The implementation uses type erasure and does not know which type will be used later.**
-  
-  
+   
 Find all implementations in `examples/step_definition.cpp` and the examples in `examples/features/8_custom_parameters.feature`. 
 
 ### Example: Pair of Integers
@@ -653,12 +652,12 @@ CUSTOM_PARAMETER(
     "a custom date pattern")
 {
   date begin;
-  begin.month = std::string(CUKE_PARAM_ARG(1));
+  begin.month = CUKE_PARAM_ARG(1).to_string();
   begin.day = int(CUKE_PARAM_ARG(2));
   begin.year = CUKE_PARAM_ARG(3).as<int>();
 
   date end;
-  end.month = static_cast<std::string>(CUKE_PARAM_ARG(4));
+  end.month = CUKE_PARAM_ARG(4).to_string();
   end.day = static_cast<int>(CUKE_PARAM_ARG(5));
   end.year = CUKE_PARAM_ARG(6).as<int>();
 
@@ -689,6 +688,18 @@ Scenario: Date example
     Then The beginning month is April and the ending month is Mai
 ```
 
+### Strings in Custom Type Parameters 
+
+There are two options in order to create a string value. Some compiler have problems with can not find the correct string type. Therefore we have two options to create a string value from a regex capture: 
+
+Option 1: Dedicated `to_string()` function: 
+```cpp 
+CUKE_PARAM_ARG(..).to_string();
+```
+Option 2: Initialize a `std::string`
+```cpp
+std::string str = CUKE_PARAM_ARG(..)
+```
 
 ## Catalog 
 
