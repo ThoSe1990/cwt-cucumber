@@ -12,6 +12,7 @@ option(MSVC_STATIC "Use static runtime libraries with MSVC" OFF)
 
 if(MSVC_STATIC)
   message(STATUS "MSVC: Setting MT/MTd")  
+  cmake_policy(SET CMP0091 NEW)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
