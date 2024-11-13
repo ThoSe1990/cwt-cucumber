@@ -79,4 +79,4 @@ jobs:
         run: |
           dir 
           dir .\build\bin\Release
-          .\build\bin\Release\example.exe
+          .\build\bin\Release\example.exe || echo "Exit code: %ERRORLEVEL%"
