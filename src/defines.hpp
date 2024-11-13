@@ -53,7 +53,11 @@
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__)
 
-#define GET_MACRO(_1, _2, _3, _4, NAME, ...) NAME
+#define COUNT_ARGS_IMPL(_1, _2, _3, _4, COUNT, ...) COUNT
+#define COUNT_ARGS(...) COUNT_ARGS_IMPL(__VA_ARGS__, 4, 3, 2, 1)
+
+#define SELECT_MACRO(NAME, COUNT) NAME##COUNT
+#define EXPAND_MACRO(NAME, COUNT) SELECT_MACRO(NAME, COUNT)
 /**
  * @def CUSTOM_PARAMETER(function_name, key, pattern, opt: description)
  * @brief Creates a custom expression type to use in steps.
@@ -67,15 +71,13 @@
  * @param description Optional description: This description is only printed as
  * is in the steps-catalog.
  */
-#define CUSTOM_PARAMETER(...)                         \
-  GET_MACRO(__VA_ARGS__, _CUSTOM_PARAMETER_WITH_DESC, \
-            _CUSTOM_PARAMETER_NO_DESC)                \
-  (__VA_ARGS__)
+#define CUSTOM_PARAMETER(...) \
+  EXPAND_MACRO(_CUSTOM_PARAMETER_IMPL, COUNT_ARGS(__VA_ARGS__))(__VA_ARGS__)
 
-#define _CUSTOM_PARAMETER_WITH_DESC(function_name, key, pattern, description) \
+#define _CUSTOM_PARAMETER_IMPL4(function_name, key, pattern, description) \
   _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
 
-#define _CUSTOM_PARAMETER_NO_DESC(function_name, key, pattern) \
+#define _CUSTOM_PARAMETER_IMPL3(function_name, key, pattern) \
   _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, "No description found")
 
 /**
