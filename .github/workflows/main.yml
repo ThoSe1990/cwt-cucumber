@@ -76,7 +76,6 @@ jobs:
 
       - name: Initialize Conan
         run: |
-          set PATH=%PATH%;C:\hostedtoolcache\windows\Python\3.12.7\x64\Scripts
           conan --version  # Check Conan version
           conan profile detect
           conan profile show 
