@@ -10,7 +10,6 @@
   - Define custom types with `CUSTOM_PARAMETER(function-name, "{your type}", "regex pattern", "description") { your callback implementation }` 
   - In your callback implement how to consume capture groups
   - Access capture groups with `CUKE_PARAM_ARG(index)`, where index starts at 1 and goes from left to write
-- Description is an argument in `CUKE_PARAMETER` ([57](https://github.com/ThoSe1990/cwt-cucumber/pull/57))
 - Renamed example target `box` to `example` ([56](https://github.com/ThoSe1990/cwt-cucumber/pull/56))
 
 ## [2.3.1] 2024-10-23
