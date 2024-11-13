@@ -50,6 +50,8 @@ std::string to_string(step::type type)
       return "Then";
     case step::type::step:
       return "Step";
+    default:
+      return "...";
   }
 }
 }  // namespace cuke::internal
