@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include <vector>
 #include <string>
 #include <format>
@@ -33,6 +34,11 @@ class value
 
   ~value() = default;
 
+  operator std::string() const { return this->to_string(); }
+  operator std::string_view() const
+  {
+    return std::string_view{this->to_string().data()};
+  }
   template <typename T>
   operator T() const
   {
@@ -112,7 +118,8 @@ class value
    * @brief Converts the underlying value to a string. If not possible, this
    * function throws a std::runtime_error
    */
-  [[nodiscard]] std::string to_string() const { return m_value; }
+  [[nodiscard]] std::string to_string() { return m_value; }
+  [[nodiscard]] const std::string& to_string() const { return m_value; }
 
  private:
   std::string m_value;
