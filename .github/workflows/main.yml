@@ -63,15 +63,16 @@ jobs:
           pip install cmake conan
       - name: Conan
         run: |
-          conan --version  # Check Conan version
+          conan --version 
           conan profile detect
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
+          conan profile show
       - name: Build 
         run: |
           conan install . -of build --build missing
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
-          cmake --build ./build --config Release -j6
+          cmake --build ./build --config Release -j12
       - name: Unittests
         run: .\build\bin\Release\unittests.exe
       - name: Example
