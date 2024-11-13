@@ -8,7 +8,9 @@ if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-if(MSVC)
+option(MSVC_STATIC "Use static runtime libraries with MSVC" OFF)
+
+if(MSVC AND MSVC_STATIC)
     add_compile_options(
         $<$<CONFIG:>:/MT> 
         $<$<CONFIG:Debug>:/MTd>
