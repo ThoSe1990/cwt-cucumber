@@ -8,7 +8,6 @@ add_executable(${target}
 install(
 	TARGETS ${target}
 	COMPONENT test
-
 )
 
 target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src)

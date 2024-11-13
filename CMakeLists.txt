@@ -11,11 +11,12 @@ endif()
 option(MSVC_STATIC "Use static runtime libraries with MSVC" OFF)
 
 if(MSVC AND MSVC_STATIC)
-    add_compile_options(
-        $<$<CONFIG:>:/MT> 
-        $<$<CONFIG:Debug>:/MTd>
-        $<$<CONFIG:Release>:/MT>
-    )
+  message(STATUS "MSVC: Setting MT/MTd")  
+  add_compile_options(
+      $<$<CONFIG:>:/MT> 
+      $<$<CONFIG:Debug>:/MTd>
+      $<$<CONFIG:Release>:/MT>
+  )
 endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)

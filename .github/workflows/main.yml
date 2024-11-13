@@ -76,7 +76,4 @@ jobs:
       - name: Unittests
         run: .\build\bin\Release\unittests.exe
       - name: Example
-        run: |
-          dir 
-          dir .\build\bin\Release
-          .\build\bin\Release\example.exe || echo "Exit code: %ERRORLEVEL%"
+        run: .\build\bin\Release\example.exe 
