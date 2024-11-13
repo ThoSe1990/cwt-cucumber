@@ -12,11 +12,12 @@ option(MSVC_STATIC "Use static runtime libraries with MSVC" OFF)
 
 if(MSVC AND MSVC_STATIC)
   message(STATUS "MSVC: Setting MT/MTd")  
-  add_compile_options(
-      $<$<CONFIG:>:/MT> 
-      $<$<CONFIG:Debug>:/MTd>
-      $<$<CONFIG:Release>:/MT>
-  )
+  #  add_compile_options(
+  #     $<$<CONFIG:>:/MT> 
+  #     $<$<CONFIG:Debug>:/MTd>
+  #     $<$<CONFIG:Release>:/MT>
+  # )
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
