@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.4] 2024-11-14
+
 ### Added 
 - `cwt_cucumber` object for embedding CWT Cucumber and executing tests ([49](https://github.com/ThoSe1990/cwt-cucumber/pull/49))
 - `--steps-catalog [optional: file]` to print the implemented steps as readable text to stdout or a given file (this does not write to '.feature' files) ([50](https://github.com/ThoSe1990/cwt-cucumber/pull/50))
