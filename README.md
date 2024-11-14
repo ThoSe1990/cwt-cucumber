@@ -35,7 +35,7 @@ Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan. I didn't pu
 ```shell
 git clone https://github.com/ThoSe1990/cwt-cucumber-conan.git
 cd package
-conan create . --version 2.3.1 --user cwt --channel stable
+conan create . --version 2.4 --user cwt --channel stable
 ```
 
 Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
