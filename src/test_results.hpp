@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <string> 
+#include <string>
 
 namespace cuke::results
 {
@@ -36,102 +36,21 @@ class test_result
  public:
   [[nodiscard]] std::vector<feature>& data() noexcept { return m_data; }
   [[nodiscard]] feature& back() noexcept { return m_data.back(); }
-  void clear() noexcept
-  {
-    m_data.clear();
+  void clear() noexcept;
 
-    m_scenarios_count = 0;
+  [[nodiscard]] std::size_t scenarios_passed() const noexcept;
+  [[nodiscard]] std::size_t scenarios_failed() const noexcept;
+  [[nodiscard]] std::size_t scenarios_skipped() const noexcept;
+  [[nodiscard]] std::size_t steps_passed() const noexcept;
+  [[nodiscard]] std::size_t steps_failed() const noexcept;
+  [[nodiscard]] std::size_t steps_skipped() const noexcept;
+  [[nodiscard]] std::size_t steps_undefined() const noexcept;
 
-    m_scenarios_failed = 0;
-    m_scenarios_skipped = 0;
-    m_scenarios_passed = 0;
+  void add_scenario(test_status status) noexcept;
+  void add_step(test_status status) noexcept;
 
-    m_steps_count = 0;
-
-    m_steps_failed = 0;
-    m_steps_undefined = 0;
-    m_steps_skipped = 0;
-    m_steps_passed = 0;
-  }
-
-  [[nodiscard]] std::size_t scenarios_passed() const noexcept
-  {
-    return m_scenarios_passed;
-  }
-  [[nodiscard]] std::size_t scenarios_failed() const noexcept
-  {
-    return m_scenarios_failed;
-  }
-  [[nodiscard]] std::size_t scenarios_skipped() const noexcept
-  {
-    return m_scenarios_skipped;
-  }
-
-  [[nodiscard]] std::size_t steps_passed() const noexcept
-  {
-    return m_steps_passed;
-  }
-  [[nodiscard]] std::size_t steps_failed() const noexcept
-  {
-    return m_steps_failed;
-  }
-  [[nodiscard]] std::size_t steps_skipped() const noexcept
-  {
-    return m_steps_skipped;
-  }
-  [[nodiscard]] std::size_t steps_undefined() const noexcept
-  {
-    return m_steps_undefined;
-  }
-
-  void add_scenario(test_status status) noexcept
-  {
-    ++m_scenarios_count;
-    switch (status)
-    {
-      case test_status::passed:
-        ++m_scenarios_passed;
-        break;
-      case test_status::failed:
-        ++m_scenarios_failed;
-        break;
-      case test_status::skipped:
-        ++m_scenarios_skipped;
-        break;
-      case test_status::undefined:
-        // can't happen ...
-        break;
-    }
-  }
-
-  void add_step(test_status status) noexcept
-  {
-    ++m_steps_count;
-    switch (status)
-    {
-      case test_status::passed:
-        ++m_steps_passed;
-        break;
-      case test_status::failed:
-        ++m_steps_failed;
-        break;
-      case test_status::skipped:
-        ++m_steps_skipped;
-        break;
-      case test_status::undefined:
-        ++m_steps_undefined;
-        break;
-    }
-  }
-
-  [[nodiscard]] std::size_t scenarios_count() const noexcept
-  {
-    return m_scenarios_count;
-  }
-  [[nodiscard]] std::size_t steps_count() const noexcept
-  {
-    return m_steps_count;
-  }
+  [[nodiscard]] std::size_t scenarios_count() const noexcept;
+  [[nodiscard]] std::size_t steps_count() const noexcept;
 
  private:
   std::vector<feature> m_data;
