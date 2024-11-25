@@ -1,11 +1,11 @@
 #include "cucumber.hpp"
-#include <algorithm>
 #include "options.hpp"
 #include "catalog.hpp"
-#include "registry.hpp"
 #include "test_results.hpp"
 #include "test_runner.hpp"
 #include "util.hpp"
+
+#include <algorithm>
 
 namespace cuke
 {
@@ -16,18 +16,18 @@ void print_failed_scenarios()
   for (const results::feature& feature : results::test_results().data())
   {
     std::for_each(feature.scenarios.begin(), feature.scenarios.end(),
-                  [&first](const results::scenario& scenario)
+                  [&first](const auto& scenario)
                   {
-                    if (scenario.status == results::test_status::failed)
+                    if (scenario->status == results::test_status::failed)
                     {
                       if (first)
                       {
                         println("Failed Scenarios:");
                         first = false;
                       }
-                      print(internal::color::red, scenario.name);
-                      println(internal::color::black, "  ", scenario.file, ':',
-                              scenario.line);
+                      print(internal::color::red, scenario->name);
+                      println(internal::color::black, "  ", scenario->file, ':',
+                              scenario->line);
                     }
                   });
   }

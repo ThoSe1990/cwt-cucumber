@@ -24,7 +24,8 @@ class file_io : public ::testing::Test
   void SetUp() override
   {
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&) {}, "a step"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "a step"));
     cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step with {int} and {string}"));
@@ -58,8 +59,8 @@ template <typename T>
 [[nodiscard]] static std::size_t count(const std::vector<T>& results,
                                        cuke::results::test_status status)
 {
-  return std::count_if(results.begin(), results.end(),
-                       [&status](const auto& s) { return s.status == status; });
+  return std::count_if(results.begin(), results.end(), [&status](const auto& s)
+                       { return s->status == status; });
 }
 }  // namespace details
 

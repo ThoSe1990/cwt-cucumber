@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -16,19 +17,48 @@ enum class test_status
 struct step
 {
   test_status status{test_status::passed};
-};
-struct scenario
-{
-  std::vector<step> steps{};
-  test_status status{test_status::passed};
+  std::size_t line;
   std::string name;
   std::string file;
+};
+struct scenario_base
+{
+  enum class type
+  {
+    scenario = 0,
+    scenario_outline
+  };
+
+  virtual ~scenario_base() = default;
+  virtual type get_type() const = 0;
+
+  std::vector<step> steps{};
+  test_status status{test_status::passed};
   std::size_t line;
+  std::string name;
+  std::string file;
+};
+struct scenario : public scenario_base
+{
+  scenario_base::type get_type() const override
+  {
+    return scenario_base::type::scenario;
+  }
+};
+struct scenario_outline : public scenario_base
+{
+  scenario_base::type get_type() const override
+  {
+    return scenario_base::type::scenario;
+  }
 };
 struct feature
 {
-  std::vector<scenario> scenarios{};
   test_status status{test_status::passed};
+  std::vector<std::unique_ptr<scenario_base>> scenarios{};
+  std::size_t line;
+  std::string name;
+  std::string file;
 };
 
 class test_result
@@ -85,10 +115,18 @@ class test_result
 }
 
 static void new_feature() { test_results().data().emplace_back(); }
-static void new_scenario() { test_results().back().scenarios.emplace_back(); }
+static void new_scenario()
+{
+  test_results().back().scenarios.emplace_back(std::make_unique<scenario>());
+}
+static void new_scenario_outline()
+{
+  test_results().back().scenarios.emplace_back(
+      std::make_unique<scenario_outline>());
+}
 static void new_step()
 {
-  test_results().back().scenarios.back().steps.emplace_back();
+  test_results().back().scenarios.back()->steps.emplace_back();
 }
 
 static void set_feature_to(test_status status)
@@ -97,21 +135,21 @@ static void set_feature_to(test_status status)
 }
 static void set_scenario_to(test_status status)
 {
-  test_results().back().scenarios.back().status = status;
+  test_results().back().scenarios.back()->status = status;
 }
 static void set_step_to(test_status status)
 {
-  test_results().back().scenarios.back().steps.back().status = status;
+  test_results().back().scenarios.back()->steps.back().status = status;
 }
 
 [[nodiscard]] static feature& features_back() { return test_results().back(); }
-[[nodiscard]] static scenario& scenarios_back()
+[[nodiscard]] static scenario_base& scenarios_back()
 {
-  return test_results().back().scenarios.back();
+  return *test_results().back().scenarios.back();
 }
 [[nodiscard]] static step& steps_back()
 {
-  return test_results().back().scenarios.back().steps.back();
+  return test_results().back().scenarios.back()->steps.back();
 }
 
 [[nodiscard]] std::string scenarios_to_string();
