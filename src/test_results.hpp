@@ -21,50 +21,34 @@ struct step
 {
   test_status status{test_status::passed};
   std::size_t line;
+  std::string id;
   std::string name;
   std::string file;
+  std::string keyword;
   std::string source_location;
   std::string doc_string;
   cuke::table table;
 };
-struct scenario_base
+struct scenario
 {
-  enum class type
-  {
-    scenario = 0,
-    scenario_outline
-  };
-
-  virtual ~scenario_base() = default;
-  virtual type get_type() const = 0;
-
-  std::vector<step> steps{};
+  std::string id;
   test_status status{test_status::passed};
   std::size_t line;
   std::string name;
   std::string file;
-};
-struct scenario : public scenario_base
-{
-  scenario_base::type get_type() const override
-  {
-    return scenario_base::type::scenario;
-  }
-};
-struct scenario_outline : public scenario_base
-{
-  scenario_base::type get_type() const override
-  {
-    return scenario_base::type::scenario;
-  }
+  std::string keyword;
+  std::vector<step> steps{};
+  std::vector<std::pair<std::string, std::size_t>> tags;
 };
 struct feature
 {
   test_status status{test_status::passed};
-  std::vector<std::unique_ptr<scenario_base>> scenarios{};
-  std::size_t line;
+  std::string id;
+  std::string keyword;
   std::string name;
-  std::string file;
+  std::string uri;
+  std::vector<std::pair<std::string, std::size_t>> tags;
+  std::vector<scenario> scenarios{};
 };
 
 class test_result
@@ -121,18 +105,14 @@ class test_result
 }
 
 static void new_feature() { test_results().data().emplace_back(); }
-static void new_scenario()
-{
-  test_results().back().scenarios.emplace_back(std::make_unique<scenario>());
-}
+static void new_scenario() { test_results().back().scenarios.emplace_back(); }
 static void new_scenario_outline()
 {
-  test_results().back().scenarios.emplace_back(
-      std::make_unique<scenario_outline>());
+  test_results().back().scenarios.emplace_back();
 }
 static void new_step()
 {
-  test_results().back().scenarios.back()->steps.emplace_back();
+  test_results().back().scenarios.back().steps.emplace_back();
 }
 
 static void set_feature_to(test_status status)
@@ -141,21 +121,21 @@ static void set_feature_to(test_status status)
 }
 static void set_scenario_to(test_status status)
 {
-  test_results().back().scenarios.back()->status = status;
+  test_results().back().scenarios.back().status = status;
 }
 static void set_step_to(test_status status)
 {
-  test_results().back().scenarios.back()->steps.back().status = status;
+  test_results().back().scenarios.back().steps.back().status = status;
 }
 
 [[nodiscard]] static feature& features_back() { return test_results().back(); }
-[[nodiscard]] static scenario_base& scenarios_back()
+[[nodiscard]] static scenario& scenarios_back()
 {
-  return *test_results().back().scenarios.back();
+  return test_results().back().scenarios.back();
 }
 [[nodiscard]] static step& steps_back()
 {
-  return test_results().back().scenarios.back()->steps.back();
+  return test_results().back().scenarios.back().steps.back();
 }
 
 [[nodiscard]] std::string scenarios_to_string();

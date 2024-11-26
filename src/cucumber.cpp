@@ -18,16 +18,16 @@ void print_failed_scenarios()
     std::for_each(feature.scenarios.begin(), feature.scenarios.end(),
                   [&first](const auto& scenario)
                   {
-                    if (scenario->status == results::test_status::failed)
+                    if (scenario.status == results::test_status::failed)
                     {
                       if (first)
                       {
                         println("Failed Scenarios:");
                         first = false;
                       }
-                      print(internal::color::red, scenario->name);
-                      println(internal::color::black, "  ", scenario->file, ':',
-                              scenario->line);
+                      print(internal::color::red, scenario.name);
+                      println(internal::color::black, "  ", scenario.file, ':',
+                              scenario.line);
                     }
                   });
   }
