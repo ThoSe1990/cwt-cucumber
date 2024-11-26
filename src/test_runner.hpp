@@ -172,7 +172,7 @@ class cuke_printer : public stdout_interface
   {
     const std::string step_w_example_variables =
         internal::replace_variables(step.name(), row);
-    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+    ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step_w_example_variables);
     details::print_file_line(step);
     print_doc_string(step);
@@ -181,7 +181,7 @@ class cuke_printer : public stdout_interface
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
-    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+    ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step.name());
     details::print_file_line(step);
     print_doc_string(step);

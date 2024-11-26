@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 
+#include "util.hpp"
+#include "table.hpp"
+
 namespace cuke::results
 {
 
@@ -20,6 +23,9 @@ struct step
   std::size_t line;
   std::string name;
   std::string file;
+  std::string source_location;
+  std::string doc_string;
+  cuke::table table;
 };
 struct scenario_base
 {
@@ -154,5 +160,8 @@ static void set_step_to(test_status status)
 
 [[nodiscard]] std::string scenarios_to_string();
 [[nodiscard]] std::string steps_to_string();
+[[nodiscard]] internal::color to_color(test_status status);
+[[nodiscard]] std::string to_string(test_status status);
+[[nodiscard]] std::string step_prefix(test_status status);
 
 }  // namespace cuke::results

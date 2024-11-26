@@ -5,6 +5,7 @@
 
 #include "util.hpp"
 #include "options.hpp"
+#include "test_results.hpp"
 
 namespace cuke::internal
 {

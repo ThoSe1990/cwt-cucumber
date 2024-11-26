@@ -213,4 +213,54 @@ std::string steps_to_string()
   return str;
 }
 
+internal::color to_color(test_status status)
+{
+  switch (status)
+  {
+    case cuke::results::test_status::passed:
+      return internal::color::green;
+    case cuke::results::test_status::failed:
+      return internal::color::red;
+    case cuke::results::test_status::skipped:
+      return internal::color::blue;
+    case cuke::results::test_status::undefined:
+      return internal::color::yellow;
+    default:
+      return internal::color::standard;
+  }
+}
+std::string to_string(test_status status)
+{
+  switch (status)
+  {
+    case cuke::results::test_status::passed:
+      return std::string("passed");
+    case cuke::results::test_status::failed:
+      return std::string("failed");
+    case cuke::results::test_status::skipped:
+      return std::string("skipped");
+    case cuke::results::test_status::undefined:
+      return std::string("undefined");
+    default:
+      return std::string("");
+  }
+}
+
+std::string step_prefix(test_status status)
+{
+  switch (status)
+  {
+    case cuke::results::test_status::passed:
+      return std::string("[   PASSED    ] ");
+    case cuke::results::test_status::failed:
+      return std::string("[   FAILED    ] ");
+    case cuke::results::test_status::skipped:
+      return std::string("[   SKIPPED   ] ");
+    case cuke::results::test_status::undefined:
+      return std::string("[   UNDEFINED ] ");
+    default:
+      return std::string("");
+  }
+}
+
 }  // namespace cuke::results
