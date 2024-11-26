@@ -8,7 +8,8 @@ namespace cuke::internal
 
 step::step(step_callback cb, const std::string& definition,
            type step_type /* = type::step */,
-           const std::string& function_name /* = "" */)
+           const std::string& function_name /* = "" */,
+           const std::string& file /* = "" */, std::size_t /* line = 0 */)
     : m_callback(cb),
       m_definition(definition),
       m_type(step_type),
@@ -38,6 +39,10 @@ void step::call(const value_array& values,
 }
 step::type step::step_type() const noexcept { return m_type; }
 
+std::string step::source_location() const noexcept
+{
+  return std::format("{}:{}", m_file, m_line);
+}
 std::string to_string(step::type type)
 {
   switch (type)

@@ -25,11 +25,13 @@ class step
   };
 
   step(step_callback cb, const std::string& definition,
-       type step_type = type::step, const std::string& function_name = "");
+       type step_type = type::step, const std::string& function_name = "",
+       const std::string& file = "", std::size_t line = 0);
   const std::string& function_name() const noexcept;
   const std::string& definition() const noexcept;
   const std::vector<param_info>& type_info() const noexcept;
   const std::string& regex_string() const noexcept;
+  std::string source_location() const noexcept;
   void call(const value_array& values,
             const std::vector<std::string>& doc_string, const table& t) const;
   type step_type() const noexcept;
@@ -40,6 +42,8 @@ class step
   std::string m_regex_definition;
   std::vector<param_info> m_type_info;
   std::string m_function_name;
+  std::string m_file;
+  std::size_t m_line;
   type m_type;
 };
 

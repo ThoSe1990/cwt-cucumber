@@ -1,10 +1,10 @@
 #pragma once
 
-#include "any.hpp"
-#include "value.hpp"
-#include "hooks.hpp"
-#include "registry.hpp"
-#include "expression.hpp"
+#include "any.hpp"         // NOLINT
+#include "value.hpp"       // NOLINT
+#include "hooks.hpp"       // NOLINT
+#include "registry.hpp"    // NOLINT
+#include "expression.hpp"  // NOLINT
 
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
@@ -22,8 +22,9 @@
   {                                                                           \
     CONCAT(function_name, _t)()                                               \
     {                                                                         \
-      ::cuke::registry().push_step(::cuke::internal::step(                    \
-          function_name, step_definition, type, #function_name));             \
+      ::cuke::registry().push_step(                                           \
+          ::cuke::internal::step(function_name, step_definition, type,        \
+                                 #function_name, __FILE__, __LINE__));        \
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
   }                                                                           \
