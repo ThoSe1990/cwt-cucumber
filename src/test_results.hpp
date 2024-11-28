@@ -1,9 +1,9 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 #include <string>
 
+#include "ast.hpp"
 #include "util.hpp"
 #include "table.hpp"
 
@@ -27,6 +27,7 @@ struct step
   std::string keyword;
   std::string source_location;
   std::string doc_string;
+  std::string error_msg;
   cuke::table table;
 };
 struct scenario
@@ -38,7 +39,7 @@ struct scenario
   std::string file;
   std::string keyword;
   std::vector<step> steps{};
-  std::vector<std::pair<std::string, std::size_t>> tags;
+  std::vector<std::string> tags;
 };
 struct feature
 {
@@ -47,7 +48,7 @@ struct feature
   std::string keyword;
   std::string name;
   std::string uri;
-  std::vector<std::pair<std::string, std::size_t>> tags;
+  std::vector<std::string> tags;
   std::vector<scenario> scenarios{};
 };
 
@@ -104,29 +105,14 @@ class test_result
   return test_status::failed;
 }
 
-static void new_feature() { test_results().data().emplace_back(); }
-static void new_scenario() { test_results().back().scenarios.emplace_back(); }
-static void new_scenario_outline()
-{
-  test_results().back().scenarios.emplace_back();
-}
-static void new_step()
-{
-  test_results().back().scenarios.back().steps.emplace_back();
-}
-
-static void set_feature_to(test_status status)
-{
-  test_results().back().status = status;
-}
-static void set_scenario_to(test_status status)
-{
-  test_results().back().scenarios.back().status = status;
-}
-static void set_step_to(test_status status)
-{
-  test_results().back().scenarios.back().steps.back().status = status;
-}
+void new_feature(const cuke::ast::feature_node& current);
+void new_scenario(const cuke::ast::scenario_node& current);
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current);
+void new_step(const cuke::ast::step_node& current);
+void set_source_location(const std::string& location);
+void set_feature_to(test_status status);
+void set_scenario_to(test_status status);
+void set_step_to(test_status status);
 
 [[nodiscard]] static feature& features_back() { return test_results().back(); }
 [[nodiscard]] static scenario& scenarios_back()

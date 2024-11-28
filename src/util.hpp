@@ -11,6 +11,21 @@
 namespace cuke::internal
 {
 
+[[nodiscard]] static std::string to_string(const std::vector<std::string>& data)
+{
+  std::ostringstream oss;
+  for (const auto& str : data)
+  {
+    oss << str << ' ';
+  }
+  std::string result = oss.str();
+  if (!result.empty())
+  {
+    result.pop_back();
+  }
+  return result;
+}
+
 enum class color
 {
   standard,

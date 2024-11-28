@@ -84,18 +84,19 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
 {
   if (skip_step())
   {
-    results::new_step();
+    results::new_step(step);
     results::steps_back().status = results::test_status::skipped;
     update_step_status();
     return;
   }
-  results::new_step();
+  results::new_step(step);
   cuke::internal::step_finder finder(step.name(),
                                      std::forward<OptionalRow>(row)...);
   auto it = finder.find(cuke::registry().steps().begin(),
                         cuke::registry().steps().end());
   if (it != cuke::registry().steps().end())
   {
+    results::set_source_location(it->source_location());
     cuke::registry().run_hook_before_step();
     it->call(finder.values(), step.doc_string(), step.data_table());
     cuke::registry().run_hook_after_step();
@@ -244,7 +245,7 @@ class test_runner
   void visit(const cuke::ast::feature_node& feature)
   {
     push_tags(feature.tags());
-    results::new_feature();
+    results::new_feature(feature);
     m_printer->print(feature);
     if (feature.has_background())
     {
@@ -255,7 +256,7 @@ class test_runner
   {
     push_tags(scenario.tags());
     cuke::registry().run_hook_before(m_tags.container);
-    results::new_scenario();
+    results::new_scenario(scenario);
     if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
     {
       results::scenarios_back().status = results::test_status::skipped;
@@ -288,7 +289,7 @@ class test_runner
       }
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
-        results::new_scenario();
+        results::new_scenario_outline(scenario_outline);
         std::size_t row_file_line = example.line_table_begin() + row;
         cuke::registry().run_hook_before(m_tags.container);
         if (skip_scenario(m_lines, row_file_line))

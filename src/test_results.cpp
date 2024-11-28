@@ -1,4 +1,5 @@
 #include "test_results.hpp"
+#include "ast.hpp"
 #include "util.hpp"
 
 namespace cuke::results
@@ -263,4 +264,68 @@ std::string step_prefix(test_status status)
   }
 }
 
+void new_feature(const cuke::ast::feature_node& current)
+{
+  feature result;
+  result.id = current.name();
+  result.uri = std::format("{}:{}", current.file(), current.line());
+  result.tags = current.tags();
+  result.keyword = current.keyword();
+  test_results().data().push_back(result);
+}
+void new_scenario(const cuke::ast::scenario_node& current)
+{
+  scenario result;
+  result.id = std::format("{};{}", test_results().back().id, current.name());
+  result.line = current.line();
+  result.file = current.file();
+  result.name = current.name();
+  result.keyword = current.keyword();
+  result.tags = current.tags();
+  test_results().back().scenarios.push_back(result);
+}
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current)
+{
+  scenario result;
+  result.id = std::format("{};{}", test_results().back().id, current.name());
+  result.line = current.line();
+  result.file = current.file();
+  result.name = current.name();
+  result.keyword = current.keyword();
+  result.tags = current.tags();
+  test_results().back().scenarios.push_back(result);
+}
+void new_step(const cuke::ast::step_node& current)
+{
+  step result;
+  result.line = current.line();
+  result.id = std::format("{};{}", test_results().back().scenarios.back().id,
+                          current.name());
+  result.name = current.name();
+  result.file = current.file();
+  result.keyword = current.keyword();
+  result.doc_string = cuke::internal::to_string(current.doc_string());
+  result.table = current.data_table();
+
+  test_results().back().scenarios.back().steps.emplace_back();
+}
+
+void set_source_location(const std::string& location)
+{
+  test_results().back().scenarios.back().steps.back().source_location =
+      location;
+}
+
+void set_feature_to(test_status status)
+{
+  test_results().back().status = status;
+}
+void set_scenario_to(test_status status)
+{
+  test_results().back().scenarios.back().status = status;
+}
+void set_step_to(test_status status)
+{
+  test_results().back().scenarios.back().steps.back().status = status;
+}
 }  // namespace cuke::results
