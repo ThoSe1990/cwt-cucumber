@@ -22,7 +22,7 @@ jobs:
       - name: build
         run: |
           conan install . -of ./build_gcc --build missing 
-          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc
+          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
