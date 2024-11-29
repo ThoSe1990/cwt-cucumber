@@ -41,7 +41,7 @@ jobs:
       - name: build
         run: |
           conan install . -of ./build_clang --build missing -pr clang
-          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17
+          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"
           cmake --build ./build_clang -j12      
       - name: unittests
         run: ./build_clang/bin/unittests
