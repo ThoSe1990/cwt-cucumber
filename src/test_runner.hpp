@@ -111,7 +111,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   else
   {
     results::steps_back().status = results::test_status::undefined;
-    results::steps_back().error_msg = "Undefined Step";
+    results::steps_back().error_msg = "Undefined step";
   } 
   update_step_status();
 

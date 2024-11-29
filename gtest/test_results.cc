@@ -372,3 +372,22 @@ TEST_F(test_results_2, germen_keywords)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
 }
+TEST_F(test_results_2, error_msg_undefined_step)
+{
+  const char* script = R"*(
+    Funktion: A Feature 
+    Scenario: A Scenario
+    Given This does not exist
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  ASSERT_EQ(scenarios.at(0).steps.size(), 1);
+  EXPECT_EQ(scenarios.at(0).steps.at(0).error_msg,
+            std::string("Undefined step"));
+}
