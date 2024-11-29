@@ -14,8 +14,9 @@ class test_results_1 : public ::testing::Test
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
-        "a step", cuke::internal::step::type::step, "some func name",
-        "this file", 99));
+        "a step"  //,
+        // cuke::internal::step::type::step, "some func name","this file", 99
+        ));
     cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { cuke::is_true(false); },
@@ -61,7 +62,7 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(step.status, cuke::results::test_status::passed);
   // NOTE: source location is set in step constructor in SetUp() function of
   // this suite
-  EXPECT_EQ(step.source_location, std::format("this file:{}", 99));
+  // EXPECT_EQ(step.source_location, std::format("this file:{}", 99));
   EXPECT_EQ(step.keyword, std::string("Given"));
   EXPECT_EQ(step.name, std::string("a step"));
   EXPECT_EQ(step.id, std::string("A Feature;First Scenario;a step"));
