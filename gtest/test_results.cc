@@ -375,7 +375,7 @@ TEST_F(test_results_2, germen_keywords)
 TEST_F(test_results_2, error_msg_undefined_step)
 {
   const char* script = R"*(
-    Funktion: A Feature 
+    Feature: A Feature 
     Scenario: A Scenario
     Given This does not exist
   )*";
