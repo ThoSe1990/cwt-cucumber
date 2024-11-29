@@ -36,6 +36,7 @@ struct scenario
   test_status status{test_status::passed};
   std::size_t line;
   std::string name;
+  std::string description;
   std::string file;
   std::string keyword;
   std::vector<step> steps{};
@@ -47,6 +48,7 @@ struct feature
   std::string id;
   std::string keyword;
   std::string name;
+  std::string description;
   std::string uri;
   std::vector<std::string> tags;
   std::vector<scenario> scenarios{};
@@ -106,8 +108,8 @@ class test_result
 }
 
 void new_feature(const cuke::ast::feature_node& current);
-void new_scenario(const cuke::ast::scenario_node& current);
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current);
+void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags);
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current, const std::vector<std::string> all_tags);
 void new_step(const cuke::ast::step_node& current);
 void set_source_location(const std::string& location);
 void set_feature_to(test_status status);

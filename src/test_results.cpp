@@ -271,28 +271,32 @@ void new_feature(const cuke::ast::feature_node& current)
   result.uri = std::format("{}:{}", current.file(), current.line());
   result.tags = current.tags();
   result.keyword = current.keyword();
+  result.name = current.name();
+  result.description = cuke::internal::to_string(current.description());
   test_results().data().push_back(result);
 }
-void new_scenario(const cuke::ast::scenario_node& current)
+void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags)
 {
   scenario result;
   result.id = std::format("{};{}", test_results().back().id, current.name());
   result.line = current.line();
   result.file = current.file();
   result.name = current.name();
+  result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
-  result.tags = current.tags();
+  result.tags = all_tags;
   test_results().back().scenarios.push_back(result);
 }
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current)
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current, const std::vector<std::string> all_tags)
 {
   scenario result;
   result.id = std::format("{};{}", test_results().back().id, current.name());
   result.line = current.line();
   result.file = current.file();
   result.name = current.name();
+  result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
-  result.tags = current.tags();
+  result.tags = all_tags; 
   test_results().back().scenarios.push_back(result);
 }
 void new_step(const cuke::ast::step_node& current)
@@ -307,7 +311,7 @@ void new_step(const cuke::ast::step_node& current)
   result.doc_string = cuke::internal::to_string(current.doc_string());
   result.table = current.data_table();
 
-  test_results().back().scenarios.back().steps.emplace_back();
+  test_results().back().scenarios.back().steps.push_back(result);
 }
 
 void set_source_location(const std::string& location)

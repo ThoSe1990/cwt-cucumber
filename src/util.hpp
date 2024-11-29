@@ -48,9 +48,9 @@ enum class color
              : str;
 }
 
-[[nodiscard]] inline std::string create_string(std::string_view sv)
+[[nodiscard]] inline std::string create_string(std::string_view sv, std::size_t drop_chars = 0)
 {
-  return std::string(sv);
+  return std::string(sv.begin(), sv.size() - drop_chars);
 }
 [[nodiscard]] inline std::string create_string(std::string_view begin,
                                                std::string_view end)

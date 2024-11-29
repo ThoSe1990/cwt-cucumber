@@ -9,11 +9,13 @@ namespace cuke::internal
 step::step(step_callback cb, const std::string& definition,
            type step_type /* = type::step */,
            const std::string& function_name /* = "" */,
-           const std::string& file /* = "" */, std::size_t /* line = 0 */)
+           const std::string& file /* = "" */, std::size_t line /*  = 0 */)
     : m_callback(cb),
       m_definition(definition),
       m_type(step_type),
-      m_function_name(function_name)
+      m_function_name(function_name),
+      m_file(file),
+      m_line(line)
 {
   std::tie(m_regex_definition, m_type_info) =
       create_regex_definition(add_escape_chars(m_definition));

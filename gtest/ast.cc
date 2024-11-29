@@ -9,7 +9,7 @@ TEST(ast, feature_w_parser)
   const char* script = "Feature: First Feature";
   cuke::parser p;
   p.parse_script(script);
-  EXPECT_EQ(p.head().feature().keyword(), std::string("Feature:"));
+  EXPECT_EQ(p.head().feature().keyword(), std::string("Feature"));
   EXPECT_EQ(p.head().feature().name(), std::string("First Feature"));
 }
 TEST(ast, feature_error)
@@ -95,7 +95,7 @@ TEST(ast, feature)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cuke::internal::parse_feature(lex);
-  EXPECT_EQ(feature.keyword(), std::string("Feature:"));
+  EXPECT_EQ(feature.keyword(), std::string("Feature"));
   EXPECT_EQ(feature.name(), std::string("A Feature"));
   EXPECT_EQ(feature.line(), 1);
 }
@@ -152,7 +152,7 @@ TEST(ast, background_in_feature)
   lex.advance();  // TODO delete me
   cuke::ast::feature_node feature = cuke::internal::parse_feature(lex);
   ASSERT_TRUE(feature.has_background());
-  EXPECT_EQ(feature.background().keyword(), std::string("Background:"));
+  EXPECT_EQ(feature.background().keyword(), std::string("Background"));
   EXPECT_EQ(feature.background().name(), std::string("A background"));
   EXPECT_EQ(feature.background().steps().size(), 1);
   EXPECT_EQ(feature.background().steps().at(0).keyword(), std::string("Given"));
@@ -236,7 +236,7 @@ TEST(ast, feature_w_scenario)
   cuke::ast::feature_node feature = cuke::internal::parse_feature(lex);
   ASSERT_EQ(feature.scenarios().size(), 1);
   ASSERT_EQ(feature.scenarios().at(0)->type(), cuke::ast::node_type::scenario);
-  EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
+  EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario"));
   EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
 }
 TEST(ast, feature_w_descr_and_scenario)
@@ -252,7 +252,7 @@ TEST(ast, feature_w_descr_and_scenario)
   cuke::ast::feature_node feature = cuke::internal::parse_feature(lex);
   EXPECT_EQ(feature.description().size(), 2);
   ASSERT_EQ(feature.scenarios().size(), 1);
-  EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario:"));
+  EXPECT_EQ(feature.scenarios().at(0)->keyword(), std::string("Scenario"));
   EXPECT_EQ(feature.scenarios().at(0)->name(), std::string("A Scenario"));
 }
 
@@ -621,7 +621,7 @@ TEST(ast, feature_w_scenario_outline)
   ASSERT_EQ(feature.scenarios().at(0)->type(),
             cuke::ast::node_type::scenario_outline);
   EXPECT_EQ(feature.scenarios().at(0)->keyword(),
-            std::string("Scenario Outline:"));
+            std::string("Scenario Outline"));
   EXPECT_EQ(feature.scenarios().at(0)->name(),
             std::string("A Scenario Outline"));
 }
