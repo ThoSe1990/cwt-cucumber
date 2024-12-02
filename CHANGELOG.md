@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added 
+- `--report-json [optional: file]` to print the test results to json. ([60](https://github.com/ThoSe1990/cwt-cucumber/pull/60))
+  - Will force a quiet run (prints from implemented steps still on `stdout`) 
+  - Without file: Json output is on `stdout` 
+  - With file: Json output is in file, will override on existing file, does not work on `.feature` files
+
+
 ## [2.4] 2024-11-14
 
 ### Added 
