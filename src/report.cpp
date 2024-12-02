@@ -4,9 +4,9 @@
 #include "options.hpp"
 #include "test_results.hpp"
 
-// #ifdef WITH_JSON
+#ifdef WITH_JSON
 #include <nlohmann/json.hpp>
-// #endif  // WITH_JSON
+#endif  // WITH_JSON
 
 namespace cuke::report
 {
@@ -44,7 +44,7 @@ nlohmann::json to_json(const cuke::table& t)
 
 std::string as_json(std::size_t indents /* = 2 */)
 {
-  // #ifdef WITH_JSON
+  #ifdef WITH_JSON
   using json = nlohmann::json;
 
   std::vector<results::feature>& features = results::test_results().data();
@@ -129,12 +129,12 @@ std::string as_json(std::size_t indents /* = 2 */)
   }
 
   return json_features.dump(indents);
-  // #endif  // WITH_JSON
-
+#else
   println(cuke::internal::color::red,
           "nlohmann-json is not added as dependency in this build. Can not "
           "export json format.");
   return "";
+#endif  // WITH_JSON
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {

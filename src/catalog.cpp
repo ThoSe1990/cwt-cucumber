@@ -89,12 +89,12 @@ std::string as_json(std::size_t indents /* = 2 */)
   }
 
   return steps_catalog.dump(indents);
-#endif  // WITH_JSON
-
+#else
   println(internal::color::red,
           "nlohmann-json is not added as dependency in this build. Can not "
           "export json format.");
   return "";
+#endif  // WITH_JSON
 }
 
 void print_readable_text_to_sink()
