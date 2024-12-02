@@ -22,7 +22,6 @@ struct feature_file
 class sink
 {
  public:
-   // TODO: FIXME: this does not work properly and throws an error  
   void try_to_set_file_sink(std::span<const char*>::iterator it,
                             std::span<const char*>::iterator end)
   {
@@ -35,41 +34,42 @@ class sink
     fs::path path = *it;
     if (fs::is_directory(path))
     {
-      println(internal::color::red,
-              std::format("Sink: Can't set directory '{}' as output sink",
-                          path.string()));
       return;
     }
     if (path.string().find(".feature") != std::string::npos)
     {
       return;
     }
-    m_file_stream = std::make_unique<std::ofstream>(path.string());
-    if (m_file_stream->is_open())
-    {
-      m_sink = m_file_stream.get();
-    }
-    else
-    {
-      println(internal::color::red,
-              std::format("Sink: Failed to open file '{}'", path.string()));
-    }
+    m_filepath = path.string();
   }
 
   void write(std::string_view data) const
   {
-    if (m_sink)
+    if (m_filepath.empty())
     {
-      *m_sink << data << '\n';
+      println(data);
+    }
+    else
+    {
+      std::ofstream file(m_filepath);
+      if (file.is_open())
+      {
+        file << data;
+        file.close();
+      }
+      else
+      {
+        println(internal::color::red,
+                std::format("Can not open file '{}'", m_filepath));
+      }
     }
   }
 
  private:
-  std::ostream* m_sink{&std::cout};
-  std::unique_ptr<std::ofstream> m_file_stream;
+  std::string m_filepath;
 };
 
-enum class catalog_type 
+enum class catalog_type
 {
   none = 0,
   readable_text,
