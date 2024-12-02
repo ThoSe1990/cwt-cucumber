@@ -138,6 +138,9 @@ static void print_help_screen()
       "  -q --quiet\t\t\t\tQuiet mode, only the final result will be printed "
       "to stdout.");
   println(
+      "  --report-json [opt: file]\t\tPrint the test results as json to stdout "
+      "or a given file");
+  println(
       "  --steps-catalog [opt: file]\t\tWrite the implemented steps as "
       "readable text to stdout or a file");
   println(
