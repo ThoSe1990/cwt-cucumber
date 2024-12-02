@@ -67,7 +67,6 @@ static void update_scenario_status(std::string_view name, std::string_view file,
   {
     results::scenarios_back().status = results::test_status::failed;
     results::scenarios_back().name = name;
-    results::scenarios_back().file = file;
     results::scenarios_back().line = line;
   }
   results::test_results().add_scenario(results::scenarios_back().status);
@@ -84,26 +83,35 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
 {
   if (skip_step())
   {
-    results::new_step();
+    results::new_step(step);
     results::steps_back().status = results::test_status::skipped;
     update_step_status();
     return;
   }
-  results::new_step();
+  results::new_step(step);
   cuke::internal::step_finder finder(step.name(),
                                      std::forward<OptionalRow>(row)...);
   auto it = finder.find(cuke::registry().steps().begin(),
                         cuke::registry().steps().end());
   if (it != cuke::registry().steps().end())
   {
+    results::set_source_location(it->source_location());
     cuke::registry().run_hook_before_step();
     it->call(finder.values(), step.doc_string(), step.data_table());
     cuke::registry().run_hook_after_step();
+    if constexpr (sizeof...(OptionalRow) > 0)
+    {   
+      const std::string step_w_example_variables =
+        internal::replace_variables(step.name(),  
+        std::forward<OptionalRow>(row)...);
+      results::steps_back().name = step_w_example_variables;
+    }
   }
   else
   {
     results::steps_back().status = results::test_status::undefined;
-  }
+    results::steps_back().error_msg = "Undefined step";
+  } 
   update_step_status();
 
   if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
@@ -152,19 +160,19 @@ class cuke_printer : public stdout_interface
   virtual void println() const noexcept override { ::cuke::println(); }
   void print(const cuke::ast::feature_node& feature) const noexcept override
   {
-    ::cuke::print(feature.keyword(), ' ', feature.name());
+    ::cuke::print(feature.keyword(), ": ", feature.name());
     details::print_file_line(feature);
     println();
   }
   void print(const cuke::ast::scenario_node& scenario) const noexcept override
   {
-    ::cuke::print(scenario.keyword(), ' ', scenario.name());
+    ::cuke::print(scenario.keyword(), ": ", scenario.name());
     details::print_file_line(scenario);
   }
   void print(const cuke::ast::scenario_outline_node& scenario_outline)
       const noexcept override
   {
-    ::cuke::print(scenario_outline.keyword(), ' ', scenario_outline.name());
+    ::cuke::print(scenario_outline.keyword(), ": ", scenario_outline.name());
     details::print_file_line(scenario_outline);
   }
   void print(const cuke::ast::step_node& step, results::test_status status,
@@ -172,7 +180,7 @@ class cuke_printer : public stdout_interface
   {
     const std::string step_w_example_variables =
         internal::replace_variables(step.name(), row);
-    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+    ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step_w_example_variables);
     details::print_file_line(step);
     print_doc_string(step);
@@ -181,7 +189,7 @@ class cuke_printer : public stdout_interface
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
-    ::cuke::print(internal::to_color(status), internal::step_prefix(status),
+    ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step.name());
     details::print_file_line(step);
     print_doc_string(step);
@@ -244,7 +252,7 @@ class test_runner
   void visit(const cuke::ast::feature_node& feature)
   {
     push_tags(feature.tags());
-    results::new_feature();
+    results::new_feature(feature);
     m_printer->print(feature);
     if (feature.has_background())
     {
@@ -255,7 +263,7 @@ class test_runner
   {
     push_tags(scenario.tags());
     cuke::registry().run_hook_before(m_tags.container);
-    results::new_scenario();
+    results::new_scenario(scenario, m_tags.container);
     if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
     {
       results::scenarios_back().status = results::test_status::skipped;
@@ -288,7 +296,9 @@ class test_runner
       }
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
-        results::new_scenario();
+        results::new_scenario_outline(scenario_outline, m_tags.container);
+        results::scenarios_back().line = example.line_table_begin() + row - 1;
+        
         std::size_t row_file_line = example.line_table_begin() + row;
         cuke::registry().run_hook_before(m_tags.container);
         if (skip_scenario(m_lines, row_file_line))

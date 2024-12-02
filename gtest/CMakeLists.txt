@@ -16,6 +16,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/help_screen.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/options.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/report.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenario_hooks.cc

@@ -34,41 +34,51 @@ class sink
     fs::path path = *it;
     if (fs::is_directory(path))
     {
-      println(internal::color::red,
-              std::format("Sink: Can't set directory '{}' as output sink",
-                          path.string()));
       return;
     }
     if (path.string().find(".feature") != std::string::npos)
     {
-      println(internal::color::red,
-              std::format("Sink: Can't set feature file '{}' as output sink",
-                          path.string()));
       return;
     }
-    m_file_stream = std::make_unique<std::ofstream>(path.string());
-    if (m_file_stream->is_open())
-    {
-      m_sink = m_file_stream.get();
-    }
-    else
-    {
-      println(internal::color::red,
-              std::format("Sink: Failed to open file '{}'", path.string()));
-    }
+    m_filepath = path.string();
   }
 
   void write(std::string_view data) const
   {
-    if (m_sink)
+    if (m_filepath.empty())
     {
-      *m_sink << data << '\n';
+      println(data);
+    }
+    else
+    {
+      std::ofstream file(m_filepath);
+      if (file.is_open())
+      {
+        file << data;
+        file.close();
+      }
+      else
+      {
+        println(internal::color::red,
+                std::format("Can not open file '{}'", m_filepath));
+      }
     }
   }
 
  private:
-  std::ostream* m_sink{&std::cout};
-  std::unique_ptr<std::ofstream> m_file_stream;
+  std::string m_filepath;
+};
+
+enum class catalog_type
+{
+  none = 0,
+  readable_text,
+  json
+};
+enum class report_type
+{
+  none = 0,
+  json
 };
 
 struct options
@@ -77,13 +87,17 @@ struct options
   bool print_help{false};
   struct
   {
-    bool readable_text{false};
-    bool json{false};
+    catalog_type type{catalog_type::none};
     sink out;
   } catalog;
+  struct
+  {
+    report_type type{report_type::none};
+    sink out;
+  } report;
   std::string tag_expression;
   std::vector<feature_file> files;
-};
+};  // namespace cuke
 
 class cuke_args
 {
@@ -123,6 +137,9 @@ static void print_help_screen()
   println(
       "  -q --quiet\t\t\t\tQuiet mode, only the final result will be printed "
       "to stdout.");
+  println(
+      "  --report-json [opt: file]\t\tPrint the test results as json to stdout "
+      "or a given file");
   println(
       "  --steps-catalog [opt: file]\t\tWrite the implemented steps as "
       "readable text to stdout or a file");

@@ -1,11 +1,13 @@
 #include "cucumber.hpp"
-#include <algorithm>
+
+#include "report.hpp"
 #include "options.hpp"
 #include "catalog.hpp"
-#include "registry.hpp"
 #include "test_results.hpp"
 #include "test_runner.hpp"
 #include "util.hpp"
+
+#include <algorithm>
 
 namespace cuke
 {
@@ -16,7 +18,7 @@ void print_failed_scenarios()
   for (const results::feature& feature : results::test_results().data())
   {
     std::for_each(feature.scenarios.begin(), feature.scenarios.end(),
-                  [&first](const results::scenario& scenario)
+                  [&first, &feature](const auto& scenario)
                   {
                     if (scenario.status == results::test_status::failed)
                     {
@@ -26,7 +28,7 @@ void print_failed_scenarios()
                         first = false;
                       }
                       print(internal::color::red, scenario.name);
-                      println(internal::color::black, "  ", scenario.file, ':',
+                      println(internal::color::black, "  ", feature.file, ':',
                               scenario.line);
                     }
                   });
@@ -62,10 +64,22 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
-  print_failed_scenarios();
-  println();
-  println(results::scenarios_to_string());
-  println(results::steps_to_string());
+  switch (program_arguments().get_options().report.type)
+  {
+    case report_type::none:
+      print_failed_scenarios();
+      println();
+      println(results::scenarios_to_string());
+      println(results::steps_to_string());
+      break;
+
+    case report_type::json:
+      report::print_json_to_sink();
+      break;
+
+    default:
+      println(internal::color::red, "Unknown report type");
+  }
 }
 
 const options& cwt_cucumber::get_options() const noexcept
@@ -84,12 +98,12 @@ bool cwt_cucumber::print_help() const noexcept
 bool cwt_cucumber::export_catalog(
     std::size_t json_indents /* = 2 */) const noexcept
 {
-  if (get_options().catalog.readable_text)
+  if (get_options().catalog.type == catalog_type::readable_text)
   {
     catalog::print_readable_text_to_sink();
     return true;
   }
-  if (get_options().catalog.json)
+  if (get_options().catalog.type == catalog_type::json)
   {
     catalog::print_json_to_sink(json_indents);
     return true;

@@ -33,6 +33,10 @@ class table
    * @brief Checks if the table is empty or not
    */
   [[nodiscard]] bool empty() const noexcept;
+  /**
+   * @brief Returns a reference  to the underlying data 
+   */
+  [[nodiscard]] const value_array& data() const noexcept;
 
   /**
    * @class row

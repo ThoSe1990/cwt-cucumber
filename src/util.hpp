@@ -7,10 +7,24 @@
 #include <unordered_map>
 
 #include "token.hpp"
-#include "test_results.hpp"
 
 namespace cuke::internal
 {
+
+[[nodiscard]] static std::string to_string(const std::vector<std::string>& data)
+{
+  std::ostringstream oss;
+  for (const auto& str : data)
+  {
+    oss << str << ' ';
+  }
+  std::string result = oss.str();
+  if (!result.empty())
+  {
+    result.pop_back();
+  }
+  return result;
+}
 
 enum class color
 {
@@ -34,9 +48,9 @@ enum class color
              : str;
 }
 
-[[nodiscard]] inline std::string create_string(std::string_view sv)
+[[nodiscard]] inline std::string create_string(std::string_view sv, std::size_t drop_chars = 0)
 {
-  return std::string(sv);
+  return std::string(sv.substr(0, sv.size() - drop_chars));
 }
 [[nodiscard]] inline std::string create_string(std::string_view begin,
                                                std::string_view end)
@@ -82,23 +96,6 @@ template <typename T>
   }
 }
 
-[[nodiscard]] inline color to_color(cuke::results::test_status status)
-{
-  switch (status)
-  {
-    case cuke::results::test_status::passed:
-      return color::green;
-    case cuke::results::test_status::failed:
-      return color::red;
-    case cuke::results::test_status::skipped:
-      return color::blue;
-    case cuke::results::test_status::undefined:
-      return color::yellow;
-    default:
-      return color::standard;
-  }
-}
-
 static const std::unordered_map<color, std::string> color_codes = {
     {color::standard, "\x1b[0m"}, {color::green, "\x1b[32m"},
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
@@ -108,40 +105,6 @@ template <typename T>
 inline void print_impl(const T& t)
 {
   std::cout << t;
-}
-
-[[nodiscard]] inline std::string to_string(cuke::results::test_status status)
-{
-  switch (status)
-  {
-    case cuke::results::test_status::passed:
-      return std::string("passed");
-    case cuke::results::test_status::failed:
-      return std::string("failed");
-    case cuke::results::test_status::skipped:
-      return std::string("skipped");
-    case cuke::results::test_status::undefined:
-      return std::string("undefined");
-    default:
-      return std::string("");
-  }
-}
-
-[[nodiscard]] inline std::string step_prefix(cuke::results::test_status status)
-{
-  switch (status)
-  {
-    case cuke::results::test_status::passed:
-      return std::string("[   PASSED    ] ");
-    case cuke::results::test_status::failed:
-      return std::string("[   FAILED    ] ");
-    case cuke::results::test_status::skipped:
-      return std::string("[   SKIPPED   ] ");
-    case cuke::results::test_status::undefined:
-      return std::string("[   UNDEFINED ] ");
-    default:
-      return std::string("");
-  }
 }
 
 [[nodiscard]] inline bool is_number(std::string_view sv)

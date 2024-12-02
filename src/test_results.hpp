@@ -1,7 +1,11 @@
 #pragma once
 
 #include <vector>
-#include <string> 
+#include <string>
+
+#include "ast.hpp"
+#include "util.hpp"
+#include "table.hpp"
 
 namespace cuke::results
 {
@@ -16,19 +20,37 @@ enum class test_status
 struct step
 {
   test_status status{test_status::passed};
+  std::size_t line;
+  std::string id;
+  std::string name;
+  std::string keyword;
+  std::string source_location;
+  std::string doc_string;
+  std::string error_msg;
+  cuke::table table;
 };
 struct scenario
 {
-  std::vector<step> steps{};
+  std::string id;
   test_status status{test_status::passed};
-  std::string name;
-  std::string file;
   std::size_t line;
+  std::string name;
+  std::string description;
+  std::string keyword;
+  std::vector<step> steps{};
+  std::vector<std::string> tags;
 };
 struct feature
 {
-  std::vector<scenario> scenarios{};
   test_status status{test_status::passed};
+  std::string id;
+  std::string keyword;
+  std::string name;
+  std::string description;
+  std::string file;
+  std::size_t line;
+  std::vector<std::string> tags;
+  std::vector<scenario> scenarios{};
 };
 
 class test_result
@@ -36,102 +58,21 @@ class test_result
  public:
   [[nodiscard]] std::vector<feature>& data() noexcept { return m_data; }
   [[nodiscard]] feature& back() noexcept { return m_data.back(); }
-  void clear() noexcept
-  {
-    m_data.clear();
+  void clear() noexcept;
 
-    m_scenarios_count = 0;
+  [[nodiscard]] std::size_t scenarios_passed() const noexcept;
+  [[nodiscard]] std::size_t scenarios_failed() const noexcept;
+  [[nodiscard]] std::size_t scenarios_skipped() const noexcept;
+  [[nodiscard]] std::size_t steps_passed() const noexcept;
+  [[nodiscard]] std::size_t steps_failed() const noexcept;
+  [[nodiscard]] std::size_t steps_skipped() const noexcept;
+  [[nodiscard]] std::size_t steps_undefined() const noexcept;
 
-    m_scenarios_failed = 0;
-    m_scenarios_skipped = 0;
-    m_scenarios_passed = 0;
+  void add_scenario(test_status status) noexcept;
+  void add_step(test_status status) noexcept;
 
-    m_steps_count = 0;
-
-    m_steps_failed = 0;
-    m_steps_undefined = 0;
-    m_steps_skipped = 0;
-    m_steps_passed = 0;
-  }
-
-  [[nodiscard]] std::size_t scenarios_passed() const noexcept
-  {
-    return m_scenarios_passed;
-  }
-  [[nodiscard]] std::size_t scenarios_failed() const noexcept
-  {
-    return m_scenarios_failed;
-  }
-  [[nodiscard]] std::size_t scenarios_skipped() const noexcept
-  {
-    return m_scenarios_skipped;
-  }
-
-  [[nodiscard]] std::size_t steps_passed() const noexcept
-  {
-    return m_steps_passed;
-  }
-  [[nodiscard]] std::size_t steps_failed() const noexcept
-  {
-    return m_steps_failed;
-  }
-  [[nodiscard]] std::size_t steps_skipped() const noexcept
-  {
-    return m_steps_skipped;
-  }
-  [[nodiscard]] std::size_t steps_undefined() const noexcept
-  {
-    return m_steps_undefined;
-  }
-
-  void add_scenario(test_status status) noexcept
-  {
-    ++m_scenarios_count;
-    switch (status)
-    {
-      case test_status::passed:
-        ++m_scenarios_passed;
-        break;
-      case test_status::failed:
-        ++m_scenarios_failed;
-        break;
-      case test_status::skipped:
-        ++m_scenarios_skipped;
-        break;
-      case test_status::undefined:
-        // can't happen ...
-        break;
-    }
-  }
-
-  void add_step(test_status status) noexcept
-  {
-    ++m_steps_count;
-    switch (status)
-    {
-      case test_status::passed:
-        ++m_steps_passed;
-        break;
-      case test_status::failed:
-        ++m_steps_failed;
-        break;
-      case test_status::skipped:
-        ++m_steps_skipped;
-        break;
-      case test_status::undefined:
-        ++m_steps_undefined;
-        break;
-    }
-  }
-
-  [[nodiscard]] std::size_t scenarios_count() const noexcept
-  {
-    return m_scenarios_count;
-  }
-  [[nodiscard]] std::size_t steps_count() const noexcept
-  {
-    return m_steps_count;
-  }
+  [[nodiscard]] std::size_t scenarios_count() const noexcept;
+  [[nodiscard]] std::size_t steps_count() const noexcept;
 
  private:
   std::vector<feature> m_data;
@@ -165,25 +106,14 @@ class test_result
   return test_status::failed;
 }
 
-static void new_feature() { test_results().data().emplace_back(); }
-static void new_scenario() { test_results().back().scenarios.emplace_back(); }
-static void new_step()
-{
-  test_results().back().scenarios.back().steps.emplace_back();
-}
-
-static void set_feature_to(test_status status)
-{
-  test_results().back().status = status;
-}
-static void set_scenario_to(test_status status)
-{
-  test_results().back().scenarios.back().status = status;
-}
-static void set_step_to(test_status status)
-{
-  test_results().back().scenarios.back().steps.back().status = status;
-}
+void new_feature(const cuke::ast::feature_node& current);
+void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags);
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current, const std::vector<std::string> all_tags);
+void new_step(const cuke::ast::step_node& current);
+void set_source_location(const std::string& location);
+void set_feature_to(test_status status);
+void set_scenario_to(test_status status);
+void set_step_to(test_status status);
 
 [[nodiscard]] static feature& features_back() { return test_results().back(); }
 [[nodiscard]] static scenario& scenarios_back()
@@ -197,5 +127,8 @@ static void set_step_to(test_status status)
 
 [[nodiscard]] std::string scenarios_to_string();
 [[nodiscard]] std::string steps_to_string();
+[[nodiscard]] internal::color to_color(test_status status);
+[[nodiscard]] std::string to_string(test_status status);
+[[nodiscard]] std::string step_prefix(test_status status);
 
 }  // namespace cuke::results

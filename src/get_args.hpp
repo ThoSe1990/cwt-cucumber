@@ -6,6 +6,7 @@
 #include <type_traits>
 
 #include "param_info.hpp"
+#include "util.hpp"
 #include "value.hpp"
 #include "registry.hpp"
 
@@ -61,17 +62,7 @@ class string_or_vector
 
   operator std::string() const
   {
-    std::ostringstream oss;
-    for (const auto& str : m_data)
-    {
-      oss << str << ' ';
-    }
-    std::string result = oss.str();
-    if (!result.empty())
-    {
-      result.pop_back();
-    }
-    return result;
+    return to_string(m_data);
   }
 
   operator std::vector<std::string>() const { return m_data; }

@@ -14,9 +14,9 @@
 namespace cuke::internal
 {
 
-[[nodiscard]] static auto parse_keyword_and_name(lexer& lex)
+[[nodiscard]] static auto parse_keyword_and_name(lexer& lex, bool remove_colon)
 {
-  std::string key = create_string(lex.current().value);
+  std::string key = create_string(lex.current().value, remove_colon ? 1 : 0);
   lex.advance();
 
   auto make_name = [](lexer& lex)
@@ -181,7 +181,7 @@ template <typename... Ts>
   while (lex.check(token_type::step))
   {
     const std::size_t line = lex.current().line;
-    auto [key, name] = parse_keyword_and_name(lex);
+    auto [key, name] = parse_keyword_and_name(lex, false);
     std::vector<std::string> doc_string = parse_doc_string(lex);
     auto [data_table, line_table_begin] = parse_table(lex, true);
 
@@ -198,7 +198,7 @@ template <typename... Ts>
     lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
-  auto [keyword, name] = parse_keyword_and_name(lex);
+  auto [keyword, name] = parse_keyword_and_name(lex, true);
   auto description =
       parse_description(lex, token_type::vertical, token_type::eof);
   auto [t, line_table_begin] = parse_table(lex, false);
@@ -211,7 +211,7 @@ template <typename... Ts>
 make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
-  auto [key, name] = parse_keyword_and_name(lex);
+  auto [key, name] = parse_keyword_and_name(lex, true);
   auto description = parse_description(lex, token_type::step, token_type::eof);
   auto steps = parse_steps(lex);
 
@@ -224,7 +224,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags)
     lexer& lex, std::vector<std::string>&& tags)
 {
   const std::size_t line = lex.current().line;
-  auto [key, name] = parse_keyword_and_name(lex);
+  auto [key, name] = parse_keyword_and_name(lex, true);
   auto description = parse_description(lex, token_type::step, token_type::eof);
   auto steps = parse_steps(lex);
   return std::make_unique<cuke::ast::scenario_node>(
@@ -270,7 +270,7 @@ parse_background(lexer& lex)
   if (lex.check(cuke::internal::token_type::background))
   {
     const std::size_t line = lex.current().line;
-    auto [key, name] = parse_keyword_and_name(lex);
+    auto [key, name] = parse_keyword_and_name(lex, true);
     auto description =
         parse_description(lex, token_type::step, token_type::eof);
     auto steps = parse_steps(lex);
@@ -290,7 +290,7 @@ parse_background(lexer& lex)
     return cuke::ast::feature_node();
   }
   const std::size_t line = lex.current().line;
-  auto [key, name] = parse_keyword_and_name(lex);
+  auto [key, name] = parse_keyword_and_name(lex, true);
   auto description = parse_description(
       lex, token_type::scenario, token_type::scenario_outline, token_type::tag,
       token_type::background, token_type::eof);
@@ -335,8 +335,7 @@ class parser
     const std::string script = internal::read_file(filepath);
     if (script.empty())
     {
-      println(internal::color::red, "Error: File not found '",
-                        filepath, "'");
+      println(internal::color::red, "Error: File not found '", filepath, "'");
       return;
     }
     parse_impl(script, filepath);
@@ -375,8 +374,7 @@ class parser
     m_head.set_feature(parse_feature(lex));
     if (lex.error())
     {
-      println(internal::color::red,
-                        "Error while parsing script, Gherkin AST deleted");
+      println(internal::color::red, "Error while parsing script");
       m_error = true;
       m_head.clear();
     }
