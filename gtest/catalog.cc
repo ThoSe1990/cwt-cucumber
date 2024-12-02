@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "../src/registry.hpp"
-#include "options.hpp"
 #include "../src/catalog.hpp"
 
 class catalog : public ::testing::Test

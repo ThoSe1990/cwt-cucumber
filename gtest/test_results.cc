@@ -44,7 +44,8 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(feature.id, std::string("A Feature"));
   EXPECT_EQ(feature.name, std::string("A Feature"));
   EXPECT_TRUE(feature.description.empty());
-  EXPECT_EQ(feature.uri, std::string("<no file>:2"));
+  EXPECT_EQ(feature.file, std::string("<no file>"));
+  EXPECT_EQ(feature.line, 2);
   EXPECT_EQ(feature.keyword, std::string("Feature"));
 
   const auto& scenario = cuke::results::scenarios_back();
@@ -52,7 +53,6 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(scenario.id, std::string("A Feature;First Scenario"));
   EXPECT_EQ(scenario.name, std::string("First Scenario"));
   EXPECT_EQ(scenario.keyword, std::string("Scenario"));
-  EXPECT_EQ(scenario.file, std::string("<no file>"));
   EXPECT_EQ(scenario.line, 3);
   EXPECT_EQ(scenario.tags.size(), 0);
   EXPECT_TRUE(scenario.description.empty());
@@ -66,7 +66,6 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(step.name, std::string("a step"));
   EXPECT_EQ(step.id, std::string("A Feature;First Scenario;a step"));
   EXPECT_EQ(step.line, 4);
-  EXPECT_EQ(step.file, std::string("<no file>"));
   EXPECT_TRUE(step.error_msg.empty());
   EXPECT_TRUE(step.doc_string.empty());
   EXPECT_EQ(step.table.row_count(), 0);

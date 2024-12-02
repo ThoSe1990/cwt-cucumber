@@ -268,19 +268,20 @@ void new_feature(const cuke::ast::feature_node& current)
 {
   feature result;
   result.id = current.name();
-  result.uri = std::format("{}:{}", current.file(), current.line());
+  result.file = current.file();
+  result.line = current.line();
   result.tags = current.tags();
   result.keyword = current.keyword();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
   test_results().data().push_back(result);
 }
+// TODO: dry scenario-scenario outline is identical 
 void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags)
 {
   scenario result;
   result.id = std::format("{};{}", test_results().back().id, current.name());
   result.line = current.line();
-  result.file = current.file();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
@@ -292,7 +293,6 @@ void new_scenario_outline(const cuke::ast::scenario_outline_node& current, const
   scenario result;
   result.id = std::format("{};{}", test_results().back().id, current.name());
   result.line = current.line();
-  result.file = current.file();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
@@ -306,7 +306,6 @@ void new_step(const cuke::ast::step_node& current)
   result.id = std::format("{};{}", test_results().back().scenarios.back().id,
                           current.name());
   result.name = current.name();
-  result.file = current.file();
   result.keyword = current.keyword();
   result.doc_string = cuke::internal::to_string(current.doc_string());
   result.table = current.data_table();

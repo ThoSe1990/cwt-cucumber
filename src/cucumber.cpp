@@ -1,4 +1,6 @@
 #include "cucumber.hpp"
+
+#include "report.hpp"
 #include "options.hpp"
 #include "catalog.hpp"
 #include "test_results.hpp"
@@ -16,7 +18,7 @@ void print_failed_scenarios()
   for (const results::feature& feature : results::test_results().data())
   {
     std::for_each(feature.scenarios.begin(), feature.scenarios.end(),
-                  [&first](const auto& scenario)
+                  [&first, &feature](const auto& scenario)
                   {
                     if (scenario.status == results::test_status::failed)
                     {
@@ -26,7 +28,7 @@ void print_failed_scenarios()
                         first = false;
                       }
                       print(internal::color::red, scenario.name);
-                      println(internal::color::black, "  ", scenario.file, ':',
+                      println(internal::color::black, "  ", feature.file, ':',
                               scenario.line);
                     }
                   });
@@ -62,10 +64,22 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
-  print_failed_scenarios();
-  println();
-  println(results::scenarios_to_string());
-  println(results::steps_to_string());
+  switch (program_arguments().get_options().report.type)
+  {
+    case report_type::none:
+      print_failed_scenarios();
+      println();
+      println(results::scenarios_to_string());
+      println(results::steps_to_string());
+      break;
+
+    case report_type::json:
+      report::print_json_to_sink();
+      break;
+
+    default:
+      println(internal::color::red, "Unknown report type");
+  }
 }
 
 const options& cwt_cucumber::get_options() const noexcept

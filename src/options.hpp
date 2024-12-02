@@ -71,6 +71,12 @@ class sink
   std::unique_ptr<std::ofstream> m_file_stream;
 };
 
+enum class report_type
+{
+  none = 0,
+  json
+};
+
 struct options
 {
   bool quiet{false};
@@ -81,9 +87,14 @@ struct options
     bool json{false};
     sink out;
   } catalog;
+  struct
+  {
+    report_type type{report_type::none};
+    sink out;
+  } report;
   std::string tag_expression;
   std::vector<feature_file> files;
-};
+};  // namespace cuke
 
 class cuke_args
 {

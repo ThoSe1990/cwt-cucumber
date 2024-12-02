@@ -67,7 +67,6 @@ static void update_scenario_status(std::string_view name, std::string_view file,
   {
     results::scenarios_back().status = results::test_status::failed;
     results::scenarios_back().name = name;
-    results::scenarios_back().file = file;
     results::scenarios_back().line = line;
   }
   results::test_results().add_scenario(results::scenarios_back().status);
@@ -298,6 +297,8 @@ class test_runner
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
         results::new_scenario_outline(scenario_outline, m_tags.container);
+        results::scenarios_back().line = example.line_table_begin() + row - 1;
+        
         std::size_t row_file_line = example.line_table_begin() + row;
         cuke::registry().run_hook_before(m_tags.container);
         if (skip_scenario(m_lines, row_file_line))

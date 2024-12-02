@@ -1,7 +1,5 @@
 #include <filesystem>
-#include <iostream>
 #include <optional>
-#include <ostream>
 
 #include "options.hpp"
 #include "catalog.hpp"
@@ -87,6 +85,12 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   {
     m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
     m_options.catalog.json = true;
+  }
+  else if (option == "--report-json")
+  {
+    m_options.report.out.try_to_set_file_sink(std::next(it), end);
+    m_options.report.type = report_type::json;
+    m_options.quiet = true;
   }
 }
 

@@ -23,7 +23,6 @@ struct step
   std::size_t line;
   std::string id;
   std::string name;
-  std::string file;
   std::string keyword;
   std::string source_location;
   std::string doc_string;
@@ -37,7 +36,6 @@ struct scenario
   std::size_t line;
   std::string name;
   std::string description;
-  std::string file;
   std::string keyword;
   std::vector<step> steps{};
   std::vector<std::string> tags;
@@ -49,7 +47,8 @@ struct feature
   std::string keyword;
   std::string name;
   std::string description;
-  std::string uri;
+  std::string file;
+  std::size_t line;
   std::vector<std::string> tags;
   std::vector<scenario> scenarios{};
 };
