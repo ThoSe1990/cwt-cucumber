@@ -24,6 +24,8 @@
 1. [Custom Parameter Types](#custom-parameter-types)
     1. [Example: Pair of Integers](#example-pair-of-integers)
     1. [Example: Date-Range](#example-date-range)
+1. [Report](#report)
+    1. [Json](#report-json)
 1. [Catalog](#catalog)
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
@@ -705,6 +707,14 @@ Option 2: Initialize a `std::string`
 ```cpp
 std::string str = CUKE_PARAM_ARG(..)
 ```
+
+## Report
+
+In addition to terminal printing, test results can be presented in other formats. See the following subsections for implemented report formats.
+
+### Json
+
+Use `--report-json [optional: file]` with an optional file to print the test results to a json file: 
 
 ## Catalog 
 
