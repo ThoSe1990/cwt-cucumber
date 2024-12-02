@@ -79,12 +79,12 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   else if (option == "--steps-catalog")
   {
     m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.readable_text = true;
+    m_options.catalog.type = catalog_type::readable_text;
   }
   else if (option == "--steps-catalog-json")
   {
     m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.json = true;
+    m_options.catalog.type = catalog_type::json;
   }
   else if (option == "--report-json")
   {

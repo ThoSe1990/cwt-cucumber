@@ -22,6 +22,7 @@ struct feature_file
 class sink
 {
  public:
+   // TODO: FIXME: this does not work properly and throws an error  
   void try_to_set_file_sink(std::span<const char*>::iterator it,
                             std::span<const char*>::iterator end)
   {
@@ -41,9 +42,6 @@ class sink
     }
     if (path.string().find(".feature") != std::string::npos)
     {
-      println(internal::color::red,
-              std::format("Sink: Can't set feature file '{}' as output sink",
-                          path.string()));
       return;
     }
     m_file_stream = std::make_unique<std::ofstream>(path.string());
@@ -71,6 +69,12 @@ class sink
   std::unique_ptr<std::ofstream> m_file_stream;
 };
 
+enum class catalog_type 
+{
+  none = 0,
+  readable_text,
+  json
+};
 enum class report_type
 {
   none = 0,
@@ -83,8 +87,7 @@ struct options
   bool print_help{false};
   struct
   {
-    bool readable_text{false};
-    bool json{false};
+    catalog_type type{catalog_type::none};
     sink out;
   } catalog;
   struct

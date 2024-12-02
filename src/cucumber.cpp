@@ -98,12 +98,12 @@ bool cwt_cucumber::print_help() const noexcept
 bool cwt_cucumber::export_catalog(
     std::size_t json_indents /* = 2 */) const noexcept
 {
-  if (get_options().catalog.readable_text)
+  if (get_options().catalog.type == catalog_type::readable_text)
   {
     catalog::print_readable_text_to_sink();
     return true;
   }
-  if (get_options().catalog.json)
+  if (get_options().catalog.type == catalog_type::json)
   {
     catalog::print_json_to_sink(json_indents);
     return true;
