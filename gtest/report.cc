@@ -52,7 +52,7 @@ TEST_F(report, json_single_scenario)
               "location": ":0"
             },
             "name": "a step with 123 and \"hello world\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           }
@@ -104,7 +104,7 @@ TEST_F(report, json_single_scenario_w_tags)
               "location": ":0"
             },
             "name": "a step with 123 and \"hello world\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           }
@@ -163,7 +163,7 @@ TEST_F(report, json_scenario_outline)
               "location": ":0"
             },
             "name": "a step with 123 and \"hi\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           }
@@ -186,7 +186,7 @@ TEST_F(report, json_scenario_outline)
               "location": ":0"
             },
             "name": "a step with 999 and \"xx\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           }
@@ -242,7 +242,7 @@ TEST_F(report, failing_scenario)
               "location": ":0"
             },
             "name": "a step with 123 and \"hello world\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           },
@@ -254,7 +254,7 @@ TEST_F(report, failing_scenario)
               "location": ":0"
             },
             "name": "this fails",
-            "results": {
+            "result": {
               "error_message": "Expected given condition true, but its false:",
               "status": "failed"
             }
@@ -308,7 +308,7 @@ TEST_F(report, undefined_step)
               "location": ":0"
             },
             "name": "a step with 123 and \"hello world\"",
-            "results": {
+            "result": {
               "status": "passed"
             }
           },
@@ -320,7 +320,7 @@ TEST_F(report, undefined_step)
               "location": ""
             },
             "name": "here is an undefined step",
-            "results": {
+            "result": {
               "error_message": "Undefined step",
               "status": "undefined"
             }

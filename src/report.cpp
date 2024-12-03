@@ -14,6 +14,7 @@ namespace cuke::report
 namespace internal
 {
 
+#ifdef WITH_JSON
 void push_tags(nlohmann::json& field, const std::vector<std::string>& tags)
 {
   for (const std::string tag : tags)
@@ -39,7 +40,8 @@ nlohmann::json to_json(const cuke::table& t)
   }
   return field_table;
 }
-
+#endif  // WITH_JSON
+ 
 }  // namespace internal
 
 std::string as_json(std::size_t indents /* = 2 */)
@@ -89,7 +91,7 @@ std::string as_json(std::size_t indents /* = 2 */)
                 {{"location", step.source_location}},
             },
             {
-                "results",
+                "result",
                 {{"status", results::to_string(step.status)}},
             },
         };
@@ -97,7 +99,7 @@ std::string as_json(std::size_t indents /* = 2 */)
         if (step.status == results::test_status::failed ||
             step.status == results::test_status::undefined)
         {
-          field_step["results"]["error_message"] = step.error_msg;
+          field_step["result"]["error_message"] = step.error_msg;
         }
         if (!step.table.empty())
         {
