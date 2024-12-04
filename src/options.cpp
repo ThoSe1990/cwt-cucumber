@@ -90,7 +90,6 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   {
     m_options.report.out.try_to_set_file_sink(std::next(it), end);
     m_options.report.type = report_type::json;
-    m_options.quiet = true;
   }
 }
 

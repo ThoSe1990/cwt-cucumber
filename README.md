@@ -714,7 +714,7 @@ In addition to terminal printing, test results can be presented in other formats
 
 ### Json
 
-Use `--report-json [optional: file]` to print the test results to a given file or to stdout as json. If this option is set, no prints from cwt-cucumber will be on the terminal (it set `--quiet` internally).
+Use `--report-json [optional: file]` to print the test results to a given file or to stdout as json.
 
 
 ## Catalog 
