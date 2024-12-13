@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.5] 2024-12-13
+
 ### Added 
 - `--report-json [optional: file]` to print the test results to json. ([60](https://github.com/ThoSe1990/cwt-cucumber/pull/60))
   - Without file: Json output is on `stdout` 
