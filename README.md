@@ -51,7 +51,7 @@ cmake -S . -B ./build
 cmake --build ./build -j12
 ```
 
-Provide `nlohmann-json 3.10.5`, in order to enable the [Catalog](#catalog) as json export. You can do so yourself or use `conan 2.x`, so that CMake's `find_package(nlohmann_json)` succeeds: 
+Provide `nlohmann-json 3.10.5`, in order to enable the json features. You can do so yourself or use `conan 2.x`, so that CMake's `find_package(nlohmann_json)` succeeds: 
 
 ```shell 
 conan install . -of ./build --build missing
