@@ -1,5 +1,8 @@
 #pragma once
 
+#include <array>
+#include <string_view>
+
 #include "identifier.hpp"
 
 namespace cuke::internal
@@ -22,18 +25,18 @@ class english : public identifier
 
  private:
   static constexpr std::array<std::pair<std::string_view, token_type>, 12>
-      m_identifiers{{{"Feature:", token_type::feature},
-                     {"Scenario:", token_type::scenario},
-                     {"Example:", token_type::scenario},
-                     {"Scenario Outline:", token_type::scenario_outline},
-                     {"Rule:", token_type::rule},
-                     {"Background:", token_type::background},
-                     {"Examples:", token_type::examples},
-                     {"Given", token_type::step},
-                     {"When", token_type::step},
-                     {"Then", token_type::step},
-                     {"And", token_type::step},
-                     {"But", token_type::step}}};
+      m_identifiers{{{std::string_view("Feature:"), token_type::feature},
+                     {std::string_view("Scenario:"), token_type::scenario},
+                     {std::string_view("Example:"), token_type::scenario},
+                     {std::string_view("Scenario Outline:"), token_type::scenario_outline},
+                     {std::string_view("Rule:"), token_type::rule},
+                     {std::string_view("Background:"), token_type::background},
+                     {std::string_view("Examples:"), token_type::examples},
+                     {std::string_view("Given"), token_type::step},
+                     {std::string_view("When"), token_type::step},
+                     {std::string_view("Then"), token_type::step},
+                     {std::string_view("And"), token_type::step},
+                     {std::string_view("But"), token_type::step}}};
 };
 
 }  // namespace cuke::internal
