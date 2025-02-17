@@ -3,6 +3,7 @@
 #include "table.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,7 @@ enum class node_type
   scenario,
   scenario_outline,
   step,
+  rule,
   example
 };
 
@@ -125,28 +127,55 @@ class background_node : public node
   std::vector<step_node> m_steps;
   std::vector<std::string> m_description;
 };
+class rule_node : public node 
+{
+  public: 
+    rule_node(std::string&& key, std::string&& name, const std::string& file,
+                std::size_t line,
+                std::vector<std::string>&& description)
+      : node(std::move(key), std::move(name), line, file),
+        m_description(std::move(description))
+  {
+  }
 
+  [[nodiscard]] node_type type() const noexcept override
+  {
+    return node_type::rule;
+  }
+  [[nodiscard]] const std::vector<std::string>& description() const noexcept
+  {
+    return m_description;
+  }
+
+  private: 
+    std::vector<std::string> m_description;
+};
 class scenario_node : public node
 {
  public:
   scenario_node(std::string&& key, std::string&& name, const std::string& file,
                 std::size_t line, std::vector<step_node>&& steps,
                 std::vector<std::string>&& tags,
-                std::vector<std::string>&& description)
+                std::vector<std::string>&& description,
+                const std::optional<rule_node>& rule)
       : node(std::move(key), std::move(name), line, file),
         m_steps(std::move(steps)),
         m_tags(std::move(tags)),
-        m_description(std::move(description))
+        m_description(std::move(description)),
+        m_rule(rule)
   {
   }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::scenario;
   }
-
-  const std::vector<step_node> steps() const noexcept { return m_steps; }
-  const std::vector<std::string>& tags() const noexcept { return m_tags; }
-  const std::vector<std::string>& description() const noexcept
+  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept 
+  {
+    return m_rule; 
+  }
+  [[nodiscard]] const std::vector<step_node> steps() const noexcept { return m_steps; }
+  [[nodiscard]] const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  [[nodiscard]] const std::vector<std::string>& description() const noexcept
   {
     return m_description;
   }
@@ -155,6 +184,7 @@ class scenario_node : public node
   std::vector<step_node> m_steps;
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
+  std::optional<rule_node> m_rule;
 };
 
 class example_node : public node
@@ -197,18 +227,20 @@ class example_node : public node
   std::size_t m_line_table_begin;
 };
 
-class scenario_outline_node : public node
+class scenario_outline_node : public node 
 {
  public:
   scenario_outline_node(std::string&& key, std::string&& name,
                         const std::string& file, std::size_t line,
                         std::vector<step_node>&& steps,
                         std::vector<std::string>&& tags,
-                        std::vector<std::string>&& description)
+                        std::vector<std::string>&& description,
+                        const std::optional<rule_node>& rule)
       : node(std::move(key), std::move(name), line, file),
         m_steps(std::move(steps)),
         m_tags(std::move(tags)),
-        m_description(std::move(description))
+        m_description(std::move(description)),
+        m_rule(rule)
   {
   }
   const std::vector<step_node> steps() const noexcept { return m_steps; }
@@ -225,6 +257,10 @@ class scenario_outline_node : public node
   {
     return m_examples;
   }
+  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept 
+  {
+    return m_rule; 
+  }
   void push_example(example_node&& example)
   {
     m_examples.push_back(std::move(example));
@@ -235,6 +271,7 @@ class scenario_outline_node : public node
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
   std::vector<example_node> m_examples;
+  std::optional<rule_node> m_rule;
 };
 
 class feature_node : public node

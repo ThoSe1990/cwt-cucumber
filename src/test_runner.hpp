@@ -296,7 +296,7 @@ class test_runner
       }
       for (std::size_t row = 1; row < example.table().row_count(); ++row)
       {
-        results::new_scenario_outline(scenario_outline, m_tags.container);
+        results::new_scenario_outline(scenario_outline, row, m_tags.container);
         results::scenarios_back().line = example.line_table_begin() + row - 1;
         
         std::size_t row_file_line = example.line_table_begin() + row;

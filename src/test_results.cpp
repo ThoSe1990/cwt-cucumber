@@ -280,7 +280,18 @@ void new_feature(const cuke::ast::feature_node& current)
 void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags)
 {
   scenario result;
-  result.id = std::format("{};{}", test_results().back().id, current.name());
+  if (current.rule().has_value())
+  {
+    result.id = test_results().back().id;
+    result.id += ';';
+    result.id.append(current.rule().value().name());
+    result.id += ';';
+    result.id.append(current.name());
+  }
+  else 
+  {
+    result.id = std::format("{};{}", test_results().back().id, current.name());
+  }
   result.line = current.line();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
@@ -288,10 +299,22 @@ void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std
   result.tags = all_tags;
   test_results().back().scenarios.push_back(result);
 }
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current, const std::vector<std::string> all_tags)
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current, std::size_t number, const std::vector<std::string> all_tags)
 {
   scenario result;
-  result.id = std::format("{};{}", test_results().back().id, current.name());
+  if (current.rule().has_value())
+  {
+    result.id = std::format("({}) ", number);
+    result.id.append(test_results().back().id);
+    result.id += ';';
+    result.id.append(current.rule().value().name());
+    result.id += ';';
+    result.id.append(current.name());
+  }
+  else 
+  {
+    result.id = std::format("({}) {};{}", number, test_results().back().id, current.name());
+  }
   result.line = current.line();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
