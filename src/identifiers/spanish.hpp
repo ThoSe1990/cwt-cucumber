@@ -7,6 +7,7 @@ namespace cuke::internal
 
 class spanish : public identifier
 {
+  std::string_view language() const noexcept override { return "spanish"; }
   std::pair<token_type, std::size_t> get_token(
       std::string_view str) const override
   {
@@ -21,11 +22,13 @@ class spanish : public identifier
   }
 
  private:
-  static constexpr std::array<std::pair<std::string_view, token_type>, 17>
+  static constexpr std::array<std::pair<std::string_view, token_type>, 19>
       m_identifiers{{{"Característica:", token_type::feature},
                      {"Necesidad del negocio:", token_type::feature},
                      {"Requisito:", token_type::feature},
                      {"Antecedentes:", token_type::background},
+                     {"Regla:", token_type::rule},
+                     {"Regla de negocio:", token_type::rule},
                      {"Ejemplo:", token_type::scenario},
                      {"Escenario:", token_type::scenario},
                      {"Esquema del escenario:", token_type::scenario_outline},

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include "identifier.hpp"
 
 namespace cuke::internal
@@ -7,6 +8,10 @@ namespace cuke::internal
 
 class bool_operators : public identifier
 {
+  std::string_view language() const noexcept override 
+  {
+    return "bool operators";
+  }
   std::pair<token_type, std::size_t> get_token(
       std::string_view str) const override
   {
