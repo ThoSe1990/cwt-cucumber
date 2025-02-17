@@ -139,3 +139,27 @@ TEST(spanish_keywords, but)
 )*";
   EXPECT_EQ(scanner(script).scan_token().type, token_type::step);
 }
+TEST(spanish_keywords, regala)
+{
+  const char* script = R"*(
+  # language:  de
+  Regla:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
+}
+TEST(spanish_keywords, regala_2)
+{
+  const char* script = R"*(
+  # language:  de
+  Regla de negocio:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
+}
+TEST(spanish_keywords, ejemplo)
+{
+  const char* script = R"*(
+  # language:  de
+  Ejemplo:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::scenario);
+}

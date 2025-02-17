@@ -148,3 +148,27 @@ TEST(german_keywords, but)
 )*";
   EXPECT_EQ(scanner(script).scan_token().type, token_type::step);
 }
+TEST(german_keywords, rule)
+{
+  const char* script = R"*(
+  # language:  de
+  Rule:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
+}
+TEST(german_keywords, regel)
+{
+  const char* script = R"*(
+  # language:  de
+  Regel:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
+}
+TEST(german_keywords, beispiel)
+{
+  const char* script = R"*(
+  # language:  de
+  Beispiel:
+)*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::scenario);
+}

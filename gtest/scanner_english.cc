@@ -45,3 +45,11 @@ TEST(english_keywords, but)
 {
   EXPECT_EQ(scanner("But").scan_token().type, token_type::step);
 }
+TEST(english_keywords, rule)
+{
+  EXPECT_EQ(scanner("Rule:").scan_token().type, token_type::rule);
+}
+TEST(english_keywords, example)
+{
+  EXPECT_EQ(scanner("Example:").scan_token().type, token_type::scenario);
+}
