@@ -20,7 +20,6 @@ class scanner
   [[nodiscard]] token scan_word(std::size_t length);
   [[nodiscard]] token scan_token_until(const token& end);
   void reset();
-  std::string_view language() const noexcept;
 
  private:
   char advance();

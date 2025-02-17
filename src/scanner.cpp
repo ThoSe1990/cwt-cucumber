@@ -21,10 +21,6 @@ scanner::scanner(std::string_view source, bool_operators)
     : m_source(source), m_identifiers(std::make_shared<bool_operators>())
 {
 }
-std::string_view scanner::language() const noexcept
-{
-  return m_identifiers->language();
-}
 
 void scanner::find_language()
 {

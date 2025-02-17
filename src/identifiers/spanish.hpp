@@ -7,7 +7,6 @@ namespace cuke::internal
 
 class spanish : public identifier
 {
-  std::string_view language() const noexcept override { return "spanish"; }
   std::pair<token_type, std::size_t> get_token(
       std::string_view str) const override
   {
