@@ -21,6 +21,7 @@ scanner::scanner(std::string_view source, bool_operators)
     : m_source(source), m_identifiers(std::make_shared<bool_operators>())
 {
 }
+
 void scanner::find_language()
 {
   for (;;)
@@ -39,25 +40,16 @@ void scanner::find_language()
         break;
       case '#':
       {
-        bool can_change_language = true;
         advance();
+        token language_key = scan_token();
+        if (language_key.value == m_lan_keyword)
+        {
+          token country = scan_token();
+          set_language(country.value);
+        }
         while (!is_at_end() && !end_of_line())
         {
-          skip_whitespaces();
-          if (can_change_language &&
-              m_source.substr(m_pos).starts_with(m_lan_keyword))
-          {
-            m_pos += m_lan_keyword.size();
-            skip_whitespaces();
-            const std::size_t start = m_pos;
-            while (is_alpha(peek())) advance();
-            set_language(m_source.substr(start, m_pos - start));
-          }
-          else
-          {
-            can_change_language = false;
-            advance();
-          }
+          advance();
         }
         break;
       }

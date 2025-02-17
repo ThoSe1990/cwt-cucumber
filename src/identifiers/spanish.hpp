@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 #include "identifier.hpp"
 
 namespace cuke::internal
@@ -21,24 +23,26 @@ class spanish : public identifier
   }
 
  private:
-  static constexpr std::array<std::pair<std::string_view, token_type>, 17>
-      m_identifiers{{{"Característica:", token_type::feature},
-                     {"Necesidad del negocio:", token_type::feature},
-                     {"Requisito:", token_type::feature},
-                     {"Antecedentes:", token_type::background},
-                     {"Ejemplo:", token_type::scenario},
-                     {"Escenario:", token_type::scenario},
-                     {"Esquema del escenario:", token_type::scenario_outline},
-                     {"Ejemplos:", token_type::examples},
-                     {"Dado", token_type::step},
-                     {"Dada", token_type::step},
-                     {"Dados", token_type::step},
-                     {"Dadas", token_type::step},
-                     {"Cuando", token_type::step},
-                     {"Entonces", token_type::step},
-                     {"Y", token_type::step},
-                     {"E", token_type::step},
-                     {"Pero", token_type::step}}};
+  static constexpr std::array<std::pair<std::string_view, token_type>, 19>
+      m_identifiers{{{std::string_view("Característica:"), token_type::feature},
+                     {std::string_view("Necesidad del negocio:"), token_type::feature},
+                     {std::string_view("Requisito:"), token_type::feature},
+                     {std::string_view("Antecedentes:"), token_type::background},
+                     {std::string_view("Regla:"), token_type::rule},
+                     {std::string_view("Regla de negocio:"), token_type::rule},
+                     {std::string_view("Ejemplo:"), token_type::scenario},
+                     {std::string_view("Escenario:"), token_type::scenario},
+                     {std::string_view("Esquema del escenario:"), token_type::scenario_outline},
+                     {std::string_view("Ejemplos:"), token_type::examples},
+                     {std::string_view("Dado"), token_type::step},
+                     {std::string_view("Dada"), token_type::step},
+                     {std::string_view("Dados"), token_type::step},
+                     {std::string_view("Dadas"), token_type::step},
+                     {std::string_view("Cuando"), token_type::step},
+                     {std::string_view("Entonces"), token_type::step},
+                     {std::string_view("Y"), token_type::step},
+                     {std::string_view("E"), token_type::step},
+                     {std::string_view("Pero"), token_type::step}}};
 };
 
 }  // namespace cuke::internal

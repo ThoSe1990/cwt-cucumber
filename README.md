@@ -24,6 +24,7 @@
 1. [Custom Parameter Types](#custom-parameter-types)
     1. [Example: Pair of Integers](#example-pair-of-integers)
     1. [Example: Date-Range](#example-date-range)
+1. [Rules](#rules)
 1. [Report](#report)
     1. [Json](#report-json)
 1. [Catalog](#catalog)
@@ -708,6 +709,26 @@ Option 2: Initialize a `std::string`
 std::string str = CUKE_PARAM_ARG(..)
 ```
 
+## Rules 
+
+In case the a feature file gets bigger you can use `Rule:` to structure it. Rules don't have any impact on the test, its only for better readabilty.
+
+```gherkin
+Feature: The Rules keyword
+
+  Rule: This is a rule, which helps me to structure my feature file 
+    I can also use 'Example:' as scenario keyword: 
+
+  Example: An example is the same as a scenario
+    Given An empty box
+    When I place 1 x "apple" in it
+    Then The box contains 1 item
+
+# ... 
+  Rule: and my next rule 
+# ... 
+```
+
 ## Report
 
 In addition to terminal printing, test results can be presented in other formats. See the following subsections for implemented report formats.
@@ -751,88 +772,8 @@ Step doc string:
       "type": "Given",
       "var_types": []
     },
-    {
-      "definition": "A {word} and {}",
-      "type": "When",
-      "var_types": [
-        "word",
-        "anonymous"
-      ]
-    },
-    {
-      "definition": "I place {int} x {string} in it",
-      "type": "When",
-      "var_types": [
-        "int",
-        "string"
-      ]
-    },
-    {
-      "definition": "There is a doc string:",
-      "type": "When",
-      "var_types": []
-    },
-    {
-      "definition": "There is a doc string as vector:",
-      "type": "When",
-      "var_types": []
-    },
-    {
-      "definition": "I add all items with the raw function:",
-      "type": "When",
-      "var_types": []
-    },
-    {
-      "definition": "I add all items with the hashes function:",
-      "type": "When",
-      "var_types": []
-    },
-    {
-      "definition": "I add the following item with the rows_hash function:",
-      "type": "When",
-      "var_types": []
-    },
-    {
-      "definition": "They will match {string} and {string}",
-      "type": "Then",
-      "var_types": [
-        "string",
-        "string"
-      ]
-    },
-    {
-      "definition": "The {int}. item is {string}",
-      "type": "Then",
-      "var_types": [
-        "int",
-        "string"
-      ]
-    },
-    {
-      "definition": "The box contains {int} item(s)",
-      "type": "Then",
-      "var_types": [
-        "int"
-      ]
-    },
-    {
-      "definition": "{int} item(s) is/are {string}",
-      "type": "Then",
-      "var_types": [
-        "int",
-        "string"
-      ]
-    },
-    {
-      "definition": "doc string:",
-      "type": "Step",
-      "var_types": []
-    }
-  ]
-}
+... 
 ```
-
-
 ## Disclaimer
 
 This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me. I'm not getting paid for this and I do all the implementation in my free time aside from work. 

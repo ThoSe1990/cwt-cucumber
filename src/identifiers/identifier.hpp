@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <string_view>
 
 #include "../token.hpp"
@@ -16,6 +15,7 @@ class identifier
   virtual std::pair<token_type, std::size_t> get_token(
       std::string_view str) const = 0;
 
+ 
  private:
 };
 

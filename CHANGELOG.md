@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added 
+- Rules keyword. Parser supports `Rules:` (and `Example:`) in order to structure feature files ([66](https://github.com/ThoSe1990/cwt-cucumber/pull/66))
+  - Implemented for English, Spanish and German 
+  - No print to stdout 
+  - No additional fields in the json report 
+
 ## [2.5] 2024-12-13
 
 ### Added 

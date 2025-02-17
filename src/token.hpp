@@ -15,6 +15,7 @@ enum class token_type
   background,
   scenario,
   scenario_outline,
+  rule,
   step,
   examples,
   variable,

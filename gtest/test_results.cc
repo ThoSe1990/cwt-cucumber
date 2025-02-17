@@ -189,7 +189,33 @@ TEST_F(test_results_1, undefined_step_2)
   EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::skipped);
 }
+TEST_F(test_results_1, rule_id_check)
+{
+  const char* script = R"*(
+    Feature: A Feature 
+    Rule: A rule
+    Scenario: First Scenario 
+    Given a step 
+  )*";
 
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 1);
+  ASSERT_EQ(cuke::results::scenarios_back().steps.size(), 1);
+
+  const auto& feature = cuke::results::features_back();
+  EXPECT_EQ(feature.id, std::string("A Feature"));
+
+  const auto& scenario = cuke::results::scenarios_back();
+  EXPECT_EQ(scenario.id, std::string("A Feature;A rule;First Scenario"));
+
+  const auto& step = cuke::results::steps_back();
+  EXPECT_EQ(step.id, std::string("A Feature;A rule;First Scenario;a step"));
+}
 class test_results_2 : public ::testing::Test
 {
  protected:
