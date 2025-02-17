@@ -142,7 +142,7 @@ TEST(spanish_keywords, but)
 TEST(spanish_keywords, regala)
 {
   const char* script = R"*(
-  # language:  de
+  # language: es 
   Regla:
 )*";
   EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
@@ -150,7 +150,7 @@ TEST(spanish_keywords, regala)
 TEST(spanish_keywords, regala_2)
 {
   const char* script = R"*(
-  # language:  de
+  # language: es 
   Regla de negocio:
 )*";
   EXPECT_EQ(scanner(script).scan_token().type, token_type::rule);
@@ -158,7 +158,7 @@ TEST(spanish_keywords, regala_2)
 TEST(spanish_keywords, ejemplo)
 {
   const char* script = R"*(
-  # language:  de
+  # language: es 
   Ejemplo:
 )*";
   EXPECT_EQ(scanner(script).scan_token().type, token_type::scenario);
