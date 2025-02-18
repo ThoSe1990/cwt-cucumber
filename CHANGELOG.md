@@ -8,6 +8,9 @@
   - No print to stdout 
   - No additional fields in the json report 
 
+### Changed
+- CMakeLists: Replaced `MSVC_STATIC` option with Cmakes `BUILD_SHARED_LIBS` 
+
 ## [2.5] 2024-12-13
 
 ### Added 
