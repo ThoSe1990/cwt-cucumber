@@ -1,17 +1,14 @@
-
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber VERSION 2.5)
 
 set(CMAKE_CXX_STANDARD 20)
 
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Release)
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the build type" FORCE)
 endif()
 
-option(MSVC_STATIC "Use static runtime libraries with MSVC" OFF)
-
-if(MSVC_STATIC)
-  message(STATUS "MSVC: Setting MT/MTd")  
+if (MSVC AND NOT BUILD_SHARED_LIBS)
+  message(STATUS "MSVC: Setting MT/MTd for static runtime")
   cmake_policy(SET CMP0091 NEW)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
