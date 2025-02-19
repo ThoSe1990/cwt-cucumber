@@ -9,7 +9,7 @@
   - No additional fields in the json report 
 
 ### Removed 
-- CMakeLists: Removed `MSVC_STATIC` flag
+- CMakeLists: Removed `MSVC_STATIC` flag ([68](https://github.com/ThoSe1990/cwt-cucumber/pull/68))
 
 ## [2.5] 2024-12-13
 
