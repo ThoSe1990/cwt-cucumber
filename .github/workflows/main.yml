@@ -71,7 +71,7 @@ jobs:
       - name: build 
         run: |
           conan install . -of build --build missing
-          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake" -DMSVC_STATIC=ON 
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
           cmake --build ./build --config Release -j12
       - name: unittests
         run: .\build\bin\Release\unittests.exe
