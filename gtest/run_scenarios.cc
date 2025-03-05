@@ -2,6 +2,7 @@
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
+#include "table.hpp"
 
 class run_scenarios_1 : public ::testing::Test
 {
@@ -12,7 +13,8 @@ class run_scenarios_1 : public ::testing::Test
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { run_scenarios_1::call_count++; }, "a step"));
+        { run_scenarios_1::call_count++; },
+        "a step"));
   }
 
   static std::size_t call_count;
@@ -103,7 +105,8 @@ class run_scenarios_2 : public ::testing::Test
     expected_string = "";
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&)
         {
           run_scenarios_2::expected_int = values[0].as<unsigned int>();
           run_scenarios_2::expected_string = values[1].as<std::string>();
@@ -158,9 +161,10 @@ class run_scenarios_3 : public ::testing::Test
   {
     call_count = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
-        { ++call_count; }, "a step with {int}"));
+    cuke::registry().push_step(
+        cuke::internal::step([](const cuke::value_array& values, const auto&,
+                                const auto&, const auto&) { ++call_count; },
+                             "a step with {int}"));
   }
   static std::size_t call_count;
 };
@@ -200,7 +204,8 @@ class run_scenarios_4 : public ::testing::Test
     anonymous_value = "";
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step(
-        [](const cuke::value_array& values, const auto&, const auto&, const auto&)
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&)
         {
           ASSERT_EQ(values.size(), 2);
           word_value = values.at(0).as<std::string>();
@@ -271,4 +276,52 @@ TEST_F(run_scenarios_4, floating_points_as_string)
 
   EXPECT_EQ(word_value, "3.12");
   EXPECT_EQ(anonymous_value, "-999.99");
+}
+
+class run_scenarios_5 : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    expected_int = 0;
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto& table)
+        {
+          run_scenarios_5::expected_int = values[0].as<unsigned int>();
+          run_scenarios_5::expected_table = table;
+        },
+        "a step with {int} and a table"));
+  }
+  static std::size_t expected_int;
+  static cuke::table expected_table;
+};
+std::size_t run_scenarios_5::expected_int = 0;
+cuke::table run_scenarios_5::expected_table{};
+
+TEST_F(run_scenarios_5, floating_points_as_string)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <val> and a table 
+    | "col" | <table val> |
+
+    Examples: 
+      | val | table val |
+      | 5   | 999       |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 5);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 2);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
+            std::string("col"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 999);
 }
