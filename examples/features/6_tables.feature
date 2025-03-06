@@ -30,6 +30,16 @@ Feature: This represents tables
 		  | orange | 2        |
 		  | apple  | 3        |
 
+  Scenario Outline: Adding items with raw
+    Given An empty box
+    When I add all items with the raw function:
+      | <item1> and <item2> | <quantity> |
+    Then The box contains <quantity> items
+
+	Examples:
+      | item1 | item2 | quantity |
+		  | cars  | bikes | 2        |
+
   Scenario Outline: This works in scenario outlines too 
     When I add all items with the raw function:
       | <item 1> | <count 1> |

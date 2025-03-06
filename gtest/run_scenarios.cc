@@ -430,6 +430,30 @@ TEST_F(run_scenarios_5, data_table_w_vars_5)
   ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("thats also not a variable \\>"));
   ASSERT_EQ(run_scenarios_5::expected_table[0][2].to_string(), std::string("but here is a variable"));
 }
+TEST_F(run_scenarios_5, data_table_w_vars_6)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with 123 and a table 
+    | <value 1> and <value 2> and <value 3> | and some arbitrary text |
+
+    Examples: 
+      | value 1 | value 2 | value 3        |
+      | 101     | 102     | something else |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 123);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 2);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(), std::string("101 and 102 and something else"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("and some arbitrary text"));
+}
 TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
 {
   const char* script = R"*(
