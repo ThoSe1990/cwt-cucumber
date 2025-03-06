@@ -9,12 +9,9 @@
 namespace cuke::internal
 {
 
-step_finder::step_finder(std::string_view feature) : m_feature_string(feature)
-{
-}
-step_finder::step_finder(std::string_view feature, cuke::table::row hash_row)
-    : m_feature_string(replace_variables(feature.data(), hash_row)),
-      m_hash_row(std::move(hash_row))
+step_finder::step_finder(std::string_view feature, std::optional<cuke::table::row> hash_row)
+    : m_feature_string(hash_row.has_value() ? replace_variables(feature.data(), hash_row.value()) : feature),
+      m_hash_row(std::move(hash_row.value_or(cuke::table::row{})))
 {
 }
 cuke::value_array& step_finder::values() noexcept { return m_values; }

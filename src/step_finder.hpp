@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string_view>
 #include <algorithm>
 
@@ -14,8 +15,7 @@ namespace cuke::internal
 class step_finder
 {
  public:
-  step_finder(std::string_view feature);
-  step_finder(std::string_view feature, cuke::table::row hash_row);
+  step_finder(std::string_view feature, std::optional<cuke::table::row> hash_row = std::nullopt);
 
   [[nodiscard]] bool step_matches(const std::string& pattern);
   [[nodiscard]] cuke::value_array& values() noexcept;

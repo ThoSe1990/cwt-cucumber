@@ -76,23 +76,11 @@ class step_node : public node
   {
     return m_table;
   }
-
-  template <typename Callback>
-  void if_has_table_do(Callback&& callback) const noexcept
+  // FIXME: remove the non const version after creating 
+  // an executable tree or stack
+  [[nodiscard]] cuke::table& data_table() noexcept
   {
-    if (!m_table.empty())
-    {
-      callback(m_table);
-    }
-  }
-
-  template <typename Callback>
-  void if_has_doc_string_do(Callback&& callback) const noexcept
-  {
-    if (m_doc_string.size() > 0)
-    {
-      callback(m_doc_string);
-    }
+    return m_table;
   }
 
  private:

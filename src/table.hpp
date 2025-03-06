@@ -36,6 +36,10 @@ class table
   /**
    * @brief Returns a reference  to the underlying data 
    */
+  [[nodiscard]] value_array& data() noexcept;
+  /**
+   * @brief Returns a const reference  to the underlying data 
+   */
   [[nodiscard]] const value_array& data() const noexcept;
 
   /**
@@ -73,7 +77,7 @@ class table
      */
     [[nodiscard]] std::size_t col_count() const noexcept { return m_col_count; }
 
-   private:
+   // private:
     value_array::const_iterator m_current;
     std::size_t m_col_count;
     std::optional<value_array::const_iterator> m_header{std::nullopt};
