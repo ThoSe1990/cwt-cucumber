@@ -354,6 +354,57 @@ TEST_F(run_scenarios_5, data_table_w_vars_2)
   ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 3);
   ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 4);
 }
+TEST_F(run_scenarios_5, data_table_w_vars_3)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <value 1> and a table 
+    | 1           | 1           |
+    | 9<value 1>9 | 9<value 2>9 |
+
+    Examples: 
+      | value 1 |  value 2  |
+      | 9       | 9         |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 9);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 4);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].as<int>(), 1);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 1);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 999);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 999);
+}
+TEST_F(run_scenarios_5, data_table_w_vars_4)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with 123 and a table 
+    | just <value 1> here | "a string <value 2> ..." |
+
+    Examples: 
+      | value 1   |  value 2   |
+      | some text | with a var |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 123);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 2);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(), std::string("just some text here"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("a string with a var ..."));
+}
 TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
 {
   const char* script = R"*(
