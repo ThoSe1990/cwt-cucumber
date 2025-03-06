@@ -16,6 +16,7 @@
 #include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
+#include "util_regex.hpp"
 #include "context.hpp"
 #include "options.hpp"
 

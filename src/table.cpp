@@ -4,6 +4,7 @@
 #include <utility>
 
 #include "table.hpp"
+#include "util_regex.hpp"
 
 namespace cuke
 {
@@ -190,25 +191,5 @@ std::vector<std::string> table::to_string_array() const noexcept
   }
   return result;
 }
-
-namespace internal
-{
-[[nodiscard]] std::string replace_variables(const std::string& step,
-                                            const table::row& row)
-{
-  std::string result = step;
-  std::regex pattern("<(.*?)>");
-  std::smatch match;
-
-  while (std::regex_search(result, match, pattern))
-  {
-    result =
-        std::regex_replace(result, pattern, row[match[1].str()].to_string(),
-                           std::regex_constants::format_first_only);
-  }
-
-  return result;
-}
-}  // namespace internal
 
 }  // namespace cuke
