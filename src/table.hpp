@@ -36,6 +36,10 @@ class table
   /**
    * @brief Returns a reference  to the underlying data 
    */
+  [[nodiscard]] value_array& data() noexcept;
+  /**
+   * @brief Returns a const reference  to the underlying data 
+   */
   [[nodiscard]] const value_array& data() const noexcept;
 
   /**

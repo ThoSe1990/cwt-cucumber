@@ -300,7 +300,7 @@ class run_scenarios_5 : public ::testing::Test
 std::size_t run_scenarios_5::expected_int = 0;
 cuke::table run_scenarios_5::expected_table{};
 
-TEST_F(run_scenarios_5, floating_points_as_string)
+TEST_F(run_scenarios_5, data_table_w_vars_1)
 {
   const char* script = R"*(
     Feature: a feature 
@@ -324,4 +324,32 @@ TEST_F(run_scenarios_5, floating_points_as_string)
   ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
             std::string("col"));
   ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 999);
+}
+TEST_F(run_scenarios_5, data_table_w_vars_2)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <value 1> and a table 
+    | 1         | 1         |
+    | <value 1> | <value 2> |
+
+    Examples: 
+      | value 1 |  value 2  |
+      | 1       | 2         |
+      | 3       | 4         |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 3);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 4);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].as<int>(), 1);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 1);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 3);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 4);
 }

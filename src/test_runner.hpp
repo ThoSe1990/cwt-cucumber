@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <utility>
 #include <chrono>
 #include <thread>
 
@@ -78,8 +78,33 @@ static void update_step_status()
   results::test_results().add_step(results::steps_back().status);
 }
 
-template <typename... OptionalRow>
-static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
+static void replace_vars_in_tables(cuke::ast::step_node& step,
+                                   const cuke::table::row& row)
+{
+  if (step.data_table().empty())
+  {
+    return;
+  }
+
+  for (cuke::value& cell : step.data_table().data())
+  {
+    const std::string& current = cell.to_string();
+    if (current.starts_with('<') && current.ends_with('>'))
+    {
+      std::string var_name = current.substr(1, current.size() - 2);
+      cell = row[var_name];
+    }
+  }
+}
+
+// FIXME: I just noticed this copy here, which is not the best solution.
+// due to the copy we can modify scenario outlines with their values.
+// A long run solution for me is to create a kind of executable stack
+// or another tree out of the AST, which is already validated and
+// where during execution no operations
+static void execute_step(
+    cuke::ast::step_node step,
+    std::optional<cuke::table::row> example_row = std::nullopt)
 {
   if (skip_step())
   {
@@ -89,8 +114,11 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
     return;
   }
   results::new_step(step);
-  cuke::internal::step_finder finder(step.name(),
-                                     std::forward<OptionalRow>(row)...);
+  if (example_row.has_value() && !step.data_table().empty())
+  {
+    replace_vars_in_tables(step, example_row.value());
+  }
+  cuke::internal::step_finder finder(step.name(), example_row);
   auto it = finder.find(cuke::registry().steps().begin(),
                         cuke::registry().steps().end());
   if (it != cuke::registry().steps().end())
@@ -99,11 +127,10 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
     cuke::registry().run_hook_before_step();
     it->call(finder.values(), step.doc_string(), step.data_table());
     cuke::registry().run_hook_after_step();
-    if constexpr (sizeof...(OptionalRow) > 0)
-    {   
+    if (example_row.has_value())
+    {
       const std::string step_w_example_variables =
-        internal::replace_variables(step.name(),  
-        std::forward<OptionalRow>(row)...);
+          internal::replace_variables(step.name(), example_row.value());
       results::steps_back().name = step_w_example_variables;
     }
   }
@@ -111,7 +138,7 @@ static void execute_step(cuke::ast::step_node step, OptionalRow&&... row)
   {
     results::steps_back().status = results::test_status::undefined;
     results::steps_back().error_msg = "Undefined step";
-  } 
+  }
   update_step_status();
 
   if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
@@ -298,7 +325,7 @@ class test_runner
       {
         results::new_scenario_outline(scenario_outline, row, m_tags.container);
         results::scenarios_back().line = example.line_table_begin() + row - 1;
-        
+
         std::size_t row_file_line = example.line_table_begin() + row;
         cuke::registry().run_hook_before(m_tags.container);
         if (skip_scenario(m_lines, row_file_line))
@@ -310,7 +337,11 @@ class test_runner
         run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
-          execute_step(step, example.table().hash_row(row));
+          execute_step(step, example.table().empty()
+                                 ? std::nullopt
+                                 : std::optional<cuke::table::row>(
+                                       example.table().hash_row(row)));
+
           m_printer->print(step, results::steps_back().status,
                            example.table().hash_row(row));
         }

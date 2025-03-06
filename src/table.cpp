@@ -25,6 +25,7 @@ table::table(value_array data, std::size_t col_count)
 }
 bool table::empty() const noexcept { return m_data.empty(); }
 const value_array& table::data() const noexcept { return m_data; }
+value_array& table::data() noexcept { return m_data; }
 bool table::append_row(value_array&& row)
 {
   if (m_col_count != row.size())

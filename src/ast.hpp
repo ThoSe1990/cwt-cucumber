@@ -76,6 +76,12 @@ class step_node : public node
   {
     return m_table;
   }
+  // FIXME: remove the non const version after creating 
+  // an executable tree or stack
+  [[nodiscard]] cuke::table& data_table() noexcept
+  {
+    return m_table;
+  }
 
   template <typename Callback>
   void if_has_table_do(Callback&& callback) const noexcept
