@@ -13,6 +13,7 @@
 
 ### Fixed
 - Datatables could not contain variables in `Scenario Outlines` ([70](https://github.com/ThoSe1990/cwt-cucumber/pull/70))
+- Cells in Datatables can't contain (multiple) variables and text ([71](https://github.com/ThoSe1990/cwt-cucumber/pull/71))
 
 ## [2.5] 2024-12-13
 
