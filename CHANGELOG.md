@@ -12,7 +12,7 @@
 - CMakeLists: Removed `MSVC_STATIC` flag ([68](https://github.com/ThoSe1990/cwt-cucumber/pull/68))
 
 ### Fixed
-- Datatables could not contain variables in `Scenario Outlines` ([]())
+- Datatables could not contain variables in `Scenario Outlines` ([70](https://github.com/ThoSe1990/cwt-cucumber/pull/70))
 
 ## [2.5] 2024-12-13
 
