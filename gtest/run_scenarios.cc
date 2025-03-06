@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
@@ -352,4 +353,25 @@ TEST_F(run_scenarios_5, data_table_w_vars_2)
   ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 1);
   ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 3);
   ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 4);
+}
+TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario Outline: First Scenario 
+    Given a step with <value 1> and a table 
+    | 1         | 1              |
+    | <value 1> | <non existing> |
+
+    Examples: 
+      | value 1 |  value 2  |
+      | 1       | 2         |
+      | 3       | 4         |
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  EXPECT_THROW({p.for_each_scenario(runner);}, std::runtime_error);
 }

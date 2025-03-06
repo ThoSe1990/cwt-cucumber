@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
@@ -30,6 +31,10 @@ class stdout_print : public ::testing::Test
         cuke::internal::step([](const cuke::value_array& values, const auto&,
                                 const auto&, const auto&) {},
                              "a step with {int} and {string}"));
+    cuke::registry().push_step(
+        cuke::internal::step([](const cuke::value_array& values, const auto&,
+                                const auto&, const auto&) {},
+                             "a step with a table"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,
@@ -128,7 +133,34 @@ TEST_F(stdout_print, scenario_outline)
       output, "[   PASSED    ] Given a step with 123 and \"some text\""));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
 }
+TEST_F(stdout_print, scenario_outline_datatable)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario Outline: a scenario outline
+    Given a step with a table 
+    | 1 | 2 | <var 1> | <var 2> |
 
+    Examples: 
+    | var 1 | var 2       |
+    | 123   | "some text" |
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
+  EXPECT_TRUE(has_substr(output, "<no file>:3"));
+  EXPECT_TRUE(has_substr(
+      output, "[   PASSED    ] Given a step with a table"));
+  EXPECT_TRUE(has_substr(output, "| 1 | 2 | 123 | \"some text\" |"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
+}
 TEST_F(stdout_print, scenario_from_file)
 {
   std::string file_arg =

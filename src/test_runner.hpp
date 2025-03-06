@@ -78,15 +78,15 @@ static void update_step_status()
   results::test_results().add_step(results::steps_back().status);
 }
 
-static void replace_vars_in_tables(cuke::ast::step_node& step,
+static void replace_vars_in_tables(cuke::table& data_table,
                                    const cuke::table::row& row)
 {
-  if (step.data_table().empty())
+  if (data_table.empty())
   {
     return;
   }
 
-  for (cuke::value& cell : step.data_table().data())
+  for (cuke::value& cell : data_table.data())
   {
     const std::string& current = cell.to_string();
     if (current.starts_with('<') && current.ends_with('>'))
@@ -116,7 +116,7 @@ static void execute_step(
   results::new_step(step);
   if (example_row.has_value() && !step.data_table().empty())
   {
-    replace_vars_in_tables(step, example_row.value());
+    replace_vars_in_tables(step.data_table(), example_row.value());
   }
   cuke::internal::step_finder finder(step.name(), example_row);
   auto it = finder.find(cuke::registry().steps().begin(),
@@ -210,8 +210,16 @@ class cuke_printer : public stdout_interface
     ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step_w_example_variables);
     details::print_file_line(step);
-    print_doc_string(step);
-    print_table(step);
+    if (!step.data_table().empty())
+    {
+      cuke::table table_with_vars = step.data_table();
+      replace_vars_in_tables(table_with_vars, row);
+      print_table(table_with_vars);
+    }
+    if (!step.doc_string().empty())
+    {
+      print_doc_string(step.doc_string());
+    }
   }
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
@@ -219,32 +227,31 @@ class cuke_printer : public stdout_interface
     ::cuke::print(results::to_color(status), results::step_prefix(status),
                   step.keyword(), ' ', step.name());
     details::print_file_line(step);
-    print_doc_string(step);
-    print_table(step);
+    if (!step.data_table().empty())
+    {
+      print_table(step.data_table());
+    }
+    if (!step.doc_string().empty())
+    {
+      print_doc_string(step.doc_string());
+    }
   }
-  void print_doc_string(const cuke::ast::step_node& step) const noexcept
+  void print_doc_string(
+      const std::vector<std::string>& doc_string) const noexcept
   {
-    step.if_has_doc_string_do(
-        [](const std::vector<std::string>& doc_string)
-        {
-          ::cuke::println("\"\"\"");
-          for (const std::string& line : doc_string)
-          {
-            ::cuke::println(line);
-          }
-          ::cuke::println("\"\"\"");
-        });
+    ::cuke::println("\"\"\"");
+    for (const std::string& line : doc_string)
+    {
+      ::cuke::println(line);
+    }
+    ::cuke::println("\"\"\"");
   }
-  void print_table(const cuke::ast::step_node& step) const noexcept
+  void print_table(const cuke::table& t) const noexcept
   {
-    step.if_has_table_do(
-        [](const cuke::table& t)
-        {
-          for (const std::string& row : t.to_string_array())
-          {
-            ::cuke::println("  ", row);
-          }
-        });
+    for (const std::string& row : t.to_string_array())
+    {
+      ::cuke::println("  ", row);
+    }
   }
 };
 
