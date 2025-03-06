@@ -5,12 +5,16 @@
 
 #include "value.hpp"
 #include "table.hpp"
+#include "util_regex.hpp"
 
 namespace cuke::internal
 {
 
-step_finder::step_finder(std::string_view feature, std::optional<cuke::table::row> hash_row)
-    : m_feature_string(hash_row.has_value() ? replace_variables(feature.data(), hash_row.value()) : feature),
+step_finder::step_finder(std::string_view feature,
+                         std::optional<cuke::table::row> hash_row)
+    : m_feature_string(hash_row.has_value()
+                           ? replace_variables(feature.data(), hash_row.value())
+                           : feature),
       m_hash_row(std::move(hash_row.value_or(cuke::table::row{})))
 {
 }

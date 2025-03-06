@@ -16,6 +16,7 @@
 #include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
+#include "util_regex.hpp"
 #include "context.hpp"
 #include "options.hpp"
 
@@ -88,12 +89,16 @@ static void replace_vars_in_tables(cuke::table& data_table,
 
   for (cuke::value& cell : data_table.data())
   {
-    const std::string& current = cell.to_string();
-    if (current.starts_with('<') && current.ends_with('>'))
+    if (cell.to_string().find('<') != std::string::npos)
     {
-      std::string var_name = current.substr(1, current.size() - 2);
-      cell = row[var_name];
+      cell = internal::replace_variables(cell.to_string(), row);
     }
+    // const std::string& current = cell.to_string();
+    // if (current.starts_with('<') && current.ends_with('>'))
+    // {
+    //   std::string var_name = current.substr(1, current.size() - 2);
+    //   cell = row[var_name];
+    // }
   }
 }
 

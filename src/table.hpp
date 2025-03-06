@@ -34,11 +34,11 @@ class table
    */
   [[nodiscard]] bool empty() const noexcept;
   /**
-   * @brief Returns a reference  to the underlying data 
+   * @brief Returns a reference  to the underlying data
    */
   [[nodiscard]] value_array& data() noexcept;
   /**
-   * @brief Returns a const reference  to the underlying data 
+   * @brief Returns a const reference  to the underlying data
    */
   [[nodiscard]] const value_array& data() const noexcept;
 
@@ -77,7 +77,7 @@ class table
      */
     [[nodiscard]] std::size_t col_count() const noexcept { return m_col_count; }
 
-   // private:
+    // private:
     value_array::const_iterator m_current;
     std::size_t m_col_count;
     std::optional<value_array::const_iterator> m_header{std::nullopt};
@@ -237,11 +237,5 @@ class table
   value_array m_data;
   std::size_t m_col_count{0};
 };
-
-namespace internal
-{
-[[nodiscard]] std::string replace_variables(const std::string& step,
-                                            const table::row& row);
-}  // namespace internal
 
 }  // namespace cuke

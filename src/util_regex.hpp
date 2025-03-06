@@ -5,9 +5,27 @@
 #include "param_info.hpp"
 #include "expression.hpp"
 #include "registry.hpp"
+#include "table.hpp"
 
 namespace cuke::internal
 {
+
+[[nodiscard]] static std::string replace_variables(const std::string& step,
+                                                   const table::row& row)
+{
+  std::string result = step;
+  std::regex pattern("<(.*?)>");
+  std::smatch match;
+
+  while (std::regex_search(result, match, pattern))
+  {
+    result =
+        std::regex_replace(result, pattern, row[match[1].str()].to_string(),
+                           std::regex_constants::format_first_only);
+  }
+
+  return result;
+}
 
 [[nodiscard]] static std::string create_word_alternation(
     const std::string& step)
