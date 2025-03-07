@@ -171,8 +171,8 @@ class stdout_interface
   virtual void println() const noexcept {}
   virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
   virtual void print(const cuke::ast::scenario_node& scenario) const noexcept {}
-  virtual void print(
-      const cuke::ast::scenario_outline_node& scenario_outline) const noexcept
+  virtual void print(const cuke::ast::scenario_outline_node& scenario_outline,
+                     const table::row& row) const noexcept
   {
   }
   virtual void print(const cuke::ast::step_node& step,
@@ -201,10 +201,11 @@ class cuke_printer : public stdout_interface
     ::cuke::print(scenario.keyword(), ": ", scenario.name());
     details::print_file_line(scenario);
   }
-  void print(const cuke::ast::scenario_outline_node& scenario_outline)
-      const noexcept override
+  void print(const cuke::ast::scenario_outline_node& scenario_outline,
+             const table::row& row) const noexcept override
   {
-    ::cuke::print(scenario_outline.keyword(), ": ", scenario_outline.name());
+    ::cuke::print(scenario_outline.keyword(), ": ",
+                  internal::replace_variables(scenario_outline.name(), row));
     details::print_file_line(scenario_outline);
   }
   void print(const cuke::ast::step_node& step, results::test_status status,
@@ -337,6 +338,8 @@ class test_runner
       {
         results::new_scenario_outline(scenario_outline, row, m_tags.container);
         results::scenarios_back().line = example.line_table_begin() + row - 1;
+        results::scenarios_back().name = internal::replace_variables(
+            scenario_outline.name(), example.table().hash_row(row));
 
         std::size_t row_file_line = example.line_table_begin() + row;
         cuke::registry().run_hook_before(m_tags.container);
@@ -345,7 +348,7 @@ class test_runner
           results::scenarios_back().status = results::test_status::skipped;
           continue;
         }
-        m_printer->print(scenario_outline);
+        m_printer->print(scenario_outline, example.table().hash_row(row));
         run_background();
         for (const cuke::ast::step_node& step : scenario_outline.steps())
         {
@@ -358,8 +361,10 @@ class test_runner
                            example.table().hash_row(row));
         }
         cuke::registry().run_hook_after(m_tags.container);
-        update_scenario_status(scenario_outline.name(), scenario_outline.file(),
-                               row_file_line);
+        update_scenario_status(
+            internal::replace_variables(scenario_outline.name(),
+                                        example.table().hash_row(row)),
+            scenario_outline.file(), row_file_line);
         cuke::internal::reset_context();
         m_printer->println();
       }

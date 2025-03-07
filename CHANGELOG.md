@@ -14,6 +14,7 @@
 ### Fixed
 - Datatables could not contain variables in `Scenario Outlines` ([70](https://github.com/ThoSe1990/cwt-cucumber/pull/70))
 - Cells in Datatables can't contain (multiple) variables and text ([71](https://github.com/ThoSe1990/cwt-cucumber/pull/71))
+- Variable values aren't printed to stdout/json in scenarou outline names ([73](https://github.com/ThoSe1990/cwt-cucumber/pull/73)) 
 
 ## [2.5] 2024-12-13
 
