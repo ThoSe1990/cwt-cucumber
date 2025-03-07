@@ -2,7 +2,7 @@
 Feature: My first feature
   This is my cucumber-cpp hello world
 
-  Scenario Outline: First Scenario Outline
+  Scenario Outline: First Scenario Outline with <item> 
     Given An empty box
     When I place <count> x <item> in it
     Then The box contains <count> items

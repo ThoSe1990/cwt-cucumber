@@ -1,6 +1,7 @@
 #include "test_results.hpp"
 #include "ast.hpp"
 #include "util.hpp"
+#include "util_regex.hpp"
 
 namespace cuke::results
 {
