@@ -1,6 +1,8 @@
 #pragma once
 
 #include "table.hpp"
+#include "value.hpp"
+#include "step_finder.hpp"
 
 #include <cstddef>
 #include <optional>
@@ -71,21 +73,19 @@ class step_node : public node
   {
     return m_doc_string;
   }
-
+  [[nodiscard]] const value_array& values() const noexcept { return m_values; }
   [[nodiscard]] const cuke::table& data_table() const noexcept
   {
     return m_table;
   }
-  // FIXME: remove the non const version after creating 
+  // FIXME: remove the non const version after creating
   // an executable tree or stack
-  [[nodiscard]] cuke::table& data_table() noexcept
-  {
-    return m_table;
-  }
+  [[nodiscard]] cuke::table& data_table() noexcept { return m_table; }
 
  private:
   std::vector<std::string> m_doc_string;
   cuke::table m_table;
+  value_array m_values;
 };
 
 class background_node : public node
@@ -115,12 +115,11 @@ class background_node : public node
   std::vector<step_node> m_steps;
   std::vector<std::string> m_description;
 };
-class rule_node : public node 
+class rule_node : public node
 {
-  public: 
-    rule_node(std::string&& key, std::string&& name, const std::string& file,
-                std::size_t line,
-                std::vector<std::string>&& description)
+ public:
+  rule_node(std::string&& key, std::string&& name, const std::string& file,
+            std::size_t line, std::vector<std::string>&& description)
       : node(std::move(key), std::move(name), line, file),
         m_description(std::move(description))
   {
@@ -135,8 +134,8 @@ class rule_node : public node
     return m_description;
   }
 
-  private: 
-    std::vector<std::string> m_description;
+ private:
+  std::vector<std::string> m_description;
 };
 class scenario_node : public node
 {
@@ -157,12 +156,18 @@ class scenario_node : public node
   {
     return node_type::scenario;
   }
-  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept 
+  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept
   {
-    return m_rule; 
+    return m_rule;
   }
-  [[nodiscard]] const std::vector<step_node> steps() const noexcept { return m_steps; }
-  [[nodiscard]] const std::vector<std::string>& tags() const noexcept { return m_tags; }
+  [[nodiscard]] const std::vector<step_node> steps() const noexcept
+  {
+    return m_steps;
+  }
+  [[nodiscard]] const std::vector<std::string>& tags() const noexcept
+  {
+    return m_tags;
+  }
   [[nodiscard]] const std::vector<std::string>& description() const noexcept
   {
     return m_description;
@@ -215,7 +220,7 @@ class example_node : public node
   std::size_t m_line_table_begin;
 };
 
-class scenario_outline_node : public node 
+class scenario_outline_node : public node
 {
  public:
   scenario_outline_node(std::string&& key, std::string&& name,
@@ -245,9 +250,9 @@ class scenario_outline_node : public node
   {
     return m_examples;
   }
-  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept 
+  [[nodiscard]] const std::optional<rule_node>& rule() const noexcept
   {
-    return m_rule; 
+    return m_rule;
   }
   void push_example(example_node&& example)
   {
@@ -260,6 +265,7 @@ class scenario_outline_node : public node
   std::vector<std::string> m_description;
   std::vector<example_node> m_examples;
   std::optional<rule_node> m_rule;
+  std::vector<scenario_node> m_concrete_scenarios;
 };
 
 class feature_node : public node
