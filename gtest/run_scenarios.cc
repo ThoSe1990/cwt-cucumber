@@ -12,7 +12,7 @@ class run_scenarios_1 : public ::testing::Test
   {
     call_count = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { run_scenarios_1::call_count++; },
         "a step"));
@@ -105,7 +105,7 @@ class run_scenarios_2 : public ::testing::Test
     expected_int = 0;
     expected_string = "";
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&)
         {
@@ -163,7 +163,7 @@ class run_scenarios_3 : public ::testing::Test
     call_count = 0;
     cuke::registry().clear();
     cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
+        cuke::internal::step_definition([](const cuke::value_array& values, const auto&,
                                 const auto&, const auto&) { ++call_count; },
                              "a step with {int}"));
   }
@@ -204,7 +204,7 @@ class run_scenarios_4 : public ::testing::Test
     word_value = "";
     anonymous_value = "";
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&)
         {
@@ -286,7 +286,7 @@ class run_scenarios_5 : public ::testing::Test
   {
     expected_int = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto& table)
         {

@@ -23,7 +23,7 @@ class step_finder
   template <typename Iterator>
   Iterator find(Iterator first, Iterator last)
   {
-    return std::find_if(first, last, [this](const cuke::internal::step& s)
+    return std::find_if(first, last, [this](const cuke::internal::step_definition& s)
                         { return step_matches(s.regex_string()); });
   }
 

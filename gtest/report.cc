@@ -17,14 +17,14 @@ class report : public ::testing::Test
     cuke::results::test_results().clear();
 
     cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
+        cuke::internal::step_definition([](const cuke::value_array& values, const auto&,
                                 const auto&, const auto&) {},
                              "a step with {int} and {string}"));
     cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
+        cuke::internal::step_definition([](const cuke::value_array& values, const auto&,
                                 const auto&, const auto&) {},
                              "another step with {word} and {}"));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&) { cuke::is_true(false); },
         "this fails"));

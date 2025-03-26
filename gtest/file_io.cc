@@ -23,10 +23,10 @@ class file_io : public ::testing::Test
  protected:
   void SetUp() override
   {
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step"));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step with {int} and {string}"));
   }

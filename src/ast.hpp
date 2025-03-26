@@ -1,5 +1,6 @@
 #pragma once
 
+#include "step.hpp"
 #include "table.hpp"
 #include "value.hpp"
 #include "step_finder.hpp"
@@ -85,6 +86,7 @@ class step_node : public node
  private:
   std::vector<std::string> m_doc_string;
   cuke::table m_table;
+  std::optional<internal::step_definition> m_step_definition;
   value_array m_values;
 };
 
