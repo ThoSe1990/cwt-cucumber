@@ -33,12 +33,11 @@
 
 
 Tested compilers: GCC 13, Clang17 and MSVC 19  
-Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan. I didn't push this project to conancenter yet, but you can just create the Conan package locally:  
-
+Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan. I didn't push this project to conancenter yet. The PR there is open so lets wait and see. Until then, just build the package locally and consume it:
 ```shell
 git clone https://github.com/ThoSe1990/cwt-cucumber-conan.git
 cd package
-conan create . --version 2.5 --user cwt --channel stable
+conan create . --version 2.6 --user cwt --channel stable
 ```
 
 Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
