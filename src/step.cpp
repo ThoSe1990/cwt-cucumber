@@ -53,7 +53,7 @@ std::string step_definition::source_location() const noexcept
 {
   return std::format("{}:{}", m_file, m_line);
 }
-// TODO: is this dead?
+
 std::string to_string(step_definition::type type)
 {
   switch (type)

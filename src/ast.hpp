@@ -4,6 +4,7 @@
 #include "table.hpp"
 #include "value.hpp"
 #include "step_finder.hpp"
+#include "registry.hpp"
 
 #include <cstddef>
 #include <optional>
@@ -64,12 +65,19 @@ class step_node : public node
         m_doc_string(std::move(doc_string)),
         m_table(std::move(data_table))
   {
+    internal::step_finder finder(this->name());
+    auto it = finder.find(cuke::registry().steps().begin(),
+                          cuke::registry().steps().end());
+    if (it != cuke::registry().steps().end())
+    {
+      m_values = finder.values();
+      m_step_definition = *it;
+    }
   }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::step;
   }
-
   [[nodiscard]] const std::vector<std::string>& doc_string() const noexcept
   {
     return m_doc_string;
@@ -79,6 +87,14 @@ class step_node : public node
   {
     return m_table;
   }
+  void call() const noexcept
+  {
+    if (m_step_definition.has_value())
+    {
+      m_step_definition->call(m_values, m_doc_string, m_table);
+    }
+    // TODO: else ?
+  }
   // FIXME: remove the non const version after creating
   // an executable tree or stack
   [[nodiscard]] cuke::table& data_table() noexcept { return m_table; }
@@ -86,7 +102,7 @@ class step_node : public node
  private:
   std::vector<std::string> m_doc_string;
   cuke::table m_table;
-  std::optional<internal::step_definition> m_step_definition;
+  std::optional<internal::step_definition> m_step_definition = std::nullopt;
   value_array m_values;
 };
 
@@ -162,7 +178,7 @@ class scenario_node : public node
   {
     return m_rule;
   }
-  [[nodiscard]] const std::vector<step_node> steps() const noexcept
+  [[nodiscard]] const std::vector<step_node>& steps() const noexcept
   {
     return m_steps;
   }

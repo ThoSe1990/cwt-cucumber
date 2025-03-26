@@ -963,21 +963,24 @@ class ast_steps_w_values : public ::testing::Test
 
 TEST_F(ast_steps_w_values, scenario)
 {
-  // const char* script = R"*(
-  // Feature: A Feature
-  //
-  //   Scenario: a scenario
-  //   Given a step with 123 and "hello world"
-  // )*";
-  // cuke::parser p;
-  // p.parse_script(script);
-  // ASSERT_FALSE(p.error());
-  // ASSERT_EQ(p.head().feature().scenarios().size(), 1);
-  //
-  // const cuke::ast::step_node& step =
-  //     static_cast<cuke::ast::step_node&>(*p.head().feature().scenarios().at(0));
-  //
-  // ASSERT_EQ(step.values().size(), 2);
-  // EXPECT_EQ(step.values().at(0).as<int>(), 123);
-  // EXPECT_EQ(step.values().at(1).to_string(), "hello world");
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario: a scenario
+    Given a step with 123 and "hello world"
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_node& scenario = static_cast<cuke::ast::scenario_node&>(
+      *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario.steps().size(), 1);
+
+  const cuke::ast::step_node& step = scenario.steps().at(0);
+
+  ASSERT_EQ(step.values().size(), 2);
+  EXPECT_EQ(step.values().at(0).as<int>(), 123);
+  EXPECT_EQ(step.values().at(1).to_string(), "hello world");
 }
