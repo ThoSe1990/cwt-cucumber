@@ -73,8 +73,7 @@ TEST_F(file_io, run_single_scenario)
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
-  ASSERT_EQ(scenarios.size(), 7);
-  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 6);
+  ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
 TEST_F(file_io, run_single_scenario_wrong_line)
@@ -86,8 +85,8 @@ TEST_F(file_io, run_single_scenario_wrong_line)
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
-  ASSERT_EQ(scenarios.size(), 7);
-  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 7);
+  ASSERT_TRUE(scenarios.empty());
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 0);
 }
 TEST_F(file_io, run_single_scenario_outline)
@@ -100,8 +99,8 @@ TEST_F(file_io, run_single_scenario_outline)
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
-  ASSERT_EQ(scenarios.size(), 7);
-  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 6);
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
 TEST_F(file_io, run_multiple_scenario)
@@ -114,7 +113,7 @@ TEST_F(file_io, run_multiple_scenario)
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   auto& scenarios = cuke::results::features_back().scenarios;
-  ASSERT_EQ(scenarios.size(), 7);
-  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 4);
+  ASSERT_EQ(scenarios.size(), 3);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 3);
 }

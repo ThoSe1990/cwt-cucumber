@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -367,6 +368,30 @@ class parser
   void parse_script(std::string_view script)
   {
     parse_impl(script, "<no file>");
+  }
+
+  const ast::scenario_node* get_scenario_from_line(std::size_t line) const
+  {
+    for (const auto& n : m_head.feature().scenarios())
+    {
+      if (n->type() == ast::node_type::scenario && n->line() == line)
+      {
+        return static_cast<const ast::scenario_node*>(n.get());
+      }
+      else if (n->type() == ast::node_type::scenario_outline)
+      {
+        for (const auto& scenario :
+             static_cast<const ast::scenario_outline_node*>(n.get())
+                 ->concrete_scenarios())
+        {
+          if (scenario.line() == line)
+          {
+            return &scenario;
+          }
+        }
+      }
+    }
+    return nullptr;
   }
 
   template <CukeVisitor Visitor>

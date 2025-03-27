@@ -277,8 +277,9 @@ void new_feature(const cuke::ast::feature_node& current)
   result.description = cuke::internal::to_string(current.description());
   test_results().data().push_back(result);
 }
-// TODO: dry scenario-scenario outline is identical 
-void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags)
+// TODO: dry scenario-scenario outline is identical
+void new_scenario(const cuke::ast::scenario_node& current,
+                  const std::vector<std::string> all_tags)
 {
   scenario result;
   if (current.rule().has_value())
@@ -289,7 +290,7 @@ void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std
     result.id += ';';
     result.id.append(current.name());
   }
-  else 
+  else
   {
     result.id = std::format("{};{}", test_results().back().id, current.name());
   }
@@ -300,7 +301,9 @@ void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std
   result.tags = all_tags;
   test_results().back().scenarios.push_back(result);
 }
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current, std::size_t number, const std::vector<std::string> all_tags)
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current,
+                          std::size_t number,
+                          const std::vector<std::string> all_tags)
 {
   scenario result;
   if (current.rule().has_value())
@@ -312,15 +315,16 @@ void new_scenario_outline(const cuke::ast::scenario_outline_node& current, std::
     result.id += ';';
     result.id.append(current.name());
   }
-  else 
+  else
   {
-    result.id = std::format("({}) {};{}", number, test_results().back().id, current.name());
+    result.id = std::format("({}) {};{}", number, test_results().back().id,
+                            current.name());
   }
   result.line = current.line();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
-  result.tags = all_tags; 
+  result.tags = all_tags;
   test_results().back().scenarios.push_back(result);
 }
 void new_step(const cuke::ast::step_node& current)

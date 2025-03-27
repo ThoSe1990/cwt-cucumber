@@ -276,10 +276,28 @@ class test_runner
     for (const auto& feature : program_arguments().get_options().files)
     {
       init_feature(feature);
-
       parser p;
       p.parse_from_file(feature.path);
-      p.for_each_scenario(*this);
+      if (feature.lines_to_run.empty())
+      {
+        p.for_each_scenario(*this);
+      }
+      else
+      {
+        visit(p.head().feature());
+        for (const std::size_t line : feature.lines_to_run)
+        {
+          if (const ast::scenario_node* scenario =
+                  p.get_scenario_from_line(line))
+          {
+            // TODO: DRY REmove see below
+            push_tags(scenario->tags());
+            cuke::registry().run_hook_before(m_tags.container);
+            results::new_scenario(*scenario, m_tags.container);
+            run_scenario(*scenario);
+          }
+        }
+      }
       clear_tags();
     }
   }
@@ -296,9 +314,40 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
+    // TODO: DRY! This is not nice ... WIP
+    // this was the first three lines in run_scenario
+    // but due to results (json report's id) we need to
+    // distinguish between scenarios and scenario outlines
+    // to be continued;
+    // best is probably to create the ID in the AST, there i know
+    // if a scenario belongs to a scenario outline or not
     push_tags(scenario.tags());
     cuke::registry().run_hook_before(m_tags.container);
     results::new_scenario(scenario, m_tags.container);
+    run_scenario(scenario);
+  }
+  void visit(const cuke::ast::scenario_outline_node& scenario_outline)
+  {
+    int i = 0;
+    for (const auto& scenario : scenario_outline.concrete_scenarios())
+    {
+      // TODO: DRY! This is not nice ... WIP
+      push_tags(scenario.tags());
+      cuke::registry().run_hook_before(m_tags.container);
+      results::new_scenario_outline(scenario_outline, ++i, m_tags.container);
+      run_scenario(scenario);
+    }
+  }
+  void clear_tags() noexcept
+  {
+    m_tags.container.clear();
+    m_tags.count_per_instance.clear();
+  }
+
+ private:
+  // TODO: make this const
+  void run_scenario(const ast::scenario_node& scenario)
+  {
     if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
     {
       results::scenarios_back().status = results::test_status::skipped;
@@ -309,7 +358,36 @@ class test_runner
     run_background();
     for (const cuke::ast::step_node& step : scenario.steps())
     {
-      execute_step(step);
+      if (skip_step())
+      {
+        // TODO: refactro this: now undefined steps are defined as skipped once
+        // we start skipping steps e.g. after a step failed or is undefined.
+        results::new_step(step);
+        results::steps_back().status = results::test_status::skipped;
+        update_step_status();
+        m_printer->print(step, results::steps_back().status);
+        continue;
+      }
+      results::new_step(step);
+      if (step.has_step_definition())
+      {
+        results::set_source_location(step.source_location_definition());
+        cuke::registry().run_hook_before_step();
+        step.call();
+        cuke::registry().run_hook_after_step();
+      }
+      else
+      {
+        results::steps_back().status = results::test_status::undefined;
+        results::steps_back().error_msg = "Undefined step";
+      }
+      update_step_status();
+
+      if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
+      {
+        auto delay = std::stoi(env_p);
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+      }
       m_printer->print(step, results::steps_back().status);
     }
     cuke::registry().run_hook_after(m_tags.container);
@@ -318,62 +396,6 @@ class test_runner
     m_printer->println();
     pop_tags();
   }
-  void visit(const cuke::ast::scenario_outline_node& scenario_outline)
-  {
-    push_tags(scenario_outline.tags());
-    for (const cuke::ast::example_node& example : scenario_outline.examples())
-    {
-      push_tags(example.tags());
-      if (!tags_valid())
-      {
-        pop_tags();
-        continue;
-      }
-      for (std::size_t row = 1; row < example.table().row_count(); ++row)
-      {
-        results::new_scenario_outline(scenario_outline, row, m_tags.container);
-        results::scenarios_back().line = example.line_table_begin() + row - 1;
-        results::scenarios_back().name = internal::replace_variables(
-            scenario_outline.name(), example.table().hash_row(row));
-
-        std::size_t row_file_line = example.line_table_begin() + row;
-        cuke::registry().run_hook_before(m_tags.container);
-        if (skip_scenario(m_lines, row_file_line))
-        {
-          results::scenarios_back().status = results::test_status::skipped;
-          continue;
-        }
-        m_printer->print(scenario_outline, example.table().hash_row(row));
-        run_background();
-        for (const cuke::ast::step_node& step : scenario_outline.steps())
-        {
-          execute_step(step, example.table().empty()
-                                 ? std::nullopt
-                                 : std::optional<cuke::table::row>(
-                                       example.table().hash_row(row)));
-
-          m_printer->print(step, results::steps_back().status,
-                           example.table().hash_row(row));
-        }
-        cuke::registry().run_hook_after(m_tags.container);
-        update_scenario_status(
-            internal::replace_variables(scenario_outline.name(),
-                                        example.table().hash_row(row)),
-            scenario_outline.file(), row_file_line);
-        cuke::internal::reset_context();
-        m_printer->println();
-      }
-      pop_tags();
-    }
-    pop_tags();
-  }
-  void clear_tags() noexcept
-  {
-    m_tags.container.clear();
-    m_tags.count_per_instance.clear();
-  }
-
- private:
   void init_feature(const feature_file& feature) noexcept
   {
     m_lines = feature.lines_to_run;

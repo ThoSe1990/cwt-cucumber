@@ -18,8 +18,7 @@ class test_results_1 : public ::testing::Test
         "this file", 99));
     cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { cuke::is_true(false); },
-        "this fails"));
+        { cuke::is_true(false); }, "this fails"));
   }
 };
 TEST_F(test_results_1, scenario_passed)

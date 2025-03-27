@@ -49,7 +49,8 @@ scenario_node::scenario_node(const scenario_outline_node& scenario_outline,
     : node(scenario_outline.keyword(),
            internal::replace_variables(scenario_outline.name(),
                                        examples.table().hash_row(row)),
-           scenario_outline.line(), scenario_outline.file()),
+           // TODO: refactor +row
+           examples.line() + row, scenario_outline.file()),
       m_tags(scenario_outline.tags()),
       m_rule(scenario_outline.rule())
 {

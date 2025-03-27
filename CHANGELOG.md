@@ -5,6 +5,9 @@
 ### Fixed
 - Scenario outline: Variable replacement in doc-strings and description ([TODO:](https://github.com/ThoSe1990/cwt-cucumber/pull/TODO:))
 
+### Changed
+- Scenario outline is reported with the line number from the `Scenario Outline` keyword (not the examples table anymore) ([TODO:](https://github.com/ThoSe1990/cwt-cucumber/pull/TODO:))
+
 
 ## [2.6] 2025-03-26
 

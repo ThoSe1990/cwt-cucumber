@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <nlohmann/detail/value_t.hpp>
 #include <optional>
 #include <string>
 #include <vector>
@@ -30,12 +31,6 @@ class node
 {
  public:
   node() = default;
-  // node(const node& other)
-  //     : m_keyword(other.keyword()),
-  //       m_name(other.name()),
-  //       m_location{other.line(), other.file()}
-  // {
-  // }
   node(const std::string& keyword, const std::string& name, std::size_t line,
        const std::string& file = "")
       : m_keyword(keyword), m_name(name), m_location{line, file}
@@ -130,6 +125,19 @@ class step_node : public node
     }
     // TODO: else ?
   }
+
+  std::string source_location_definition() const noexcept
+  {
+    if (m_step_definition) [[likely]]
+    {
+      return m_step_definition->source_location();
+    }
+    else [[unlikely]]
+    {
+      return {};
+    }
+  }
+
   // FIXME: remove the non const version after creating
   // an executable tree or stack
   [[nodiscard]] cuke::table& data_table() noexcept { return m_table; }
@@ -322,6 +330,11 @@ class scenario_outline_node : public node
   [[nodiscard]] std::size_t scenarios_count() const noexcept
   {
     return m_concrete_scenarios.size();
+  }
+  [[nodiscard]] const std::vector<scenario_node>& concrete_scenarios()
+      const noexcept
+  {
+    return m_concrete_scenarios;
   }
   [[nodiscard]] const scenario_node& scenario(std::size_t idx) const noexcept
   {

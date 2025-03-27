@@ -27,14 +27,14 @@ class stdout_print : public ::testing::Test
     cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { cuke::is_true(false); }, "this fails"));
-    cuke::registry().push_step(
-        cuke::internal::step_definition([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "a step with {int} and {string}"));
-    cuke::registry().push_step(
-        cuke::internal::step_definition([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "a step with a table"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "a step with {int} and {string}"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "a step with a table"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,
@@ -128,7 +128,7 @@ TEST_F(stdout_print, scenario_outline)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:3"));
+  EXPECT_TRUE(has_substr(output, "<no file>:7"));
   EXPECT_TRUE(has_substr(
       output, "[   PASSED    ] Given a step with 123 and \"some text\""));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
@@ -155,9 +155,8 @@ TEST_F(stdout_print, scenario_outline_datatable)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:3"));
-  EXPECT_TRUE(has_substr(
-      output, "[   PASSED    ] Given a step with a table"));
+  EXPECT_TRUE(has_substr(output, "<no file>:8"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step with a table"));
   EXPECT_TRUE(has_substr(output, "| 1 | 2 | 123 | \"some text\" |"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
 }
