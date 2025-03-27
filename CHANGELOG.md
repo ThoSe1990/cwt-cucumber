@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+- Scenario outline: Variable replacement in doc-strings and description ([TODO:](https://github.com/ThoSe1990/cwt-cucumber/pull/TODO:))
+
+
 ## [2.6] 2025-03-26
 
 ### Added 
