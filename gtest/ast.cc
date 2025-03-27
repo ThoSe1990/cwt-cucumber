@@ -720,7 +720,7 @@ TEST(ast, scenario_outline_w_example)
 {
   const char* script = R"*(
   Scenario Outline: A Scenario Outline
-  Given A step with <var 1> and <var 2> 
+  Given A step with <one> and <two> 
 
   Examples: 
   | one | two | 
@@ -741,7 +741,7 @@ TEST(ast, scenario_outline_w_2_example)
 {
   const char* script = R"*(
   Scenario Outline: A Scenario Outline
-  Given A step with <var 1> and <var 2> 
+  Given A step with <one> and <two> 
 
   Examples: 
   | one | two | 
