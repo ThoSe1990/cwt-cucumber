@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <memory>
 #include <optional>
 #include <ranges>
@@ -254,7 +253,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
 }
 
 [[nodiscard]] static std::vector<std::unique_ptr<cuke::ast::node>>
-parse_scenarios(lexer& lex)
+parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags = {})
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
   std::optional<cuke::ast::rule_node> current_rule = std::nullopt;
@@ -263,6 +262,15 @@ parse_scenarios(lexer& lex)
   {
     current_rule = parse_rule(lex);
     auto tags = parse_tags(lex);
+
+    for (const auto& t : feature_tags)
+    {
+      if (std::find(tags.begin(), tags.end(), t) == tags.end())
+      {
+        tags.push_back(t);
+      }
+    }
+
     if (lex.check(token_type::scenario))
     {
       scenarios.push_back(make_scenario(lex, std::move(tags), current_rule));
@@ -320,7 +328,7 @@ parse_background(lexer& lex)
       token_type::background, token_type::rule, token_type::eof);
   lex.skip_linebreaks();
   auto background = parse_background(lex);
-  auto scenarios = parse_scenarios(lex);
+  auto scenarios = parse_scenarios(lex, tags);
 
   return cuke::ast::feature_node(std::move(key), std::move(name),
                                  lex.filepath(), line, std::move(scenarios),

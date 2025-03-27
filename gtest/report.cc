@@ -110,8 +110,8 @@ TEST_F(report, json_single_scenario_w_tags)
           }
         ],
         "tags": [
-          "@tag1",
-          "@tag2"
+          "@tag2",
+          "@tag1"
         ],
         "type": "First Scenario"
       }
@@ -152,7 +152,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(1) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 3,
+        "line": 6,
         "name": "Scenario Outline",
         "steps": [
           {
@@ -175,7 +175,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(2) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 3,
+        "line": 7,
         "name": "Scenario Outline",
         "steps": [
           {

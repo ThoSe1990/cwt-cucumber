@@ -62,7 +62,10 @@ scenario_node::scenario_node(const scenario_outline_node& scenario_outline,
 
   for (const auto& tag : examples.tags())
   {
-    m_tags.push_back(tag);
+    if (std::find(m_tags.begin(), m_tags.end(), tag) == m_tags.end())
+    {
+      m_tags.push_back(tag);
+    }
   }
 
   for (const auto& step : scenario_outline.steps())

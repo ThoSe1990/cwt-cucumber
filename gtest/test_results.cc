@@ -275,9 +275,10 @@ TEST_F(test_results_2, scenario_w_tags)
 
   const auto& scenarios = cuke::results::test_results().back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
-  ASSERT_EQ(scenarios.at(0).tags.size(), 2);
-  EXPECT_EQ(scenarios.at(0).tags.at(0), std::string("@tag1"));
-  EXPECT_EQ(scenarios.at(0).tags.at(1), std::string("@tag2"));
+  const auto& tags = scenarios.at(0).tags;
+  ASSERT_EQ(tags.size(), 2);
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag1") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag2") != tags.end());
 }
 
 TEST_F(test_results_2, scenario_outline_w_tags)
@@ -302,10 +303,11 @@ TEST_F(test_results_2, scenario_outline_w_tags)
 
   const auto& scenarios = cuke::results::test_results().back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
-  ASSERT_EQ(scenarios.at(0).tags.size(), 3);
-  EXPECT_EQ(scenarios.at(0).tags.at(0), std::string("@tag1"));
-  EXPECT_EQ(scenarios.at(0).tags.at(1), std::string("@tag2"));
-  EXPECT_EQ(scenarios.at(0).tags.at(2), std::string("@tag3"));
+  const auto& tags = scenarios.at(0).tags;
+  ASSERT_EQ(tags.size(), 3);
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag1") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag2") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag3") != tags.end());
 }
 TEST_F(test_results_2, with_description)
 {

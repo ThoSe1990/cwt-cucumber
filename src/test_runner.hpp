@@ -291,20 +291,17 @@ class test_runner
                   p.get_scenario_from_line(line))
           {
             // TODO: DRY REmove see below
-            push_tags(scenario->tags());
-            cuke::registry().run_hook_before(m_tags.container);
-            results::new_scenario(*scenario, m_tags.container);
+            cuke::registry().run_hook_before(scenario->tags());
+            results::new_scenario(*scenario);
             run_scenario(*scenario);
           }
         }
       }
-      clear_tags();
     }
   }
 
   void visit(const cuke::ast::feature_node& feature)
   {
-    push_tags(feature.tags());
     results::new_feature(feature);
     m_printer->print(feature);
     if (feature.has_background())
@@ -321,9 +318,8 @@ class test_runner
     // to be continued;
     // best is probably to create the ID in the AST, there i know
     // if a scenario belongs to a scenario outline or not
-    push_tags(scenario.tags());
-    cuke::registry().run_hook_before(m_tags.container);
-    results::new_scenario(scenario, m_tags.container);
+    cuke::registry().run_hook_before(scenario.tags());
+    results::new_scenario(scenario);
     run_scenario(scenario);
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
@@ -332,26 +328,19 @@ class test_runner
     for (const auto& scenario : scenario_outline.concrete_scenarios())
     {
       // TODO: DRY! This is not nice ... WIP
-      push_tags(scenario.tags());
-      cuke::registry().run_hook_before(m_tags.container);
-      results::new_scenario_outline(scenario_outline, ++i, m_tags.container);
+      cuke::registry().run_hook_before(scenario.tags());
+      results::new_scenario_outline(scenario_outline, ++i);
       run_scenario(scenario);
     }
-  }
-  void clear_tags() noexcept
-  {
-    m_tags.container.clear();
-    m_tags.count_per_instance.clear();
   }
 
  private:
   // TODO: make this const
   void run_scenario(const ast::scenario_node& scenario)
   {
-    if (skip_scenario(m_lines, scenario.line()) || !tags_valid())
+    if (skip_scenario(m_lines, scenario.line()) || !tags_valid(scenario))
     {
       results::scenarios_back().status = results::test_status::skipped;
-      pop_tags();
       return;
     }
     m_printer->print(scenario);
@@ -390,11 +379,10 @@ class test_runner
       }
       m_printer->print(step, results::steps_back().status);
     }
-    cuke::registry().run_hook_after(m_tags.container);
+    cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status(scenario.name(), scenario.file(), scenario.line());
     cuke::internal::reset_context();
     m_printer->println();
-    pop_tags();
   }
   void init_feature(const feature_file& feature) noexcept
   {
@@ -412,41 +400,18 @@ class test_runner
       }
     }
   }
-  [[nodiscard]] bool tags_valid() const noexcept
+  [[nodiscard]] bool tags_valid(
+      const ast::scenario_node& scenario) const noexcept
   {
     if (m_tag_expression.empty())
     {
       return true;
     }
-    return m_tag_expression.evaluate(this->m_tags.container);
+    return m_tag_expression.evaluate(scenario.tags());
   }
   [[nodiscard]] bool has_background() const noexcept
   {
     return m_background != nullptr;
-  }
-  void push_tags(const std::vector<std::string>& new_tags)
-  {
-    std::size_t inserted = 0;
-    for (const auto& tag : new_tags)
-    {
-      if (std::find(m_tags.container.begin(), m_tags.container.end(), tag) ==
-          m_tags.container.end())
-      {
-        m_tags.container.push_back(tag);
-        ++inserted;
-      }
-    }
-    m_tags.count_per_instance.push_back(inserted);
-  }
-  void pop_tags()
-  {
-    const std::size_t count = m_tags.count_per_instance.back();
-    m_tags.count_per_instance.pop_back();
-    if (count > 0)
-    {
-      m_tags.container.erase(m_tags.container.end() - count,
-                             m_tags.container.end());
-    }
   }
 
  private:
@@ -455,11 +420,6 @@ class test_runner
       std::make_unique<cuke_printer>();
   const internal::tag_expression m_tag_expression;
   std::vector<std::size_t> m_lines;
-  struct
-  {
-    std::vector<std::string> container;
-    std::vector<std::size_t> count_per_instance;
-  } m_tags;
 };
 
 }  // namespace cuke

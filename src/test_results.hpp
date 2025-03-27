@@ -107,8 +107,9 @@ class test_result
 }
 
 void new_feature(const cuke::ast::feature_node& current);
-void new_scenario(const cuke::ast::scenario_node& current, const std::vector<std::string> all_tags);
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current, std::size_t number, const std::vector<std::string> all_tags);
+void new_scenario(const cuke::ast::scenario_node& current);
+void new_scenario_outline(const cuke::ast::scenario_outline_node& current,
+                          std::size_t number);
 void new_step(const cuke::ast::step_node& current);
 void set_source_location(const std::string& location);
 void set_feature_to(test_status status);

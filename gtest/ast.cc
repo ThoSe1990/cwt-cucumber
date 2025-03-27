@@ -51,6 +51,134 @@ TEST(ast, parser_scenario_and_scenario_outline)
   ASSERT_FALSE(p.error());
   EXPECT_EQ(p.head().feature().scenarios().size(), 2);
 }
+TEST(ast, parser_tag_inheritance_scenario)
+{
+  const char* script = R"*(
+  @tag1
+  Feature: A Feature
+    @tag2 
+    Scenario: a scenario 
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  EXPECT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_node& scenario = static_cast<cuke::ast::scenario_node&>(
+      *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario.tags().size(), 2);
+  EXPECT_EQ(scenario.tags().at(0), "@tag2");
+  EXPECT_EQ(scenario.tags().at(1), "@tag1");
+}
+TEST(ast, parser_tag_inheritance_scenario_outline1)
+{
+  const char* script = R"*(
+  @tag1
+  Feature: A Feature
+    @tag2 
+    Scenario Outline: a scenario outline 
+    Given a step with <var>
+    @tag3 
+    Examples:  
+    | var |
+    | 1   |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  EXPECT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+
+  ASSERT_EQ(scenario_outline.scenarios_count(), 1);
+
+  const cuke::ast::scenario_node& scenario =
+      scenario_outline.concrete_scenarios().at(0);
+  ASSERT_EQ(scenario.tags().size(), 3);
+  EXPECT_TRUE(std::find(scenario.tags().begin(), scenario.tags().end(),
+                        "@tag1") != scenario.tags().end());
+  EXPECT_TRUE(std::find(scenario.tags().begin(), scenario.tags().end(),
+                        "@tag2") != scenario.tags().end());
+  EXPECT_TRUE(std::find(scenario.tags().begin(), scenario.tags().end(),
+                        "@tag3") != scenario.tags().end());
+}
+TEST(ast, parser_tag_inheritance_scenario_outline2)
+{
+  const char* script = R"*(
+  @tag1
+  Feature: A Feature
+    @tag2 
+    Scenario Outline: a scenario outline 
+    Given a step with <var>
+    @tag2
+    Examples:  
+    | var |
+    | 1   |
+
+    @tag3 @tag1
+    Examples:
+    | var |
+    | 1   |
+    Examples: 
+    | var |
+    | 1   |
+    @tag4 @tag5
+    Examples:
+    | var |
+    | 1   |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  EXPECT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+
+  ASSERT_EQ(scenario_outline.scenarios_count(), 4);
+
+  const cuke::ast::scenario_node& s1 =
+      scenario_outline.concrete_scenarios().at(0);
+  ASSERT_EQ(s1.tags().size(), 2);
+  EXPECT_TRUE(std::find(s1.tags().begin(), s1.tags().end(), "@tag1") !=
+              s1.tags().end());
+  EXPECT_TRUE(std::find(s1.tags().begin(), s1.tags().end(), "@tag2") !=
+              s1.tags().end());
+
+  const cuke::ast::scenario_node& s2 =
+      scenario_outline.concrete_scenarios().at(1);
+  ASSERT_EQ(s2.tags().size(), 3);
+  EXPECT_TRUE(std::find(s2.tags().begin(), s2.tags().end(), "@tag1") !=
+              s2.tags().end());
+  EXPECT_TRUE(std::find(s2.tags().begin(), s2.tags().end(), "@tag2") !=
+              s2.tags().end());
+  EXPECT_TRUE(std::find(s2.tags().begin(), s2.tags().end(), "@tag3") !=
+              s2.tags().end());
+
+  const cuke::ast::scenario_node& s3 =
+      scenario_outline.concrete_scenarios().at(2);
+  ASSERT_EQ(s3.tags().size(), 2);
+  EXPECT_TRUE(std::find(s3.tags().begin(), s3.tags().end(), "@tag1") !=
+              s3.tags().end());
+  EXPECT_TRUE(std::find(s3.tags().begin(), s3.tags().end(), "@tag2") !=
+              s3.tags().end());
+
+  const cuke::ast::scenario_node& s4 =
+      scenario_outline.concrete_scenarios().at(3);
+  ASSERT_EQ(s4.tags().size(), 4);
+  EXPECT_TRUE(std::find(s4.tags().begin(), s4.tags().end(), "@tag1") !=
+              s4.tags().end());
+  EXPECT_TRUE(std::find(s4.tags().begin(), s4.tags().end(), "@tag2") !=
+              s4.tags().end());
+  EXPECT_TRUE(std::find(s4.tags().begin(), s4.tags().end(), "@tag4") !=
+              s4.tags().end());
+  EXPECT_TRUE(std::find(s4.tags().begin(), s4.tags().end(), "@tag5") !=
+              s4.tags().end());
+}
 TEST(ast, parser_scenario_outline_two_examples)
 {
   const char* script = R"*(
