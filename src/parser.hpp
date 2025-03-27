@@ -210,7 +210,7 @@ template <typename... Ts>
 
 [[nodiscard]] static std::unique_ptr<cuke::ast::scenario_outline_node>
 make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
-                        const std::optional<cuke::ast::rule_node>& rule)
+                      const std::optional<cuke::ast::rule_node>& rule)
 {
   const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex, true);
@@ -223,7 +223,8 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
 }
 
 [[nodiscard]] static std::unique_ptr<cuke::ast::scenario_node> make_scenario(
-    lexer& lex, std::vector<std::string>&& tags, const std::optional<cuke::ast::rule_node>& rule)
+    lexer& lex, std::vector<std::string>&& tags,
+    const std::optional<cuke::ast::rule_node>& rule)
 {
   const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex, true);
@@ -234,17 +235,18 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
       std::move(tags), std::move(description), rule);
 }
 
-[[nodiscard]] static std::optional<cuke::ast::rule_node> parse_rule(lexer& lex) 
+[[nodiscard]] static std::optional<cuke::ast::rule_node> parse_rule(lexer& lex)
 {
   if (lex.check(token_type::rule))
   {
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex, true);
-    auto description = parse_description(lex, token_type::scenario_outline, 
-          token_type::scenario, token_type::tag, token_type::eof);
-    
-    return cuke::ast::rule_node(std::move(key), std::move(name), 
-          lex.filepath(), line, std::move(description));
+    auto description = parse_description(lex, token_type::scenario_outline,
+                                         token_type::scenario, token_type::tag,
+                                         token_type::eof);
+
+    return cuke::ast::rule_node(std::move(key), std::move(name), lex.filepath(),
+                                line, std::move(description));
   }
 
   return std::nullopt;
@@ -266,7 +268,8 @@ parse_scenarios(lexer& lex)
     }
     else if (lex.check(token_type::scenario_outline))
     {
-      scenarios.push_back(make_scenario_outline(lex, std::move(tags), current_rule));
+      scenarios.push_back(
+          make_scenario_outline(lex, std::move(tags), current_rule));
     }
     else if (lex.check(token_type::examples) &&
              scenarios.back()->type() == cuke::ast::node_type::scenario_outline)

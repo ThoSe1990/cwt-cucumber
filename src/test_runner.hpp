@@ -79,6 +79,7 @@ static void update_step_status()
   results::test_results().add_step(results::steps_back().status);
 }
 
+// TODO: Delete me
 static void replace_vars_in_tables(cuke::table& data_table,
                                    const cuke::table::row& row)
 {
@@ -93,12 +94,6 @@ static void replace_vars_in_tables(cuke::table& data_table,
     {
       cell = internal::replace_variables(cell.to_string(), row);
     }
-    // const std::string& current = cell.to_string();
-    // if (current.starts_with('<') && current.ends_with('>'))
-    // {
-    //   std::string var_name = current.substr(1, current.size() - 2);
-    //   cell = row[var_name];
-    // }
   }
 }
 

@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include "../src/parser.hpp"
+#include "table.hpp"
 
 TEST(ast, init_obj) { cuke::parser p; }
 
@@ -983,4 +984,244 @@ TEST_F(ast_steps_w_values, scenario)
   ASSERT_EQ(step.values().size(), 2);
   EXPECT_EQ(step.values().at(0).as<int>(), 123);
   EXPECT_EQ(step.values().at(1).to_string(), "hello world");
+}
+TEST_F(ast_steps_w_values, scenario_w_undefined_step)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario: a scenario
+    Given a step with 123 and "hello world"
+    And an undefined step
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_node& scenario = static_cast<cuke::ast::scenario_node&>(
+      *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario.steps().size(), 2);
+
+  EXPECT_TRUE(scenario.steps().at(0).has_step_definition());
+  EXPECT_FALSE(scenario.steps().at(1).has_step_definition());
+}
+
+TEST_F(ast_steps_w_values, scenario_outline)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario
+    Given a step with <value-1> and <value-2> 
+
+    Examples: 
+    | value-1 | value-2 |
+    | 101     | "hello" |
+    | 999     | "world" | 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.steps().size(), 1);
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  ASSERT_EQ(first.steps().size(), 1);
+  ASSERT_EQ(first.steps().at(0).values().size(), 2);
+  EXPECT_EQ(first.steps().at(0).values().at(0).as<int>(), 101);
+  EXPECT_EQ(first.steps().at(0).values().at(1).to_string(), "hello");
+
+  const cuke::ast::scenario_node& second = scenario_outline.scenario(1);
+  ASSERT_EQ(second.steps().size(), 1);
+  ASSERT_EQ(second.steps().at(0).values().size(), 2);
+  EXPECT_EQ(second.steps().at(0).values().at(0).as<int>(), 999);
+  EXPECT_EQ(second.steps().at(0).values().at(1).to_string(), "world");
+}
+TEST_F(ast_steps_w_values, scenario_outline_undefined_steps)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario
+    Given a step with <value-1> and <value-2> 
+    And an undefined step 
+
+    Examples: 
+    | value-1 | value-2 |
+    | 101     | "hello" |
+    | 999     | "world" | 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.steps().size(), 2);
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  ASSERT_EQ(first.steps().size(), 2);
+  EXPECT_TRUE(first.steps().at(0).has_step_definition());
+  EXPECT_FALSE(first.steps().at(1).has_step_definition());
+
+  const cuke::ast::scenario_node& second = scenario_outline.scenario(1);
+  ASSERT_EQ(second.steps().size(), 2);
+  EXPECT_TRUE(second.steps().at(0).has_step_definition());
+  EXPECT_FALSE(second.steps().at(1).has_step_definition());
+}
+TEST_F(ast_steps_w_values,
+       scenario_outline_var_replacement_in_name_and_description)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario with <value-1> and <value-2>
+      we can also use a description 
+      where we see <value-1> 
+      and <value-2> 
+      or both <value-1> and <value-2> 
+    Given a step with <value-1> and <value-2> 
+
+    Examples: 
+    | value-1 | value-2 |
+    | 101     | "hello" |
+    | 999     | "world" | 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.steps().size(), 1);
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  EXPECT_EQ(first.name(), std::string("a scenario with 101 and \"hello\""));
+  ASSERT_EQ(first.description().size(), 4);
+  EXPECT_EQ(first.description().at(0),
+            std::string("we can also use a description"));
+  EXPECT_EQ(first.description().at(1), std::string("where we see 101"));
+  EXPECT_EQ(first.description().at(2), std::string("and \"hello\""));
+  EXPECT_EQ(first.description().at(3),
+            std::string("or both 101 and \"hello\""));
+
+  const cuke::ast::scenario_node& second = scenario_outline.scenario(1);
+  EXPECT_EQ(second.name(), std::string("a scenario with 999 and \"world\""));
+  ASSERT_EQ(second.description().size(), 4);
+  EXPECT_EQ(second.description().at(0),
+            std::string("we can also use a description"));
+  EXPECT_EQ(second.description().at(1), std::string("where we see 999"));
+  EXPECT_EQ(second.description().at(2), std::string("and \"world\""));
+  EXPECT_EQ(second.description().at(3),
+            std::string("or both 999 and \"world\""));
+}
+TEST_F(ast_steps_w_values, scenario_outline_var_replacement_table)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario 
+    Given a step with <value-1> and <value-2> 
+    | 12345678          | "an arbitrary table ..." | here            |
+    | "with: <value-1>" | <value-1>                | "and <value-2>" | 
+
+    Examples: 
+    | value-1 | value-2 |
+    | 101     | "hello" |
+    | 999     | "world" | 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.steps().size(), 1);
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  ASSERT_EQ(first.steps().size(), 1);
+
+  const cuke::table& t1 = first.steps().at(0).data_table();
+  ASSERT_EQ(t1.col_count(), 3);
+  ASSERT_EQ(t1.row_count(), 2);
+  EXPECT_EQ(t1[0][0].as<long>(), 12345678);
+  EXPECT_EQ(t1[0][1].to_string(), "an arbitrary table ...");
+  EXPECT_EQ(t1[0][2].to_string(), "here");
+  EXPECT_EQ(t1[1][0].to_string(), "with: 101");
+  EXPECT_EQ(t1[1][1].as<int>(), 101);
+  EXPECT_EQ(t1[1][2].to_string(), "and \"hello\"");
+
+  const cuke::ast::scenario_node& second = scenario_outline.scenario(1);
+  ASSERT_EQ(second.steps().size(), 1);
+
+  const cuke::table& t2 = second.steps().at(0).data_table();
+  ASSERT_EQ(t2.col_count(), 3);
+  ASSERT_EQ(t2.row_count(), 2);
+  EXPECT_EQ(t2[0][0].as<long>(), 12345678);
+  EXPECT_EQ(t2[0][1].to_string(), "an arbitrary table ...");
+  EXPECT_EQ(t2[0][2].to_string(), "here");
+  EXPECT_EQ(t2[1][0].to_string(), "with: 999");
+  EXPECT_EQ(t2[1][1].as<int>(), 999);
+  EXPECT_EQ(t2[1][2].to_string(), "and \"world\"");
+}
+TEST_F(ast_steps_w_values, scenario_outline_var_replacement_doc_string)
+{
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario 
+    Given a step with <value-1> and <value-2> 
+    """ 
+    and a doc string 
+    with <value-1> and <value-2> 
+    """
+
+    Examples: 
+    | value-1 | value-2 |
+    | 101     | "hello" |
+    | 999     | "world" | 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.steps().size(), 1);
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  ASSERT_EQ(first.steps().size(), 1);
+
+  const std::vector<std::string>& doc_string_1 =
+      first.steps().at(0).doc_string();
+  ASSERT_EQ(doc_string_1.size(), 2);
+  EXPECT_EQ(doc_string_1.at(0), std::string("and a doc string"));
+  EXPECT_EQ(doc_string_1.at(1), std::string("with 101 and \"hello\""));
+
+  const cuke::ast::scenario_node& second = scenario_outline.scenario(1);
+  ASSERT_EQ(second.steps().size(), 1);
+
+  const std::vector<std::string>& doc_string_2 =
+      second.steps().at(0).doc_string();
+  ASSERT_EQ(doc_string_2.size(), 2);
+  EXPECT_EQ(doc_string_2.at(0), std::string("and a doc string"));
+  EXPECT_EQ(doc_string_2.at(1), std::string("with 999 and \"world\""));
 }
