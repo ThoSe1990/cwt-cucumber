@@ -268,7 +268,7 @@ std::string step_prefix(test_status status)
 void new_feature(const cuke::ast::feature_node& current)
 {
   feature result;
-  result.id = current.name();
+  result.id = current.id();
   result.file = current.file();
   result.line = current.line();
   result.tags = current.tags();
@@ -277,54 +277,15 @@ void new_feature(const cuke::ast::feature_node& current)
   result.description = cuke::internal::to_string(current.description());
   test_results().data().push_back(result);
 }
-// TODO: dry scenario-scenario outline is identical
 void new_scenario(const cuke::ast::scenario_node& current)
 {
   scenario result;
-  if (current.rule().has_value())
-  {
-    result.id = test_results().back().id;
-    result.id += ';';
-    result.id.append(current.rule().value().name());
-    result.id += ';';
-    result.id.append(current.name());
-  }
-  else
-  {
-    result.id = std::format("{};{}", test_results().back().id, current.name());
-  }
+  result.id = current.id();
   result.line = current.line();
   result.name = current.name();
   result.description = cuke::internal::to_string(current.description());
   result.keyword = current.keyword();
   result.tags = current.tags();
-  test_results().back().scenarios.push_back(result);
-}
-void new_scenario_outline(const cuke::ast::scenario_outline_node& current,
-                          std::size_t number)
-{
-  scenario result;
-  if (current.rule().has_value())
-  {
-    result.id = std::format("({}) ", number);
-    result.id.append(test_results().back().id);
-    result.id += ';';
-    result.id.append(current.rule().value().name());
-    result.id += ';';
-    result.id.append(current.name());
-  }
-  else
-  {
-    result.id = std::format("({}) {};{}", number, test_results().back().id,
-                            current.name());
-  }
-  // NOTE: number - 1 -> number = scenario number (1 based)
-  const auto& scenario = current.concrete_scenarios().at(number - 1);
-  result.line = scenario.line();
-  result.name = scenario.name();
-  result.description = cuke::internal::to_string(scenario.description());
-  result.keyword = scenario.keyword();
-  result.tags = scenario.tags();
   test_results().back().scenarios.push_back(result);
 }
 void new_step(const cuke::ast::step_node& current)

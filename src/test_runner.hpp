@@ -209,9 +209,6 @@ class test_runner
           if (const ast::scenario_node* scenario =
                   p.get_scenario_from_line(line))
           {
-            // TODO: DRY REmove see below
-            cuke::registry().run_hook_before(scenario->tags());
-            results::new_scenario(*scenario);
             run_scenario(*scenario);
           }
         }
@@ -226,15 +223,6 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
-    // TODO: DRY! This is not nice ... WIP
-    // this was the first three lines in run_scenario
-    // but due to results (json report's id) we need to
-    // distinguish between scenarios and scenario outlines
-    // to be continued;
-    // best is probably to create the ID in the AST, there i know
-    // if a scenario belongs to a scenario outline or not
-    cuke::registry().run_hook_before(scenario.tags());
-    results::new_scenario(scenario);
     run_scenario(scenario);
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
@@ -242,17 +230,15 @@ class test_runner
     int i = 0;
     for (const auto& scenario : scenario_outline.concrete_scenarios())
     {
-      // TODO: DRY! This is not nice ... WIP
-      cuke::registry().run_hook_before(scenario.tags());
-      results::new_scenario_outline(scenario_outline, ++i);
       run_scenario(scenario);
     }
   }
 
  private:
-  // TODO: make this const
-  void run_scenario(const ast::scenario_node& scenario)
+  void run_scenario(const ast::scenario_node& scenario) const
   {
+    cuke::registry().run_hook_before(scenario.tags());
+    results::new_scenario(scenario);
     if (skip_flag() || !tags_valid(scenario))
     {
       results::scenarios_back().status = results::test_status::skipped;
@@ -282,7 +268,7 @@ class test_runner
            m_tag_expression.evaluate(scenario.tags());
   }
 
-  void run_step(const ast::step_node& step)
+  void run_step(const ast::step_node& step) const
   {
     if (skip_step())
     {
