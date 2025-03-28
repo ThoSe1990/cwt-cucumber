@@ -46,12 +46,10 @@ cuke::table replace_vars_in_tables(const cuke::table& data_table,
 scenario_node::scenario_node(const scenario_outline_node& scenario_outline,
                              const example_node& examples, std::size_t row,
                              const background_node* background)
-    // TODO: line should be the table line !
     : node(scenario_outline.keyword(),
            internal::replace_variables(scenario_outline.name(),
                                        examples.table().hash_row(row)),
-           // TODO: refactor +row
-           examples.line() + row, scenario_outline.file()),
+           examples.line_from_table_row(row), scenario_outline.file()),
       m_tags(scenario_outline.tags()),
       m_rule(scenario_outline.rule()),
       m_background(background)

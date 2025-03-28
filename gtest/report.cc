@@ -152,7 +152,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(1) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 6,
+        "line": 7,
         "name": "Scenario Outline",
         "steps": [
           {
@@ -175,7 +175,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(2) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 7,
+        "line": 8,
         "name": "Scenario Outline",
         "steps": [
           {

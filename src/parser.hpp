@@ -152,18 +152,20 @@ template <typename... Ts>
   return v;
 }
 
-[[nodiscard]] static std::pair<cuke::table, std::size_t> parse_table(
-    lexer& lex, bool remove_quotes_from_strings)
+[[nodiscard]] static std::pair<cuke::table, std::vector<std::size_t>>
+parse_table(lexer& lex, bool remove_quotes_from_strings)
 {
   if (!lex.match(token_type::vertical))
   {
     return {};
   }
-  std::size_t line_table_begin = lex.current().line;
+  std::vector<std::size_t> lines;
+  lines.push_back(lex.current().line);
   cuke::table t(parse_row(lex, remove_quotes_from_strings));
   lex.skip_linebreaks();
   while (lex.match(token_type::vertical))
   {
+    lines.push_back(lex.current().line);
     if (!t.append_row(parse_row(lex, remove_quotes_from_strings)) ||
         lex.error())
     {
@@ -172,7 +174,7 @@ template <typename... Ts>
     }
     lex.skip_linebreaks();
   }
-  return std::make_pair(std::move(t), line_table_begin);
+  return std::make_pair(std::move(t), std::move(lines));
 }
 
 [[nodiscard]] static std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
@@ -202,10 +204,11 @@ template <typename... Ts>
   auto [keyword, name] = parse_keyword_and_name(lex, true);
   auto description =
       parse_description(lex, token_type::vertical, token_type::eof);
-  auto [t, line_table_begin] = parse_table(lex, false);
-  return cuke::ast::example_node(cuke::ast::example_node(
-      std::move(keyword), std::move(name), lex.filepath(), line,
-      std::move(tags), std::move(description), std::move(t), line_table_begin));
+  auto [t, lines_from_table_rows] = parse_table(lex, false);
+  return cuke::ast::example_node(std::move(keyword), std::move(name),
+                                 lex.filepath(), line, std::move(tags),
+                                 std::move(description), std::move(t),
+                                 std::move(lines_from_table_rows));
 }
 
 [[nodiscard]] static std::unique_ptr<cuke::ast::scenario_outline_node>

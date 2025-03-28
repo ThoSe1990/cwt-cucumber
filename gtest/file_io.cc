@@ -46,7 +46,7 @@ TEST_F(file_io, run_scenario)
   cuke::test_runner runner;
   runner.run();
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 7);
+  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 9);
   EXPECT_EQ(cuke::results::features_back().status,
             cuke::results::test_status::passed);
   EXPECT_EQ(cuke::results::scenarios_back().status,
@@ -89,7 +89,7 @@ TEST_F(file_io, run_single_scenario_wrong_line)
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 0);
 }
-TEST_F(file_io, run_single_scenario_outline)
+TEST_F(file_io, run_single_scenario_outline_1)
 {
   std::string file_arg =
       std::format("{}/test_files/example.feature:21", unittests::test_dir());
@@ -102,6 +102,34 @@ TEST_F(file_io, run_single_scenario_outline)
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
+}
+TEST_F(file_io, run_single_scenario_outline_2)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature:36", unittests::test_dir());
+  make_args(file_arg);
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
+}
+TEST_F(file_io, run_single_scenario_outline_3)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature:38:36", unittests::test_dir());
+  make_args(file_arg);
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 2);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 2);
 }
 TEST_F(file_io, run_multiple_scenario)
 {

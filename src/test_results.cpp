@@ -318,6 +318,7 @@ void new_scenario_outline(const cuke::ast::scenario_outline_node& current,
     result.id = std::format("({}) {};{}", number, test_results().back().id,
                             current.name());
   }
+  // NOTE: number - 1 -> number = scenario number (1 based)
   const auto& scenario = current.concrete_scenarios().at(number - 1);
   result.line = scenario.line();
   result.name = scenario.name();

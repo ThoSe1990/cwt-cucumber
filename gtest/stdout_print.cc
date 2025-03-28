@@ -128,7 +128,7 @@ TEST_F(stdout_print, scenario_outline)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:7"));
+  EXPECT_TRUE(has_substr(output, "<no file>:8"));
   EXPECT_TRUE(has_substr(
       output, "[   PASSED    ] Given a step with 123 and \"some text\""));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
@@ -155,7 +155,7 @@ TEST_F(stdout_print, scenario_outline_datatable)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:8"));
+  EXPECT_TRUE(has_substr(output, "<no file>:9"));
   EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step with a table"));
   EXPECT_TRUE(has_substr(output, "| 1 | 2 | 123 | \"some text\" |"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));

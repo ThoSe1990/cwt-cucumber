@@ -267,12 +267,12 @@ class example_node : public node
   example_node(std::string&& key, std::string&& name, const std::string& file,
                std::size_t line, std::vector<std::string>&& tags,
                std::vector<std::string>&& description, cuke::table&& table,
-               std::size_t line_table_begin)
+               std::vector<std::size_t>&& lines_from_table)
       : node(std::move(key), std::move(name), line, file),
         m_tags(std::move(tags)),
         m_description(std::move(description)),
         m_table(std::move(table)),
-        m_line_table_begin(line_table_begin)
+        m_lines_from_table_rows(lines_from_table)
   {
   }
 
@@ -289,20 +289,16 @@ class example_node : public node
     return m_description;
   }
   [[nodiscard]] const cuke::table& table() const noexcept { return m_table; }
-  // FIXME: with this implementation an empty line in a table
-  // does not consider running a specific line anymore. it does not take
-  // the empty line into acocount since in the test_runner this value is just
-  // incremented.
-  [[nodiscard]] std::size_t line_table_begin() const noexcept
+  [[nodiscard]] std::size_t line_from_table_row(std::size_t row) const noexcept
   {
-    return m_line_table_begin;
+    return m_lines_from_table_rows.at(row);
   }
 
  private:
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
   cuke::table m_table;
-  std::size_t m_line_table_begin;
+  std::vector<std::size_t> m_lines_from_table_rows;
 };
 
 class scenario_outline_node : public node
