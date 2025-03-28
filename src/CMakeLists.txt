@@ -5,6 +5,7 @@ find_package(nlohmann_json)
 
 
 set(cucumber-src 
+  ${CMAKE_CURRENT_SOURCE_DIR}/ast.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_results.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/registry.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/catalog.cpp

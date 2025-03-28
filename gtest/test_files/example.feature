@@ -25,3 +25,15 @@ Feature: example feature
       | var 1 | var 2             |
       | 1     | "sh!t happens"    | 
       | 1     | "some %^&() text" | 
+
+  Scenario Outline: with empty lines 
+    lets run scenarios in line 36 and 38 
+    Given a step with <var 1> and <var 2> 
+
+    Examples: first examples 
+      | var 1 | var 2         |
+
+      | 1     | "hello world" | 
+
+      | 1     | "foo bar baz" | 
+

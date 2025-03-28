@@ -23,7 +23,7 @@ class run_scenario_hooks : public ::testing::Test
     cuke::registry().push_hook_before_step(hook([]() { ++before_step_calls; }));
     cuke::registry().push_hook_after_step(hook([]() { ++after_step_calls; }));
 
-    cuke::registry().push_step(step(
+    cuke::registry().push_step(step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step"));
   }
@@ -86,11 +86,11 @@ class run_scenario_hook_skip : public ::testing::Test
     cuke::registry().clear();
 
     cuke::registry().push_step(
-        step([](const cuke::value_array&, const auto&, const auto&, const auto&)
+      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
              { ++calls; }, "a step"));
 
     cuke::registry().push_step(
-        step([](const cuke::value_array&, const auto&, const auto&, const auto&)
+      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
              { ++calls; }, "a step with {int}"));
 
     cuke::registry().push_hook_before(

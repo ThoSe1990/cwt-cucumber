@@ -12,10 +12,9 @@ class run_scenarios_1 : public ::testing::Test
   {
     call_count = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { run_scenarios_1::call_count++; },
-        "a step"));
+        { run_scenarios_1::call_count++; }, "a step"));
   }
 
   static std::size_t call_count;
@@ -105,7 +104,7 @@ class run_scenarios_2 : public ::testing::Test
     expected_int = 0;
     expected_string = "";
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&)
         {
@@ -162,10 +161,10 @@ class run_scenarios_3 : public ::testing::Test
   {
     call_count = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) { ++call_count; },
-                             "a step with {int}"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) { ++call_count; },
+        "a step with {int}"));
   }
   static std::size_t call_count;
 };
@@ -204,7 +203,7 @@ class run_scenarios_4 : public ::testing::Test
     word_value = "";
     anonymous_value = "";
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&)
         {
@@ -286,7 +285,7 @@ class run_scenarios_5 : public ::testing::Test
   {
     expected_int = 0;
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto& table)
         {
@@ -366,7 +365,7 @@ TEST_F(run_scenarios_5, data_table_w_vars_3)
 
     Examples: 
       | value 1 |  value 2  |
-      | 9       | 9         |
+      | 9       | 0         |
   )*";
 
   cuke::parser p;
@@ -379,7 +378,7 @@ TEST_F(run_scenarios_5, data_table_w_vars_3)
   ASSERT_EQ(run_scenarios_5::expected_table[0][0].as<int>(), 1);
   ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 1);
   ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 999);
-  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 999);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 909);
 }
 TEST_F(run_scenarios_5, data_table_w_vars_4)
 {
@@ -402,8 +401,10 @@ TEST_F(run_scenarios_5, data_table_w_vars_4)
 
   EXPECT_EQ(run_scenarios_5::expected_int, 123);
   ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 2);
-  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(), std::string("just some text here"));
-  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("a string with a var ..."));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
+            std::string("just some text here"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(),
+            std::string("a string with a var ..."));
 }
 TEST_F(run_scenarios_5, data_table_w_vars_5)
 {
@@ -426,9 +427,12 @@ TEST_F(run_scenarios_5, data_table_w_vars_5)
 
   EXPECT_EQ(run_scenarios_5::expected_int, 123);
   ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 3);
-  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(), std::string("\\<thats not a variable"));
-  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("thats also not a variable \\>"));
-  ASSERT_EQ(run_scenarios_5::expected_table[0][2].to_string(), std::string("but here is a variable"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
+            std::string("\\<thats not a variable"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(),
+            std::string("thats also not a variable \\>"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][2].to_string(),
+            std::string("but here is a variable"));
 }
 TEST_F(run_scenarios_5, data_table_w_vars_6)
 {
@@ -451,8 +455,10 @@ TEST_F(run_scenarios_5, data_table_w_vars_6)
 
   EXPECT_EQ(run_scenarios_5::expected_int, 123);
   ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 2);
-  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(), std::string("101 and 102 and something else"));
-  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(), std::string("and some arbitrary text"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
+            std::string("101 and 102 and something else"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(),
+            std::string("and some arbitrary text"));
 }
 TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
 {
@@ -471,7 +477,5 @@ TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
   )*";
 
   cuke::parser p;
-  p.parse_script(script);
-  cuke::test_runner runner;
-  EXPECT_THROW({p.for_each_scenario(runner);}, std::runtime_error);
+  EXPECT_THROW({ p.parse_script(script); }, std::runtime_error);
 }

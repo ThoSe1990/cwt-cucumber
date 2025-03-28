@@ -16,15 +16,15 @@ class report : public ::testing::Test
     cuke::registry().clear();
     cuke::results::test_results().clear();
 
-    cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "a step with {int} and {string}"));
-    cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "another step with {word} and {}"));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "a step with {int} and {string}"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "another step with {word} and {}"));
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array& values, const auto&, const auto&,
            const auto&) { cuke::is_true(false); },
         "this fails"));
@@ -110,8 +110,8 @@ TEST_F(report, json_single_scenario_w_tags)
           }
         ],
         "tags": [
-          "@tag1",
-          "@tag2"
+          "@tag2",
+          "@tag1"
         ],
         "type": "First Scenario"
       }
@@ -152,7 +152,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(1) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 6,
+        "line": 7,
         "name": "Scenario Outline",
         "steps": [
           {
@@ -175,7 +175,7 @@ TEST_F(report, json_scenario_outline)
         "description": "",
         "id": "(2) A Feature;Scenario Outline",
         "keyword": "Scenario Outline",
-        "line": 7,
+        "line": 8,
         "name": "Scenario Outline",
         "steps": [
           {

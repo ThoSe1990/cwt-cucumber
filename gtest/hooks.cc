@@ -15,7 +15,7 @@ class hooks_before : public ::testing::Test
     cuke::registry().push_hook_before(
         cuke::internal::hook([]() { hook_called = true; }));
 
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         {
           ASSERT_TRUE(hook_called);
@@ -57,7 +57,7 @@ class hooks_after : public ::testing::Test
     cuke::registry().push_hook_after(
         cuke::internal::hook([]() { hook_called = true; }));
 
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);
@@ -98,7 +98,7 @@ class hooks_after_tagged : public ::testing::Test
     cuke::registry().push_hook_after(
         cuke::internal::hook([]() { hook_called = true; }, "@tag"));
 
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);
@@ -158,7 +158,7 @@ class hooks_before_all : public ::testing::Test
     cuke::registry().push_hook_before_all(
         cuke::internal::hook([]() { hook_called = true; }));
 
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         {
           ASSERT_TRUE(hook_called);
@@ -203,7 +203,7 @@ class hooks_after_all : public ::testing::Test
     cuke::registry().push_hook_after_all(
         cuke::internal::hook([]() { hook_called = true; }));
 
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         {
           ASSERT_FALSE(hook_called);

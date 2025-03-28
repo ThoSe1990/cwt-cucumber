@@ -10,10 +10,10 @@ class run_scenarios_rule : public ::testing::Test
   void SetUp() override
   {
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { }, "a step"));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { }, "with {int}"));
   }
