@@ -224,7 +224,8 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
 
 [[nodiscard]] static std::unique_ptr<cuke::ast::scenario_node> make_scenario(
     lexer& lex, std::vector<std::string>&& tags,
-    const std::optional<cuke::ast::rule_node>& rule)
+    const std::optional<cuke::ast::rule_node>& rule,
+    const ast::background_node* background)
 {
   const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex, true);
@@ -232,7 +233,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
   auto steps = parse_steps(lex);
   return std::make_unique<cuke::ast::scenario_node>(
       std::move(key), std::move(name), lex.filepath(), line, std::move(steps),
-      std::move(tags), std::move(description), rule);
+      std::move(tags), std::move(description), rule, background);
 }
 
 [[nodiscard]] static std::optional<cuke::ast::rule_node> parse_rule(lexer& lex)
@@ -253,7 +254,8 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
 }
 
 [[nodiscard]] static std::vector<std::unique_ptr<cuke::ast::node>>
-parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags = {})
+parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags,
+                const ast::background_node* background)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
   std::optional<cuke::ast::rule_node> current_rule = std::nullopt;
@@ -262,7 +264,6 @@ parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags = {})
   {
     current_rule = parse_rule(lex);
     auto tags = parse_tags(lex);
-
     for (const auto& t : feature_tags)
     {
       if (std::find(tags.begin(), tags.end(), t) == tags.end())
@@ -273,7 +274,8 @@ parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags = {})
 
     if (lex.check(token_type::scenario))
     {
-      scenarios.push_back(make_scenario(lex, std::move(tags), current_rule));
+      scenarios.push_back(
+          make_scenario(lex, std::move(tags), current_rule, background));
     }
     else if (lex.check(token_type::scenario_outline))
     {
@@ -284,7 +286,7 @@ parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags = {})
              scenarios.back()->type() == cuke::ast::node_type::scenario_outline)
     {
       static_cast<cuke::ast::scenario_outline_node&>(*scenarios.back())
-          .push_example(parse_example(lex, std::move(tags)));
+          .push_example(parse_example(lex, std::move(tags)), background);
     }
     else
     {
@@ -328,7 +330,7 @@ parse_background(lexer& lex)
       token_type::background, token_type::rule, token_type::eof);
   lex.skip_linebreaks();
   auto background = parse_background(lex);
-  auto scenarios = parse_scenarios(lex, tags);
+  auto scenarios = parse_scenarios(lex, tags, background.get());
 
   return cuke::ast::feature_node(std::move(key), std::move(name),
                                  lex.filepath(), line, std::move(scenarios),

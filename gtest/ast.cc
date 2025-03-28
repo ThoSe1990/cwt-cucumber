@@ -395,7 +395,7 @@ TEST(ast, scenario_w_steps)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_EQ(scenarios.size(), 1);
 }
 TEST(ast, scenarios_w_steps)
@@ -410,7 +410,7 @@ TEST(ast, scenarios_w_steps)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_EQ(scenarios.size(), 2);
 }
 TEST(ast, scenarios_wo_name)
@@ -422,7 +422,7 @@ TEST(ast, scenarios_wo_name)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_TRUE(scenarios.at(0)->name().empty());
 }
@@ -438,7 +438,7 @@ TEST(ast, scenario_w_description)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_EQ(scenarios.size(), 1);
 
   cuke::ast::scenario_node& scenario =
@@ -461,7 +461,7 @@ TEST(ast, scenario_w_tags)
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
 
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_EQ(scenarios.size(), 1);
 
   cuke::ast::scenario_node& scenario =
@@ -857,7 +857,7 @@ TEST(ast, scenario_outline_w_example)
 
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
 
@@ -882,7 +882,7 @@ TEST(ast, scenario_outline_w_2_example)
 
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
 
@@ -904,7 +904,7 @@ TEST(ast, example_w_tags)
   )*";
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
   ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);
@@ -934,7 +934,7 @@ TEST(ast, example_w_name_description)
   )*";
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
   ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);
@@ -974,7 +974,7 @@ TEST(ast, two_example_w_name_description)
 
   cuke::internal::lexer lex(script);
   lex.advance();  // TODO delete me
-  auto scenarios = cuke::internal::parse_scenarios(lex);
+  auto scenarios = cuke::internal::parse_scenarios(lex, {}, nullptr);
   ASSERT_FALSE(lex.error());
   ASSERT_EQ(scenarios.size(), 1);
   ASSERT_EQ(scenarios.back()->type(), cuke::ast::node_type::scenario_outline);

@@ -211,16 +211,19 @@ class scenario_node : public node
                 std::size_t line, std::vector<step_node>&& steps,
                 std::vector<std::string>&& tags,
                 std::vector<std::string>&& description,
-                const std::optional<rule_node>& rule)
+                const std::optional<rule_node>& rule,
+                const background_node* background)
       : node(std::move(key), std::move(name), line, file),
         m_steps(std::move(steps)),
         m_tags(std::move(tags)),
         m_description(std::move(description)),
-        m_rule(rule)
+        m_rule(rule),
+        m_background(background)
   {
   }
   scenario_node(const scenario_outline_node& scenario_outline,
-                const example_node& examples, std::size_t row);
+                const example_node& examples, std::size_t row,
+                const background_node* background);
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::scenario;
@@ -241,12 +244,21 @@ class scenario_node : public node
   {
     return m_description;
   }
+  [[nodiscard]] bool has_background() const noexcept
+  {
+    return m_background != nullptr;
+  }
+  [[nodiscard]] const background_node& background() const noexcept
+  {
+    return *m_background;
+  }
 
  private:
   std::vector<step_node> m_steps;
   std::vector<std::string> m_tags;
   std::vector<std::string> m_description;
   std::optional<rule_node> m_rule;
+  const background_node* m_background;
 };
 
 class example_node : public node
@@ -340,13 +352,14 @@ class scenario_outline_node : public node
   {
     return m_concrete_scenarios[idx];
   }
-  void push_example(example_node&& example)
+  void push_example(example_node&& example, const background_node* background)
   {
     m_examples.push_back(std::move(example));
     const auto& current = m_examples.back();
     for (std::size_t i = 1; i < current.table().row_count(); ++i)
     {
-      m_concrete_scenarios.push_back(scenario_node(*this, current, i));
+      m_concrete_scenarios.push_back(
+          scenario_node(*this, current, i, background));
     }
   }
 

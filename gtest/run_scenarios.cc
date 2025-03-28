@@ -365,7 +365,7 @@ TEST_F(run_scenarios_5, data_table_w_vars_3)
 
     Examples: 
       | value 1 |  value 2  |
-      | 9       | 9         |
+      | 9       | 0         |
   )*";
 
   cuke::parser p;
@@ -378,7 +378,7 @@ TEST_F(run_scenarios_5, data_table_w_vars_3)
   ASSERT_EQ(run_scenarios_5::expected_table[0][0].as<int>(), 1);
   ASSERT_EQ(run_scenarios_5::expected_table[0][1].as<int>(), 1);
   ASSERT_EQ(run_scenarios_5::expected_table[1][0].as<int>(), 999);
-  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 999);
+  ASSERT_EQ(run_scenarios_5::expected_table[1][1].as<int>(), 909);
 }
 TEST_F(run_scenarios_5, data_table_w_vars_4)
 {
