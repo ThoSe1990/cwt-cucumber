@@ -241,6 +241,7 @@ class test_runner
     results::new_scenario(scenario);
     if (skip_flag() || !tags_valid(scenario))
     {
+      std::cout << "HELLO" << std::endl;
       results::scenarios_back().status = results::test_status::skipped;
       return;
     }
