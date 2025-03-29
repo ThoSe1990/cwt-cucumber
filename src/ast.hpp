@@ -138,15 +138,10 @@ class step_node : public node
     }
   }
 
-  // FIXME: remove the non const version after creating
-  // an executable tree or stack
-  [[nodiscard]] cuke::table& data_table() noexcept { return m_table; }
-
  private:
   std::vector<std::string> m_doc_string;
   cuke::table m_table;
   bool m_has_step_definition;
-  // TODO: make this a unique ptr?
   const internal::step_definition* m_step_definition;
   value_array m_values;
 };
