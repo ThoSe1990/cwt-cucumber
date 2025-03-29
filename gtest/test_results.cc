@@ -126,7 +126,7 @@ TEST_F(test_results_1, scenario_fails_2)
     Feature: a feature 
     Scenario: First Scenario 
     Given this fails 
-    And this is skipped
+    And this fails 
   )*";
 
   cuke::parser p;
@@ -172,7 +172,7 @@ TEST_F(test_results_1, undefined_step_2)
     Scenario: First Scenario 
     Given this fails 
     And an undefined step ...
-    Then this is skipped
+    Then this fails 
   )*";
 
   cuke::parser p;
@@ -185,6 +185,8 @@ TEST_F(test_results_1, undefined_step_2)
             cuke::results::test_status::failed);
   EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::failed);
+  EXPECT_EQ(cuke::results::steps_back().status,
+            cuke::results::test_status::skipped);
   EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::skipped);
 }

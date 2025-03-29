@@ -123,7 +123,6 @@ class step_node : public node
     {
       m_step_definition->call(m_values, m_doc_string, m_table);
     }
-    // TODO: else ?
   }
 
   std::string source_location_definition() const noexcept

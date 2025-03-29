@@ -272,10 +272,10 @@ class test_runner
   {
     if (skip_step())
     {
-      // TODO: refactro this: now undefined steps are defined as skipped once
-      // we start skipping steps e.g. after a step failed or is undefined.
       results::new_step(step);
-      results::steps_back().status = results::test_status::skipped;
+      results::steps_back().status = step.has_step_definition()
+                                         ? results::test_status::skipped
+                                         : results::test_status::undefined;
       update_step_status();
       m_printer->print(step, results::steps_back().status);
       return;
