@@ -13,7 +13,7 @@ using step_callback = void (*)(const cuke::value_array& args,
                                const std::vector<std::string>& doc_string,
                                const cuke::table& t);
 
-class step
+class step_definition
 {
  public:
   enum class type
@@ -24,9 +24,10 @@ class step
     step
   };
 
-  step(step_callback cb, const std::string& definition,
-       type step_type = type::step, const std::string& function_name = "",
-       const std::string& file = "", std::size_t line = 0);
+  step_definition(step_callback cb, const std::string& definition,
+                  type step_type = type::step,
+                  const std::string& function_name = "",
+                  const std::string& file = "", std::size_t line = 0);
   const std::string& function_name() const noexcept;
   const std::string& definition() const noexcept;
   const std::vector<param_info>& type_info() const noexcept;
@@ -47,6 +48,6 @@ class step
   type m_type;
 };
 
-[[nodiscard]] std::string to_string(step::type type);
+[[nodiscard]] std::string to_string(step_definition::type type);
 
 }  // namespace cuke::internal

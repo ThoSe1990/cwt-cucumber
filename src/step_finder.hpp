@@ -15,7 +15,8 @@ namespace cuke::internal
 class step_finder
 {
  public:
-  step_finder(std::string_view feature, std::optional<cuke::table::row> hash_row = std::nullopt);
+  step_finder(std::string_view feature,
+              std::optional<cuke::table::row> hash_row = std::nullopt);
 
   [[nodiscard]] bool step_matches(const std::string& pattern);
   [[nodiscard]] cuke::value_array& values() noexcept;
@@ -23,7 +24,8 @@ class step_finder
   template <typename Iterator>
   Iterator find(Iterator first, Iterator last)
   {
-    return std::find_if(first, last, [this](const cuke::internal::step& s)
+    return std::find_if(first, last,
+                        [this](const cuke::internal::step_definition& s)
                         { return step_matches(s.regex_string()); });
   }
 

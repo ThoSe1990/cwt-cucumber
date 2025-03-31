@@ -21,20 +21,20 @@ class stdout_print : public ::testing::Test
 
     cuke::results::test_results().clear();
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step"));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
         { cuke::is_true(false); }, "this fails"));
-    cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "a step with {int} and {string}"));
-    cuke::registry().push_step(
-        cuke::internal::step([](const cuke::value_array& values, const auto&,
-                                const auto&, const auto&) {},
-                             "a step with a table"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "a step with {int} and {string}"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&) {},
+        "a step with a table"));
   }
 
   [[nodiscard]] bool has_substr(const std::string& output,
@@ -86,7 +86,7 @@ TEST_F(stdout_print, scenario_fail)
   EXPECT_TRUE(has_substr(output, "[   FAILED    ] And this fails"));
   EXPECT_TRUE(has_substr(output, "<no file>:5"));
 }
-TEST_F(stdout_print, scenario_undefined)
+TEST_F(stdout_print, scenario_undefined_1)
 {
   const char* script = R"*(
     Feature: a feature 
@@ -104,7 +104,28 @@ TEST_F(stdout_print, scenario_undefined)
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "[   UNDEFINED ] Given an undefined step"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
-  EXPECT_TRUE(has_substr(output, "[   SKIPPED   ] And something else"));
+  EXPECT_TRUE(has_substr(output, "[   UNDEFINED ] And something else"));
+  EXPECT_TRUE(has_substr(output, "<no file>:5"));
+}
+TEST_F(stdout_print, scenario_undefined_2)
+{
+  const char* script = R"*(
+    Feature: a feature
+    Scenario: a scenario
+    Given an undefined step
+    And this fails
+ )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(output, "[   UNDEFINED ] Given an undefined step"));
+  EXPECT_TRUE(has_substr(output, "<no file>:4"));
+  EXPECT_TRUE(has_substr(output, "[   SKIPPED   ] And this fails"));
   EXPECT_TRUE(has_substr(output, "<no file>:5"));
 }
 TEST_F(stdout_print, scenario_outline)
@@ -128,7 +149,7 @@ TEST_F(stdout_print, scenario_outline)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:3"));
+  EXPECT_TRUE(has_substr(output, "<no file>:8"));
   EXPECT_TRUE(has_substr(
       output, "[   PASSED    ] Given a step with 123 and \"some text\""));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
@@ -155,9 +176,8 @@ TEST_F(stdout_print, scenario_outline_datatable)
 
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_TRUE(has_substr(output, "Scenario Outline: a scenario outline"));
-  EXPECT_TRUE(has_substr(output, "<no file>:3"));
-  EXPECT_TRUE(has_substr(
-      output, "[   PASSED    ] Given a step with a table"));
+  EXPECT_TRUE(has_substr(output, "<no file>:9"));
+  EXPECT_TRUE(has_substr(output, "[   PASSED    ] Given a step with a table"));
   EXPECT_TRUE(has_substr(output, "| 1 | 2 | 123 | \"some text\" |"));
   EXPECT_TRUE(has_substr(output, "<no file>:4"));
 }
@@ -248,7 +268,7 @@ TEST_F(stdout_print, final_result_3)
     Scenario: a scenario
     Given a step
     Given an undefined step 
-    And something else
+    And this fails 
   )*";
 
   cuke::parser p;

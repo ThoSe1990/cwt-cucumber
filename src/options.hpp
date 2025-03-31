@@ -1,7 +1,8 @@
 #pragma once
 
 #include <fstream>
-#include <memory>
+#include <chrono>
+#include <thread>
 #include <span>
 #include <vector>
 #include <string>
@@ -124,44 +125,35 @@ static void print_help_screen()
 {
   println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
                       cuke::version::as_string()));
-  println("Usage:");
-  println("  ./<your-executable> ./<file>.feature [options]");
-  println("  ./<your-executable> ./<dir> [options]\n");
+  constexpr const char* helptest = R"(
+  Usage:;
+    ./<your-executable> ./<file>.feature [options]
+    ./<your-executable> ./<dir> [options]
 
-  println("Executing single scenarios from line (multiple lines possible): ");
-  println("  <your-executable> ./<file>.feature:4");
-  println("  <your-executable> ./<file>.feature:4:10:15\n");
+  Executing single scenarios from line (multiple lines possible): 
+   <your-executable> ./<file>.feature:4"
+   <your-executable> ./<file>.feature:4:10:15
 
-  println("Options:");
-  println("  -h --help\t\t\t\tPrint the help screen to stdout");
-  println(
-      "  -q --quiet\t\t\t\tQuiet mode, only the final result will be printed "
-      "to stdout.");
-  println(
-      "  --report-json [opt: file]\t\tPrint the test results as json to stdout "
-      "or a given file");
-  println(
-      "  --steps-catalog [opt: file]\t\tWrite the implemented steps as "
-      "readable text to stdout or a file");
-  println(
-      "\t\t\t\t\tthis overwrites existing files, does not write to "
-      "'.feature' files or directories");
-  println(
-      "  --steps-catalog-json [opt: file]\tWrite the implemented steps as "
-      "readable text to stdout or a file");
-  println(
-      "\t\t\t\t\tthis overwrites existing files, does not write to "
-      "'.feature' files or directories");
+  Options:
+    -h --help  Print the help screen to stdout
+    
+    -q --quiet  Quiet mode, only the final result will be printed to stdout.
 
-  println(
-      "  -t --tags \"expression\"\t\tProvide a tag expression to execute only "
-      "Features/Scenarios with given tags");
-  println("\t\t\t\t\tExamples:");
-  println("\t\t\t\t\t  \"@tag1\"");
-  println("\t\t\t\t\t  \"@tag1 or @tag2\"");
-  println("\t\t\t\t\t  \"not @tag2\"");
-  println("\t\t\t\t\t  \"(@tag1 and @tag2) or not @tag3\"");
-  println("\t\t\t\t\t  \"((@tag1 and @tag2) or @tag3) xor @tag4\"");
+    --report-json [opt: file]  Print the test results as json to stdout or a given file
+
+    --steps-catalog [opt: file]       Write the implemented steps as readable text to stdout or a file 
+    --steps-catalog-json [opt: file]  Write the implemented steps as json text to stdout or a file 
+      Note: Catalog option overwrites existing files, does not write to '.feature' files or directories
+  
+    -t --tags "expression"  Provide a tag expression to execute only Features/Scenarios with given tags
+      Examples:
+        "@tag1"
+        "@tag1 or @tag2"
+        "not @tag2"
+        "(@tag1 and @tag2) or not @tag3"
+        "((@tag1 and @tag2) or @tag3) xor @tag4"
+)";
+  println(helptest);
 }
 
 namespace internal
@@ -170,11 +162,34 @@ namespace internal
 class runtime_options
 {
  public:
+  runtime_options()
+  {
+    if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
+    {
+      m_delay_ms = std::stoi(env_p);
+    }
+  }
   [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
   void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
 
+  [[nodiscard]] bool ignore_scenario() const noexcept
+  {
+    return m_ignore_scenario;
+  }
+  void ignore_scenario(bool value) noexcept { m_ignore_scenario = value; }
+
+  void sleep_if_has_delay()
+  {
+    if (m_delay_ms != 0)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(m_delay_ms));
+    }
+  }
+
  private:
   bool m_skip_scenario{false};
+  bool m_ignore_scenario{false};
+  long m_delay_ms{0};
 };
 
 runtime_options& get_runtime_options();
@@ -182,5 +197,6 @@ runtime_options& get_runtime_options();
 }  // namespace internal
 
 void skip_scenario();
+void ignore_scenario();
 
 }  // namespace cuke

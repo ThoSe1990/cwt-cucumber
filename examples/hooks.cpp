@@ -2,6 +2,7 @@
 #include "box.hpp"
 
 BEFORE_T(skip, "@skip") { cuke::skip_scenario(); }
+BEFORE_T(ignore, "@ignore") { cuke::ignore_scenario(); }
 
 BEFORE(before)
 {

@@ -60,7 +60,7 @@ class registry
  public:
   void sort_steps_by_type()
   {
-    sort_steps([](const internal::step& lhs, const internal::step& rhs)
+    sort_steps([](const internal::step_definition& lhs, const internal::step_definition& rhs)
                { return lhs.step_type() < rhs.step_type(); });
   }
 
@@ -134,8 +134,8 @@ class registry
     return pattern.str();
   }
 
-  void push_step(const internal::step& s) noexcept { m_steps.push_back(s); }
-  [[nodiscard]] const std::vector<internal::step>& steps() const noexcept
+  void push_step(const internal::step_definition& s) noexcept { m_steps.push_back(s); }
+  [[nodiscard]] const std::vector<internal::step_definition>& steps() const noexcept
   {
     return m_steps;
   }
@@ -216,7 +216,7 @@ class registry
     std::sort(m_steps.begin(), m_steps.end(), compare);
   }
 
-  std::vector<internal::step> m_steps;
+  std::vector<internal::step_definition> m_steps;
   struct
   {
     std::vector<internal::hook> before;

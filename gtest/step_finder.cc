@@ -470,7 +470,6 @@ TEST(step_finder, step_alternation_2)
   }
 }
 
-// TODO: do when refactoring POC
 class custom_types : public ::testing::Test
 {
  protected:

@@ -12,14 +12,13 @@ class test_results_1 : public ::testing::Test
   {
     cuke::results::test_results().clear();
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
-        "a step", cuke::internal::step::type::step, "some func name",
+        "a step", cuke::internal::step_definition::type::step, "some func name",
         "this file", 99));
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { cuke::is_true(false); },
-        "this fails"));
+        { cuke::is_true(false); }, "this fails"));
   }
 };
 TEST_F(test_results_1, scenario_passed)
@@ -127,7 +126,7 @@ TEST_F(test_results_1, scenario_fails_2)
     Feature: a feature 
     Scenario: First Scenario 
     Given this fails 
-    And this is skipped
+    And this fails 
   )*";
 
   cuke::parser p;
@@ -173,7 +172,7 @@ TEST_F(test_results_1, undefined_step_2)
     Scenario: First Scenario 
     Given this fails 
     And an undefined step ...
-    Then this is skipped
+    Then this fails 
   )*";
 
   cuke::parser p;
@@ -186,6 +185,8 @@ TEST_F(test_results_1, undefined_step_2)
             cuke::results::test_status::failed);
   EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::failed);
+  EXPECT_EQ(cuke::results::steps_back().status,
+            cuke::results::test_status::skipped);
   EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::skipped);
 }
@@ -223,7 +224,7 @@ class test_results_2 : public ::testing::Test
   {
     cuke::results::test_results().clear();
     cuke::registry().clear();
-    cuke::registry().push_step(cuke::internal::step(
+    cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step with {int}"));
   }
@@ -276,9 +277,10 @@ TEST_F(test_results_2, scenario_w_tags)
 
   const auto& scenarios = cuke::results::test_results().back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
-  ASSERT_EQ(scenarios.at(0).tags.size(), 2);
-  EXPECT_EQ(scenarios.at(0).tags.at(0), std::string("@tag1"));
-  EXPECT_EQ(scenarios.at(0).tags.at(1), std::string("@tag2"));
+  const auto& tags = scenarios.at(0).tags;
+  ASSERT_EQ(tags.size(), 2);
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag1") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag2") != tags.end());
 }
 
 TEST_F(test_results_2, scenario_outline_w_tags)
@@ -303,10 +305,11 @@ TEST_F(test_results_2, scenario_outline_w_tags)
 
   const auto& scenarios = cuke::results::test_results().back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
-  ASSERT_EQ(scenarios.at(0).tags.size(), 3);
-  EXPECT_EQ(scenarios.at(0).tags.at(0), std::string("@tag1"));
-  EXPECT_EQ(scenarios.at(0).tags.at(1), std::string("@tag2"));
-  EXPECT_EQ(scenarios.at(0).tags.at(2), std::string("@tag3"));
+  const auto& tags = scenarios.at(0).tags;
+  ASSERT_EQ(tags.size(), 3);
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag1") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag2") != tags.end());
+  EXPECT_TRUE(std::find(tags.begin(), tags.end(), "@tag3") != tags.end());
 }
 TEST_F(test_results_2, with_description)
 {

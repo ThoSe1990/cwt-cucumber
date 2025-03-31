@@ -9,7 +9,7 @@
 #define _CONCAT_(a, b) a##b
 #define CONCAT(a, b) _CONCAT_(a, b)
 
-#define _STEP(function_name, step_definition, type)                           \
+#define _STEP(function_name, definition, type)                           \
   static void function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
@@ -23,7 +23,7 @@
     CONCAT(function_name, _t)()                                               \
     {                                                                         \
       ::cuke::registry().push_step(                                           \
-          ::cuke::internal::step(function_name, step_definition, type,        \
+          ::cuke::internal::step_definition(function_name, definition, type,        \
                                  #function_name, __FILE__, __LINE__));        \
     }                                                                         \
   } CONCAT(g_, function_name);                                                \
@@ -84,40 +84,40 @@
                                     index)
 
 /**                                                                           \
- * @def STEP(function_name, step_definition)                                  \
+ * @def STEP(function_name, definition)                                  \
  * @brief Creates a Cucumber step, which is then available in your feature    \
  * files                                                                      \
  *                                                                            \
  * @param function_name A unique function name, this function name has no     \
  * technical impact                                                           \
- * @param step_definition The step definition string which is used by feature \
+ * @param definition The step definition string which is used by feature \
  * files later                                                                \
  */
-#define STEP(function_name, step_definition) \
-  _STEP(function_name, step_definition, cuke::internal::step::type::step)
+#define STEP(function_name, definition) \
+  _STEP(function_name, definition, cuke::internal::step_definition::type::step)
 
 /**
- * @def GIVEN(function_name, step_definition)
+ * @def GIVEN(function_name, definition)
  * @brief An alias to STEP(name,step) to increase readability of your code
  */
-#define GIVEN(function_name, step_definition) \
-  _STEP(function_name, step_definition, cuke::internal::step::type::given)
+#define GIVEN(function_name, definition) \
+  _STEP(function_name, definition, cuke::internal::step_definition::type::given)
 
 /**
- * @def WHEN(function_name, step_definition)
- * @brief An alias to STEP(function_name, step_definition) to increase
+ * @def WHEN(function_name, definition)
+ * @brief An alias to STEP(function_name, definition) to increase
  * readability of your code
  */
-#define WHEN(function_name, step_definition) \
-  _STEP(function_name, step_definition, cuke::internal::step::type::when)
+#define WHEN(function_name, definition) \
+  _STEP(function_name, definition, cuke::internal::step_definition::type::when)
 
 /**
- * @def THEN(function_name, step_definition)
- * @brief An alias to STEP(function_name, step_definition) to increase
+ * @def THEN(function_name, definition)
+ * @brief An alias to STEP(function_name, definition) to increase
  * readability of your code
  */
-#define THEN(function_name, step_definition) \
-  _STEP(function_name, step_definition, cuke::internal::step::type::then)
+#define THEN(function_name, definition) \
+  _STEP(function_name, definition, cuke::internal::step_definition::type::then)
 
 #define _BEFORE(function_name, tag_expression)                    \
   void function_name();                                           \
