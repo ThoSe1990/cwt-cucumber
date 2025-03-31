@@ -20,6 +20,10 @@ runtime_options& get_runtime_options()
 }  // namespace internal
 
 void skip_scenario() { internal::get_runtime_options().skip_scenario(true); }
+void ignore_scenario()
+{
+  internal::get_runtime_options().ignore_scenario(true);
+}
 
 void cuke_args::initialize(int argc, const char* argv[])
 {

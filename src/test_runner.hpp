@@ -18,6 +18,15 @@
 namespace cuke
 {
 
+[[nodiscard]] static bool ignore_flag()
+{
+  if (internal::get_runtime_options().ignore_scenario())
+  {
+    internal::get_runtime_options().ignore_scenario(false);
+    return true;
+  }
+  return false;
+}
 [[nodiscard]] static bool skip_flag()
 {
   if (internal::get_runtime_options().skip_scenario())
@@ -240,13 +249,22 @@ class test_runner
   void run_scenario(const ast::scenario_node& scenario) const
   {
     cuke::registry().run_hook_before(scenario.tags());
+
+    if (ignore_flag())
+    {
+      return;
+    }
+
     results::new_scenario(scenario);
+
     const bool skip = skip_flag() || !tags_valid(scenario);
     if (skip)
     {
       results::scenarios_back().status = results::test_status::skipped;
     }
+
     m_printer->print(scenario);
+
     if (scenario.has_background())
     {
       for (const cuke::ast::step_node& step : scenario.background().steps())
@@ -258,6 +276,7 @@ class test_runner
     {
       run_step(step, skip);
     }
+
     cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
                            skip);

@@ -351,6 +351,9 @@ class run_scenarios_special_tags : public ::testing::Test
     cuke::registry().push_hook_before(cuke::internal::hook(
         []() { cuke::internal::get_runtime_options().skip_scenario(true); },
         "@skip"));
+    cuke::registry().push_hook_before(cuke::internal::hook(
+        []() { cuke::internal::get_runtime_options().ignore_scenario(true); },
+        "@ignore"));
     cuke::registry().push_step(cuke::internal::step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step"));
@@ -375,6 +378,7 @@ TEST_F(run_scenarios_special_tags, skip_1)
   ASSERT_EQ(cuke::results::test_results().scenarios_count(), 1);
   const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::skipped);
+  EXPECT_FALSE(cuke::internal::get_runtime_options().skip_scenario());
 }
 TEST_F(run_scenarios_special_tags, skip_2)
 {
@@ -397,4 +401,46 @@ TEST_F(run_scenarios_special_tags, skip_2)
   ASSERT_EQ(cuke::results::test_results().scenarios_count(), 2);
   EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 1);
   EXPECT_EQ(cuke::results::test_results().scenarios_skipped(), 1);
+  EXPECT_FALSE(cuke::internal::get_runtime_options().skip_scenario());
+}
+TEST_F(run_scenarios_special_tags, ignore_1)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    @ignore
+    Scenario: a scenario 
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  make_args("@ignore");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(cuke::results::test_results().scenarios_count(), 0);
+  EXPECT_FALSE(cuke::internal::get_runtime_options().ignore_scenario());
+}
+TEST_F(run_scenarios_special_tags, ignore_2)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    @ignore
+    Scenario: a scenario 
+    Given a step 
+
+    Scenario: this runs
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  make_args("@ignore");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(cuke::results::test_results().scenarios_count(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_skipped(), 0);
+  EXPECT_FALSE(cuke::internal::get_runtime_options().ignore_scenario());
 }

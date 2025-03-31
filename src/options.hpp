@@ -172,6 +172,12 @@ class runtime_options
   [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
   void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
 
+  [[nodiscard]] bool ignore_scenario() const noexcept
+  {
+    return m_ignore_scenario;
+  }
+  void ignore_scenario(bool value) noexcept { m_ignore_scenario = value; }
+
   void sleep_if_has_delay()
   {
     if (m_delay_ms != 0)
@@ -182,6 +188,7 @@ class runtime_options
 
  private:
   bool m_skip_scenario{false};
+  bool m_ignore_scenario{false};
   long m_delay_ms{0};
 };
 
@@ -190,5 +197,6 @@ runtime_options& get_runtime_options();
 }  // namespace internal
 
 void skip_scenario();
+void ignore_scenario();
 
 }  // namespace cuke
