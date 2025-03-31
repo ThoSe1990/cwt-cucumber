@@ -3,7 +3,7 @@
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
 #include "../src/registry.hpp"
-#include "test_results.hpp"
+#include "../src/test_results.hpp"
 
 namespace
 {

@@ -1,8 +1,8 @@
-#include "ast.hpp"
 #include <gtest/gtest.h>
 
 #include "../src/parser.hpp"
-#include "table.hpp"
+#include "../src/ast.hpp"
+#include "../src/table.hpp"
 
 TEST(ast, init_obj) { cuke::parser p; }
 
