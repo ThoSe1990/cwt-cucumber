@@ -1,12 +1,9 @@
 #pragma once
 
-#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <chrono>
-#include <thread>
 
 #include "ast.hpp"
 #include "parser.hpp"
@@ -302,11 +299,8 @@ class test_runner
     }
     update_step_status();
 
-    if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
-    {
-      auto delay = std::stoi(env_p);
-      std::this_thread::sleep_for(std::chrono::milliseconds(delay));
-    }
+    internal::get_runtime_options().sleep_if_has_delay();
+
     m_printer->print(step, results::steps_back().status);
   }
 

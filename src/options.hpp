@@ -1,7 +1,8 @@
 #pragma once
 
 #include <fstream>
-#include <memory>
+#include <chrono>
+#include <thread>
 #include <span>
 #include <vector>
 #include <string>
@@ -161,11 +162,27 @@ namespace internal
 class runtime_options
 {
  public:
+  runtime_options()
+  {
+    if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
+    {
+      m_delay_ms = std::stoi(env_p);
+    }
+  }
   [[nodiscard]] bool skip_scenario() const noexcept { return m_skip_scenario; }
   void skip_scenario(bool value) noexcept { m_skip_scenario = value; }
 
+  void sleep_if_has_delay()
+  {
+    if (m_delay_ms != 0)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(m_delay_ms));
+    }
+  }
+
  private:
   bool m_skip_scenario{false};
+  long m_delay_ms{0};
 };
 
 runtime_options& get_runtime_options();
