@@ -10,7 +10,12 @@ Feature: Scenarios with tags
   Scenario: This wont run 
     Given An empty box
     When I place 1 x "whatever" in it
-    Then This would fail because there is no such step
+
+  @skip  
+  Scenario: This wont run 
+    Given An empty box
+    When I place 1 x "whatever" in it
+    Then This is an undefined step even when we use skip 
 
   @apples
   Scenario: Apple

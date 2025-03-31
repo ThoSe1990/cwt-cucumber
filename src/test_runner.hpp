@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -46,21 +47,25 @@ static void update_feature_status()
   }
 }
 static void update_scenario_status(std::string_view name, std::string_view file,
-                                   std::size_t line)
+                                   std::size_t line, bool skipped)
 {
-  auto failed_already = []()
-  { return results::scenarios_back().status != results::test_status::passed; };
-  if (failed_already())
+  if (skipped)
   {
-    return;
+    results::scenarios_back().status = results::test_status::skipped;
+  }
+  else
+  {
+    const std::vector<results::step>& steps = results::scenarios_back().steps;
+    for (const auto& step : steps)
+    {
+      if (step.status == results::test_status::failed ||
+          step.status == results::test_status::undefined)
+      {
+        results::scenarios_back().status = results::test_status::failed;
+      }
+    }
   }
 
-  if (results::steps_back().status != results::test_status::passed)
-  {
-    results::scenarios_back().status = results::test_status::failed;
-    results::scenarios_back().name = name;
-    results::scenarios_back().line = line;
-  }
   results::test_results().add_scenario(results::scenarios_back().status);
   update_feature_status();
 }
@@ -239,29 +244,30 @@ class test_runner
   {
     cuke::registry().run_hook_before(scenario.tags());
     results::new_scenario(scenario);
-    if (skip_flag() || !tags_valid(scenario))
+    const bool skip = skip_flag() || !tags_valid(scenario);
+    if (skip)
     {
-      std::cout << "HELLO" << std::endl;
       results::scenarios_back().status = results::test_status::skipped;
-      return;
     }
     m_printer->print(scenario);
     if (scenario.has_background())
     {
       for (const cuke::ast::step_node& step : scenario.background().steps())
       {
-        run_step(step);
+        run_step(step, skip);
       }
     }
     for (const cuke::ast::step_node& step : scenario.steps())
     {
-      run_step(step);
+      run_step(step, skip);
     }
     cuke::registry().run_hook_after(scenario.tags());
-    update_scenario_status(scenario.name(), scenario.file(), scenario.line());
+    update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
+                           skip);
     cuke::internal::reset_context();
     m_printer->println();
   }
+
   [[nodiscard]] bool tags_valid(
       const ast::scenario_node& scenario) const noexcept
   {
@@ -269,9 +275,9 @@ class test_runner
            m_tag_expression.evaluate(scenario.tags());
   }
 
-  void run_step(const ast::step_node& step) const
+  void run_step(const ast::step_node& step, bool skip) const
   {
-    if (skip_step())
+    if (skip_step() || skip)
     {
       results::new_step(step);
       results::steps_back().status = step.has_step_definition()
