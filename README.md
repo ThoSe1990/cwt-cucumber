@@ -537,15 +537,24 @@ The box is shipped!
 6 Steps (6 passed)
 ```
 
-### Skip Steps 
+### Skip/Ignore Scenarios
 
-We can use `cuke::skip_scenario()` inside a hook `BEFORE_T` in order to skip a `Scenario`. This can be useful when using a `@skip`, `@ignore` or `@wip` tag: 
+We can use `cuke::skip_scenario()` or `cuke::ignore_scenario()` inside a hook `BEFORE_T`. The main difference between a skip and an ignore is that ignored scenarios will not be reported. Skipped scenarios on the other hand are reported as skipped (and if there are undefined steps, they are reported as undefined).
+
+This can be useful when for example there is work in progress. Choose a meaningful name for the tags and ignore and skip the scenarios:
 
 ```cpp
 BEFORE_T(skip, "@skip") 
-{ 
-    cuke::skip_scenario();
+{
+  // skip a scenario:
+  cuke::skip_scenario();
 }
+BEFORE_T(skip, "@ignore") 
+{
+  // ignore a scenario:
+  cuke::ignore_scenario();
+}
+
 ```
 
 Note: The hook `AFTER_ALL` still will be executed. The hook `AFTER` the skipped `Scenario` is not called.
