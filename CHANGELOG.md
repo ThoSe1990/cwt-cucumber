@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- Ignore Scenarios: When using `cuke::ignore_scenario()` in a hook (before scenario), the scenario is ignored. No reporting or checking for the steps. ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
+
 ### Changed
 - Scenario outline is reported with the line number from the `Scenario Outline` keyword (not the examples table anymore) ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
 - Undefined steps are always reported as undefined. Previously, if you used a skip tag, it wasn't reported at all ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
