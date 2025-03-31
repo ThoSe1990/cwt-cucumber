@@ -1,4 +1,4 @@
-[![CI](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml)
+[[![CI](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml)
 
 ## Coding With Thomas Cucumber: A C++ Cucumber Interpreter
 
@@ -20,6 +20,7 @@
     1. [Tags](#tags)
     1. [Hooks](#hooks)
     1. [Tagged Hooks](#tagged-hooks)
+    1. [Skip / Ignore Scenarios](#skip--ignore-scenarios)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
 1. [Custom Parameter Types](#custom-parameter-types)
     1. [Example: Pair of Integers](#example-pair-of-integers)
@@ -537,7 +538,7 @@ The box is shipped!
 6 Steps (6 passed)
 ```
 
-### Skip/Ignore Scenarios
+### Skip / Ignore Scenarios
 
 We can use `cuke::skip_scenario()` or `cuke::ignore_scenario()` inside a hook `BEFORE_T`. The main difference between a skip and an ignore is that ignored scenarios will not be reported. Skipped scenarios on the other hand are reported as skipped (and if there are undefined steps, they are reported as undefined).
 
