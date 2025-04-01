@@ -119,7 +119,7 @@
 #define THEN(function_name, definition) \
   _STEP(function_name, definition, cuke::internal::step_definition::type::then)
 
-#define _BEFORE(function_name, tag_expression)                    \
+#define _BEFORE(function_name, tag_expression, type)              \
   void function_name();                                           \
   namespace                                                       \
   {                                                               \
@@ -128,7 +128,7 @@
     CONCAT(function_name, _t)()                                   \
     {                                                             \
       ::cuke::registry().push_hook_before(::cuke::internal::hook( \
-          #function_name, function_name, tag_expression));        \
+          #function_name, function_name, tag_expression, #type)); \
     }                                                             \
                                                                   \
   } CONCAT(g_, function_name);                                    \
@@ -142,7 +142,7 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define BEFORE(function_name) _BEFORE(function_name, "")
+#define BEFORE(function_name) _BEFORE(function_name, "", BEFORE)
 /**
  * @def BEFORE_T(function_name, tag_expression)
  * @brief Creates a hook with a tag expression, which can run before a tagged
@@ -157,22 +157,22 @@
  * @tag2"``
  */
 #define BEFORE_T(function_name, tag_expression) \
-  _BEFORE(function_name, tag_expression)
+  _BEFORE(function_name, tag_expression, BEFORE_T)
 
-#define _AFTER(function_name, tag_expression)                    \
-  void function_name();                                          \
-  namespace                                                      \
-  {                                                              \
-  struct CONCAT(function_name, _t)                               \
-  {                                                              \
-    CONCAT(function_name, _t)()                                  \
-    {                                                            \
-      ::cuke::registry().push_hook_after(::cuke::internal::hook( \
-          #function_name, function_name, tag_expression));       \
-    }                                                            \
-                                                                 \
-  } CONCAT(g_, function_name);                                   \
-  }                                                              \
+#define _AFTER(function_name, tag_expression, type)               \
+  void function_name();                                           \
+  namespace                                                       \
+  {                                                               \
+  struct CONCAT(function_name, _t)                                \
+  {                                                               \
+    CONCAT(function_name, _t)()                                   \
+    {                                                             \
+      ::cuke::registry().push_hook_after(::cuke::internal::hook(  \
+          #function_name, function_name, tag_expression, #type)); \
+    }                                                             \
+                                                                  \
+  } CONCAT(g_, function_name);                                    \
+  }                                                               \
   void function_name()
 
 /**
@@ -182,7 +182,7 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define AFTER(function_name) _AFTER(function_name, "")
+#define AFTER(function_name) _AFTER(function_name, "", AFTER)
 /**
  * @def AFTER_T(function_name, tag_expression)
  * @brief Creates a hook with a tag expression, which can run after a tagged
@@ -197,7 +197,7 @@
  * @tag2"``
  */
 #define AFTER_T(function_name, tag_expression) \
-  _AFTER(function_name, tag_expression)
+  _AFTER(function_name, tag_expression, AFTER_T)
 
 #define _BEFORE_STEP(function_name)                               \
   void function_name();                                           \
@@ -249,20 +249,20 @@
  */
 #define AFTER_STEP(function_name) _AFTER_STEP(function_name)
 
-#define _BEFORE_ALL(function_name)                                \
-  void function_name();                                           \
-  namespace                                                       \
-  {                                                               \
-  struct CONCAT(function_name, _t)                                \
-  {                                                               \
-    CONCAT(function_name, _t)()                                   \
-    {                                                             \
-      ::cuke::registry().push_hook_before_all(                    \
-          ::cuke::internal::hook(#function_name, function_name)); \
-    }                                                             \
-                                                                  \
-  } CONCAT(g_, function_name);                                    \
-  }                                                               \
+#define _BEFORE_ALL(function_name)                                    \
+  void function_name();                                               \
+  namespace                                                           \
+  {                                                                   \
+  struct CONCAT(function_name, _t)                                    \
+  {                                                                   \
+    CONCAT(function_name, _t)()                                       \
+    {                                                                 \
+      ::cuke::registry().push_hook_before_all(::cuke::internal::hook( \
+          #function_name, function_name, "BEFORE_ALL"));              \
+    }                                                                 \
+                                                                      \
+  } CONCAT(g_, function_name);                                        \
+  }                                                                   \
   void function_name()
 
 /**
@@ -274,20 +274,20 @@
  */
 #define BEFORE_ALL(function_name) _BEFORE_ALL(function_name)
 
-#define _AFTER_ALL(function_name)                                 \
-  void function_name();                                           \
-  namespace                                                       \
-  {                                                               \
-  struct CONCAT(function_name, _t)                                \
-  {                                                               \
-    CONCAT(function_name, _t)()                                   \
-    {                                                             \
-      ::cuke::registry().push_hook_after_all(                     \
-          ::cuke::internal::hook(#function_name, function_name)); \
-    }                                                             \
-                                                                  \
-  } CONCAT(g_, function_name);                                    \
-  }                                                               \
+#define _AFTER_ALL(function_name)                                              \
+  void function_name();                                                        \
+  namespace                                                                    \
+  {                                                                            \
+  struct CONCAT(function_name, _t)                                             \
+  {                                                                            \
+    CONCAT(function_name, _t)()                                                \
+    {                                                                          \
+      ::cuke::registry().push_hook_after_all(                                  \
+          ::cuke::internal::hook(#function_name, function_name, "AFTER_ALL")); \
+    }                                                                          \
+                                                                               \
+  } CONCAT(g_, function_name);                                                 \
+  }                                                                            \
   void function_name()
 
 /**

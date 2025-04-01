@@ -49,7 +49,7 @@ static void run_hook(const std::vector<Hook>& hooks, const Printer& printer)
                 [&printer](const auto& h)
                 {
                   printer->println(std::format(
-                      "[   VERBOSE   ] Executing hook: '{}'", h.name()));
+                      "[   VERBOSE   ] Executing hook: '{}'", h.to_string()));
                   h.call();
                 });
 }
@@ -63,10 +63,10 @@ static void run_hook(const std::vector<Hook>& hooks,
       [&tags, &printer](const auto& h)
       {
         bool tag_evaluation = h.valid_tag(tags);
-        printer->print(std::format("[   VERBOSE   ] Hook '{}'", h.name()));
+        printer->print(std::format("[   VERBOSE   ] Hook '{}'", h.to_string()));
         if (h.expression().empty())
         {
-          printer->println(" has no tag expression -> executing hook");
+          printer->println(" -> executing hook");
         }
         else
         {
@@ -77,7 +77,7 @@ static void run_hook(const std::vector<Hook>& hooks,
           else
           {
             printer->println(std::format(
-                "called with tags '{}'-> {}", internal::to_string(tags),
+                " called with tags '{}'-> {}", internal::to_string(tags),
                 tag_evaluation ? "'True', executing hook"
                                : "'False', not executing hook"));
           }

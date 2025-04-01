@@ -8,7 +8,6 @@
 
 #include <cstddef>
 #include <memory>
-#include <nlohmann/detail/value_t.hpp>
 #include <optional>
 #include <string>
 #include <vector>
