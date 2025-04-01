@@ -8,10 +8,8 @@
 #include "ast.hpp"
 #include "parser.hpp"
 #include "registry.hpp"
-#include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
-#include "util_regex.hpp"
 #include "context.hpp"
 #include "options.hpp"
 #include "printer.hpp"
@@ -160,43 +158,44 @@ class test_runner
     verbose_start(scenario);
     cuke::registry().run_hook_before(scenario.tags(), m_verbose_printer);
 
-    if (ignore_flag())
+    if (ignore_flag() || !tags_valid(scenario))
     {
       verbose_ignore();
       verbose_end();
+      // TODO: lets refactor this here
+      internal::get_runtime_options().skip_scenario(false);
       return;
     }
 
-    if (tags_valid(scenario))
+    const bool skip = skip_flag();
+
+    results::new_scenario(scenario);
+
+    if (skip)
     {
-      results::new_scenario(scenario);
+      verbose_skip();
+      results::scenarios_back().status = results::test_status::skipped;
+    }
 
-      const bool skip = skip_flag();
-      if (skip)
-      {
-        verbose_skip();
-        results::scenarios_back().status = results::test_status::skipped;
-      }
+    m_printer->print(scenario);
 
-      m_printer->print(scenario);
-
-      if (scenario.has_background())
-      {
-        for (const cuke::ast::step_node& step : scenario.background().steps())
-        {
-          run_step(step, skip);
-        }
-      }
-      for (const cuke::ast::step_node& step : scenario.steps())
+    if (scenario.has_background())
+    {
+      for (const cuke::ast::step_node& step : scenario.background().steps())
       {
         run_step(step, skip);
       }
-
-      cuke::registry().run_hook_after(scenario.tags(), m_verbose_printer);
-      update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
-                             skip);
-      cuke::internal::reset_context();
     }
+    for (const cuke::ast::step_node& step : scenario.steps())
+    {
+      run_step(step, skip);
+    }
+
+    cuke::registry().run_hook_after(scenario.tags(), m_verbose_printer);
+    update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
+                           skip);
+    cuke::internal::reset_context();
+
     verbose_end();
     m_printer->println();
   }
