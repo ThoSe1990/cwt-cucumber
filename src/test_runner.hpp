@@ -107,11 +107,6 @@ class stdout_interface
                      results::test_status status) const noexcept
   {
   }
-  virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status,
-                     const table::row& row) const noexcept
-  {
-  }
 };
 
 class cuke_printer : public stdout_interface
@@ -136,23 +131,7 @@ class cuke_printer : public stdout_interface
                   internal::replace_variables(scenario_outline.name(), row));
     details::print_file_line(scenario_outline);
   }
-  void print(const cuke::ast::step_node& step, results::test_status status,
-             const table::row& row) const noexcept override
-  {
-    const std::string step_w_example_variables =
-        internal::replace_variables(step.name(), row);
-    ::cuke::print(results::to_color(status), results::step_prefix(status),
-                  step.keyword(), ' ', step_w_example_variables);
-    details::print_file_line(step);
-    if (!step.data_table().empty())
-    {
-      print_table(step.data_table());
-    }
-    if (!step.doc_string().empty())
-    {
-      print_doc_string(step.doc_string());
-    }
-  }
+
   void print(const cuke::ast::step_node& step,
              results::test_status status) const noexcept override
   {
