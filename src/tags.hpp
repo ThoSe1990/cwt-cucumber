@@ -27,6 +27,7 @@ class tag_expression
   [[nodiscard]] bool evaluate(const std::vector<std::string>& tags) const;
   [[nodiscard]] std::size_t size() const noexcept;
   [[nodiscard]] bool empty() const noexcept;
+  [[nodiscard]] const std::string& expression() const noexcept;
 
   const tag_token& operator[](std::size_t idx) const;
 
@@ -50,6 +51,7 @@ class tag_expression
   std::vector<tag_token> m_operators;
   lexer m_lexer;
   int m_open_parens{0};
+  std::string m_expression;
 };
 
 }  // namespace cuke::internal
