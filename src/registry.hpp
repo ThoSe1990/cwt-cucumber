@@ -8,6 +8,7 @@
 #include "step.hpp"
 #include "hooks.hpp"
 #include "expression.hpp"
+#include "util.hpp"
 
 namespace cuke
 {
@@ -41,18 +42,51 @@ static void run_hook(const std::vector<Hook>& hooks)
 {
   std::for_each(hooks.begin(), hooks.end(), [](const auto& h) { h.call(); });
 }
-template <typename Hook>
-static void run_hook(const std::vector<Hook>& hooks,
-                     const std::vector<std::string>& tags)
+template <typename Hook, typename Printer>
+static void run_hook(const std::vector<Hook>& hooks, const Printer& printer)
 {
   std::for_each(hooks.begin(), hooks.end(),
-                [&tags](const auto& h)
+                [&printer](const auto& h)
                 {
-                  if (h.valid_tag(tags))
-                  {
-                    h.call();
-                  }
+                  printer->println(std::format(
+                      "[   VERBOSE   ] Executing hook: '{}'", h.to_string()));
+                  h.call();
                 });
+}
+template <typename Hook, typename Printer>
+static void run_hook(const std::vector<Hook>& hooks,
+                     const std::vector<std::string>& tags,
+                     const Printer& printer)
+{
+  std::for_each(
+      hooks.begin(), hooks.end(),
+      [&tags, &printer](const auto& h)
+      {
+        bool tag_evaluation = h.valid_tag(tags);
+        printer->print(std::format("[   VERBOSE   ] Hook '{}'", h.to_string()));
+        if (h.expression().empty())
+        {
+          printer->println(" -> executing hook");
+        }
+        else
+        {
+          if (tags.empty())
+          {
+            printer->println(" called without tags -> executing hook");
+          }
+          else
+          {
+            printer->println(std::format(
+                " called with tags '{}'-> {}", internal::to_string(tags),
+                tag_evaluation ? "'True', executing hook"
+                               : "'False', not executing hook"));
+          }
+        }
+        if (tag_evaluation)
+        {
+          h.call();
+        }
+      });
 }
 
 class registry
@@ -60,7 +94,8 @@ class registry
  public:
   void sort_steps_by_type()
   {
-    sort_steps([](const internal::step_definition& lhs, const internal::step_definition& rhs)
+    sort_steps([](const internal::step_definition& lhs,
+                  const internal::step_definition& rhs)
                { return lhs.step_type() < rhs.step_type(); });
   }
 
@@ -134,8 +169,12 @@ class registry
     return pattern.str();
   }
 
-  void push_step(const internal::step_definition& s) noexcept { m_steps.push_back(s); }
-  [[nodiscard]] const std::vector<internal::step_definition>& steps() const noexcept
+  void push_step(const internal::step_definition& s) noexcept
+  {
+    m_steps.push_back(s);
+  }
+  [[nodiscard]] const std::vector<internal::step_definition>& steps()
+      const noexcept
   {
     return m_steps;
   }
@@ -196,13 +235,17 @@ class registry
     return m_hooks.after_step;
   }
 
-  void run_hook_before(const std::vector<std::string>& tags) const noexcept
+  template <typename Printer>
+  void run_hook_before(const std::vector<std::string>& tags,
+                       const Printer& printer) const noexcept
   {
-    run_hook(m_hooks.before, tags);
+    run_hook(m_hooks.before, tags, printer);
   }
-  void run_hook_after(const std::vector<std::string>& tags) const noexcept
+  template <typename Printer>
+  void run_hook_after(const std::vector<std::string>& tags,
+                      const Printer& printer) const noexcept
   {
-    run_hook(m_hooks.after, tags);
+    run_hook(m_hooks.after, tags, printer);
   }
   void run_hook_before_step() const noexcept { run_hook(m_hooks.before_step); }
   void run_hook_after_step() const noexcept { run_hook(m_hooks.after_step); }

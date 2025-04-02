@@ -37,7 +37,7 @@ Feature: Scenarios with tags
     And I place 2 x "banana" in it
     Then The box contains 4 items
 
-  Scenario Outline: 
+  Scenario Outline: Lets put <fruit> into the box
     Given An empty box
     When I place <count> x <fruit> in it
     Then The box contains <expected> items

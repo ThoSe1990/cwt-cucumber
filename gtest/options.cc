@@ -58,11 +58,12 @@ TEST(options, find_files_in_dir)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_EQ(targs.get_options().files.size(), 3);
+  ASSERT_EQ(targs.get_options().files.size(), 4);
 
   EXPECT_TRUE(details::has_file(targs.get_options().files, "any.feature"));
   EXPECT_TRUE(details::has_file(targs.get_options().files, "example.feature"));
   EXPECT_TRUE(details::has_file(targs.get_options().files, "fail.feature"));
+  EXPECT_TRUE(details::has_file(targs.get_options().files, "skip.feature"));
 }
 namespace details
 {

@@ -99,7 +99,7 @@ template <typename T>
 static const std::unordered_map<color, std::string> color_codes = {
     {color::standard, "\x1b[0m"}, {color::green, "\x1b[32m"},
     {color::yellow, "\x1b[33m"},  {color::red, "\x1b[31m"},
-    {color::blue, "\x1b[34m"},    {color::black, "\x1b[90m"}};
+    {color::blue, "\x1b[38;2;100;149;237m"},    {color::black, "\x1b[90m"}};
 
 template <typename T>
 inline void print_impl(const T& t)

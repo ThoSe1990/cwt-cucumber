@@ -85,6 +85,7 @@ enum class report_type
 struct options
 {
   bool quiet{false};
+  bool verbose{false};
   bool print_help{false};
   struct
   {
@@ -126,10 +127,9 @@ static void print_help_screen()
   println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
                       cuke::version::as_string()));
   constexpr const char* helptest = R"(
-  Usage:;
+  Usage:
     ./<your-executable> ./<file>.feature [options]
     ./<your-executable> ./<dir> [options]
-
   Executing single scenarios from line (multiple lines possible): 
    <your-executable> ./<file>.feature:4"
    <your-executable> ./<file>.feature:4:10:15
@@ -138,6 +138,8 @@ static void print_help_screen()
     -h --help  Print the help screen to stdout
     
     -q --quiet  Quiet mode, only the final result will be printed to stdout.
+
+    -v --verbose  Print detailed information, e.g. skipped scenarios, tag evaluation
 
     --report-json [opt: file]  Print the test results as json to stdout or a given file
 

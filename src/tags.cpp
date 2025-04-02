@@ -8,11 +8,15 @@ namespace cuke::internal
 
 tag_expression::tag_expression() : m_lexer("", bool_operators{}) {}
 tag_expression::tag_expression(std::string_view expression)
-    : m_lexer(expression, bool_operators{})
+    : m_lexer(expression, bool_operators{}), m_expression(expression)
 {
   compile();
 }
 std::size_t tag_expression::size() const noexcept { return m_out.size(); }
+const std::string& tag_expression::expression() const noexcept
+{
+  return m_expression;
+}
 bool tag_expression::empty() const noexcept { return m_out.empty(); }
 bool tag_expression::evaluate(const std::vector<std::string>& tags) const
 {

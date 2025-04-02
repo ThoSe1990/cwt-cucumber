@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <stdexcept>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
 #include "../src/asserts.hpp"
 
+#include "options.hpp"
 #include "test_paths.hpp"
 
 class stdout_print : public ::testing::Test
@@ -400,4 +400,26 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   EXPECT_FALSE(
       has_substr(output, "Expected given condition true, but its false:"));
   EXPECT_FALSE(has_substr(output, "[   FAILED    ] And this fails"));
+}
+TEST_F(stdout_print, verbose_tags)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    @tag1
+    Scenario: a scenario 
+    Given a step 
+  )*";
+
+  const char* argv[] = {"program", "-v", "-t", "@tag2"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_FALSE(has_substr(output, "[    VERBOSE   ]"));
+  std::cout << output << std::endl;
 }

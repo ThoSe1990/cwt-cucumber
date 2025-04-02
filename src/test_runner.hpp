@@ -8,12 +8,11 @@
 #include "ast.hpp"
 #include "parser.hpp"
 #include "registry.hpp"
-#include "table.hpp"
 #include "test_results.hpp"
 #include "util.hpp"
-#include "util_regex.hpp"
 #include "context.hpp"
 #include "options.hpp"
+#include "printer.hpp"
 
 namespace cuke
 {
@@ -87,105 +86,9 @@ namespace details
 template <typename T>
 void print_file_line(const T& t)
 {
-  ::cuke::println(internal::color::black, "  ", t.file(), ':', t.line());
+  ::cuke::print(internal::color::black, "  ", t.file(), ':', t.line());
 }
-
 }  // namespace details
-
-class stdout_interface
-{
- public:
-  virtual ~stdout_interface() = default;
-  virtual void println() const noexcept {}
-  virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
-  virtual void print(const cuke::ast::scenario_node& scenario) const noexcept {}
-  virtual void print(const cuke::ast::scenario_outline_node& scenario_outline,
-                     const table::row& row) const noexcept
-  {
-  }
-  virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status) const noexcept
-  {
-  }
-  virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status,
-                     const table::row& row) const noexcept
-  {
-  }
-};
-
-class cuke_printer : public stdout_interface
-{
- public:
-  virtual void println() const noexcept override { ::cuke::println(); }
-  void print(const cuke::ast::feature_node& feature) const noexcept override
-  {
-    ::cuke::print(feature.keyword(), ": ", feature.name());
-    details::print_file_line(feature);
-    println();
-  }
-  void print(const cuke::ast::scenario_node& scenario) const noexcept override
-  {
-    ::cuke::print(scenario.keyword(), ": ", scenario.name());
-    details::print_file_line(scenario);
-  }
-  void print(const cuke::ast::scenario_outline_node& scenario_outline,
-             const table::row& row) const noexcept override
-  {
-    ::cuke::print(scenario_outline.keyword(), ": ",
-                  internal::replace_variables(scenario_outline.name(), row));
-    details::print_file_line(scenario_outline);
-  }
-  void print(const cuke::ast::step_node& step, results::test_status status,
-             const table::row& row) const noexcept override
-  {
-    const std::string step_w_example_variables =
-        internal::replace_variables(step.name(), row);
-    ::cuke::print(results::to_color(status), results::step_prefix(status),
-                  step.keyword(), ' ', step_w_example_variables);
-    details::print_file_line(step);
-    if (!step.data_table().empty())
-    {
-      print_table(step.data_table());
-    }
-    if (!step.doc_string().empty())
-    {
-      print_doc_string(step.doc_string());
-    }
-  }
-  void print(const cuke::ast::step_node& step,
-             results::test_status status) const noexcept override
-  {
-    ::cuke::print(results::to_color(status), results::step_prefix(status),
-                  step.keyword(), ' ', step.name());
-    details::print_file_line(step);
-    if (!step.data_table().empty())
-    {
-      print_table(step.data_table());
-    }
-    if (!step.doc_string().empty())
-    {
-      print_doc_string(step.doc_string());
-    }
-  }
-  void print_doc_string(
-      const std::vector<std::string>& doc_string) const noexcept
-  {
-    ::cuke::println("\"\"\"");
-    for (const std::string& line : doc_string)
-    {
-      ::cuke::println(line);
-    }
-    ::cuke::println("\"\"\"");
-  }
-  void print_table(const cuke::table& t) const noexcept
-  {
-    for (const std::string& row : t.to_string_array())
-    {
-      ::cuke::println("  ", row);
-    }
-  }
-};
 
 class test_runner
 {
@@ -196,6 +99,10 @@ class test_runner
     if (program_arguments().get_options().quiet)
     {
       m_printer.reset(std::make_unique<stdout_interface>().release());
+    }
+    if (program_arguments().get_options().verbose)
+    {
+      m_verbose_printer.reset(std::make_unique<verbose_printer>().release());
     }
   }
   void setup() { cuke::registry().run_hook_before_all(); }
@@ -248,18 +155,25 @@ class test_runner
  private:
   void run_scenario(const ast::scenario_node& scenario) const
   {
-    cuke::registry().run_hook_before(scenario.tags());
+    verbose_start(scenario);
+    cuke::registry().run_hook_before(scenario.tags(), m_verbose_printer);
 
-    if (ignore_flag())
+    if (ignore_flag() || !tags_valid(scenario))
     {
+      verbose_ignore();
+      verbose_end();
+      // TODO: lets refactor this here
+      internal::get_runtime_options().skip_scenario(false);
       return;
     }
 
+    const bool skip = skip_flag();
+
     results::new_scenario(scenario);
 
-    const bool skip = skip_flag() || !tags_valid(scenario);
     if (skip)
     {
+      verbose_skip();
       results::scenarios_back().status = results::test_status::skipped;
     }
 
@@ -277,18 +191,27 @@ class test_runner
       run_step(step, skip);
     }
 
-    cuke::registry().run_hook_after(scenario.tags());
+    cuke::registry().run_hook_after(scenario.tags(), m_verbose_printer);
     update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
                            skip);
     cuke::internal::reset_context();
+
+    verbose_end();
     m_printer->println();
   }
 
   [[nodiscard]] bool tags_valid(
       const ast::scenario_node& scenario) const noexcept
   {
-    return m_tag_expression.empty() ||
-           m_tag_expression.evaluate(scenario.tags());
+    if (m_tag_expression.empty())
+    {
+      verbose_no_tags();
+      return true;
+    }
+    bool tag_evaluation = m_tag_expression.evaluate(scenario.tags());
+    verbose_evaluate_tags(scenario, tag_evaluation);
+
+    return tag_evaluation;
   }
 
   void run_step(const ast::step_node& step, bool skip) const
@@ -323,9 +246,53 @@ class test_runner
     m_printer->print(step, results::steps_back().status);
   }
 
+  void verbose_start(const ast::scenario_node& scenario) const noexcept
+  {
+    m_verbose_printer->println(
+        "[   VERBOSE   ] ----------------------------------");
+    m_verbose_printer->println(
+        std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
+                    scenario.name(), scenario.file(), scenario.line()));
+  }
+  void verbose_end() const noexcept
+  {
+    m_verbose_printer->println("[   VERBOSE   ] Scenario end");
+    m_verbose_printer->println(
+        "[   VERBOSE   ] ----------------------------------");
+    m_verbose_printer->println();
+  }
+  void verbose_no_tags() const noexcept
+  {
+    m_verbose_printer->println("[   VERBOSE   ] No tags given, continuing");
+  }
+  void verbose_evaluate_tags(const ast::scenario_node& scenario,
+                             bool tag_evaluation) const noexcept
+  {
+    m_verbose_printer->println(
+        std::format("[   VERBOSE   ] Scenario tags '{}'",
+                    internal::to_string(scenario.tags())));
+    m_verbose_printer->println(
+        std::format("                checked against tag expression '{}' -> {}",
+                    m_tag_expression.expression(),
+                    tag_evaluation ? "'True', continuing with scenario"
+                                   : "'False', stopping scenario"));
+  }
+  void verbose_skip() const noexcept
+  {
+    m_verbose_printer->println(
+        "[   VERBOSE   ] Scenario skipped with 'skip_scenario'");
+  }
+  void verbose_ignore() const noexcept
+  {
+    m_verbose_printer->println(
+        "[   VERBOSE   ] Scenario ignored with 'ignore_scenario'");
+  }
+
  private:
   std::unique_ptr<stdout_interface> m_printer =
       std::make_unique<cuke_printer>();
+  std::unique_ptr<stdout_interface> m_verbose_printer =
+      std::make_unique<stdout_interface>();
   const internal::tag_expression m_tag_expression;
 };
 

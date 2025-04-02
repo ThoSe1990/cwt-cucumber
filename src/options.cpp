@@ -80,6 +80,10 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   {
     m_options.quiet = true;
   }
+  else if (option.starts_with("-v") || option.starts_with("--verbose"))
+  {
+    m_options.verbose = true;
+  }
   else if (option == "--steps-catalog")
   {
     m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
