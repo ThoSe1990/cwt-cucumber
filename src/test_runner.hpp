@@ -105,9 +105,9 @@ class test_runner
       m_verbose_printer.reset(std::make_unique<verbose_printer>().release());
     }
   }
-  void setup() { cuke::registry().run_hook_before_all(); }
+  void setup() { cuke::registry().run_hook_before_all(m_verbose_printer); }
 
-  void teardown() { cuke::registry().run_hook_after_all(); }
+  void teardown() { cuke::registry().run_hook_after_all(m_verbose_printer); }
 
   void run()
   {
@@ -230,9 +230,9 @@ class test_runner
     if (step.has_step_definition())
     {
       results::set_source_location(step.source_location_definition());
-      cuke::registry().run_hook_before_step();
+      cuke::registry().run_hook_before_step(m_verbose_printer);
       step.call();
-      cuke::registry().run_hook_after_step();
+      cuke::registry().run_hook_after_step(m_verbose_printer);
     }
     else
     {

@@ -37,11 +37,11 @@ static any make_parameter_value(cuke::value_array::const_iterator begin,
   return get_param_value(begin, count, 1).as<T>();
 }
 
-template <typename Hook>
-static void run_hook(const std::vector<Hook>& hooks)
-{
-  std::for_each(hooks.begin(), hooks.end(), [](const auto& h) { h.call(); });
-}
+// template <typename Hook>
+// static void run_hook(const std::vector<Hook>& hooks)
+// {
+//   std::for_each(hooks.begin(), hooks.end(), [](const auto& h) { h.call(); });
+// }
 template <typename Hook, typename Printer>
 static void run_hook(const std::vector<Hook>& hooks, const Printer& printer)
 {
@@ -247,10 +247,26 @@ class registry
   {
     run_hook(m_hooks.after, tags, printer);
   }
-  void run_hook_before_step() const noexcept { run_hook(m_hooks.before_step); }
-  void run_hook_after_step() const noexcept { run_hook(m_hooks.after_step); }
-  void run_hook_before_all() const noexcept { run_hook(m_hooks.before_all); }
-  void run_hook_after_all() const noexcept { run_hook(m_hooks.after_all); }
+  template <typename Printer>
+  void run_hook_before_step(const Printer& printer) const noexcept
+  {
+    run_hook(m_hooks.before_step, printer);
+  }
+  template <typename Printer>
+  void run_hook_after_step(const Printer& printer) const noexcept
+  {
+    run_hook(m_hooks.after_step, printer);
+  }
+  template <typename Printer>
+  void run_hook_before_all(const Printer& printer) const noexcept
+  {
+    run_hook(m_hooks.before_all, printer);
+  }
+  template <typename Printer>
+  void run_hook_after_all(const Printer& printer) const noexcept
+  {
+    run_hook(m_hooks.after_all, printer);
+  }
 
  private:
   template <typename Compare>

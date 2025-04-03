@@ -17,7 +17,7 @@ struct hook
   {
   }
   hook(const std::string& name, hook_callback cb, std::string_view tags,
-       std::string_view type = "")
+       std::string_view type)
       : m_name(name), m_callback(cb), m_tags(tags), m_type(type)
   {
   }
