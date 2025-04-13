@@ -479,3 +479,75 @@ TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
   cuke::parser p;
   EXPECT_THROW({ p.parse_script(script); }, std::runtime_error);
 }
+
+class run_scenarios_6 : public ::testing::Test
+{
+  // Reported bug: closing quote was ignored with multiple string parameters
+  // within one step: https://github.com/ThoSe1990/cwt-cucumber/issues/80
+ protected:
+  void SetUp() override
+  {
+    param1 = std::string{""};
+    param2 = std::string{""};
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&)
+        {
+          ASSERT_EQ(values.size(), 1);
+          param1 = values.at(0).to_string();
+          param2 = std::string{""};
+        },
+        "the program {string} is started"));
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array& values, const auto&, const auto&,
+           const auto&)
+        {
+          ASSERT_EQ(values.size(), 2);
+          param1 = values.at(0).to_string();
+          param2 = values.at(1).to_string();
+        },
+        "the program {string} with parameters {string} is started"));
+  }
+  static std::string param1;
+  static std::string param2;
+};
+std::string run_scenarios_6::param1 = std::string{""};
+std::string run_scenarios_6::param2 = std::string{""};
+
+TEST_F(run_scenarios_6, match_step_with_1_arg)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario: 
+    * the program "./my-program" is started
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_6::param1, std::string("./my-program"));
+  EXPECT_TRUE(run_scenarios_6::param2.empty());
+}
+TEST_F(run_scenarios_6, match_step_with_2_arg)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario: 
+    * the program "./another-program" with parameters "--arg 1 --arg 'some value'" is started
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_6::param1, std::string("./another-program"));
+  EXPECT_EQ(run_scenarios_6::param2, std::string("--arg 1 --arg 'some value'"));
+}

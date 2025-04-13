@@ -298,7 +298,7 @@ class registry
          {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
         {"{word}", {"([^\\s<]+)", "word", make_parameter_value<std::string>}},
         {"{string}",
-         {"\"(.*?)\"", "string", make_parameter_value<std::string>}},
+         {"\"([^\"]*)\"", "string", make_parameter_value<std::string>}},
         {"{}", {"(.+)", "anonymous", make_parameter_value<std::string>}}};
     std::unordered_map<std::string, expression> custom;
   } m_expressions;

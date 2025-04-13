@@ -423,6 +423,25 @@ TEST(step_finder, box_examples_1)
   ASSERT_EQ(sf.values().size(), 1);
   EXPECT_EQ(sf.values().at(0).as<int>(), 2);
 }
+TEST(step_finder, multiple_strings_1)
+{
+  auto [pattern, types] =
+      create_regex_definition("the program {string} is started");
+  step_finder sf(
+      "the program \"echo\" with parameters \"should be shown\" is started");
+  ASSERT_FALSE(sf.step_matches(pattern));
+}
+TEST(step_finder, multiple_strings_2)
+{
+  auto [pattern, types] = create_regex_definition(
+      "the program {string} with parameters {string} is started");
+  step_finder sf(
+      "the program \"echo\" with parameters \"should be shown\" is started");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).to_string(), std::string("echo"));
+  EXPECT_EQ(sf.values().at(1).to_string(), std::string("should be shown"));
+}
 
 TEST(step_finder, step_alternation_1)
 {
