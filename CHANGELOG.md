@@ -12,6 +12,7 @@
 ### Fixed
 - Scenario outline: Variable replacement in doc-strings and description ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
 - Scenario outline: Executing a single scenario with appending lines on the terminal arg (e.g. `feature/file.feature:11:12`) did not consider empty lines in a table ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
+- Multiple string parameters in a step definition lead to step mismtatch, the very first and the very last quote define the start and end of one string ([82](https://github.com/ThoSe1990/cwt-cucumber/pull/82))
 
 
 ## [2.6] 2025-03-26
