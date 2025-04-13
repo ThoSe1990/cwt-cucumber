@@ -29,9 +29,9 @@ Feature: My first feature
     Then They will match "<expected word>" and "<expected anonymous>"
     
     Examples:
-      | word      | anonymous | expected word | expected anonymous |
-      | 123.123   | -999.    9999 | 123.123       | -999.    9999          | 
-      | "abc"     | -00:00,00 | "abc"         | -00:00,00          | 
+      | word      | anonymous     | expected word | expected anonymous |
+      | 123.123   | -999.    9999 | 123.123       | -999.    9999      | 
+      | 'abc'     | -00:00,00     | 'abc'         | -00:00,00          | 
 
 
 
