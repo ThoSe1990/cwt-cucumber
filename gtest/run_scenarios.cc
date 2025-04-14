@@ -551,3 +551,65 @@ TEST_F(run_scenarios_6, match_step_with_2_arg)
   EXPECT_EQ(run_scenarios_6::param1, std::string("./another-program"));
   EXPECT_EQ(run_scenarios_6::param2, std::string("--arg 1 --arg 'some value'"));
 }
+
+class run_scenarios_7 : public ::testing::Test
+{
+  // Found this issue, when having comments in a description section, an
+  // exception is thrown within one step:
+  // https://github.com/ThoSe1990/cwt-cucumber/issues/81
+ protected:
+  void SetUp() override
+  {
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const auto&, const auto&, const auto&, const auto&) {}, "a step"));
+  }
+};
+TEST_F(run_scenarios_7, feature_description_w_comments)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      some description here
+      # a comment line ... 
+    Scenario: 
+      * a step
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  const std::vector<std::string>& description =
+      p.head().feature().description();
+
+  ASSERT_FALSE(description.empty());
+  EXPECT_EQ(description.at(0), std::string("some description here"));
+}
+TEST_F(run_scenarios_7, scenario_description_w_comments)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: 
+      some description here
+      # a comment line ... 
+      * a step
+
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  const std::vector<std::string>& description =
+      static_cast<cuke::ast::scenario_node&>(
+          *p.head().feature().scenarios().at(0))
+          .description();
+
+  ASSERT_FALSE(description.empty());
+  EXPECT_EQ(description.at(0), std::string("some description here"));
+}

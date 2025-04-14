@@ -47,7 +47,11 @@ template <typename... Ts>
     lex.advance_to(token_type::linebreak);
     token end = lex.previous();
     lex.advance();
-    lines.push_back(create_string(begin, end));
+
+    auto is_not_comment_or_empty = [&begin, &end]()
+    { return begin.line > end.line; };
+    lines.push_back(is_not_comment_or_empty() ? create_string(end, begin)
+                                              : create_string(begin, end));
   }
   return lines;
 }
