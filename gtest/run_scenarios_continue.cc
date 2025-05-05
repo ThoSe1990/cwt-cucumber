@@ -145,3 +145,29 @@ TEST_F(run_scenarios_continue, continue_on_fail_3)
 
   EXPECT_FALSE(has_skipped_steps(feature));
 }
+TEST_F(run_scenarios_continue, continue_on_fail_4)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    * this is undefined ...  
+    * a step  
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+
+  make_args("-c");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_continue::call_count, 1);
+
+  const auto& feature = cuke::results::features_back();
+  EXPECT_EQ(feature.status, cuke::results::test_status::failed);
+
+  const auto& scenario = cuke::results::scenarios_back();
+  EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
+
+  EXPECT_FALSE(has_skipped_steps(feature));
+}
