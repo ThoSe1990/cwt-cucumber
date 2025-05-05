@@ -142,6 +142,9 @@ static void print_help_screen()
 
     -v --verbose  Print detailed information, e.g. skipped scenarios, tag evaluation
 
+    -c --continue-on-failure  Do not skip subsequent steps in a scenario after a failed step, 
+                              all steps will run regardless of intermediate failures
+
     --report-json [opt: file]  Print the test results as json to stdout or a given file
 
     --steps-catalog [opt: file]       Write the implemented steps as readable text to stdout or a file 
