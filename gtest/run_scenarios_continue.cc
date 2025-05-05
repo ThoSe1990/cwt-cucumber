@@ -4,8 +4,8 @@
 #include "../src/options.hpp"
 #include "../src/parser.hpp"
 #include "../src/test_runner.hpp"
-#include "asserts.hpp"
-#include "test_results.hpp"
+#include "../src/asserts.hpp"
+#include "../src/test_results.hpp"
 
 namespace
 {
