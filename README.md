@@ -22,6 +22,7 @@
     1. [Tagged Hooks](#tagged-hooks)
     1. [Skip / Ignore Scenarios](#skip--ignore-scenarios)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
+    1. [Continue on Failure](#continue-on-failure)
 1. [Custom Parameter Types](#custom-parameter-types)
     1. [Example: Pair of Integers](#example-pair-of-integers)
     1. [Example: Date-Range](#example-date-range)
@@ -578,6 +579,32 @@ If you want to execute all feature files in a directory (and subdirectory), just
 ```shell
 ./build/bin/example ./examples/features
 ```
+
+### Continue on Failure
+
+You can run all steps in a scenario, regardless of intermediate failures, by using the `-c` / `--continue-on-failure` flag.  
+To try it out, remove or comment the `@skip` tag from `examples/features/10_continue_on_failure.feature`, then run the file with the option:
+  
+```
+./build/bin/example ./examples/features/10_continue_on_failure.feature -c
+
+Feature: Continue on failure 
+
+Scenario: First Scenario 
+[   PASSED    ] Given An empty box 
+[   PASSED    ] When I place 1 x "apple" in it
+Value 1 is not equal to 2 in following step:
+[   FAILED    ] Then The box contains 2 item 
+[   PASSED    ] But I place 1 x "banana" in it
+[   PASSED    ] Then The box contains 2 item 
+
+Failed Scenarios:
+First Scenario  ./examples/features/10_continue_on_failure.feature:7
+
+1 Scenario (1 failed)
+5 Steps (1 failed, 4 passed)
+```
+All steps from the scenario are executed, even after a failure — making it easier to debug or inspect full execution flow.
 
 ## Custom Parameter Types
 
