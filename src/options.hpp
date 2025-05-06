@@ -87,6 +87,7 @@ struct options
   bool quiet{false};
   bool verbose{false};
   bool print_help{false};
+  bool continue_on_failure{false};
   struct
   {
     catalog_type type{catalog_type::none};
@@ -140,6 +141,9 @@ static void print_help_screen()
     -q --quiet  Quiet mode, only the final result will be printed to stdout.
 
     -v --verbose  Print detailed information, e.g. skipped scenarios, tag evaluation
+
+    -c --continue-on-failure  Do not skip subsequent steps in a scenario after a failed step, 
+                              all steps will run regardless of intermediate failures
 
     --report-json [opt: file]  Print the test results as json to stdout or a given file
 

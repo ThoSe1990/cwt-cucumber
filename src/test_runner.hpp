@@ -37,7 +37,8 @@ namespace cuke
 }
 [[nodiscard]] static bool skip_step()
 {
-  return !(results::scenarios_back().steps.empty() ||
+  return !program_arguments().get_options().continue_on_failure &&
+         !(results::scenarios_back().steps.empty() ||
            results::steps_back().status == results::test_status::passed);
 }
 static void update_feature_status()
