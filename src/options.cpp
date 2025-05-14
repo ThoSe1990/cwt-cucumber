@@ -3,6 +3,7 @@
 
 #include "options.hpp"
 #include "catalog.hpp"
+#include "log.hpp"
 #include "util.hpp"
 
 namespace cuke
@@ -78,11 +79,11 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
-    m_options.quiet = true;
+    cuke::log::set_level(cuke::log::level::quiet);
   }
   else if (option.starts_with("-v") || option.starts_with("--verbose"))
   {
-    m_options.verbose = true;
+    cuke::log::set_level(cuke::log::level::verbose);
   }
   else if (option.starts_with("-c") ||
            option.starts_with("--continue-on-failure"))

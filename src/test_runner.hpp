@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include "ast.hpp"
+#include "log.hpp"
 #include "parser.hpp"
 #include "registry.hpp"
 #include "test_results.hpp"
@@ -87,7 +88,7 @@ namespace details
 template <typename T>
 void print_file_line(const T& t)
 {
-  ::cuke::print(internal::color::black, "  ", t.file(), ':', t.line());
+  log::info(log::black, "  ", t.file(), ':', t.line());
 }
 }  // namespace details
 
@@ -97,18 +98,18 @@ class test_runner
   test_runner()
       : m_tag_expression(program_arguments().get_options().tag_expression)
   {
-    if (program_arguments().get_options().quiet)
-    {
-      m_printer.reset(std::make_unique<stdout_interface>().release());
-    }
-    if (program_arguments().get_options().verbose)
-    {
-      m_verbose_printer.reset(std::make_unique<verbose_printer>().release());
-    }
+    // if (program_arguments().get_options().quiet)
+    // {
+    //   m_printer.reset(std::make_unique<stdout_interface>().release());
+    // }
+    // if (program_arguments().get_options().verbose)
+    // {
+    //   m_verbose_printer.reset(std::make_unique<verbose_printer>().release());
+    // }
   }
-  void setup() { cuke::registry().run_hook_before_all(m_verbose_printer); }
+  void setup() { cuke::registry().run_hook_before_all(); }
 
-  void teardown() { cuke::registry().run_hook_after_all(m_verbose_printer); }
+  void teardown() { cuke::registry().run_hook_after_all(); }
 
   void run()
   {
@@ -138,7 +139,7 @@ class test_runner
   void visit(const cuke::ast::feature_node& feature)
   {
     results::new_feature(feature);
-    m_printer->print(feature);
+    m_printer.print(feature);
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
@@ -157,7 +158,7 @@ class test_runner
   void run_scenario(const ast::scenario_node& scenario) const
   {
     verbose_start(scenario);
-    cuke::registry().run_hook_before(scenario.tags(), m_verbose_printer);
+    cuke::registry().run_hook_before(scenario.tags());
 
     if (ignore_flag() || !tags_valid(scenario))
     {
@@ -178,7 +179,7 @@ class test_runner
       results::scenarios_back().status = results::test_status::skipped;
     }
 
-    m_printer->print(scenario);
+    m_printer.print(scenario);
 
     if (scenario.has_background())
     {
@@ -192,13 +193,13 @@ class test_runner
       run_step(step, skip);
     }
 
-    cuke::registry().run_hook_after(scenario.tags(), m_verbose_printer);
+    cuke::registry().run_hook_after(scenario.tags());
     update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
                            skip);
     cuke::internal::reset_context();
 
     verbose_end();
-    m_printer->println();
+    m_printer.println();
   }
 
   [[nodiscard]] bool tags_valid(
@@ -224,16 +225,16 @@ class test_runner
                                          ? results::test_status::skipped
                                          : results::test_status::undefined;
       update_step_status();
-      m_printer->print(step, results::steps_back().status);
+      m_printer.print(step, results::steps_back().status);
       return;
     }
     results::new_step(step);
     if (step.has_step_definition())
     {
       results::set_source_location(step.source_location_definition());
-      cuke::registry().run_hook_before_step(m_verbose_printer);
+      cuke::registry().run_hook_before_step();
       step.call();
-      cuke::registry().run_hook_after_step(m_verbose_printer);
+      cuke::registry().run_hook_after_step();
     }
     else
     {
@@ -244,35 +245,32 @@ class test_runner
 
     internal::get_runtime_options().sleep_if_has_delay();
 
-    m_printer->print(step, results::steps_back().status);
+    m_printer.print(step, results::steps_back().status);
   }
 
   void verbose_start(const ast::scenario_node& scenario) const noexcept
   {
-    m_verbose_printer->println(
-        "[   VERBOSE   ] ----------------------------------");
-    m_verbose_printer->println(
+    m_printer.println("[   VERBOSE   ] ----------------------------------");
+    m_printer.println(
         std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
                     scenario.name(), scenario.file(), scenario.line()));
   }
   void verbose_end() const noexcept
   {
-    m_verbose_printer->println("[   VERBOSE   ] Scenario end");
-    m_verbose_printer->println(
-        "[   VERBOSE   ] ----------------------------------");
-    m_verbose_printer->println();
+    m_printer.println("[   VERBOSE   ] Scenario end");
+    m_printer.println("[   VERBOSE   ] ----------------------------------");
+    m_printer.println();
   }
   void verbose_no_tags() const noexcept
   {
-    m_verbose_printer->println("[   VERBOSE   ] No tags given, continuing");
+    m_printer.println("[   VERBOSE   ] No tags given, continuing");
   }
   void verbose_evaluate_tags(const ast::scenario_node& scenario,
                              bool tag_evaluation) const noexcept
   {
-    m_verbose_printer->println(
-        std::format("[   VERBOSE   ] Scenario tags '{}'",
-                    internal::to_string(scenario.tags())));
-    m_verbose_printer->println(
+    m_printer.println(std::format("[   VERBOSE   ] Scenario tags '{}'",
+                                  internal::to_string(scenario.tags())));
+    m_printer.println(
         std::format("                checked against tag expression '{}' -> {}",
                     m_tag_expression.expression(),
                     tag_evaluation ? "'True', continuing with scenario"
@@ -280,20 +278,16 @@ class test_runner
   }
   void verbose_skip() const noexcept
   {
-    m_verbose_printer->println(
-        "[   VERBOSE   ] Scenario skipped with 'skip_scenario'");
+    m_printer.println("[   VERBOSE   ] Scenario skipped with 'skip_scenario'");
   }
   void verbose_ignore() const noexcept
   {
-    m_verbose_printer->println(
+    m_printer.println(
         "[   VERBOSE   ] Scenario ignored with 'ignore_scenario'");
   }
 
  private:
-  std::unique_ptr<stdout_interface> m_printer =
-      std::make_unique<cuke_printer>();
-  std::unique_ptr<stdout_interface> m_verbose_printer =
-      std::make_unique<stdout_interface>();
+  cuke_printer m_printer;
   const internal::tag_expression m_tag_expression;
 };
 

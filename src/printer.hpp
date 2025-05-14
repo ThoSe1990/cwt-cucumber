@@ -1,64 +1,54 @@
 #pragma once
 #include <string_view>
 
+#include "log.hpp"
 #include "ast.hpp"
 #include "test_results.hpp"
 #include "util_regex.hpp"
 
 namespace cuke
 {
-class stdout_interface
-{
- public:
-  virtual ~stdout_interface() = default;
-  virtual void println() const noexcept {}
-  virtual void print(std::string_view msg) const noexcept {}
-  virtual void println(std::string_view msg) const noexcept {}
-  virtual void print(const cuke::ast::feature_node& feature) const noexcept {}
-  virtual void print(const cuke::ast::scenario_node& scenario) const noexcept {}
-  virtual void print(const cuke::ast::scenario_outline_node& scenario_outline,
-                     const table::row& row) const noexcept
-  {
-  }
-  virtual void print(const cuke::ast::step_node& step,
-                     results::test_status status) const noexcept
-  {
-  }
-};
 
-class cuke_printer : public stdout_interface
+class cuke_printer
 {
  public:
-  void println() const noexcept override { ::cuke::println(); }
-  void print(const cuke::ast::feature_node& feature) const noexcept override
+  void println() const noexcept { log::info(log::new_line); }
+  void print(std::string_view msg) const noexcept
   {
-    ::cuke::print(feature.keyword(), ": ", feature.name());
-    ::cuke::println(internal::color::black, "  ", feature.file(), ':',
-                    feature.line());
-    ::cuke::println();
+    log::verbose(log::black, msg, log::reset_color);
   }
-  void print(const cuke::ast::scenario_node& scenario) const noexcept override
+  void println(std::string_view msg) const noexcept
   {
-    ::cuke::print(scenario.keyword(), ": ", scenario.name());
-    ::cuke::println(internal::color::black, "  ", scenario.file(), ':',
-                    scenario.line());
+    log::verbose(log::black, msg, log::reset_color, log::new_line);
+  }
+  void print(const cuke::ast::feature_node& feature) const noexcept
+  {
+    log::info(feature.keyword(), ": ", feature.name());
+    log::info(log::black, "  ", feature.file(), ':', feature.line(),
+              log::reset_color, log::new_line, log::new_line);
+  }
+  void print(const cuke::ast::scenario_node& scenario) const noexcept
+  {
+    log::info(scenario.keyword(), ": ", scenario.name());
+    log::info(log::black, "  ", scenario.file(), ':', scenario.line(),
+              log::reset_color, log::new_line);
   }
   void print(const cuke::ast::scenario_outline_node& scenario_outline,
-             const table::row& row) const noexcept override
+             const table::row& row) const noexcept
   {
-    ::cuke::print(scenario_outline.keyword(), ": ",
-                  internal::replace_variables(scenario_outline.name(), row));
-    ::cuke::println(internal::color::black, "  ", scenario_outline.file(), ':',
-                    scenario_outline.line());
+    log::info(scenario_outline.keyword(), ": ",
+              internal::replace_variables(scenario_outline.name(), row));
+    log::info(log::black, "  ", scenario_outline.file(), ':',
+              scenario_outline.line(), log::reset_color, log::new_line);
   }
 
   void print(const cuke::ast::step_node& step,
-             results::test_status status) const noexcept override
+             results::test_status status) const noexcept
   {
-    ::cuke::print(results::to_color(status), results::step_prefix(status),
-                  step.keyword(), ' ', step.name());
-    ::cuke::println(internal::color::black, "  ", step.file(), ':',
-                    step.line());
+    log::info(results::to_color(status), results::step_prefix(status),
+              step.keyword(), ' ', step.name(), log::reset_color);
+    log::info(log::black, "  ", step.file(), ':', step.line(), log::reset_color,
+              log::new_line);
     if (!step.data_table().empty())
     {
       print_table(step.data_table());
@@ -71,33 +61,19 @@ class cuke_printer : public stdout_interface
   void print_doc_string(
       const std::vector<std::string>& doc_string) const noexcept
   {
-    ::cuke::println("\"\"\"");
+    log::info("\"\"\"", log::new_line);
     for (const std::string& line : doc_string)
     {
-      ::cuke::println(line);
+      log::info(line, log::new_line);
     }
-    ::cuke::println("\"\"\"");
+    log::info("\"\"\"", log::new_line);
   }
   void print_table(const cuke::table& t) const noexcept
   {
     for (const std::string& row : t.to_string_array())
     {
-      ::cuke::println("  ", row);
+      log::info("  ", row, log::new_line);
     }
-  }
-};
-
-class verbose_printer : public stdout_interface
-{
- public:
-  void println() const noexcept override { ::cuke::println(); }
-  void print(std::string_view msg) const noexcept override
-  {
-    cuke::print(internal::color::black, msg);
-  }
-  void println(std::string_view msg) const noexcept override
-  {
-    cuke::println(internal::color::black, msg);
   }
 };
 

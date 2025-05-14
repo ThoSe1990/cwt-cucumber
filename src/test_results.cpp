@@ -1,5 +1,6 @@
 #include "test_results.hpp"
 #include "ast.hpp"
+#include "log.hpp"
 #include "util.hpp"
 #include "util_regex.hpp"
 
@@ -214,21 +215,20 @@ std::string steps_to_string()
 
   return str;
 }
-
-internal::color to_color(test_status status)
+const char* to_color(test_status status)
 {
   switch (status)
   {
     case cuke::results::test_status::passed:
-      return internal::color::green;
+      return log::green;
     case cuke::results::test_status::failed:
-      return internal::color::red;
+      return log::red;
     case cuke::results::test_status::skipped:
-      return internal::color::blue;
+      return log::blue;
     case cuke::results::test_status::undefined:
-      return internal::color::yellow;
+      return log::yellow;
     default:
-      return internal::color::standard;
+      return log::reset_color;
   }
 }
 std::string to_string(test_status status)

@@ -3,8 +3,7 @@
 #include <optional>
 #include <string_view>
 
-#include "util.hpp"
-#include "options.hpp"
+#include "log.hpp"
 #include "test_results.hpp"
 
 namespace cuke::internal
@@ -16,10 +15,8 @@ inline void internal_assert(bool condition, std::string_view error_msg)
   {
     cuke::results::set_step_to(cuke::results::test_status::failed);
     cuke::results::steps_back().error_msg = error_msg;
-    if (!program_arguments().get_options().quiet)
-    {
-      println(color::red, error_msg);
-    }
+    cuke::log::info(cuke::log::red, error_msg, cuke::log::reset_color,
+                    cuke::log::new_line);
   }
 }
 

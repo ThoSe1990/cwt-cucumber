@@ -84,8 +84,6 @@ enum class report_type
 
 struct options
 {
-  bool quiet{false};
-  bool verbose{false};
   bool print_help{false};
   bool continue_on_failure{false};
   struct
