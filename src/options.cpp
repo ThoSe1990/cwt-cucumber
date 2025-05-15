@@ -3,6 +3,7 @@
 
 #include "options.hpp"
 #include "catalog.hpp"
+#include "log.hpp"
 #include "util.hpp"
 
 namespace cuke
@@ -65,8 +66,8 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
     auto next_it = std::next(it);
     if (next_it == end)
     {
-      println(internal::color::red,
-              "Expect tag expression after '--tags/-t' option");
+      log::error("Expect tag expression after '--tags/-t' option",
+                 log::new_line);
       return;
     }
     std::string_view arg(*next_it);
@@ -78,11 +79,11 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
-    m_options.quiet = true;
+    cuke::log::set_level(cuke::log::level::quiet);
   }
   else if (option.starts_with("-v") || option.starts_with("--verbose"))
   {
-    m_options.verbose = true;
+    cuke::log::set_level(cuke::log::level::verbose);
   }
   else if (option.starts_with("-c") ||
            option.starts_with("--continue-on-failure"))

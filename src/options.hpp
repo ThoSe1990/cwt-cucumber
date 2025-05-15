@@ -8,7 +8,7 @@
 #include <string>
 #include <filesystem>
 
-#include "util.hpp"
+#include "log.hpp"
 #include "version.hpp"
 
 namespace cuke
@@ -48,7 +48,7 @@ class sink
   {
     if (m_filepath.empty())
     {
-      println(data);
+      log::info(data, log::new_line);
     }
     else
     {
@@ -60,8 +60,7 @@ class sink
       }
       else
       {
-        println(internal::color::red,
-                std::format("Can not open file '{}'", m_filepath));
+        log::error(std::format("Can not open file '{}'", m_filepath));
       }
     }
   }
@@ -84,8 +83,6 @@ enum class report_type
 
 struct options
 {
-  bool quiet{false};
-  bool verbose{false};
   bool print_help{false};
   bool continue_on_failure{false};
   struct
@@ -125,8 +122,8 @@ class cuke_args
 
 static void print_help_screen()
 {
-  println(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
-                      cuke::version::as_string()));
+  log::info(std::format("CWT-Cucumber {}: A C++ Cucumber Interpreter",
+                        cuke::version::as_string()));
   constexpr const char* helptest = R"(
   Usage:
     ./<your-executable> ./<file>.feature [options]
@@ -159,7 +156,7 @@ static void print_help_screen()
         "(@tag1 and @tag2) or not @tag3"
         "((@tag1 and @tag2) or @tag3) xor @tag4"
 )";
-  println(helptest);
+  log::info(helptest, log::new_line);
 }
 
 namespace internal

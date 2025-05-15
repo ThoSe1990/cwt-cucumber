@@ -4,8 +4,6 @@
 #include "../src/value.hpp"
 #include "../src/table.hpp"
 
-using namespace cuke::internal;
-
 cuke::value_array make_matrix(std::size_t dim)
 {
   cuke::value_array values;

@@ -4,7 +4,9 @@
 #include <format>
 #include <stdexcept>
 #include <string_view>
+#include <unordered_map>
 
+#include "log.hpp"
 #include "step.hpp"
 #include "hooks.hpp"
 #include "expression.hpp"
@@ -37,49 +39,49 @@ static any make_parameter_value(cuke::value_array::const_iterator begin,
   return get_param_value(begin, count, 1).as<T>();
 }
 
-// template <typename Hook>
-// static void run_hook(const std::vector<Hook>& hooks)
-// {
-//   std::for_each(hooks.begin(), hooks.end(), [](const auto& h) { h.call(); });
-// }
-template <typename Hook, typename Printer>
-static void run_hook(const std::vector<Hook>& hooks, const Printer& printer)
-{
-  std::for_each(hooks.begin(), hooks.end(),
-                [&printer](const auto& h)
-                {
-                  printer->println(std::format(
-                      "[   VERBOSE   ] Executing hook: '{}'", h.to_string()));
-                  h.call();
-                });
-}
-template <typename Hook, typename Printer>
-static void run_hook(const std::vector<Hook>& hooks,
-                     const std::vector<std::string>& tags,
-                     const Printer& printer)
+template <typename Hook>
+static void run_hook(const std::vector<Hook>& hooks)
 {
   std::for_each(
       hooks.begin(), hooks.end(),
-      [&tags, &printer](const auto& h)
+      [](const auto& h)
+      {
+        cuke::log::verbose(
+            std::format("[   VERBOSE   ] Executing hook: '{}'", h.to_string()),
+            cuke::log::new_line);
+        h.call();
+      });
+}
+template <typename Hook>
+static void run_hook(const std::vector<Hook>& hooks,
+                     const std::vector<std::string>& tags)
+{
+  std::for_each(
+      hooks.begin(), hooks.end(),
+      [&tags](const auto& h)
       {
         bool tag_evaluation = h.valid_tag(tags);
-        printer->print(std::format("[   VERBOSE   ] Hook '{}'", h.to_string()));
+        cuke::log::verbose(
+            std::format("[   VERBOSE   ] Hook '{}'", h.to_string()));
         if (h.expression().empty())
         {
-          printer->println(" -> executing hook");
+          cuke::log::verbose(" -> executing hook", cuke::log::new_line);
         }
         else
         {
           if (tags.empty())
           {
-            printer->println(" called without tags -> executing hook");
+            cuke::log::verbose(" called without tags -> executing hook",
+                               cuke::log::new_line);
           }
           else
           {
-            printer->println(std::format(
-                " called with tags '{}'-> {}", internal::to_string(tags),
-                tag_evaluation ? "'True', executing hook"
-                               : "'False', not executing hook"));
+            cuke::log::verbose(
+                std::format(" called with tags '{}'-> {}",
+                            internal::to_string(tags),
+                            tag_evaluation ? "'True', executing hook"
+                                           : "'False', not executing hook"),
+                cuke::log::new_line);
           }
         }
         if (tag_evaluation)
@@ -235,38 +237,18 @@ class registry
     return m_hooks.after_step;
   }
 
-  template <typename Printer>
-  void run_hook_before(const std::vector<std::string>& tags,
-                       const Printer& printer) const noexcept
+  void run_hook_before(const std::vector<std::string>& tags) const noexcept
   {
-    run_hook(m_hooks.before, tags, printer);
+    run_hook(m_hooks.before, tags);
   }
-  template <typename Printer>
-  void run_hook_after(const std::vector<std::string>& tags,
-                      const Printer& printer) const noexcept
+  void run_hook_after(const std::vector<std::string>& tags) const noexcept
   {
-    run_hook(m_hooks.after, tags, printer);
+    run_hook(m_hooks.after, tags);
   }
-  template <typename Printer>
-  void run_hook_before_step(const Printer& printer) const noexcept
-  {
-    run_hook(m_hooks.before_step, printer);
-  }
-  template <typename Printer>
-  void run_hook_after_step(const Printer& printer) const noexcept
-  {
-    run_hook(m_hooks.after_step, printer);
-  }
-  template <typename Printer>
-  void run_hook_before_all(const Printer& printer) const noexcept
-  {
-    run_hook(m_hooks.before_all, printer);
-  }
-  template <typename Printer>
-  void run_hook_after_all(const Printer& printer) const noexcept
-  {
-    run_hook(m_hooks.after_all, printer);
-  }
+  void run_hook_before_step() const noexcept { run_hook(m_hooks.before_step); }
+  void run_hook_after_step() const noexcept { run_hook(m_hooks.after_step); }
+  void run_hook_before_all() const noexcept { run_hook(m_hooks.before_all); }
+  void run_hook_after_all() const noexcept { run_hook(m_hooks.after_all); }
 
  private:
   template <typename Compare>

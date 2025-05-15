@@ -6,7 +6,7 @@
 #include <format>
 #include <type_traits>
 
-#include "util.hpp"
+#include "log.hpp"
 
 namespace cuke
 {
@@ -64,9 +64,10 @@ class value
     }
     catch (...)
     {
-      println(internal::color::red,
-              std::format("cuke::value::as: Cannot convert {} to integral type",
-                          m_value));
+      log::error(
+          std::format("cuke::value::as: Cannot convert {} to integral type",
+                      m_value),
+          log::new_line);
       return T();
     }
   }
@@ -80,10 +81,11 @@ class value
     }
     catch (...)
     {
-      println(internal::color::red,
-              std::format(
-                  "cuke::value::as: Cannot convert {} to floating point type",
-                  m_value));
+      log::error(
+          std::format(
+              "cuke::value::as: Cannot convert {} to floating point type",
+              m_value),
+          log::new_line);
       return T();
     }
   }

@@ -1,7 +1,7 @@
 #include <stack>
 
 #include "tags.hpp"
-#include "util.hpp"
+#include "log.hpp"
 
 namespace cuke::internal
 {
@@ -133,9 +133,9 @@ void tag_expression::compile()
   }
   else if (m_open_parens != 0)
   {
-    println(
-        color::red,
-        "Not all groupings closed or at least one grouping closed too much");
+    log::error(
+        "Not all groupings closed or at least one grouping closed too much",
+        log::new_line);
     m_operators.clear();
     m_out.clear();
   }
