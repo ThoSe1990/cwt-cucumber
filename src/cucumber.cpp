@@ -6,7 +6,6 @@
 #include "catalog.hpp"
 #include "test_results.hpp"
 #include "test_runner.hpp"
-#include "util.hpp"
 
 #include <algorithm>
 
@@ -25,7 +24,7 @@ void print_failed_scenarios()
                     {
                       if (first)
                       {
-                        log::always("Failed Scenarios:");
+                        log::always("Failed Scenarios:", log::new_line);
                         first = false;
                       }
                       log::always(log::red, scenario.name);
@@ -70,9 +69,9 @@ void cwt_cucumber::print_results() const noexcept
   {
     case report_type::none:
       print_failed_scenarios();
-      log::info(log::new_line);
-      log::info(results::scenarios_to_string(), log::new_line);
-      log::info(results::steps_to_string(), log::new_line);
+      log::always(log::new_line);
+      log::always(results::scenarios_to_string(), log::new_line);
+      log::always(results::steps_to_string(), log::new_line);
       break;
 
     case report_type::json:

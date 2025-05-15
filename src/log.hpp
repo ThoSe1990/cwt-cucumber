@@ -37,7 +37,10 @@ class logger
   template <typename... Args>
   void Log(level l, Args&&... args)
   {
-    if (l < m_level) return;
+    if (l < m_level)
+    {
+      return;
+    }
 
     (std::cout << ... << std::forward<Args>(args));
   }

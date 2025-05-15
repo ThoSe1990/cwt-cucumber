@@ -1,24 +1,78 @@
 #pragma once
 
 #include <cstddef>
-#include <memory>
 #include <string>
 #include <string_view>
 
 #include "ast.hpp"
+#include "test_results.hpp"
+#include "util_regex.hpp"
 #include "log.hpp"
 #include "parser.hpp"
 #include "registry.hpp"
-#include "test_results.hpp"
 #include "util.hpp"
 #include "context.hpp"
 #include "options.hpp"
-#include "printer.hpp"
 
 namespace cuke
 {
+namespace
+{
 
-[[nodiscard]] static bool ignore_flag()
+void log_helper(const cuke::ast::feature_node& feature)
+{
+  log::info(feature.keyword(), ": ", feature.name());
+  log::info(log::black, "  ", feature.file(), ':', feature.line(),
+            log::reset_color, log::new_line, log::new_line);
+}
+void log_helper(const cuke::ast::scenario_node& scenario)
+{
+  log::info(scenario.keyword(), ": ", scenario.name());
+  log::info(log::black, "  ", scenario.file(), ':', scenario.line(),
+            log::reset_color, log::new_line);
+}
+void log_helper(const cuke::ast::scenario_outline_node& scenario_outline,
+                const table::row& row)
+{
+  log::info(scenario_outline.keyword(), ": ",
+            internal::replace_variables(scenario_outline.name(), row));
+  log::info(log::black, "  ", scenario_outline.file(), ':',
+            scenario_outline.line(), log::reset_color, log::new_line);
+}
+
+void log_helper_doc_string(const std::vector<std::string>& doc_string)
+{
+  log::info("\"\"\"", log::new_line);
+  for (const std::string& line : doc_string)
+  {
+    log::info(line, log::new_line);
+  }
+  log::info("\"\"\"", log::new_line);
+}
+void log_helper_table(const cuke::table& t)
+{
+  for (const std::string& row : t.to_string_array())
+  {
+    log::info("  ", row, log::new_line);
+  }
+}
+void log_helper(const cuke::ast::step_node& step, results::test_status status)
+{
+  log::info(results::to_color(status), results::step_prefix(status),
+            step.keyword(), ' ', step.name(), log::reset_color);
+  log::info(log::black, "  ", step.file(), ':', step.line(), log::reset_color,
+            log::new_line);
+  if (!step.data_table().empty())
+  {
+    log_helper_table(step.data_table());
+  }
+  if (!step.doc_string().empty())
+  {
+    log_helper_doc_string(step.doc_string());
+  }
+}
+
+[[nodiscard]] bool ignore_flag()
 {
   if (internal::get_runtime_options().ignore_scenario())
   {
@@ -27,7 +81,7 @@ namespace cuke
   }
   return false;
 }
-[[nodiscard]] static bool skip_flag()
+[[nodiscard]] bool skip_flag()
 {
   if (internal::get_runtime_options().skip_scenario())
   {
@@ -36,13 +90,13 @@ namespace cuke
   }
   return false;
 }
-[[nodiscard]] static bool skip_step()
+[[nodiscard]] bool skip_step()
 {
   return !program_arguments().get_options().continue_on_failure &&
          !(results::scenarios_back().steps.empty() ||
            results::steps_back().status == results::test_status::passed);
 }
-static void update_feature_status()
+void update_feature_status()
 {
   if (results::features_back().status != results::test_status::passed)
   {
@@ -53,8 +107,8 @@ static void update_feature_status()
     results::set_feature_to(results::test_status::failed);
   }
 }
-static void update_scenario_status(std::string_view name, std::string_view file,
-                                   std::size_t line, bool skipped)
+void update_scenario_status(std::string_view name, std::string_view file,
+                            std::size_t line, bool skipped)
 {
   if (skipped)
   {
@@ -77,20 +131,12 @@ static void update_scenario_status(std::string_view name, std::string_view file,
   update_feature_status();
 }
 
-static void update_step_status()
+void update_step_status()
 {
   results::test_results().add_step(results::steps_back().status);
 }
 
-namespace details
-{
-
-template <typename T>
-void print_file_line(const T& t)
-{
-  log::info(log::black, "  ", t.file(), ':', t.line());
-}
-}  // namespace details
+}  // namespace
 
 class test_runner
 {
@@ -131,7 +177,7 @@ class test_runner
   void visit(const cuke::ast::feature_node& feature)
   {
     results::new_feature(feature);
-    m_printer.print(feature);
+    log_helper(feature);
   }
   void visit(const cuke::ast::scenario_node& scenario)
   {
@@ -171,7 +217,7 @@ class test_runner
       results::scenarios_back().status = results::test_status::skipped;
     }
 
-    m_printer.print(scenario);
+    log_helper(scenario);
 
     if (scenario.has_background())
     {
@@ -191,7 +237,7 @@ class test_runner
     cuke::internal::reset_context();
 
     verbose_end();
-    m_printer.println();
+    log::info(log::new_line);
   }
 
   [[nodiscard]] bool tags_valid(
@@ -217,7 +263,7 @@ class test_runner
                                          ? results::test_status::skipped
                                          : results::test_status::undefined;
       update_step_status();
-      m_printer.print(step, results::steps_back().status);
+      log_helper(step, results::steps_back().status);
       return;
     }
     results::new_step(step);
@@ -237,49 +283,53 @@ class test_runner
 
     internal::get_runtime_options().sleep_if_has_delay();
 
-    m_printer.print(step, results::steps_back().status);
+    log_helper(step, results::steps_back().status);
   }
 
   void verbose_start(const ast::scenario_node& scenario) const noexcept
   {
-    m_printer.println("[   VERBOSE   ] ----------------------------------");
-    m_printer.println(
+    log::verbose("[   VERBOSE   ] ----------------------------------",
+                 log::new_line);
+    log::verbose(
         std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
-                    scenario.name(), scenario.file(), scenario.line()));
+                    scenario.name(), scenario.file(), scenario.line()),
+        log::new_line);
   }
   void verbose_end() const noexcept
   {
-    m_printer.println("[   VERBOSE   ] Scenario end");
-    m_printer.println("[   VERBOSE   ] ----------------------------------");
-    m_printer.println();
+    log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
+    log::verbose("[   VERBOSE   ] ----------------------------------",
+                 log::new_line, log::new_line);
   }
   void verbose_no_tags() const noexcept
   {
-    m_printer.println("[   VERBOSE   ] No tags given, continuing");
+    log::verbose("[   VERBOSE   ] No tags given, continuing", log::new_line);
   }
   void verbose_evaluate_tags(const ast::scenario_node& scenario,
                              bool tag_evaluation) const noexcept
   {
-    m_printer.println(std::format("[   VERBOSE   ] Scenario tags '{}'",
-                                  internal::to_string(scenario.tags())));
-    m_printer.println(
+    log::verbose(std::format("[   VERBOSE   ] Scenario tags '{}'",
+                             internal::to_string(scenario.tags())),
+                 log::new_line);
+    log::verbose(
         std::format("                checked against tag expression '{}' -> {}",
                     m_tag_expression.expression(),
                     tag_evaluation ? "'True', continuing with scenario"
-                                   : "'False', stopping scenario"));
+                                   : "'False', stopping scenario"),
+        log::new_line);
   }
   void verbose_skip() const noexcept
   {
-    m_printer.println("[   VERBOSE   ] Scenario skipped with 'skip_scenario'");
+    log::verbose("[   VERBOSE   ] Scenario skipped with 'skip_scenario'",
+                 log::new_line);
   }
   void verbose_ignore() const noexcept
   {
-    m_printer.println(
-        "[   VERBOSE   ] Scenario ignored with 'ignore_scenario'");
+    log::verbose("[   VERBOSE   ] Scenario ignored with 'ignore_scenario'",
+                 log::new_line);
   }
 
  private:
-  cuke_printer m_printer;
   const internal::tag_expression m_tag_expression;
 };
 
