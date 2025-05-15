@@ -9,6 +9,7 @@
 
 ### Changed
 - Undefined steps are always reported as undefined. Previously, if you used a skip tag, it wasn't reported at all ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
+- Updated logging / prints to stdout, introduced simple logging ([86](https://github.com/ThoSe1990/cwt-cucumber/pull/86))
 
 ### Fixed
 - Scenario outline: Variable replacement in doc-strings and description ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
