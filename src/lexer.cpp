@@ -1,5 +1,6 @@
 #include "lexer.hpp"
 
+#include "log.hpp"
 #include "util.hpp"
 
 namespace cuke::internal
@@ -44,7 +45,7 @@ void lexer::error_at(const token& t, std::string_view msg) noexcept
     prefix += std::format("at '{}'", t.value);
   }
 
-  println(color::red, std::format("{}: {}", prefix, msg));
+  log::error(std::format("{}: {}", prefix, msg), log::new_line);
   m_error = true;
 }
 

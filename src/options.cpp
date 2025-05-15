@@ -66,8 +66,8 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
     auto next_it = std::next(it);
     if (next_it == end)
     {
-      println(internal::color::red,
-              "Expect tag expression after '--tags/-t' option");
+      log::error("Expect tag expression after '--tags/-t' option",
+                 log::new_line);
       return;
     }
     std::string_view arg(*next_it);

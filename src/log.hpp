@@ -19,7 +19,8 @@ enum class level
   verbose = 0,
   info,
   quiet,
-  error
+  error,
+  always
 };
 
 class logger
@@ -45,6 +46,12 @@ class logger
   void quiet(Args&&... args)
   {
     Log(level::quiet, std::forward<Args>(args)...);
+  }
+
+  template <typename... Args>
+  void always(Args&&... args)
+  {
+    Log(level::always, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
@@ -80,6 +87,12 @@ template <typename... Args>
 void error(Args&&... args)
 {
   logger::instance().error(std::forward<Args>(args)...);
+}
+
+template <typename... Args>
+void always(Args&&... args)
+{
+  logger::instance().always(std::forward<Args>(args)...);
 }
 
 template <typename... Args>

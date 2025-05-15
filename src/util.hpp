@@ -4,7 +4,6 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
 
 #include "token.hpp"
 
@@ -25,16 +24,6 @@ namespace cuke::internal
   }
   return result;
 }
-
-enum class color
-{
-  standard,
-  green,
-  yellow,
-  red,
-  blue,
-  black
-};
 
 [[nodiscard]] inline bool quoted_string(const std::string str)
 {
@@ -82,33 +71,6 @@ template <typename T>
 [[nodiscard]] inline constexpr uint32_t to_uint(T value)
 {
   return static_cast<uint32_t>(value);
-}
-[[nodiscard]] inline constexpr color to_color(uint32_t val)
-{
-  if (val >= to_uint(color::standard) && val <= to_uint(color::black))
-      [[likely]]
-  {
-    return static_cast<color>(val);
-  }
-  else [[unlikely]]
-  {
-    throw std::out_of_range(
-        "inline color to_color(uint32_t val): value out of range");
-  }
-}
-
-static const std::unordered_map<color, std::string> color_codes = {
-    {color::standard, "\x1b[0m"},
-    {color::green, "\x1b[32m"},
-    {color::yellow, "\x1b[33m"},
-    {color::red, "\x1b[31m"},
-    {color::blue, "\x1b[38;2;100;149;237m"},
-    {color::black, "\x1b[90m"}};
-
-template <typename T>
-inline void print_impl(const T& t)
-{
-  std::cout << t;
 }
 
 [[nodiscard]] inline bool is_number(std::string_view sv)
@@ -195,45 +157,3 @@ static std::string_view rtrim(std::string_view str)
 }
 
 }  // namespace cuke::internal
-
-namespace cuke
-{
-
-template <typename... Args>
-inline void print(internal::color c, Args&&... args)
-{
-  auto it = internal::color_codes.find(c);
-  if (it != internal::color_codes.end())
-  {
-    std::cout << it->second;
-    (internal::print_impl(std::forward<Args>(args)), ...);
-    std::cout << internal::color_codes.at(internal::color::standard);
-  }
-  else
-  {
-    std::cerr << "Color code " << to_uint(c) << " not found!\n";
-  }
-}
-template <typename... Args>
-inline void print(Args&&... args)
-{
-  (internal::print_impl(std::forward<Args>(args)), ...);
-}
-template <typename... Args>
-inline void println(Args&&... args)
-{
-  (internal::print_impl(std::forward<Args>(args)), ...);
-  std::cout << '\n';
-}
-template <typename... Args>
-inline void println(internal::color c, Args&&... args)
-{
-  print(c, std::forward<Args>(args)...);
-  std::cout << '\n';
-}
-inline void println() { std::cout << '\n'; }
-inline void println(std::string_view msg)
-{
-  println(internal::color::standard, msg);
-}
-}  // namespace cuke

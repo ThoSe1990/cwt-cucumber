@@ -117,10 +117,10 @@ std::string scenarios_to_string()
   bool add_comma = false;
   if (results::test_results().scenarios_failed() > 0)
   {
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::red));
+    str.append(log::red);
     str.append(std::to_string(results::test_results().scenarios_failed()));
     str.append(" failed");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
     add_comma = true;
   }
 
@@ -130,10 +130,10 @@ std::string scenarios_to_string()
     {
       str.append(", ");
     }
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::blue));
+    str.append(log::blue);
     str.append(std::to_string(results::test_results().scenarios_skipped()));
     str.append(" skipped");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
     add_comma = true;
   }
 
@@ -143,10 +143,10 @@ std::string scenarios_to_string()
     {
       str.append(", ");
     }
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::green));
+    str.append(log::green);
     str.append(std::to_string(results::test_results().scenarios_passed()));
     str.append(" passed");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
   }
 
   str += ')';
@@ -166,10 +166,10 @@ std::string steps_to_string()
   bool add_comma = false;
   if (results::test_results().steps_failed() > 0)
   {
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::red));
+    str.append(log::red);
     str.append(std::to_string(results::test_results().steps_failed()));
     str.append(" failed");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
     add_comma = true;
   }
 
@@ -179,10 +179,10 @@ std::string steps_to_string()
     {
       str.append(", ");
     }
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::yellow));
+    str.append(log::yellow);
     str.append(std::to_string(results::test_results().steps_undefined()));
     str.append(" undefined");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
     add_comma = true;
   }
 
@@ -192,10 +192,10 @@ std::string steps_to_string()
     {
       str.append(", ");
     }
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::blue));
+    str.append(log::blue);
     str.append(std::to_string(results::test_results().steps_skipped()));
     str.append(" skipped");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
     add_comma = true;
   }
 
@@ -205,10 +205,10 @@ std::string steps_to_string()
     {
       str.append(", ");
     }
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::green));
+    str.append(log::green);
     str.append(std::to_string(results::test_results().steps_passed()));
     str.append(" passed");
-    str.append(cuke::internal::color_codes.at(cuke::internal::color::standard));
+    str.append(log::reset_color);
   }
 
   str += ')';

@@ -1,5 +1,6 @@
 #include "cucumber.hpp"
 
+#include "log.hpp"
 #include "report.hpp"
 #include "options.hpp"
 #include "catalog.hpp"
@@ -24,12 +25,13 @@ void print_failed_scenarios()
                     {
                       if (first)
                       {
-                        println("Failed Scenarios:");
+                        log::always("Failed Scenarios:");
                         first = false;
                       }
-                      print(internal::color::red, scenario.name);
-                      println(internal::color::black, "  ", feature.file, ':',
-                              scenario.line);
+                      log::always(log::red, scenario.name);
+                      log::always(log::black, "  ", feature.file, ':',
+                                  scenario.line, log::reset_color,
+                                  log::new_line);
                     }
                   });
   }
@@ -68,9 +70,9 @@ void cwt_cucumber::print_results() const noexcept
   {
     case report_type::none:
       print_failed_scenarios();
-      println();
-      println(results::scenarios_to_string());
-      println(results::steps_to_string());
+      log::info(log::new_line);
+      log::info(results::scenarios_to_string(), log::new_line);
+      log::info(results::steps_to_string(), log::new_line);
       break;
 
     case report_type::json:
@@ -78,7 +80,7 @@ void cwt_cucumber::print_results() const noexcept
       break;
 
     default:
-      println(internal::color::red, "Unknown report type");
+      log::error("Unknown report type");
   }
 }
 

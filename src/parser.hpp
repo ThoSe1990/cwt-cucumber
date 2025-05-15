@@ -6,6 +6,7 @@
 #include <string_view>
 
 #include "ast.hpp"
+#include "log.hpp"
 #include "token.hpp"
 #include "util.hpp"
 #include "table.hpp"
@@ -384,7 +385,7 @@ class parser
     const std::string script = internal::read_file(filepath);
     if (script.empty())
     {
-      println(internal::color::red, "Error: File not found '", filepath, "'");
+      log::error("Error: File not found '", filepath, "'", log::new_line);
       return;
     }
     parse_impl(script, filepath);
@@ -447,7 +448,7 @@ class parser
     m_head.set_feature(parse_feature(lex));
     if (lex.error())
     {
-      println(internal::color::red, "Error while parsing script");
+      log::error("Error while parsing script", log::new_line);
       m_error = true;
       m_head.clear();
     }

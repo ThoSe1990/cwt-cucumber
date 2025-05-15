@@ -41,12 +41,12 @@ nlohmann::json to_json(const cuke::table& t)
   return field_table;
 }
 #endif  // WITH_JSON
- 
+
 }  // namespace internal
 
 std::string as_json(std::size_t indents /* = 2 */)
 {
-  #ifdef WITH_JSON
+#ifdef WITH_JSON
   using json = nlohmann::json;
 
   std::vector<results::feature>& features = results::test_results().data();
@@ -132,9 +132,10 @@ std::string as_json(std::size_t indents /* = 2 */)
 
   return json_features.dump(indents);
 #else
-  println(cuke::internal::color::red,
-          "nlohmann-json is not added as dependency in this build. Can not "
-          "export json format.");
+  log::error(
+      "nlohmann-json is not added as dependency in this build. Can not "
+      "export json format.",
+      log::new_line);
   return "";
 #endif  // WITH_JSON
 }

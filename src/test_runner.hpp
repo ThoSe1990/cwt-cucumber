@@ -98,14 +98,6 @@ class test_runner
   test_runner()
       : m_tag_expression(program_arguments().get_options().tag_expression)
   {
-    // if (program_arguments().get_options().quiet)
-    // {
-    //   m_printer.reset(std::make_unique<stdout_interface>().release());
-    // }
-    // if (program_arguments().get_options().verbose)
-    // {
-    //   m_verbose_printer.reset(std::make_unique<verbose_printer>().release());
-    // }
   }
   void setup() { cuke::registry().run_hook_before_all(); }
 
