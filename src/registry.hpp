@@ -4,6 +4,7 @@
 #include <format>
 #include <stdexcept>
 #include <string_view>
+#include <unordered_map>
 
 #include "log.hpp"
 #include "step.hpp"
