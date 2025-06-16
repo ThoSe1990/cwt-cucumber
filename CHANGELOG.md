@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.7] 2025-06-16
+
 ### Added
 - Ignore Scenarios: When using `cuke::ignore_scenario()` in a hook (before scenario), the scenario is ignored. No reporting or checking for the steps. ([77](https://github.com/ThoSe1990/cwt-cucumber/pull/77))
 - Program option `-v`/`--verbose` to get additional prints, which hook and scenarios are executed, if tags matching and ignored scenearios ([78](https://github.com/ThoSe1990/cwt-cucumber/pull/78))
