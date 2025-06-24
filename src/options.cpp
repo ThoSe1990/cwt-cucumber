@@ -25,6 +25,14 @@ void ignore_scenario()
 {
   internal::get_runtime_options().ignore_scenario(true);
 }
+void fail_scenario(const std::string_view msg /* = "" */)
+{
+  internal::get_runtime_options().fail_scenario(true, msg);
+}
+void fail_step(const std::string_view msg /* = "" */)
+{
+  internal::get_runtime_options().fail_step(true, msg);
+}
 
 void cuke_args::initialize(int argc, const char* argv[])
 {
