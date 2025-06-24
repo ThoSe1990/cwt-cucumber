@@ -118,7 +118,7 @@ void update_scenario_status(std::string_view name, std::string_view file,
   else if (internal::get_runtime_options().fail_scenario().fail)
   {
     const std::string& msg = internal::get_runtime_options().fail_scenario().msg; 
-    log::error(msg);
+    log::error(msg, log::new_line);
     results::scenarios_back().status = results::test_status::failed;
     std::for_each(results::scenarios_back().steps.begin(), 
         results::scenarios_back().steps.end(), 
@@ -294,6 +294,7 @@ class test_runner
       {
         results::steps_back().status = results::test_status::failed;
         results::steps_back().error_msg = internal::get_runtime_options().fail_step().msg;
+        log::error(internal::get_runtime_options().fail_step().msg, log::new_line);
       }
       else 
       {
