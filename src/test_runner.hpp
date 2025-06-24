@@ -256,6 +256,9 @@ class test_runner
 
   void run_step(const ast::step_node& step, bool skip) const
   {
+    // NOTE: FIXME: these two calls to results::new_step might be confusing. 
+    // right now skip_step() relies on it which means i can not put it before 
+    // the if statement. Will fix later
     if (skip_step() || skip)
     {
       results::new_step(step);
