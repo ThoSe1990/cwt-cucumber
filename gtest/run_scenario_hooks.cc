@@ -3,6 +3,7 @@
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
+#include "options.hpp"
 #include "test_results.hpp"
 
 using namespace cuke::internal;
@@ -17,8 +18,6 @@ class run_scenario_hooks : public ::testing::Test
     before_step_calls = 0;
     after_step_calls = 0;
 
-    cuke::registry().clear();
-
     cuke::registry().push_hook_before(hook([]() { ++before_calls; }));
     cuke::registry().push_hook_after(hook([]() { ++after_calls; }));
     cuke::registry().push_hook_before_step(hook([]() { ++before_step_calls; }));
@@ -27,6 +26,12 @@ class run_scenario_hooks : public ::testing::Test
     cuke::registry().push_step(step_definition(
         [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
         "a step"));
+  }
+
+  void TearDown() override 
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
   }
 
   static std::size_t before_calls;
@@ -84,7 +89,6 @@ class run_scenario_hook_skip : public ::testing::Test
   void SetUp() override
   {
     calls = 0;
-    cuke::registry().clear();
 
     cuke::registry().push_step(
       step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
@@ -97,6 +101,13 @@ class run_scenario_hook_skip : public ::testing::Test
     cuke::registry().push_hook_before(
         hook([]() { cuke::skip_scenario(); }, "@skip"));
   }
+
+  void TearDown() override 
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
+  }
+
   static std::size_t calls;
 };
 std::size_t run_scenario_hook_skip::calls = 0;
@@ -256,13 +267,17 @@ class run_scenario_hook_fail_scenario: public ::testing::Test
   void SetUp() override
   {
     calls = 0;
-    cuke::registry().clear();
 
     cuke::registry().push_step(
       step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
              { ++calls; }, "a step"));
 
-    cuke::registry().push_hook_before(hook([]() { /*TODO: implement cuke::fail_scenario() here*/ }, "@will_fail"));
+    cuke::registry().push_hook_before(hook([]() { cuke::fail_scenario("Scenario Hook: An error occurred"); }, "@will_fail"));
+  }
+  void TearDown() override 
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
   }
   static std::size_t calls;
 };
@@ -297,6 +312,7 @@ TEST_F(run_scenario_hook_fail_scenario, set_scenario_to_failed_2)
     @will_fail
     Scenario: Hook calls cuke::scenario_fail();
     Given a step 
+
     Scenario: Will not fail
     Given a step 
   )*";
@@ -319,13 +335,17 @@ class run_scenario_hook_fail_step: public ::testing::Test
   void SetUp() override
   {
     calls = 0;
-    cuke::registry().clear();
 
     cuke::registry().push_step(
       step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
              { ++calls; }, "a step"));
 
-    cuke::registry().push_hook_before_step(hook([]() { /*TODO: implement cuke::fail_step() here*/ }));
+    cuke::registry().push_hook_before_step(hook([]() { cuke::fail_step("Step Hook: An error occurred"); }));
+  }
+  void TearDown() override 
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
   }
   static std::size_t calls;
 };
@@ -337,7 +357,7 @@ TEST_F(run_scenario_hook_fail_step, set_step_to_failed_1)
     Feature: a feature 
 
     Scenario: A Scenario
-    Given a step 
+    Given a step
   )*";
 
   cuke::parser p;
@@ -356,11 +376,38 @@ TEST_F(run_scenario_hook_fail_step, set_step_to_failed_2)
     Feature: a feature 
 
     Scenario: A Scenario
-    Given a step 
+    Given a step
     Scenario: A Scenario
-    Given a step 
-    And a step 
+    Given a step
+    And a step
   )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenario_hook_fail_step::calls, 0);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 2);
+  EXPECT_EQ(cuke::results::test_results().steps_failed(), 2);
+  EXPECT_EQ(cuke::results::test_results().steps_skipped(), 1);
+}
+TEST_F(run_scenario_hook_fail_step, set_step_to_failed_3)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    Scenario: A Scenario
+    Given a step
+    Scenario: A Scenario
+    Given a step
+    And a step
+  )*";
+
+  const char* argv[] = {"program", "-c"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
 
   cuke::parser p;
   p.parse_script(script);

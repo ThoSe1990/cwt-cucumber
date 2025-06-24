@@ -165,6 +165,12 @@ namespace internal
 class runtime_options
 {
  public:
+  struct manual_fail 
+  {
+    bool fail;
+    std::string msg;
+  };
+    
   runtime_options()
   {
     if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
@@ -181,6 +187,40 @@ class runtime_options
   }
   void ignore_scenario(bool value) noexcept { m_ignore_scenario = value; }
 
+  [[nodiscard]] manual_fail fail_scenario() const noexcept
+  {
+    return m_fail_scenario;
+  }
+  void reset_fail_scenario() noexcept 
+  {
+    fail_scenario(false, m_default_scenario_failed_msg); 
+  }
+  void fail_scenario(bool value, std::string_view msg = "") noexcept 
+  { 
+    m_fail_scenario.fail = value;
+    if (!msg.empty()) 
+    {
+      m_fail_scenario.msg = msg;
+    }
+  }
+
+  [[nodiscard]] manual_fail fail_step() const noexcept
+  {
+    return m_fail_step;
+  }
+  void reset_fail_step() noexcept 
+  {
+    fail_step(false, m_default_step_failed_msg);
+  }
+  void fail_step(bool value, std::string_view msg = "") noexcept 
+  { 
+    m_fail_step.fail = value;
+    if (!msg.empty()) 
+    {
+      m_fail_step.msg = msg;
+    }
+  }
+
   void sleep_if_has_delay()
   {
     if (m_delay_ms != 0)
@@ -190,8 +230,12 @@ class runtime_options
   }
 
  private:
+  static constexpr const std::string_view m_default_scenario_failed_msg = "Scenario manually set to failed, all steps skipped.";
+  static constexpr const std::string_view m_default_step_failed_msg = "Step manually set to failed.";
   bool m_skip_scenario{false};
   bool m_ignore_scenario{false};
+  manual_fail m_fail_scenario{manual_fail{false,std::string{m_default_scenario_failed_msg}}};
+  manual_fail m_fail_step{manual_fail{false,std::string{m_default_step_failed_msg}}};
   long m_delay_ms{0};
 };
 
@@ -201,5 +245,7 @@ runtime_options& get_runtime_options();
 
 void skip_scenario();
 void ignore_scenario();
+void fail_scenario(const std::string_view msg = "");
+void fail_step(const std::string_view msg = "");
 
 }  // namespace cuke
