@@ -230,7 +230,7 @@ class runtime_options
   }
 
  private:
-  static constexpr const std::string_view m_default_scenario_failed_msg = "Scenario manually set to failed, all steps skipped.";
+  static constexpr const std::string_view m_default_scenario_failed_msg = "Scenario manually set to failed";
   static constexpr const std::string_view m_default_step_failed_msg = "Step manually set to failed.";
   bool m_skip_scenario{false};
   bool m_ignore_scenario{false};
