@@ -97,6 +97,7 @@ struct options
   } report;
   std::string tag_expression;
   std::vector<feature_file> files;
+  std::vector<std::string> excluded_files;
 };  // namespace cuke
 
 class cuke_args
@@ -111,6 +112,7 @@ class cuke_args
   void process_option(std::span<const char*>::iterator it,
                       std::span<const char*>::iterator end);
   void find_feature_in_dir(const std::filesystem::path& dir);
+  void remove_excluded_files();
 
  private:
   std::span<const char*> m_args;
@@ -148,6 +150,8 @@ static void print_help_screen()
     --steps-catalog-json [opt: file]  Write the implemented steps as json text to stdout or a file 
       Note: Catalog option overwrites existing files, does not write to '.feature' files or directories
   
+    --exclude-file "file"   Exclude a specific feature file from the test run
+
     -t --tags "expression"  Provide a tag expression to execute only Features/Scenarios with given tags
       Examples:
         "@tag1"
