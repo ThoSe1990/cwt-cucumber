@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
-#include <valarray>
 
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
-#include "options.hpp"
-#include "test_results.hpp"
+#include "../src/options.hpp"
+#include "../src/test_results.hpp"
 
 using namespace cuke::internal;
 

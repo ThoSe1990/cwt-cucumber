@@ -115,16 +115,15 @@ void update_scenario_status(std::string_view name, std::string_view file,
   {
     results::scenarios_back().status = results::test_status::skipped;
   }
-  else if (internal::get_runtime_options().fail_scenario().fail)
+  else if (internal::get_runtime_options().fail_scenario().is_set)
   {
-    const std::string& msg = internal::get_runtime_options().fail_scenario().msg; 
+    const std::string& msg =
+        internal::get_runtime_options().fail_scenario().msg;
     log::error(msg, log::new_line);
     results::scenarios_back().status = results::test_status::failed;
-    std::for_each(results::scenarios_back().steps.begin(), 
-        results::scenarios_back().steps.end(), 
-        [&msg](results::step& step){
-          step.error_msg = msg;
-        });
+    std::for_each(results::scenarios_back().steps.begin(),
+                  results::scenarios_back().steps.end(),
+                  [&msg](results::step& step) { step.error_msg = msg; });
   }
   else
   {
@@ -244,7 +243,7 @@ class test_runner
     {
       run_step(step, skip);
     }
-    if (!internal::get_runtime_options().fail_scenario().fail) 
+    if (!internal::get_runtime_options().fail_scenario().is_set)
     {
       cuke::registry().run_hook_after(scenario.tags());
     }
@@ -272,10 +271,18 @@ class test_runner
 
   void run_step(const ast::step_node& step, bool skip) const
   {
-    // NOTE: FIXME: these two calls to results::new_step might be confusing. 
-    // right now skip_step() relies on it which means i can not put it before 
+    // FIXME: these two calls to results::new_step are confusing.
+    // right now skip_step() relies on it which means i can not put it before
     // the if statement. Will fix later
-    if (skip_step() || skip || internal::get_runtime_options().fail_scenario().fail)
+    //
+    // Plus: skip_step and skip seem not very clear in the first place:
+    //   - skip_step() -> if a prev. step failed (and the continue on failure
+    //   flag wasn't set)
+    //   - skip -> the skip flag from the user (cuke::skip_scenario()),
+    //     these steps are as skipped in the report
+    //
+    if (skip_step() || skip ||
+        internal::get_runtime_options().fail_scenario().is_set)
     {
       results::new_step(step);
       results::steps_back().status = step.has_step_definition()
@@ -290,13 +297,15 @@ class test_runner
     {
       results::set_source_location(step.source_location_definition());
       cuke::registry().run_hook_before_step();
-      if (internal::get_runtime_options().fail_step().fail) 
+      if (internal::get_runtime_options().fail_step().is_set)
       {
         results::steps_back().status = results::test_status::failed;
-        results::steps_back().error_msg = internal::get_runtime_options().fail_step().msg;
-        log::error(internal::get_runtime_options().fail_step().msg, log::new_line);
+        results::steps_back().error_msg =
+            internal::get_runtime_options().fail_step().msg;
+        log::error(internal::get_runtime_options().fail_step().msg,
+                   log::new_line);
       }
-      else 
+      else
       {
         step.call();
         cuke::registry().run_hook_after_step();

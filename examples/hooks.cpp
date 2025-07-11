@@ -3,6 +3,18 @@
 
 BEFORE_T(skip, "@skip") { cuke::skip_scenario(); }
 BEFORE_T(ignore, "@ignore") { cuke::ignore_scenario(); }
+BEFORE_T(will_fail_before, "@will_fail_before")
+{
+  cuke::fail_scenario(
+      "Example of 'cuke::fail_scenario()' to bring a scenario to fail before "
+      "running it");
+}
+AFTER_T(will_fail_after, "@will_fail_after")
+{
+  cuke::fail_scenario(
+      "Example of 'cuke::fail_scenario()' to bring a scenario to fail after "
+      "running it");
+}
 
 BEFORE(before)
 {
