@@ -97,6 +97,7 @@ struct options
   } report;
   std::string tag_expression;
   std::vector<feature_file> files;
+  std::vector<std::string> excluded_files;
 };  // namespace cuke
 
 class cuke_args
@@ -111,6 +112,7 @@ class cuke_args
   void process_option(std::span<const char*>::iterator it,
                       std::span<const char*>::iterator end);
   void find_feature_in_dir(const std::filesystem::path& dir);
+  void remove_excluded_files();
 
  private:
   std::span<const char*> m_args;
@@ -148,6 +150,8 @@ static void print_help_screen()
     --steps-catalog-json [opt: file]  Write the implemented steps as json text to stdout or a file 
       Note: Catalog option overwrites existing files, does not write to '.feature' files or directories
   
+    --exclude-file "file"   Exclude a specific feature file from the test run
+
     -t --tags "expression"  Provide a tag expression to execute only Features/Scenarios with given tags
       Examples:
         "@tag1"
@@ -165,6 +169,12 @@ namespace internal
 class runtime_options
 {
  public:
+  struct manual_fail
+  {
+    bool is_set;
+    std::string msg;
+  };
+
   runtime_options()
   {
     if (const char* env_p = std::getenv("CWT_CUCUMBER_STEP_DELAY"))
@@ -181,6 +191,37 @@ class runtime_options
   }
   void ignore_scenario(bool value) noexcept { m_ignore_scenario = value; }
 
+  [[nodiscard]] manual_fail fail_scenario() const noexcept
+  {
+    return m_fail_scenario;
+  }
+  void reset_fail_scenario() noexcept
+  {
+    fail_scenario(false, m_default_scenario_failed_msg);
+  }
+  void fail_scenario(bool value, std::string_view msg = "") noexcept
+  {
+    m_fail_scenario.is_set = value;
+    if (!msg.empty())
+    {
+      m_fail_scenario.msg = msg;
+    }
+  }
+
+  [[nodiscard]] manual_fail fail_step() const noexcept { return m_fail_step; }
+  void reset_fail_step() noexcept
+  {
+    fail_step(false, m_default_step_failed_msg);
+  }
+  void fail_step(bool value, std::string_view msg = "") noexcept
+  {
+    m_fail_step.is_set = value;
+    if (!msg.empty())
+    {
+      m_fail_step.msg = msg;
+    }
+  }
+
   void sleep_if_has_delay()
   {
     if (m_delay_ms != 0)
@@ -190,8 +231,16 @@ class runtime_options
   }
 
  private:
+  static constexpr const std::string_view m_default_scenario_failed_msg =
+      "Scenario set to failed with 'cuke::fail_scenario()'";
+  static constexpr const std::string_view m_default_step_failed_msg =
+      "Step set to failed with 'cuke::fail_step()'";
   bool m_skip_scenario{false};
   bool m_ignore_scenario{false};
+  manual_fail m_fail_scenario{
+      manual_fail{false, std::string{m_default_scenario_failed_msg}}};
+  manual_fail m_fail_step{
+      manual_fail{false, std::string{m_default_step_failed_msg}}};
   long m_delay_ms{0};
 };
 
@@ -201,5 +250,7 @@ runtime_options& get_runtime_options();
 
 void skip_scenario();
 void ignore_scenario();
+void fail_scenario(const std::string_view msg = "");
+void fail_step(const std::string_view msg = "");
 
 }  // namespace cuke

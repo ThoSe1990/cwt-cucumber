@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <filesystem>
 #include <optional>
 
@@ -25,6 +26,14 @@ void ignore_scenario()
 {
   internal::get_runtime_options().ignore_scenario(true);
 }
+void fail_scenario(const std::string_view msg /* = "" */)
+{
+  internal::get_runtime_options().fail_scenario(true, msg);
+}
+void fail_step(const std::string_view msg /* = "" */)
+{
+  internal::get_runtime_options().fail_step(true, msg);
+}
 
 void cuke_args::initialize(int argc, const char* argv[])
 {
@@ -48,6 +57,7 @@ void cuke_args::initialize(int argc, const char* argv[])
       process_path(sv);
     }
   }
+  remove_excluded_files();
 }
 
 void cuke_args::clear()
@@ -105,6 +115,18 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
     m_options.report.out.try_to_set_file_sink(std::next(it), end);
     m_options.report.type = report_type::json;
   }
+  else if (option == "--exclude-file")
+  {
+    auto next_it = std::next(it);
+    if (next_it == end)
+    {
+      log::error("Expect file after '--exclude-file' option", log::new_line);
+      return;
+    }
+    std::string_view arg(*next_it);
+    std::cout << "adding " << arg << std::endl;
+    m_options.excluded_files.push_back(std::string{arg});
+  }
 }
 
 void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
@@ -138,6 +160,22 @@ void cuke_args::process_path(std::string_view sv)
       m_options.files.push_back(feature_file{file_path, lines});
     }
   }
+}
+
+void cuke_args::remove_excluded_files()
+{
+  m_options.files.erase(
+      std::remove_if(m_options.files.begin(), m_options.files.end(),
+                     [this](const feature_file& file)
+                     {
+                       return std::any_of(
+                           m_options.excluded_files.begin(),
+                           m_options.excluded_files.end(),
+                           [&file](const std::string& to_exclude)
+                           { return file.path.ends_with(to_exclude); });
+                       ;
+                     }),
+      m_options.files.end());
 }
 
 [[nodiscard]] cuke_args& program_arguments(

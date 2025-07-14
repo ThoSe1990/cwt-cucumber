@@ -21,6 +21,7 @@
     1. [Hooks](#hooks)
     1. [Tagged Hooks](#tagged-hooks)
     1. [Skip / Ignore Scenarios](#skip--ignore-scenarios)
+    1. [Manually Failing Scenarios or Steps](#manually-failing-scenarios-or-steps)
     1. [Run Single Scenarios / Directories](#run-single-scenarios--directories)
     1. [Continue on Failure](#continue-on-failure)
 1. [Custom Parameter Types](#custom-parameter-types)
@@ -561,6 +562,36 @@ BEFORE_T(skip, "@ignore")
 
 Note: The hook `AFTER_ALL` still will be executed. The hook `AFTER` the skipped `Scenario` is not called.
 
+### Manually Failing Scenarios or Steps
+
+CWT-Cucumber allows you to manually fail a scenario or a step, typically from within hooks, such as in response to unexpected conditions or setup errors.
+
+#### `cuke::fail_scenario()`  
+Fails the entire scenario, optionally with a custom error message:
+
+```cpp
+cuke::fail_scenario();
+cuke::fail_scenario("Custom error message");
+```
+
+- **In a "before" hook**:  
+  - All steps are skipped.  
+  - The provided message is displayed with each skipped step.
+- **In an "after" hook**:  
+  - The scenario is marked as failed even if all steps have passed.  
+- Note: Cucumber does not show an error message for the scenario itself in reports, so the message will appear under the steps when skipped.
+
+#### `cuke::fail_step()`  
+Fails the current step, optionally with a custom message:
+
+```cpp
+cuke::fail_step();
+cuke::fail_step("Step failed due to ...");
+```
+
+- Intended to be used in a **"before step" hook**.  
+- Has **no effect** if used in an **"after step" hook**.  
+- The step is marked as failed, and the error message (if provided) is shown in the output.
 
 ### Run Single Scenarios / Directories
 

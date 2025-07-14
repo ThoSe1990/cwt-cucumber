@@ -27,7 +27,7 @@ jobs:
       - name: unittests
         run: ./build_gcc/bin/unittests
       - name: example 
-        run: ./build_gcc/bin/example ./examples
+        run: ./build_gcc/bin/example ./examples --exclude-file 11_manual_fails.feature
 
 
   Clang:
@@ -46,7 +46,7 @@ jobs:
       - name: unittests
         run: ./build_clang/bin/unittests
       - name: examples 
-        run: ./build_clang/bin/example ./examples
+        run: ./build_clang/bin/example ./examples --exclude-file 11_manual_fails.feature
 
   MSVC:
     runs-on: windows-latest 
@@ -76,4 +76,4 @@ jobs:
       - name: unittests
         run: .\build\bin\Release\unittests.exe
       - name: example
-        run: .\build\bin\Release\example.exe ./examples
+        run: .\build\bin\Release\example.exe ./examples --exclude-file 11_manual_fails.feature
