@@ -1,8 +1,10 @@
 [![CI](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cucumber-cpp/actions/workflows/main.yml)
+[![Conan Center](https://img.shields.io/conan/v/cwt-cucumber)](https://conan.io/center/recipes/cwt-cucumber)
 
 ## Coding With Thomas Cucumber: A C++ Cucumber Interpreter
 
-👋🙋‍♂️🙋‍♀️ Hello and Welcome to my C++20 Cucumber interpreter 🥒🚀✨
+Hello and Welcome to my C++20 Cucumber interpreter 🚀✨
+**08/2025: CWT-Cucumber is now available on [Conancenter](https://conan.io/center/recipes/cwt-cucumber?version=2.7)** 🎉
 
 ## Table of Contents
 
@@ -36,12 +38,6 @@
 
 
 Tested compilers: GCC 13, Clang17 and MSVC 19  
-Conan (2.x) Recipe: https://github.com/ThoSe1990/cwt-cucumber-conan. I didn't push this project to conancenter yet. The PR there is open so lets wait and see. Until then, just build the package locally and consume it:
-```shell
-git clone https://github.com/ThoSe1990/cwt-cucumber-conan.git
-cd package
-conan create . --version 2.7 --user cwt --channel stable
-```
 
 Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contributed and tested a lot lately, which has improved this project a lot.
 
@@ -54,13 +50,28 @@ cmake -S . -B ./build
 cmake --build ./build -j12
 ```
 
-Provide `nlohmann-json 3.10.5`, in order to enable the json features. You can do so yourself or use `conan 2.x`, so that CMake's `find_package(nlohmann_json)` succeeds: 
+### Conan
+CWT-Cucumber is available on Conancenter, this means that you can add it to your conanfile: 
+```
+[requires]
+cwt-cucumber/2.7
+
+[generators]
+CMakeToolchain
+CMakeDeps
+```
+
+And run the build like this:
 
 ```shell 
 conan install . -of ./build --build missing
 cmake -S . -B ./build -DCMAKE_TOOLCHAIN_FILE="./build/conan_toolchain.cmake"
 cmake --build ./build -j12
 ```
+
+Note: `nlohman_json` is a dependency of this project, so it gets installed with running conan. 
+
+### Examples
 
 Now, consider a simple box where we can put items. To run Cucumber tests, we create a scenario: 
 
@@ -855,3 +866,4 @@ Cheers 🍻
   
 2024 Coding with Thomas  
 https://www.codingwiththomas.com/  
+
