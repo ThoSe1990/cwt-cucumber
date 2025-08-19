@@ -12,10 +12,15 @@ TEST(value, init_obj)
   EXPECT_TRUE(v.is_nil());
 }
 
-TEST(value, bool_value)
+TEST(value, bool_true_value)
 {
   cuke::value v{"true"};
   EXPECT_EQ(v.as<bool>(), true);
+}
+TEST(value, bool_false_value)
+{
+  cuke::value v{"false"};
+  EXPECT_EQ(v.as<bool>(), false);
 }
 TEST(value, long_value)
 {
@@ -103,3 +108,4 @@ TEST(value_array, get_arg_w_iterator)
       cuke::internal::get_param_value(v.begin() + 1, v.size() - 1, 2).as<int>();
   EXPECT_EQ(i, 3);
 }
+

@@ -56,7 +56,7 @@ class value
     }
     if (m_value == "false" || m_value == "False")
     {
-      return true;
+      return false;
     }
     try
     {
@@ -126,3 +126,4 @@ class value
 using value_array = std::vector<value>;
 
 }  // namespace cuke
+
