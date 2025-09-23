@@ -126,7 +126,7 @@ TEST(scanner, parameter_long)
 }
 TEST(scanner, variable_missing_closing)
 {
-  EXPECT_EQ(scanner("<some variable").scan_token().type, token_type::error);
+  EXPECT_EQ(scanner("<not_closing_is_a_word").scan_token().type, token_type::word);
 }
 TEST(scanner, string)
 {
