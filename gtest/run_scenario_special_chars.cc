@@ -45,7 +45,7 @@ class run_scenario_special_chars : public ::testing::Test
 std::string run_scenario_special_chars::given_word = "";
 std::string run_scenario_special_chars::given_anonymous = "";
 
-TEST_F(run_scenario_special_chars, outline_w_special_chars)
+TEST_F(run_scenario_special_chars, outline_w_special_chars_1)
 {
   const char* script = R"*(
     Feature: a feature 
@@ -63,6 +63,10 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars)
           | (         | (             | (             | (                  | 
           | ()        | ()            | ()            | ()                 | 
           | <         | <             | <             | <                  | 
+          | >         | >             | >             | >                  | 
+          | >>>       | >>>           | >>>           | >>>                | 
+          | <<<       | <<<           | <<<           | <<<                | 
+          | <<<>>>    | <<<>>>        | <<<>>>        | <<<>>>             | 
           | <>        | <>            | <>            | <>                 | 
   )*";
 
@@ -74,3 +78,69 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
 }
+TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      Scenario Outline: check for some special chars
+        When A <word> and <anonymous>
+        Then They will match "<expected word>" and "<expected anonymous>"
+        
+        Examples:
+          | word      | anonymous              | expected word | expected anonymous     |
+          | a_word    | some random > string   | a_word        | some random > string   | 
+          | a_word    | some random < string   | a_word        | some random < string   | 
+          | a_word    | some > random < string | a_word        | some > random < string | 
+          | a_word    | some < random > string | a_word        | some < random > string | 
+  )*";
+
+
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+}
+TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      Scenario Outline: check for some special chars
+        When A <word> and <anonymous>
+        Then They will match "<expected word>" and "<expected anonymous>"
+        
+        Examples:
+          | word                                  | anonymous                         | expected word                             | expected anonymous                    |
+          | py.exe                                | /usr/bin/python3                  | py.exe                                    | /usr/bin/python3                      | 
+          | py.exe                                | $HOME/bin/python3                 | py.exe                                    | $HOME/bin/python3                     | 
+          | py.exe                                | C:\\$USER\\python3.exe            | py.exe                                    | C:\\$USER\\python3.exe                | 
+          | py.exe                                | C:\\Users\\some user\\python3.exe | py.exe                                    | C:\\Users\\some user\\python3.exe     | 
+          | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | 
+  )*";
+
+
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+}
+TEST_F(run_scenario_special_chars, strings_w_special_chars)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      Scenario: check for some special chars
+        When A word and a string with < and > 
+        Then They will match "word" and "a string with < and >"
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+}
+
