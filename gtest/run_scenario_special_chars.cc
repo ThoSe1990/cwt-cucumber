@@ -70,13 +70,13 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_1)
           | <>        | <>            | <>            | <>                 | 
   )*";
 
-
   cuke::parser p;
   p.parse_script(script);
   ASSERT_FALSE(p.error());
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
 {
@@ -101,6 +101,7 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
 {
@@ -126,8 +127,32 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
 }
-TEST_F(run_scenario_special_chars, strings_w_special_chars)
+TEST_F(run_scenario_special_chars, outline_w_special_chars_4)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      Scenario Outline: check for some special chars
+        When A <word> and <anonymous>
+        Then They will match "<expected word>" and "<expected anonymous>"
+        
+        Examples:
+          | word             | anonymous             | expected word          | expected anonymous   |
+          | <word>           | <anonymous>           | <word>                 | <anonymous>          | 
+          | <expected-word>  | <expected anonymous>  | <expected-word>        | <expected anonymous> | 
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+}
+TEST_F(run_scenario_special_chars, strings_w_special_chars_1)
 {
   const char* script = R"*(
     Feature: a feature 
@@ -142,5 +167,23 @@ TEST_F(run_scenario_special_chars, strings_w_special_chars)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
 }
 
+TEST_F(run_scenario_special_chars, strings_w_special_chars_2)
+{
+  const char* script = R"*(
+    Feature: a feature 
+      Scenario: check for some special chars
+        When A <word> and <a string with < and >> 
+        Then They will match "<word>" and "<a string with < and >>"
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+}
