@@ -22,6 +22,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_rule.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenario_hooks.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/run_scenario_special_chars.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/registry.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/scanner_set_langauge.cc
