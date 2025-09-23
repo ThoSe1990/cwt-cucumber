@@ -45,7 +45,7 @@ class run_scenario_special_chars : public ::testing::Test
 std::string run_scenario_special_chars::given_word = "";
 std::string run_scenario_special_chars::given_anonymous = "";
 
-TEST_F(run_scenario_special_chars, run_scenario)
+TEST_F(run_scenario_special_chars, outline_w_special_chars)
 {
   const char* script = R"*(
     Feature: a feature 
@@ -65,6 +65,7 @@ TEST_F(run_scenario_special_chars, run_scenario)
           | <         | <             | <             | <                  | 
           | <>        | <>            | <>            | <>                 | 
   )*";
+
 
   cuke::parser p;
   p.parse_script(script);
