@@ -18,7 +18,6 @@ enum class token_type
   rule,
   step,
   examples,
-  variable,
   tag,
   _and,
   _or,

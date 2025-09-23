@@ -6,14 +6,6 @@ using namespace cuke::internal;
 
 TEST(scanner, init_obj) { scanner s("some script"); }
 
-TEST(token, token_1)
-{
-  token t = scanner("<some variable>").scan_token();
-  EXPECT_EQ(t.type, token_type::variable);
-  EXPECT_EQ(t.line, 1);
-  EXPECT_EQ(t.value.size(), std::string("<some variable>").size());
-  EXPECT_STREQ(t.value.data(), "<some variable>");
-}
 TEST(token, token_2)
 {
   const std::string_view expected = "\"\"\"\nhello doc string\n   \"\"\"";
@@ -97,10 +89,6 @@ TEST(scanner, tag_2)
   token t = scanner("@tag1with2numbers").scan_token();
   EXPECT_EQ(t.type, token_type::tag);
   EXPECT_EQ(t.value, "@tag1with2numbers");
-}
-TEST(scanner, variable)
-{
-  EXPECT_EQ(scanner("<some variable>").scan_token().type, token_type::variable);
 }
 TEST(scanner, parameter_int)
 {
@@ -211,7 +199,7 @@ TEST(scanner, statement_1)
 
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
-  EXPECT_EQ(s.scan_token().type, token_type::variable);
+  EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::word);
   EXPECT_EQ(s.scan_token().type, token_type::long_value);
 }
