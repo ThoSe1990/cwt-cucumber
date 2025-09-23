@@ -278,7 +278,7 @@ class registry
         {"{float}", {"(-?\\d*\\.?\\d+)", "float", make_parameter_value<float>}},
         {"{double}",
          {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
-        {"{word}", {"([^\\s<]+)", "word", make_parameter_value<std::string>}},
+        {"{word}", {"([^\\s]+)", "word", make_parameter_value<std::string>}},
         {"{string}",
          {"\"([^\"]*)\"", "string", make_parameter_value<std::string>}},
         {"{}", {"(.+)", "anonymous", make_parameter_value<std::string>}}};
