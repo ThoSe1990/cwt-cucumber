@@ -13,18 +13,21 @@ namespace cuke::internal
 [[nodiscard]] static std::string replace_variables(const std::string& step,
                                                    const table::row& row)
 {
-  std::string result = step;
-  std::regex pattern("<(.*?)>");
-  std::smatch match;
+    std::regex pattern("<(.*?)>");
+    std::smatch match;
+    std::string result;
+    std::string::const_iterator search_start(step.cbegin());
 
-  while (std::regex_search(result, match, pattern))
-  {
-    result =
-        std::regex_replace(result, pattern, row[match[1].str()].to_string(),
-                           std::regex_constants::format_first_only);
-  }
+    while (std::regex_search(search_start, step.cend(), match, pattern)) 
+    {
+      result.append(search_start, match[0].first);
+      std::string key = match[1].str();
+      result += row[key].to_string();
+      search_start = match[0].second;
+    }
+    result.append(search_start, step.cend());
 
-  return result;
+    return result;  
 }
 
 [[nodiscard]] static std::string create_word_alternation(

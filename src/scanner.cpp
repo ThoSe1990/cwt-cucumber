@@ -230,19 +230,6 @@ token scanner::tag()
   }
   return make_token(token_type::tag);
 }
-token scanner::variable()
-{
-  while (peek() != '>')
-  {
-    if (is_at_end() || end_of_line())
-    {
-      return error_token("Expect '>' after variable.");
-    }
-    advance();
-  }
-  advance();
-  return make_token(token_type::variable);
-}
 token scanner::string()
 {
   while (peek() != '"' && !is_at_end())
@@ -382,8 +369,6 @@ token scanner::scan_token()
       return make_token(token_type::step);
     case '@':
       return tag();
-    case '<':
-      return variable();
     case '`':
     {
       if (peek() == '`' && peek_next() == '`')

@@ -4,7 +4,6 @@
 #include <string_view>
 #include <algorithm>
 
-#include "token.hpp"
 #include "value.hpp"
 #include "table.hpp"
 #include "step.hpp"
@@ -28,9 +27,6 @@ class step_finder
                         [this](const cuke::internal::step_definition& s)
                         { return step_matches(s.regex_string()); });
   }
-
- private:
-  void push_value(const std::string& value, token_type type);
 
  private:
   std::string m_feature_string;
