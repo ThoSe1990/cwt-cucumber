@@ -864,7 +864,8 @@ Don't hesitate and open an Issue.
 
 Cheers 🍻  
   
-2024 Coding with Thomas  
+2025 Coding with Thomas  
 https://www.codingwiththomas.com/  
+
 
 
