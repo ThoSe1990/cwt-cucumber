@@ -6,6 +6,7 @@
 
 - Manually fail a scenario or step with `cuke::fail_scenario()`, `cuke::fail_scenario("Optional error message")`, `cuke::fail_step()` or `cuke::fail_step("Optional error message")` ([89](https://github.com/ThoSe1990/cwt-cucumber/issues/89))
 - Program option `--exclude-file` to exclude a single file from the test run ([89](https://github.com/ThoSe1990/cwt-cucumber/issues/89))
+- Added CMake option `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE` to let scenarios fail which have skipped and undefined steps TODO: PR
 
 ### Fixed
 
