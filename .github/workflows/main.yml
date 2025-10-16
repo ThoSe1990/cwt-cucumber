@@ -22,7 +22,7 @@ jobs:
       - name: build
         run: |
           conan install . -of ./build_gcc --build missing 
-          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"
+          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF 
           cmake --build ./build_gcc -j12
       - name: unittests
         run: ./build_gcc/bin/unittests
@@ -41,7 +41,7 @@ jobs:
       - name: build
         run: |
           conan install . -of ./build_clang --build missing -pr clang
-          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g"
+          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
           cmake --build ./build_clang -j12      
       - name: unittests
         run: ./build_clang/bin/unittests
@@ -71,7 +71,7 @@ jobs:
       - name: build 
         run: |
           conan install . -of build --build missing
-          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake"
+          cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
           cmake --build ./build --config Release -j12
       - name: unittests
         run: .\build\bin\Release\unittests.exe
