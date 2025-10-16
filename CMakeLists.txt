@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber VERSION 2.7)
 
+option(CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE "The overall result will fail if the tests contain undefined steps" ON)
+if(CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE)
+    add_definitions(-DUNDEFINED_STEPS_ARE_A_FAILURE)
+endif()
+
 set(CMAKE_CXX_STANDARD 20)
 
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

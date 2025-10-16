@@ -111,9 +111,19 @@ void update_feature_status()
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)
 {
+  const auto& steps = results::scenarios_back().steps;
+
   if (skipped)
   {
-    results::scenarios_back().status = results::test_status::skipped;
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
+    if (std::any_of(steps.begin(), steps.end(), [](const auto& step)
+                    { return step.status == results::test_status::undefined; }))
+    {
+      results::scenarios_back().status = results::test_status::failed;
+    }
+    else
+#endif  // UNDEFINED_STEPS_ARE_A_FAILURE
+      results::scenarios_back().status = results::test_status::skipped;
   }
   else if (internal::get_runtime_options().fail_scenario().is_set)
   {
@@ -127,11 +137,13 @@ void update_scenario_status(std::string_view name, std::string_view file,
   }
   else
   {
-    const std::vector<results::step>& steps = results::scenarios_back().steps;
-    for (const auto& step : steps)
+    if (std::any_of(steps.begin(), steps.end(),
+                    [](const auto& step)
+                    {
+                      return step.status == results::test_status::failed ||
+                             step.status == results::test_status::undefined;
+                    }))
     {
-      if (step.status == results::test_status::failed ||
-          step.status == results::test_status::undefined)
       {
         results::scenarios_back().status = results::test_status::failed;
       }
@@ -198,6 +210,7 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
+    // FIXME: unused
     int i = 0;
     for (const auto& scenario : scenario_outline.concrete_scenarios())
     {
@@ -215,11 +228,12 @@ class test_runner
     {
       verbose_ignore();
       verbose_end();
-      // TODO: lets refactor this here
+      // FIXME: lets refactor this here
       internal::get_runtime_options().skip_scenario(false);
       return;
     }
 
+    // FIXME: better naming ...
     const bool skip = skip_flag();
 
     results::new_scenario(scenario);

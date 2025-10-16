@@ -98,12 +98,19 @@ class test_result
   {
     return test_status::passed;
   }
-
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
   if (test_results().scenarios_failed() == 0)
   {
     return test_status::passed;
   }
   return test_status::failed;
+#else
+  if (test_results().scenarios_failed() == 0)
+  {
+    return test_status::passed;
+  }
+  return test_status::failed;
+#endif  // UNDEFINED_STEPS_ARE_A_FAILURE
 }
 
 void new_feature(const cuke::ast::feature_node& current);
