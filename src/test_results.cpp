@@ -307,11 +307,6 @@ void set_source_location(const std::string& location)
   test_results().back().scenarios.back().steps.back().source_location =
       location;
 }
-
-void set_feature_to(test_status status)
-{
-  test_results().back().status = status;
-}
 void set_scenario_to(test_status status)
 {
   test_results().back().scenarios.back().status = status;

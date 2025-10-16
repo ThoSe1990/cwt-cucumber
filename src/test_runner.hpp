@@ -97,19 +97,6 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
          !(results::scenarios_back().steps.empty() ||
            results::steps_back().status == results::test_status::passed);
 }
-// FIXME: this is probably irrelevant: final result is determined by the counted
-// scenarios not by the feature result. idk if a feature result is used anywhere
-void update_feature_status()
-{
-  if (results::features_back().status != results::test_status::passed)
-  {
-    return;
-  }
-  if (results::scenarios_back().status != results::test_status::passed)
-  {
-    results::set_feature_to(results::test_status::failed);
-  }
-}
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)
 {
@@ -154,7 +141,6 @@ void update_scenario_status(std::string_view name, std::string_view file,
 
   internal::get_runtime_options().reset_fail_scenario();
   results::test_results().add_scenario(results::scenarios_back().status);
-  update_feature_status();
 }
 
 void update_step_status()

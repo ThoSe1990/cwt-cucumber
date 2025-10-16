@@ -61,8 +61,6 @@ TEST_F(file_io, run_scenario)
   runner.run();
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
   ASSERT_EQ(cuke::results::features_back().scenarios.size(), 9);
-  EXPECT_EQ(cuke::results::features_back().status,
-            cuke::results::test_status::passed);
   EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::passed);
 }

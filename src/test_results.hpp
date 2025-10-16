@@ -42,7 +42,6 @@ struct scenario
 };
 struct feature
 {
-  test_status status{test_status::passed};
   std::string id;
   std::string keyword;
   std::string name;
@@ -98,7 +97,7 @@ class test_result
   {
     return test_status::passed;
   }
-  
+
   if (test_results().scenarios_failed() == 0)
   {
     return test_status::passed;
