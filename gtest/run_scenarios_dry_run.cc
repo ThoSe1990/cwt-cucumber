@@ -142,9 +142,6 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
   p.for_each_scenario(runner);
   EXPECT_EQ(run_scenarios_dry_run::call_count, 0);
 
-  using namespace cuke::results;
-  EXPECT_EQ(final_result(), test_status::failed);
-
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
   using namespace cuke::results;
   EXPECT_EQ(final_result(), test_status::failed);
@@ -152,6 +149,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::failed);
 #else 
+  using namespace cuke::results;
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::skipped);
 
