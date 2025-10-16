@@ -85,6 +85,7 @@ struct options
 {
   bool print_help{false};
   bool continue_on_failure{false};
+  bool dry_run{false};
   struct
   {
     catalog_type type{catalog_type::none};
@@ -138,6 +139,8 @@ static void print_help_screen()
     -h --help  Print the help screen to stdout
     
     -q --quiet  Quiet mode, only the final result will be printed to stdout.
+
+    -d --dry-run Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined
 
     -v --verbose  Print detailed information, e.g. skipped scenarios, tag evaluation
 

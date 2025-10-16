@@ -97,6 +97,8 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
          !(results::scenarios_back().steps.empty() ||
            results::steps_back().status == results::test_status::passed);
 }
+// FIXME: this is probably irrelevant: final result is determined by the counted
+// scenarios not by the feature result. idk if a feature result is used anywhere
 void update_feature_status()
 {
   if (results::features_back().status != results::test_status::passed)
@@ -234,7 +236,7 @@ class test_runner
     }
 
     // FIXME: better naming ...
-    const bool skip = skip_flag();
+    const bool skip = skip_flag() || program_arguments().get_options().dry_run;
 
     results::new_scenario(scenario);
 
