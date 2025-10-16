@@ -145,8 +145,13 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
   using namespace cuke::results;
   EXPECT_EQ(final_result(), test_status::failed);
 
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
+  auto expected_result = test_status::failed;
+#else 
+  auto expected_result = test_status::skipped;
+#endif
   const auto& scenarios = features_back().scenarios;
-  EXPECT_EQ(scenarios.at(0).status, test_status::failed);
+  EXPECT_EQ(scenarios.at(0).status, expected_result);
 }
 TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_w_undefined_step)
 {
@@ -174,6 +179,11 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_w_undefined_step)
   using namespace cuke::results;
   EXPECT_EQ(final_result(), test_status::failed);
 
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
+  auto expected_result = test_status::failed;
+#else 
+  auto expected_result = test_status::skipped;
+#endif
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::failed);
   EXPECT_EQ(scenarios.at(1).status, test_status::failed);
