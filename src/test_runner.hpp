@@ -97,23 +97,22 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
          !(results::scenarios_back().steps.empty() ||
            results::steps_back().status == results::test_status::passed);
 }
-void update_feature_status()
-{
-  if (results::features_back().status != results::test_status::passed)
-  {
-    return;
-  }
-  if (results::scenarios_back().status != results::test_status::passed)
-  {
-    results::set_feature_to(results::test_status::failed);
-  }
-}
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)
 {
+  const auto& steps = results::scenarios_back().steps;
+
   if (skipped)
   {
-    results::scenarios_back().status = results::test_status::skipped;
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
+    if (std::any_of(steps.begin(), steps.end(), [](const auto& step)
+                    { return step.status == results::test_status::undefined; }))
+    {
+      results::scenarios_back().status = results::test_status::failed;
+    }
+    else
+#endif  // UNDEFINED_STEPS_ARE_A_FAILURE
+      results::scenarios_back().status = results::test_status::skipped;
   }
   else if (internal::get_runtime_options().fail_scenario().is_set)
   {
@@ -127,11 +126,13 @@ void update_scenario_status(std::string_view name, std::string_view file,
   }
   else
   {
-    const std::vector<results::step>& steps = results::scenarios_back().steps;
-    for (const auto& step : steps)
+    if (std::any_of(steps.begin(), steps.end(),
+                    [](const auto& step)
+                    {
+                      return step.status == results::test_status::failed ||
+                             step.status == results::test_status::undefined;
+                    }))
     {
-      if (step.status == results::test_status::failed ||
-          step.status == results::test_status::undefined)
       {
         results::scenarios_back().status = results::test_status::failed;
       }
@@ -140,7 +141,6 @@ void update_scenario_status(std::string_view name, std::string_view file,
 
   internal::get_runtime_options().reset_fail_scenario();
   results::test_results().add_scenario(results::scenarios_back().status);
-  update_feature_status();
 }
 
 void update_step_status()
@@ -198,6 +198,7 @@ class test_runner
   }
   void visit(const cuke::ast::scenario_outline_node& scenario_outline)
   {
+    // FIXME: unused
     int i = 0;
     for (const auto& scenario : scenario_outline.concrete_scenarios())
     {
@@ -215,12 +216,13 @@ class test_runner
     {
       verbose_ignore();
       verbose_end();
-      // TODO: lets refactor this here
+      // FIXME: lets refactor this here
       internal::get_runtime_options().skip_scenario(false);
       return;
     }
 
-    const bool skip = skip_flag();
+    // FIXME: better naming ...
+    const bool skip = skip_flag() || program_arguments().get_options().dry_run;
 
     results::new_scenario(scenario);
 

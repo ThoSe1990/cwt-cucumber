@@ -42,7 +42,6 @@ struct scenario
 };
 struct feature
 {
-  test_status status{test_status::passed};
   std::string id;
   std::string keyword;
   std::string name;

@@ -19,6 +19,7 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/report.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_continue.cc
+    ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_dry_run.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_rule.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenarios_tags.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/run_scenario_hooks.cc

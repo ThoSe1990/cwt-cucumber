@@ -76,7 +76,7 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_1)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
 {
@@ -101,7 +101,7 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
 {
@@ -127,7 +127,7 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, outline_w_special_chars_4)
 {
@@ -150,7 +150,7 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_4)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
 
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }
 TEST_F(run_scenario_special_chars, strings_w_special_chars_1)
 {
@@ -167,7 +167,7 @@ TEST_F(run_scenario_special_chars, strings_w_special_chars_1)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }
 
 TEST_F(run_scenario_special_chars, strings_w_special_chars_2)
@@ -185,5 +185,5 @@ TEST_F(run_scenario_special_chars, strings_w_special_chars_2)
 
   cuke::test_runner runner;
   p.for_each_scenario(runner);
-  ASSERT_EQ(cuke::results::features_back().status, cuke::results::test_status::passed);
+  ASSERT_EQ(cuke::results::final_result(), cuke::results::test_status::passed);
 }

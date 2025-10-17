@@ -87,6 +87,10 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   {
     m_options.print_help = true;
   }
+  else if (option.starts_with("-d") || option.starts_with("--dry-run"))
+  {
+    m_options.dry_run = true;
+  }
   else if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
     cuke::log::set_level(cuke::log::level::quiet);
