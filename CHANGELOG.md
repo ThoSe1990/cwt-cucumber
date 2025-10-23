@@ -8,6 +8,7 @@
 - Program option `--exclude-file` to exclude a single file from the test run ([89](https://github.com/ThoSe1990/cwt-cucumber/issues/89))
 - Added CMake option `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE` to let scenarios fail which have skipped and undefined steps ([94](https://github.com/ThoSe1990/cwt-cucumber/pull/94))
 - Added program option `--dry-run`/`-d` to run cucumber without invoking steps ([94](https://github.com/ThoSe1990/cwt-cucumber/pull/94))
+- Disabled colors on stdout when the output is redirected, piped, or when the `NO_COLOR` environment variable is set ([96](https://github.com/ThoSe1990/cwt-cucumber/pull/96))
 
 ### Fixed
 
