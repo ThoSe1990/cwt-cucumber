@@ -27,10 +27,12 @@ void print_failed_scenarios()
                         log::always("Failed Scenarios:", log::new_line);
                         first = false;
                       }
-                      log::always(log::red, scenario.name);
-                      log::always(log::black, "  ", feature.file, ':',
-                                  scenario.line, log::reset_color,
-                                  log::new_line);
+                      if (log::colors_enabled()) log::always(log::red);
+                      log::always(scenario.name);
+                      if (log::colors_enabled()) log::always(log::black);
+                      log::always("  ", feature.file, ':', scenario.line);
+                      if (log::colors_enabled()) log::always(log::reset_color);
+                      log::always(log::new_line);
                     }
                   });
   }
