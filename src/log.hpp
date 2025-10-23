@@ -2,6 +2,15 @@
 
 #include <iostream>
 #include <utility>
+#include <cstdlib>
+#include <cstdio>
+#ifdef _WIN32
+#include <io.h>
+#define isatty _isatty
+#define fileno _fileno
+#else
+#include <unistd.h>
+#endif
 
 namespace cuke::log
 {
@@ -34,13 +43,14 @@ class logger
 
   void set_level(level l) { m_level = l; }
 
+  void enable_colors(bool enable) { m_use_color = enable; }
+
+  bool colors_enabled() const { return m_use_color; }
+
   template <typename... Args>
   void Log(level l, Args&&... args)
   {
-    if (l < m_level)
-    {
-      return;
-    }
+    if (l < m_level) return;
 
     (std::cout << ... << std::forward<Args>(args));
   }
@@ -60,9 +70,9 @@ class logger
   template <typename... Args>
   void verbose(Args&&... args)
   {
-    Log(level::error, log::black);
+    if (m_use_color) Log(level::verbose, log::black);
     Log(level::verbose, std::forward<Args>(args)...);
-    Log(level::error, log::reset_color);
+    if (m_use_color) Log(level::verbose, log::reset_color);
   }
 
   template <typename... Args>
@@ -74,14 +84,21 @@ class logger
   template <typename... Args>
   void error(Args&&... args)
   {
-    Log(level::error, log::red);
+    if (m_use_color) Log(level::error, log::red);
     Log(level::error, std::forward<Args>(args)...);
-    Log(level::error, log::reset_color);
+    if (m_use_color) Log(level::error, log::reset_color);
   }
 
  private:
-  logger() = default;
+  logger()
+  {
+    bool is_tty = isatty(fileno(stdout));
+    const char* no_color_env = std::getenv("NO_COLOR");
+    m_use_color = is_tty && (no_color_env == nullptr);
+  }
+
   level m_level = level::info;
+  bool m_use_color = true;
 };
 
 inline void set_level(level l) { logger::instance().set_level(l); }
@@ -115,5 +132,7 @@ void info(Args&&... args)
 {
   logger::instance().info(std::forward<Args>(args)...);
 }
+
+inline bool colors_enabled() { return logger::instance().colors_enabled(); }
 
 }  // namespace cuke::log

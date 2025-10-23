@@ -23,22 +23,28 @@ namespace
 void log_helper(const cuke::ast::feature_node& feature)
 {
   log::info(feature.keyword(), ": ", feature.name());
-  log::info(log::black, "  ", feature.file(), ':', feature.line(),
-            log::reset_color, log::new_line, log::new_line);
+  if (log::colors_enabled()) log::info(log::black);
+  log::info("  ", feature.file(), ':', feature.line());
+  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::new_line, log::new_line);
 }
 void log_helper(const cuke::ast::scenario_node& scenario)
 {
   log::info(scenario.keyword(), ": ", scenario.name());
-  log::info(log::black, "  ", scenario.file(), ':', scenario.line(),
-            log::reset_color, log::new_line);
+  if (log::colors_enabled()) log::info(log::black);
+  log::info("  ", scenario.file(), ':', scenario.line());
+  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::new_line);
 }
 void log_helper(const cuke::ast::scenario_outline_node& scenario_outline,
                 const table::row& row)
 {
   log::info(scenario_outline.keyword(), ": ",
             internal::replace_variables(scenario_outline.name(), row));
-  log::info(log::black, "  ", scenario_outline.file(), ':',
-            scenario_outline.line(), log::reset_color, log::new_line);
+  if (log::colors_enabled()) log::info(log::black);
+  log::info("  ", scenario_outline.file(), ':', scenario_outline.line());
+  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::new_line);
 }
 
 void log_helper_doc_string(const std::vector<std::string>& doc_string)
@@ -59,10 +65,15 @@ void log_helper_table(const cuke::table& t)
 }
 void log_helper(const cuke::ast::step_node& step, results::test_status status)
 {
-  log::info(results::to_color(status), results::step_prefix(status),
-            step.keyword(), ' ', step.name(), log::reset_color);
-  log::info(log::black, "  ", step.file(), ':', step.line(), log::reset_color,
-            log::new_line);
+  if (log::colors_enabled()) log::info(results::to_color(status));
+  log::info(results::step_prefix(status), step.keyword(), ' ', step.name());
+  if (log::colors_enabled()) log::info(log::reset_color);
+
+  if (log::colors_enabled()) log::info(log::black);
+  log::info("  ", step.file(), ':', step.line());
+  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::new_line);
+
   if (!step.data_table().empty())
   {
     log_helper_table(step.data_table());
