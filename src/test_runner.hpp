@@ -23,17 +23,17 @@ namespace
 void log_helper(const cuke::ast::feature_node& feature)
 {
   log::info(feature.keyword(), ": ", feature.name());
-  if (log::colors_enabled()) log::info(log::black);
+  log::info(log::color::black());
   log::info("  ", feature.file(), ':', feature.line());
-  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::color::reset());
   log::info(log::new_line, log::new_line);
 }
 void log_helper(const cuke::ast::scenario_node& scenario)
 {
   log::info(scenario.keyword(), ": ", scenario.name());
-  if (log::colors_enabled()) log::info(log::black);
+  log::info(log::color::black());
   log::info("  ", scenario.file(), ':', scenario.line());
-  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::color::reset());
   log::info(log::new_line);
 }
 void log_helper(const cuke::ast::scenario_outline_node& scenario_outline,
@@ -41,9 +41,9 @@ void log_helper(const cuke::ast::scenario_outline_node& scenario_outline,
 {
   log::info(scenario_outline.keyword(), ": ",
             internal::replace_variables(scenario_outline.name(), row));
-  if (log::colors_enabled()) log::info(log::black);
+  log::info(log::color::black());
   log::info("  ", scenario_outline.file(), ':', scenario_outline.line());
-  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::color::reset());
   log::info(log::new_line);
 }
 
@@ -65,13 +65,13 @@ void log_helper_table(const cuke::table& t)
 }
 void log_helper(const cuke::ast::step_node& step, results::test_status status)
 {
-  if (log::colors_enabled()) log::info(results::to_color(status));
+  log::info(results::to_color(status));
   log::info(results::step_prefix(status), step.keyword(), ' ', step.name());
-  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::color::reset());
 
-  if (log::colors_enabled()) log::info(log::black);
+  log::info(log::color::black);
   log::info("  ", step.file(), ':', step.line());
-  if (log::colors_enabled()) log::info(log::reset_color);
+  log::info(log::color::reset());
   log::info(log::new_line);
 
   if (!step.data_table().empty())
@@ -104,9 +104,13 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
 }
 [[nodiscard]] bool skip_step()
 {
-  return !program_arguments().get_options().continue_on_failure &&
-         !(results::scenarios_back().steps.empty() ||
-           results::steps_back().status == results::test_status::passed);
+  const auto& opts = program_arguments().get_options();
+  const auto& last_scenario = results::scenarios_back();
+  const auto& last_step = results::steps_back();
+
+  if (opts.continue_on_failure) return false;
+  if (last_scenario.steps.empty()) return false;
+  return last_step.status != results::test_status::passed;
 }
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)

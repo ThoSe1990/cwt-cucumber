@@ -133,6 +133,33 @@ void info(Args&&... args)
   logger::instance().info(std::forward<Args>(args)...);
 }
 
-inline bool colors_enabled() { return logger::instance().colors_enabled(); }
+namespace color
+{
+
+inline const char* reset()
+{
+  return logger::instance().colors_enabled() ? log::reset_color : "";
+}
+inline const char* green()
+{
+  return logger::instance().colors_enabled() ? log::green : "";
+}
+inline const char* yellow()
+{
+  return logger::instance().colors_enabled() ? log::yellow : "";
+}
+inline const char* red()
+{
+  return logger::instance().colors_enabled() ? log::red : "";
+}
+inline const char* blue()
+{
+  return logger::instance().colors_enabled() ? log::blue : "";
+}
+inline const char* black()
+{
+  return logger::instance().colors_enabled() ? log::black : "";
+}
+}  // namespace color
 
 }  // namespace cuke::log
