@@ -18,6 +18,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/table.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_runner.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/tags.cpp
 )
 
