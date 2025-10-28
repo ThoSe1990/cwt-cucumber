@@ -12,11 +12,13 @@ namespace cuke::results
 
 enum class test_status
 {
-  passed = 0,
+  unknown = 0,
+  passed,
   failed,
   skipped,
   undefined
 };
+
 struct step
 {
   test_status status{test_status::passed};

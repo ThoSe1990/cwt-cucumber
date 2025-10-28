@@ -19,6 +19,47 @@ namespace cuke
 {
 namespace
 {
+void verbose_start(const ast::scenario_node& scenario)
+{
+  log::verbose("[   VERBOSE   ] ----------------------------------",
+               log::new_line);
+  log::verbose(std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
+                           scenario.name(), scenario.file(), scenario.line()),
+               log::new_line);
+}
+void verbose_end()
+{
+  log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
+  log::verbose("[   VERBOSE   ] ----------------------------------",
+               log::new_line, log::new_line);
+}
+void verbose_no_tags()
+{
+  log::verbose("[   VERBOSE   ] No tags given, continuing", log::new_line);
+}
+void verbose_evaluate_tags(const ast::scenario_node& scenario,
+                           bool tag_evaluation, const std::string& expression)
+{
+  log::verbose(std::format("[   VERBOSE   ] Scenario tags '{}'",
+                           internal::to_string(scenario.tags())),
+               log::new_line);
+  log::verbose(
+      std::format("                checked against tag expression '{}' -> {}",
+                  expression,
+                  tag_evaluation ? "'True', continuing with scenario"
+                                 : "'False', stopping scenario"),
+      log::new_line);
+}
+void verbose_skip()
+{
+  log::verbose("[   VERBOSE   ] Scenario skipped with 'skip_scenario'",
+               log::new_line);
+}
+void verbose_ignore()
+{
+  log::verbose("[   VERBOSE   ] Scenario ignored with 'ignore_scenario'",
+               log::new_line);
+}
 
 void log_helper(const cuke::ast::feature_node& feature)
 {
@@ -281,7 +322,8 @@ class test_runner
       return true;
     }
     bool tag_evaluation = m_tag_expression.evaluate(scenario.tags());
-    verbose_evaluate_tags(scenario, tag_evaluation);
+    verbose_evaluate_tags(scenario, tag_evaluation,
+                          m_tag_expression.expression());
 
     return tag_evaluation;
   }
@@ -338,49 +380,6 @@ class test_runner
     internal::get_runtime_options().sleep_if_has_delay();
 
     log_helper(step, results::steps_back().status);
-  }
-
-  void verbose_start(const ast::scenario_node& scenario) const noexcept
-  {
-    log::verbose("[   VERBOSE   ] ----------------------------------",
-                 log::new_line);
-    log::verbose(
-        std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
-                    scenario.name(), scenario.file(), scenario.line()),
-        log::new_line);
-  }
-  void verbose_end() const noexcept
-  {
-    log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
-    log::verbose("[   VERBOSE   ] ----------------------------------",
-                 log::new_line, log::new_line);
-  }
-  void verbose_no_tags() const noexcept
-  {
-    log::verbose("[   VERBOSE   ] No tags given, continuing", log::new_line);
-  }
-  void verbose_evaluate_tags(const ast::scenario_node& scenario,
-                             bool tag_evaluation) const noexcept
-  {
-    log::verbose(std::format("[   VERBOSE   ] Scenario tags '{}'",
-                             internal::to_string(scenario.tags())),
-                 log::new_line);
-    log::verbose(
-        std::format("                checked against tag expression '{}' -> {}",
-                    m_tag_expression.expression(),
-                    tag_evaluation ? "'True', continuing with scenario"
-                                   : "'False', stopping scenario"),
-        log::new_line);
-  }
-  void verbose_skip() const noexcept
-  {
-    log::verbose("[   VERBOSE   ] Scenario skipped with 'skip_scenario'",
-                 log::new_line);
-  }
-  void verbose_ignore() const noexcept
-  {
-    log::verbose("[   VERBOSE   ] Scenario ignored with 'ignore_scenario'",
-                 log::new_line);
   }
 
  private:
