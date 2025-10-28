@@ -61,6 +61,20 @@ void verbose_ignore()
                log::new_line);
 }
 
+[[nodiscard]] bool tags_valid(const ast::scenario_node& scenario,
+                              const internal::tag_expression& tag_expression)
+{
+  if (tag_expression.empty())
+  {
+    verbose_no_tags();
+    return true;
+  }
+  bool tag_evaluation = tag_expression.evaluate(scenario.tags());
+  verbose_evaluate_tags(scenario, tag_evaluation, tag_expression.expression());
+
+  return tag_evaluation;
+}
+
 void log_helper(const cuke::ast::feature_node& feature)
 {
   log::info(feature.keyword(), ": ", feature.name());
@@ -205,6 +219,229 @@ void update_step_status()
   internal::get_runtime_options().reset_fail_step();
 }
 
+// void run_step(const ast::step_node& step, bool skip)
+// {
+//   // FIXME: these two calls to results::new_step are confusing.
+//   // right now skip_step() relies on it which means i can not put it before
+//   // the if statement. Will fix later
+//   //
+//   // Plus: skip_step and skip seem not very clear in the first place:
+//   //   - skip_step() -> if a prev. step failed (and the continue on failure
+//   //   flag wasn't set)
+//   //   - skip -> the skip flag from the user (cuke::skip_scenario()),
+//   //     these steps are as skipped in the report
+//   //
+//   if (skip_step() || skip ||
+//       internal::get_runtime_options().fail_scenario().is_set)
+//   {
+//     results::new_step(step);
+//     results::steps_back().status = step.has_step_definition()
+//                                        ? results::test_status::skipped
+//                                        : results::test_status::undefined;
+//     update_step_status();
+//     log_helper(step, results::steps_back().status);
+//     return;
+//   }
+//   results::new_step(step);
+//   if (step.has_step_definition())
+//   {
+//     results::set_source_location(step.source_location_definition());
+//     cuke::registry().run_hook_before_step();
+//     if (internal::get_runtime_options().fail_step().is_set)
+//     {
+//       results::steps_back().status = results::test_status::failed;
+//       results::steps_back().error_msg =
+//           internal::get_runtime_options().fail_step().msg;
+//       log::error(internal::get_runtime_options().fail_step().msg,
+//                  log::new_line);
+//     }
+//     else
+//     {
+//       step.call();
+//       cuke::registry().run_hook_after_step();
+//     }
+//   }
+//   else
+//   {
+//     results::steps_back().status = results::test_status::undefined;
+//     results::steps_back().error_msg = "Undefined step";
+//   }
+//   update_step_status();
+//
+//   internal::get_runtime_options().sleep_if_has_delay();
+//
+//   log_helper(step, results::steps_back().status);
+// }
+}  // namespace
+
+namespace
+{
+
+struct step_state
+{
+  const ast::step_node& current;
+  bool skip = false;
+  results::test_status status = results::test_status::unknown;
+};
+void is_step_skipped(step_state& state)
+{
+  if (skip_step() || state.skip ||
+      internal::get_runtime_options().fail_scenario().is_set)
+  {
+    results::new_step(state.current);
+    results::steps_back().status = state.current.has_step_definition()
+                                       ? results::test_status::skipped
+                                       : results::test_status::undefined;
+    update_step_status();
+    log_helper(state.current, results::steps_back().status);
+    state.skip = true;
+  }
+}
+void setup_step(step_state& state) { results::new_step(state.current); }
+
+void find_step_and_call(step_state& state)
+{
+  if (state.current.has_step_definition())
+  {
+    results::set_source_location(state.current.source_location_definition());
+    cuke::registry().run_hook_before_step();
+    if (internal::get_runtime_options().fail_step().is_set)
+    {
+      results::steps_back().status = results::test_status::failed;
+      results::steps_back().error_msg =
+          internal::get_runtime_options().fail_step().msg;
+      log::error(internal::get_runtime_options().fail_step().msg,
+                 log::new_line);
+    }
+    else
+    {
+      state.current.call();
+      cuke::registry().run_hook_after_step();
+    }
+  }
+  else
+  {
+    results::steps_back().status = results::test_status::undefined;
+    results::steps_back().error_msg = "Undefined step";
+  }
+}
+void teardown_step(step_state& state)
+{
+  update_step_status();
+
+  internal::get_runtime_options().sleep_if_has_delay();
+
+  log_helper(state.current, results::steps_back().status);
+}
+
+// clang-format off
+std::vector<void (*)(step_state&)> step_pipeline = {
+  is_step_skipped,
+  setup_step,
+  find_step_and_call,
+  teardown_step
+};
+// clang-format on
+
+void run_step(const ast::step_node& step, bool skip)
+{
+  step_state state{.current = step, .skip = skip};
+  for (const auto& pipeline_step : step_pipeline)
+  {
+    pipeline_step(state);
+    if (state.skip) break;
+  }
+}
+
+struct scenario_state
+{
+  const ast::scenario_node& current;
+  // TODO: we don't need to create this expression all the time.
+  // maybe put it into the registry?
+  const internal::tag_expression tag_expression;
+  bool skip = false;
+  bool ignore = false;
+  results::test_status status = results::test_status::unknown;
+};
+
+void setup_scenario(scenario_state& state) { verbose_start(state.current); }
+void hook_before_scenario(scenario_state& state)
+{
+  cuke::registry().run_hook_before(state.current.tags());
+}
+void is_scenario_ignored(scenario_state& state)
+{
+  if (ignore_flag() || !tags_valid(state.current, state.tag_expression))
+  {
+    verbose_ignore();
+    verbose_end();
+    internal::get_runtime_options().skip_scenario(false);
+    state.ignore = true;
+  }
+}
+void is_scenario_skipped(scenario_state& state)
+{
+  state.skip = skip_flag() || program_arguments().get_options().dry_run;
+}
+void init_scenario(scenario_state& state)
+{
+  results::new_scenario(state.current);
+
+  if (state.skip)
+  {
+    verbose_skip();
+    results::scenarios_back().status = results::test_status::skipped;
+  }
+
+  log_helper(state.current);
+}
+void run_background(scenario_state& state)
+{
+  if (state.current.has_background())
+  {
+    for (const cuke::ast::step_node& step : state.current.background().steps())
+    {
+      run_step(step, state.skip);
+    }
+  }
+}
+void run_all_steps(scenario_state& state)
+{
+  for (const cuke::ast::step_node& step : state.current.steps())
+  {
+    run_step(step, state.skip);
+  }
+}
+void hook_after_scenario(scenario_state& state)
+{
+  if (!internal::get_runtime_options().fail_scenario().is_set)
+  {
+    cuke::registry().run_hook_after(state.current.tags());
+  }
+}
+void teardown_scenario(scenario_state& state)
+{
+  update_scenario_status(state.current.name(), state.current.file(),
+                         state.current.line(), state.skip);
+  cuke::internal::reset_context();
+
+  verbose_end();
+  log::info(log::new_line);
+}
+
+// clang-format off
+std::vector<void (*)(scenario_state&)> scenario_pipeline = {
+    setup_scenario,
+    hook_before_scenario, 
+    is_scenario_ignored,
+    is_scenario_skipped, 
+    init_scenario,        
+    run_background,
+    run_all_steps,       
+    hook_after_scenario,  
+    teardown_scenario
+};
+// clang-format on
 }  // namespace
 
 class test_runner
@@ -265,121 +502,15 @@ class test_runner
  private:
   void run_scenario(const ast::scenario_node& scenario) const
   {
-    verbose_start(scenario);
-    cuke::registry().run_hook_before(scenario.tags());
-
-    if (ignore_flag() || !tags_valid(scenario))
+    scenario_state state{.current = scenario,
+                         // TODO: no new object every scenario
+                         .tag_expression = internal::tag_expression{
+                             program_arguments().get_options().tag_expression}};
+    for (const auto& pipeline_step : scenario_pipeline)
     {
-      verbose_ignore();
-      verbose_end();
-      // FIXME: lets refactor this here
-      internal::get_runtime_options().skip_scenario(false);
-      return;
+      pipeline_step(state);
+      if (state.ignore) break;
     }
-
-    // FIXME: better naming ...
-    const bool skip = skip_flag() || program_arguments().get_options().dry_run;
-
-    results::new_scenario(scenario);
-
-    if (skip)
-    {
-      verbose_skip();
-      results::scenarios_back().status = results::test_status::skipped;
-    }
-
-    log_helper(scenario);
-
-    if (scenario.has_background())
-    {
-      for (const cuke::ast::step_node& step : scenario.background().steps())
-      {
-        run_step(step, skip);
-      }
-    }
-    for (const cuke::ast::step_node& step : scenario.steps())
-    {
-      run_step(step, skip);
-    }
-    if (!internal::get_runtime_options().fail_scenario().is_set)
-    {
-      cuke::registry().run_hook_after(scenario.tags());
-    }
-    update_scenario_status(scenario.name(), scenario.file(), scenario.line(),
-                           skip);
-    cuke::internal::reset_context();
-
-    verbose_end();
-    log::info(log::new_line);
-  }
-
-  [[nodiscard]] bool tags_valid(
-      const ast::scenario_node& scenario) const noexcept
-  {
-    if (m_tag_expression.empty())
-    {
-      verbose_no_tags();
-      return true;
-    }
-    bool tag_evaluation = m_tag_expression.evaluate(scenario.tags());
-    verbose_evaluate_tags(scenario, tag_evaluation,
-                          m_tag_expression.expression());
-
-    return tag_evaluation;
-  }
-
-  void run_step(const ast::step_node& step, bool skip) const
-  {
-    // FIXME: these two calls to results::new_step are confusing.
-    // right now skip_step() relies on it which means i can not put it before
-    // the if statement. Will fix later
-    //
-    // Plus: skip_step and skip seem not very clear in the first place:
-    //   - skip_step() -> if a prev. step failed (and the continue on failure
-    //   flag wasn't set)
-    //   - skip -> the skip flag from the user (cuke::skip_scenario()),
-    //     these steps are as skipped in the report
-    //
-    if (skip_step() || skip ||
-        internal::get_runtime_options().fail_scenario().is_set)
-    {
-      results::new_step(step);
-      results::steps_back().status = step.has_step_definition()
-                                         ? results::test_status::skipped
-                                         : results::test_status::undefined;
-      update_step_status();
-      log_helper(step, results::steps_back().status);
-      return;
-    }
-    results::new_step(step);
-    if (step.has_step_definition())
-    {
-      results::set_source_location(step.source_location_definition());
-      cuke::registry().run_hook_before_step();
-      if (internal::get_runtime_options().fail_step().is_set)
-      {
-        results::steps_back().status = results::test_status::failed;
-        results::steps_back().error_msg =
-            internal::get_runtime_options().fail_step().msg;
-        log::error(internal::get_runtime_options().fail_step().msg,
-                   log::new_line);
-      }
-      else
-      {
-        step.call();
-        cuke::registry().run_hook_after_step();
-      }
-    }
-    else
-    {
-      results::steps_back().status = results::test_status::undefined;
-      results::steps_back().error_msg = "Undefined step";
-    }
-    update_step_status();
-
-    internal::get_runtime_options().sleep_if_has_delay();
-
-    log_helper(step, results::steps_back().status);
   }
 
  private:
