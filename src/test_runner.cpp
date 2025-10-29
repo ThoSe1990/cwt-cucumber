@@ -17,14 +17,6 @@ namespace cuke
 
 namespace
 {
-void verbose_start(const ast::scenario_node& scenario)
-{
-  log::verbose("[   VERBOSE   ] ----------------------------------",
-               log::new_line);
-  log::verbose(std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
-                           scenario.name(), scenario.file(), scenario.line()),
-               log::new_line);
-}
 void verbose_end()
 {
   log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
@@ -59,16 +51,18 @@ void verbose_ignore()
                log::new_line);
 }
 
-[[nodiscard]] bool tags_valid(const ast::scenario_node& scenario,
-                              const internal::tag_expression& tag_expression)
+[[nodiscard]] bool tags_valid(const scenario_pipeline_context& context)
 {
-  if (tag_expression.empty())
+  if (context.tag_expression.empty())
   {
     verbose_no_tags();
     return true;
   }
-  bool tag_evaluation = tag_expression.evaluate(scenario.tags());
-  verbose_evaluate_tags(scenario, tag_evaluation, tag_expression.expression());
+  bool tag_evaluation =
+      context.tag_expression.evaluate(context.scenario.tags());
+
+  verbose_evaluate_tags(context.scenario, tag_evaluation,
+                        context.tag_expression.expression());
 
   return tag_evaluation;
 }
@@ -156,53 +150,60 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
   return false;
 }
 
-void update_scenario_status(std::string_view name, std::string_view file,
-                            std::size_t line, bool skipped)
+[[nodiscard]] bool has_undefined_steps(const std::vector<results::step>& steps)
+{
+  return std::any_of(
+      steps.begin(), steps.end(), [](const auto& step)
+      { return step.status == results::test_status::undefined; });
+}
+
+[[nodiscard]] bool has_failed_or_undefined_steps(
+    const std::vector<results::step>& steps)
+{
+  return std::any_of(steps.begin(), steps.end(),
+                     [](const auto& step)
+                     {
+                       return step.status == results::test_status::failed ||
+                              step.status == results::test_status::undefined;
+                     });
+}
+
+void update_scenario_status(scenario_pipeline_context& context)
 {
   const auto& steps = results::scenarios_back().steps;
-
-  if (skipped)
+  if (context.skip_scenario)
   {
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
-    if (std::any_of(steps.begin(), steps.end(), [](const auto& step)
-                    { return step.status == results::test_status::undefined; }))
+    if (has_undefined_steps(steps))
     {
-      results::scenarios_back().status = results::test_status::failed;
+      context.result.status = results::test_status::failed;
     }
     else
 #endif  // UNDEFINED_STEPS_ARE_A_FAILURE
-      results::scenarios_back().status = results::test_status::skipped;
+      context.result.status = results::test_status::skipped;
   }
   else if (internal::get_runtime_options().fail_scenario().is_set)
   {
     const std::string& msg =
         internal::get_runtime_options().fail_scenario().msg;
     log::error(msg, log::new_line);
-    results::scenarios_back().status = results::test_status::failed;
-    std::for_each(results::scenarios_back().steps.begin(),
-                  results::scenarios_back().steps.end(),
-                  [&msg](results::step& step) { step.error_msg = msg; });
+    context.result.status = results::test_status::failed;
+    for (results::step& step : context.result.steps)
+    {
+      step.error_msg = msg;
+    }
   }
   else
   {
-    if (std::any_of(steps.begin(), steps.end(),
-                    [](const auto& step)
-                    {
-                      return step.status == results::test_status::failed ||
-                             step.status == results::test_status::undefined;
-                    }))
+    if (has_failed_or_undefined_steps(steps))
     {
-      {
-        results::scenarios_back().status = results::test_status::failed;
-      }
+      context.result.status = results::test_status::failed;
     }
   }
 
   internal::get_runtime_options().reset_fail_scenario();
-  results::test_results().add_scenario(results::scenarios_back().status);
+  results::test_results().add_scenario(context.result.status);
 }
-
-}  // namespace
 
 void skip_step(step_pipeline_context& context)
 {
@@ -308,9 +309,14 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
   }
 }
 
-void setup_scenario(scenario_pipeline_context& context)
+void verbose_start_print(scenario_pipeline_context& context)
 {
-  verbose_start(context.scenario);
+  log::verbose("[   VERBOSE   ] ----------------------------------",
+               log::new_line);
+  log::verbose(std::format("[   VERBOSE   ] Scenario Start '{}' - File: {}:{}",
+                           context.scenario.name(), context.scenario.file(),
+                           context.scenario.line()),
+               log::new_line);
 }
 void hook_before_scenario(scenario_pipeline_context& context)
 {
@@ -318,29 +324,25 @@ void hook_before_scenario(scenario_pipeline_context& context)
 }
 void is_scenario_ignored(scenario_pipeline_context& context)
 {
-  if (ignore_flag() || !tags_valid(context.scenario, context.tag_expression))
+  if (ignore_flag() || !tags_valid(context))
   {
     verbose_ignore();
     verbose_end();
     internal::get_runtime_options().skip_scenario(false);
     context.ignore = true;
+    results::remove_last_scenario();
   }
 }
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
   context.skip_scenario =
       skip_flag() || program_arguments().get_options().dry_run;
-}
-void init_scenario(scenario_pipeline_context& context)
-{
-  results::new_scenario(context.scenario);
 
   if (context.skip_scenario)
   {
     verbose_skip();
-    results::scenarios_back().status = results::test_status::skipped;
+    context.result.status = results::test_status::skipped;
   }
-
   log_helper(context.scenario);
 }
 void run_background(scenario_pipeline_context& context)
@@ -368,29 +370,32 @@ void hook_after_scenario(scenario_pipeline_context& context)
     cuke::registry().run_hook_after(context.scenario.tags());
   }
 }
-void teardown_scenario(scenario_pipeline_context& context)
+void reset_user_context(scenario_pipeline_context&)
 {
-  update_scenario_status(context.scenario.name(), context.scenario.file(),
-                         context.scenario.line(), context.skip_scenario);
   cuke::internal::reset_context();
-
+}
+void verbose_end_print(scenario_pipeline_context& context)
+{
   verbose_end();
   log::info(log::new_line);
 }
 
 // clang-format off
 std::vector<void (*)(scenario_pipeline_context&)> scenario_pipeline = {
-    setup_scenario,
+    verbose_start_print,
     hook_before_scenario, 
     is_scenario_ignored,
     is_scenario_skipped, 
-    init_scenario,        
     run_background,
-    run_all_steps,       
-    hook_after_scenario,  
-    teardown_scenario
+    run_all_steps,
+    hook_after_scenario,
+    update_scenario_status,
+    reset_user_context,
+    verbose_end_print
 };
 // clang-format on
+
+}  // namespace
 
 void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
@@ -440,7 +445,8 @@ void test_runner::visit(
 void test_runner::run_scenario(const ast::scenario_node& scenario) const
 {
   scenario_pipeline_context context{.scenario = scenario,
-                                    .tag_expression = m_tag_expression};
+                                    .tag_expression = m_tag_expression,
+                                    .result = results::new_scenario(scenario)};
   for (const auto& pipeline_step : scenario_pipeline)
   {
     pipeline_step(context);

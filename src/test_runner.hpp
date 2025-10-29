@@ -12,7 +12,7 @@ namespace cuke
 struct step_pipeline_context
 {
   const ast::step_node& step;
-  cuke::results::step& result;
+  results::step& result;
   const bool scenario_already_skpped;
 };
 
@@ -22,7 +22,7 @@ struct scenario_pipeline_context
   const internal::tag_expression& tag_expression;
   bool skip_scenario = false;
   bool ignore = false;
-  results::test_status status = results::test_status::passed;
+  results::scenario& result;
 };
 
 class test_runner

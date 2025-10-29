@@ -277,7 +277,7 @@ void new_feature(const cuke::ast::feature_node& current)
   result.description = cuke::internal::to_string(current.description());
   test_results().data().push_back(result);
 }
-void new_scenario(const cuke::ast::scenario_node& current)
+scenario& new_scenario(const cuke::ast::scenario_node& current)
 {
   scenario result;
   result.id = current.id();
@@ -287,7 +287,9 @@ void new_scenario(const cuke::ast::scenario_node& current)
   result.keyword = current.keyword();
   result.tags = current.tags();
   test_results().back().scenarios.push_back(result);
+  return test_results().back().scenarios.back();
 }
+void remove_last_scenario() { test_results().back().scenarios.pop_back(); }
 step& new_step(const cuke::ast::step_node& current)
 {
   step result;
