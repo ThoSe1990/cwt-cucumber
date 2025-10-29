@@ -13,6 +13,7 @@ struct step_pipeline_context
 {
   const ast::step_node& step;
   cuke::results::step& result;
+  const bool scenario_already_skpped;
 };
 
 struct scenario_pipeline_context

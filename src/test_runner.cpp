@@ -227,20 +227,15 @@ void update_scenario_status(std::string_view name, std::string_view file,
 
 }  // namespace
 
-bool skip_step(const ast::step_node& step, bool scenario_set_to_skip)
+void skip_step(step_pipeline_context& context)
 {
-  if (skip_step() || scenario_set_to_skip ||
+  if (skip_step() || context.scenario_already_skpped ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
-    results::steps_back().status = step.has_step_definition()
-                                       ? results::test_status::skipped
-                                       : results::test_status::undefined;
-    results::test_results().add_step(results::steps_back().status);
-    internal::get_runtime_options().reset_fail_step();
-    log_helper(step, results::steps_back().status);
-    return true;
+    context.result.status = context.step.has_step_definition()
+                                ? results::test_status::skipped
+                                : results::test_status::undefined;
   }
-  return false;
 }
 
 void find_step(step_pipeline_context& context)
@@ -280,36 +275,36 @@ void teardown_step(step_pipeline_context& context)
 
   internal::get_runtime_options().sleep_if_has_delay();
 
-  log_helper(context.step, results::steps_back().status);
+  log_helper(context.step, context.result.status);
 }
 
 // clang-format off
 std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
+  skip_step,
   find_step,
   hook_before_step,
   check_if_manual_fail_is_set,
-  call_step_and_hook_after
+  call_step_and_hook_after,
+  teardown_step
 };
 // clang-format on
 
 void run_step(const ast::step_node& step, bool scenario_already_skpped)
 {
-  step_pipeline_context context{.step = step,
-                                .result = results::new_step(step)};
-  if (skip_step(step, scenario_already_skpped))
-  {
-    return;
-  }
+  step_pipeline_context context{
+      .step = step,
+      .result = results::new_step(step),
+      .scenario_already_skpped = scenario_already_skpped};
 
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
     if (context.result.status != results::test_status::passed)
     {
+      teardown_step(context);
       break;
     }
   }
-  teardown_step(context);
 }
 
 void setup_scenario(scenario_pipeline_context& context)
