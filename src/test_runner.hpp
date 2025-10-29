@@ -9,16 +9,16 @@
 
 namespace cuke
 {
-struct step_state
+struct step_pipeline_context
 {
-  const ast::step_node& current;
+  const ast::step_node& step;
   bool skip = false;
   results::test_status status = results::test_status::unknown;
 };
 
-struct scenario_state
+struct scenario_pipeline_context
 {
-  const ast::scenario_node& current;
+  const ast::scenario_node& scenario;
   const internal::tag_expression& tag_expression;
   bool skip = false;
   bool ignore = false;

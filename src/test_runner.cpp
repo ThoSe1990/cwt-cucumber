@@ -217,27 +217,30 @@ void update_step_status()
 
 }  // namespace
 
-void is_step_skipped(step_state& state)
+void is_step_skipped(step_pipeline_context& context)
 {
-  if (skip_step() || state.skip ||
+  if (skip_step() || context.skip ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
-    results::new_step(state.current);
-    results::steps_back().status = state.current.has_step_definition()
+    results::new_step(context.step);
+    results::steps_back().status = context.step.has_step_definition()
                                        ? results::test_status::skipped
                                        : results::test_status::undefined;
     update_step_status();
-    log_helper(state.current, results::steps_back().status);
-    state.skip = true;
+    log_helper(context.step, results::steps_back().status);
+    context.skip = true;
   }
 }
-void setup_step(step_state& state) { results::new_step(state.current); }
-
-void find_step_and_call(step_state& state)
+void setup_step(step_pipeline_context& context)
 {
-  if (state.current.has_step_definition())
+  results::new_step(context.step);
+}
+
+void find_step_and_call(step_pipeline_context& context)
+{
+  if (context.step.has_step_definition())
   {
-    results::set_source_location(state.current.source_location_definition());
+    results::set_source_location(context.step.source_location_definition());
     cuke::registry().run_hook_before_step();
     if (internal::get_runtime_options().fail_step().is_set)
     {
@@ -249,7 +252,7 @@ void find_step_and_call(step_state& state)
     }
     else
     {
-      state.current.call();
+      context.step.call();
       cuke::registry().run_hook_after_step();
     }
   }
@@ -259,17 +262,17 @@ void find_step_and_call(step_state& state)
     results::steps_back().error_msg = "Undefined step";
   }
 }
-void teardown_step(step_state& state)
+void teardown_step(step_pipeline_context& context)
 {
   update_step_status();
 
   internal::get_runtime_options().sleep_if_has_delay();
 
-  log_helper(state.current, results::steps_back().status);
+  log_helper(context.step, results::steps_back().status);
 }
 
 // clang-format off
-std::vector<void (*)(step_state&)> step_pipeline = {
+std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
   is_step_skipped,
   setup_step,
   find_step_and_call,
@@ -279,73 +282,77 @@ std::vector<void (*)(step_state&)> step_pipeline = {
 
 void run_step(const ast::step_node& step, bool skip)
 {
-  step_state state{.current = step, .skip = skip};
+  step_pipeline_context context{.step = step, .skip = skip};
   for (const auto& pipeline_step : step_pipeline)
   {
-    pipeline_step(state);
-    if (state.skip) break;
+    pipeline_step(context);
+    if (context.skip) break;
   }
 }
 
-void setup_scenario(scenario_state& state) { verbose_start(state.current); }
-void hook_before_scenario(scenario_state& state)
+void setup_scenario(scenario_pipeline_context& context)
 {
-  cuke::registry().run_hook_before(state.current.tags());
+  verbose_start(context.scenario);
 }
-void is_scenario_ignored(scenario_state& state)
+void hook_before_scenario(scenario_pipeline_context& context)
 {
-  if (ignore_flag() || !tags_valid(state.current, state.tag_expression))
+  cuke::registry().run_hook_before(context.scenario.tags());
+}
+void is_scenario_ignored(scenario_pipeline_context& context)
+{
+  if (ignore_flag() || !tags_valid(context.scenario, context.tag_expression))
   {
     verbose_ignore();
     verbose_end();
     internal::get_runtime_options().skip_scenario(false);
-    state.ignore = true;
+    context.ignore = true;
   }
 }
-void is_scenario_skipped(scenario_state& state)
+void is_scenario_skipped(scenario_pipeline_context& context)
 {
-  state.skip = skip_flag() || program_arguments().get_options().dry_run;
+  context.skip = skip_flag() || program_arguments().get_options().dry_run;
 }
-void init_scenario(scenario_state& state)
+void init_scenario(scenario_pipeline_context& context)
 {
-  results::new_scenario(state.current);
+  results::new_scenario(context.scenario);
 
-  if (state.skip)
+  if (context.skip)
   {
     verbose_skip();
     results::scenarios_back().status = results::test_status::skipped;
   }
 
-  log_helper(state.current);
+  log_helper(context.scenario);
 }
-void run_background(scenario_state& state)
+void run_background(scenario_pipeline_context& context)
 {
-  if (state.current.has_background())
+  if (context.scenario.has_background())
   {
-    for (const cuke::ast::step_node& step : state.current.background().steps())
+    for (const cuke::ast::step_node& step :
+         context.scenario.background().steps())
     {
-      run_step(step, state.skip);
+      run_step(step, context.skip);
     }
   }
 }
-void run_all_steps(scenario_state& state)
+void run_all_steps(scenario_pipeline_context& context)
 {
-  for (const cuke::ast::step_node& step : state.current.steps())
+  for (const cuke::ast::step_node& step : context.scenario.steps())
   {
-    run_step(step, state.skip);
+    run_step(step, context.skip);
   }
 }
-void hook_after_scenario(scenario_state& state)
+void hook_after_scenario(scenario_pipeline_context& context)
 {
   if (!internal::get_runtime_options().fail_scenario().is_set)
   {
-    cuke::registry().run_hook_after(state.current.tags());
+    cuke::registry().run_hook_after(context.scenario.tags());
   }
 }
-void teardown_scenario(scenario_state& state)
+void teardown_scenario(scenario_pipeline_context& context)
 {
-  update_scenario_status(state.current.name(), state.current.file(),
-                         state.current.line(), state.skip);
+  update_scenario_status(context.scenario.name(), context.scenario.file(),
+                         context.scenario.line(), context.skip);
   cuke::internal::reset_context();
 
   verbose_end();
@@ -353,7 +360,7 @@ void teardown_scenario(scenario_state& state)
 }
 
 // clang-format off
-std::vector<void (*)(scenario_state&)> scenario_pipeline = {
+std::vector<void (*)(scenario_pipeline_context&)> scenario_pipeline = {
     setup_scenario,
     hook_before_scenario, 
     is_scenario_ignored,
@@ -413,11 +420,12 @@ void test_runner::visit(
 
 void test_runner::run_scenario(const ast::scenario_node& scenario) const
 {
-  scenario_state state{.current = scenario, .tag_expression = m_tag_expression};
+  scenario_pipeline_context context{.scenario = scenario,
+                                    .tag_expression = m_tag_expression};
   for (const auto& pipeline_step : scenario_pipeline)
   {
-    pipeline_step(state);
-    if (state.ignore) break;
+    pipeline_step(context);
+    if (context.ignore) break;
   }
 }
 
