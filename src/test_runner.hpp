@@ -12,7 +12,9 @@ namespace cuke
 struct step_pipeline_context
 {
   const ast::step_node& step;
+  cuke::results::step* result;
   results::test_status status = results::test_status::passed;
+  std::string error_msg = "";
 };
 
 struct scenario_pipeline_context

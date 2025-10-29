@@ -12,8 +12,7 @@ namespace cuke::results
 
 enum class test_status
 {
-  unknown = 0,
-  passed,
+  passed = 0,
   failed,
   skipped,
   undefined
@@ -109,7 +108,7 @@ class test_result
 
 void new_feature(const cuke::ast::feature_node& current);
 void new_scenario(const cuke::ast::scenario_node& current);
-void new_step(const cuke::ast::step_node& current);
+step* new_step(const cuke::ast::step_node& current);
 void set_source_location(const std::string& location);
 void set_feature_to(test_status status);
 void set_scenario_to(test_status status);
