@@ -229,17 +229,13 @@ bool skip_step(const ast::step_node& step, bool scenario_set_to_skip)
   }
   return false;
 }
-void setup_step(step_pipeline_context& context)
-{
-  context.result = results::new_step(context.step);
-}
 
 void find_step(step_pipeline_context& context)
 {
   if (!context.step.has_step_definition())
   {
-    context.result->status = results::test_status::undefined;
-    context.result->error_msg = "Undefined step";
+    context.result.status = results::test_status::undefined;
+    context.result.error_msg = "Undefined step";
   }
 }
 
@@ -253,8 +249,8 @@ void check_if_manual_fail_is_set(step_pipeline_context& context)
 {
   if (internal::get_runtime_options().fail_step().is_set)
   {
-    context.result->status = results::test_status::failed;
-    context.result->error_msg = internal::get_runtime_options().fail_step().msg;
+    context.result.status = results::test_status::failed;
+    context.result.error_msg = internal::get_runtime_options().fail_step().msg;
     log::error(internal::get_runtime_options().fail_step().msg, log::new_line);
   }
 }
@@ -276,7 +272,6 @@ void teardown_step(step_pipeline_context& context)
 
 // clang-format off
 std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
-  setup_step,
   find_step,
   hook_before_step,
   check_if_manual_fail_is_set,
@@ -291,11 +286,12 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
     return;
   }
 
-  step_pipeline_context context{.step = step};
+  step_pipeline_context context{.step = step,
+                                .result = results::new_step(step)};
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
-    if (context.result->status != results::test_status::passed)
+    if (context.result.status != results::test_status::passed)
     {
       break;
     }

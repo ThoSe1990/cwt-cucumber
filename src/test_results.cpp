@@ -288,7 +288,7 @@ void new_scenario(const cuke::ast::scenario_node& current)
   result.tags = current.tags();
   test_results().back().scenarios.push_back(result);
 }
-step* new_step(const cuke::ast::step_node& current)
+step& new_step(const cuke::ast::step_node& current)
 {
   step result;
   result.line = current.line();
@@ -300,7 +300,7 @@ step* new_step(const cuke::ast::step_node& current)
   result.table = current.data_table();
 
   test_results().back().scenarios.back().steps.push_back(result);
-  return &test_results().back().scenarios.back().steps.back();
+  return test_results().back().scenarios.back().steps.back();
 }
 
 void set_source_location(const std::string& location)
