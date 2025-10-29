@@ -206,7 +206,7 @@ void update_scenario_status(std::string_view name, std::string_view file,
 
 void skip_step(step_pipeline_context& context)
 {
-  const bool should_skip = []()
+  const bool continue_on_failure_or_prev_step_failed = []()
   {
     const auto& opts = program_arguments().get_options();
     if (opts.continue_on_failure)
@@ -229,7 +229,8 @@ void skip_step(step_pipeline_context& context)
     }
   }();
 
-  if (should_skip || context.scenario_already_skpped ||
+  if (continue_on_failure_or_prev_step_failed ||
+      context.scenario_already_skpped ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
     context.result.status = context.step.has_step_definition()
