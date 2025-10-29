@@ -14,9 +14,9 @@
 
 namespace cuke
 {
-
 namespace
 {
+
 void verbose_end()
 {
   log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
