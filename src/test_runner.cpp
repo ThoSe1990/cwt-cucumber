@@ -122,7 +122,7 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
   log::info(results::step_prefix(status), step.keyword(), ' ', step.name());
   log::info(log::color::reset());
 
-  log::info(log::color::black);
+  log::info(log::color::black());
   log::info("  ", step.file(), ':', step.line());
   log::info(log::color::reset());
   log::info(log::new_line);
