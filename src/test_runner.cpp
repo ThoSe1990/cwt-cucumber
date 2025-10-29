@@ -156,29 +156,6 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
   return false;
 }
 
-[[nodiscard]] bool skip_step()
-{
-  const auto& opts = program_arguments().get_options();
-  if (opts.continue_on_failure)
-  {
-    return false;
-  }
-
-  const auto& this_scenario = results::scenarios_back();
-  if (this_scenario.steps.size() <= 1)
-  {
-    return false;
-  }
-  else
-  {
-    const auto& last_step =
-        results::scenarios_back()
-            .steps[results::scenarios_back().steps.size() - 2];
-
-    return last_step.status != results::test_status::passed;
-  }
-}
-
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)
 {
@@ -229,7 +206,30 @@ void update_scenario_status(std::string_view name, std::string_view file,
 
 void skip_step(step_pipeline_context& context)
 {
-  if (skip_step() || context.scenario_already_skpped ||
+  const bool should_skip = []()
+  {
+    const auto& opts = program_arguments().get_options();
+    if (opts.continue_on_failure)
+    {
+      return false;
+    }
+
+    const auto& this_scenario = results::scenarios_back();
+    if (this_scenario.steps.size() <= 1)
+    {
+      return false;
+    }
+    else
+    {
+      const auto& last_step =
+          results::scenarios_back()
+              .steps[results::scenarios_back().steps.size() - 2];
+
+      return last_step.status != results::test_status::passed;
+    }
+  }();
+
+  if (should_skip || context.scenario_already_skpped ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
     context.result.status = context.step.has_step_definition()
