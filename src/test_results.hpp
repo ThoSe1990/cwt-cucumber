@@ -4,7 +4,6 @@
 #include <string>
 
 #include "ast.hpp"
-#include "util.hpp"
 #include "table.hpp"
 
 namespace cuke::results

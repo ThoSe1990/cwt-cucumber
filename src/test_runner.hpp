@@ -4,7 +4,6 @@
 
 #include "ast.hpp"
 #include "test_results.hpp"
-#include "registry.hpp"
 #include "options.hpp"
 
 namespace cuke

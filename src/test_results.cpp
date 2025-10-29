@@ -2,7 +2,6 @@
 #include "ast.hpp"
 #include "log.hpp"
 #include "util.hpp"
-#include "util_regex.hpp"
 
 namespace cuke::results
 {
