@@ -155,16 +155,30 @@ void log_helper(const cuke::ast::step_node& step, results::test_status status)
   }
   return false;
 }
+
 [[nodiscard]] bool skip_step()
 {
   const auto& opts = program_arguments().get_options();
-  const auto& last_scenario = results::scenarios_back();
-  const auto& last_step = results::steps_back();
+  if (opts.continue_on_failure)
+  {
+    return false;
+  }
 
-  if (opts.continue_on_failure) return false;
-  if (last_scenario.steps.empty()) return false;
-  return last_step.status != results::test_status::passed;
+  const auto& this_scenario = results::scenarios_back();
+  if (this_scenario.steps.size() <= 1)
+  {
+    return false;
+  }
+  else
+  {
+    const auto& last_step =
+        results::scenarios_back()
+            .steps[results::scenarios_back().steps.size() - 2];
+
+    return last_step.status != results::test_status::passed;
+  }
 }
+
 void update_scenario_status(std::string_view name, std::string_view file,
                             std::size_t line, bool skipped)
 {
@@ -218,7 +232,6 @@ bool skip_step(const ast::step_node& step, bool scenario_set_to_skip)
   if (skip_step() || scenario_set_to_skip ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
-    results::new_step(step);
     results::steps_back().status = step.has_step_definition()
                                        ? results::test_status::skipped
                                        : results::test_status::undefined;
@@ -281,13 +294,13 @@ std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
 
 void run_step(const ast::step_node& step, bool scenario_already_skpped)
 {
+  step_pipeline_context context{.step = step,
+                                .result = results::new_step(step)};
   if (skip_step(step, scenario_already_skpped))
   {
     return;
   }
 
-  step_pipeline_context context{.step = step,
-                                .result = results::new_step(step)};
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
