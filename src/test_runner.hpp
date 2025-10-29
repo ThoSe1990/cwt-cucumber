@@ -12,7 +12,6 @@ namespace cuke
 struct step_pipeline_context
 {
   const ast::step_node& step;
-  bool skip = false;
   results::test_status status = results::test_status::unknown;
 };
 
@@ -20,7 +19,7 @@ struct scenario_pipeline_context
 {
   const ast::scenario_node& scenario;
   const internal::tag_expression& tag_expression;
-  bool skip = false;
+  bool skip_scenario = false;
   bool ignore = false;
   results::test_status status = results::test_status::unknown;
 };

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string_view>
 
+#include "ast.hpp"
 #include "util_regex.hpp"
 #include "log.hpp"
 #include "parser.hpp"
@@ -217,19 +218,20 @@ void update_step_status()
 
 }  // namespace
 
-void is_step_skipped(step_pipeline_context& context)
+bool skip_step(const ast::step_node& step, bool scenario_set_to_skip)
 {
-  if (skip_step() || context.skip ||
+  if (skip_step() || scenario_set_to_skip ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
-    results::new_step(context.step);
-    results::steps_back().status = context.step.has_step_definition()
+    results::new_step(step);
+    results::steps_back().status = step.has_step_definition()
                                        ? results::test_status::skipped
                                        : results::test_status::undefined;
     update_step_status();
-    log_helper(context.step, results::steps_back().status);
-    context.skip = true;
+    log_helper(step, results::steps_back().status);
+    return true;
   }
+  return false;
 }
 void setup_step(step_pipeline_context& context)
 {
@@ -273,20 +275,23 @@ void teardown_step(step_pipeline_context& context)
 
 // clang-format off
 std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
-  is_step_skipped,
   setup_step,
   find_step_and_call,
   teardown_step
 };
 // clang-format on
 
-void run_step(const ast::step_node& step, bool skip)
+void run_step(const ast::step_node& step, bool scenario_already_skpped)
 {
-  step_pipeline_context context{.step = step, .skip = skip};
+  if (skip_step(step, scenario_already_skpped))
+  {
+    return;
+  }
+
+  step_pipeline_context context{.step = step};
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
-    if (context.skip) break;
   }
 }
 
@@ -310,13 +315,14 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 }
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
-  context.skip = skip_flag() || program_arguments().get_options().dry_run;
+  context.skip_scenario =
+      skip_flag() || program_arguments().get_options().dry_run;
 }
 void init_scenario(scenario_pipeline_context& context)
 {
   results::new_scenario(context.scenario);
 
-  if (context.skip)
+  if (context.skip_scenario)
   {
     verbose_skip();
     results::scenarios_back().status = results::test_status::skipped;
@@ -331,7 +337,7 @@ void run_background(scenario_pipeline_context& context)
     for (const cuke::ast::step_node& step :
          context.scenario.background().steps())
     {
-      run_step(step, context.skip);
+      run_step(step, context.skip_scenario);
     }
   }
 }
@@ -339,7 +345,7 @@ void run_all_steps(scenario_pipeline_context& context)
 {
   for (const cuke::ast::step_node& step : context.scenario.steps())
   {
-    run_step(step, context.skip);
+    run_step(step, context.skip_scenario);
   }
 }
 void hook_after_scenario(scenario_pipeline_context& context)
@@ -352,7 +358,7 @@ void hook_after_scenario(scenario_pipeline_context& context)
 void teardown_scenario(scenario_pipeline_context& context)
 {
   update_scenario_status(context.scenario.name(), context.scenario.file(),
-                         context.scenario.line(), context.skip);
+                         context.scenario.line(), context.skip_scenario);
   cuke::internal::reset_context();
 
   verbose_end();
