@@ -174,9 +174,7 @@ void teardown_step(step_pipeline_context& context)
 {
   results::test_results().add_step(results::steps_back().status);
   internal::get_runtime_options().reset_fail_step();
-
   internal::get_runtime_options().sleep_if_has_delay();
-
   log::info(context.step, context.result.status);
 }
 
