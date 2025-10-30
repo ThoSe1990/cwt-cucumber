@@ -5,10 +5,9 @@
 
 #include "ast.hpp"
 #include "test_results.hpp"
-#include "util_regex.hpp"
 #include "log.hpp"
+#include "log_util.hpp"
 #include "parser.hpp"
-#include "util.hpp"
 #include "context.hpp"
 
 namespace cuke
@@ -16,118 +15,20 @@ namespace cuke
 namespace
 {
 
-void verbose_end()
-{
-  log::verbose("[   VERBOSE   ] Scenario end", log::new_line);
-  log::verbose("[   VERBOSE   ] ----------------------------------",
-               log::new_line, log::new_line);
-}
-void verbose_no_tags()
-{
-  log::verbose("[   VERBOSE   ] No tags given, continuing", log::new_line);
-}
-void verbose_evaluate_tags(const ast::scenario_node& scenario,
-                           bool tag_evaluation, const std::string& expression)
-{
-  log::verbose(std::format("[   VERBOSE   ] Scenario tags '{}'",
-                           internal::to_string(scenario.tags())),
-               log::new_line);
-  log::verbose(
-      std::format("                checked against tag expression '{}' -> {}",
-                  expression,
-                  tag_evaluation ? "'True', continuing with scenario"
-                                 : "'False', stopping scenario"),
-      log::new_line);
-}
-void verbose_skip()
-{
-  log::verbose("[   VERBOSE   ] Scenario skipped with 'skip_scenario'",
-               log::new_line);
-}
-void verbose_ignore()
-{
-  log::verbose("[   VERBOSE   ] Scenario ignored with 'ignore_scenario'",
-               log::new_line);
-}
-
 [[nodiscard]] bool tags_valid(const scenario_pipeline_context& context)
 {
   if (context.tag_expression.empty())
   {
-    verbose_no_tags();
+    log::verbose_no_tags();
     return true;
   }
   bool tag_evaluation =
       context.tag_expression.evaluate(context.scenario.tags());
 
-  verbose_evaluate_tags(context.scenario, tag_evaluation,
-                        context.tag_expression.expression());
+  log::verbose_evaluate_tags(context.scenario, tag_evaluation,
+                             context.tag_expression.expression());
 
   return tag_evaluation;
-}
-
-void log_helper(const cuke::ast::feature_node& feature)
-{
-  log::info(feature.keyword(), ": ", feature.name());
-  log::info(log::color::black());
-  log::info("  ", feature.file(), ':', feature.line());
-  log::info(log::color::reset());
-  log::info(log::new_line, log::new_line);
-}
-void log_helper(const cuke::ast::scenario_node& scenario)
-{
-  log::info(scenario.keyword(), ": ", scenario.name());
-  log::info(log::color::black());
-  log::info("  ", scenario.file(), ':', scenario.line());
-  log::info(log::color::reset());
-  log::info(log::new_line);
-}
-void log_helper(const cuke::ast::scenario_outline_node& scenario_outline,
-                const table::row& row)
-{
-  log::info(scenario_outline.keyword(), ": ",
-            internal::replace_variables(scenario_outline.name(), row));
-  log::info(log::color::black());
-  log::info("  ", scenario_outline.file(), ':', scenario_outline.line());
-  log::info(log::color::reset());
-  log::info(log::new_line);
-}
-
-void log_helper_doc_string(const std::vector<std::string>& doc_string)
-{
-  log::info("\"\"\"", log::new_line);
-  for (const std::string& line : doc_string)
-  {
-    log::info(line, log::new_line);
-  }
-  log::info("\"\"\"", log::new_line);
-}
-void log_helper_table(const cuke::table& t)
-{
-  for (const std::string& row : t.to_string_array())
-  {
-    log::info("  ", row, log::new_line);
-  }
-}
-void log_helper(const cuke::ast::step_node& step, results::test_status status)
-{
-  log::info(results::to_color(status));
-  log::info(results::step_prefix(status), step.keyword(), ' ', step.name());
-  log::info(log::color::reset());
-
-  log::info(log::color::black());
-  log::info("  ", step.file(), ':', step.line());
-  log::info(log::color::reset());
-  log::info(log::new_line);
-
-  if (!step.data_table().empty())
-  {
-    log_helper_table(step.data_table());
-  }
-  if (!step.doc_string().empty())
-  {
-    log_helper_doc_string(step.doc_string());
-  }
 }
 
 [[nodiscard]] bool ignore_flag()
@@ -276,7 +177,7 @@ void teardown_step(step_pipeline_context& context)
 
   internal::get_runtime_options().sleep_if_has_delay();
 
-  log_helper(context.step, context.result.status);
+  log::info(context.step, context.result.status);
 }
 
 // clang-format off
@@ -325,8 +226,8 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 {
   if (ignore_flag() || !tags_valid(context))
   {
-    verbose_ignore();
-    verbose_end();
+    log::verbose_ignore();
+    log::verbose_end();
     internal::get_runtime_options().skip_scenario(false);
     context.ignore = true;
     results::remove_last_scenario();
@@ -339,10 +240,10 @@ void is_scenario_skipped(scenario_pipeline_context& context)
 
   if (context.skip_scenario)
   {
-    verbose_skip();
+    log::verbose_skip();
     context.result.status = results::test_status::skipped;
   }
-  log_helper(context.scenario);
+  log::info(context.scenario);
 }
 void run_background(scenario_pipeline_context& context)
 {
@@ -375,7 +276,7 @@ void reset_user_context(scenario_pipeline_context&)
 }
 void verbose_end_print(scenario_pipeline_context& context)
 {
-  verbose_end();
+  log::verbose_end();
   log::info(log::new_line);
 }
 
@@ -425,7 +326,7 @@ void test_runner::run() const
 void test_runner::visit(const cuke::ast::feature_node& feature) const
 {
   results::new_feature(feature);
-  log_helper(feature);
+  log::info(feature);
 }
 
 void test_runner::visit(const cuke::ast::scenario_node& scenario) const

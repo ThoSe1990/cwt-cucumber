@@ -14,6 +14,7 @@ set(cucumber-src
   ${CMAKE_CURRENT_SOURCE_DIR}/scanner.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/options.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/lexer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/log_util.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/report.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step_finder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/step.cpp
