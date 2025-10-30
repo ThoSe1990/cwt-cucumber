@@ -304,8 +304,29 @@ step& new_step(const cuke::ast::step_node& current)
   return test_results().back().scenarios.back().steps.back();
 }
 
+test_status final_result()
+{
+  if (test_results().data().empty())
+  {
+    return test_status::passed;
+  }
+
+  if (test_results().scenarios_failed() == 0)
+  {
+    return test_status::passed;
+  }
+  return test_status::failed;
+}
+
 void set_step_to(test_status status)
 {
   test_results().back().scenarios.back().steps.back().status = status;
+}
+
+feature& features_back() { return test_results().back(); }
+scenario& scenarios_back() { return test_results().back().scenarios.back(); }
+step& steps_back()
+{
+  return test_results().back().scenarios.back().steps.back();
 }
 }  // namespace cuke::results
