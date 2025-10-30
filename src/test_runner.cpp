@@ -22,7 +22,7 @@ namespace
     log::verbose_no_tags();
     return true;
   }
-  bool tag_evaluation =
+  const bool tag_evaluation =
       context.tag_expression.evaluate(context.scenario.tags());
 
   log::verbose_evaluate_tags(context.scenario, tag_evaluation,
