@@ -19,6 +19,10 @@
 
 - Internal field: `test_results::feature::status` ([94](https://github.com/ThoSe1990/cwt-cucumber/pull/94))
 
+### Changed 
+
+- Reorganized / refactored `test_runner`, no changes to behavior or public API's ([97](https://github.com/ThoSe1990/cwt-cucumber/pull/97))
+
 ## [2.7] 2025-06-16
 
 ### Added
