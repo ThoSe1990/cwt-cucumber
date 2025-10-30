@@ -33,9 +33,9 @@ Hello and Welcome to my C++20 Cucumber interpreter 🚀✨
 1. [Report](#report)
     1. [Json](#report-json)
 1. [Catalog](#catalog)
+1. [Undefined Steps are a Failure](#undefined-steps-are-a-failure)
 1. [Disclaimer](#disclaimer)
 1. [Found A Bug? Need A Feature?](#found-a-bug-need-a-feature)
-
 
 Tested compilers: GCC 13, Clang17 and MSVC 19  
 
@@ -852,6 +852,10 @@ Step doc string:
     },
 ... 
 ```
+## Undefined Steps are a Failure
+
+You can set the CMake option `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=ON` in your build to treat undefined steps as a scenario failure.
+
 ## Disclaimer
 
 This is a fun/educational project for me. After reading "Crafting Interpreters" by Robert Nystorm, I wanted a meaningful, not too complex example. Since I really like and use Cucumber, this seems like a perfect project to me. I'm not getting paid for this and I do all the implementation in my free time aside from work. 
@@ -866,6 +870,7 @@ Cheers 🍻
   
 2025 Coding with Thomas  
 https://www.codingwiththomas.com/  
+
 
 
 
