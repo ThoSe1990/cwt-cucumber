@@ -181,7 +181,7 @@ void teardown_step(step_pipeline_context& context)
 }
 
 // clang-format off
-std::vector<void (*)(step_pipeline_context&)> step_pipeline = {
+constexpr const std::array<void (*)(step_pipeline_context&), 6> step_pipeline = {
   skip_step,
   find_step,
   hook_before_step,
@@ -281,7 +281,7 @@ void verbose_end_print(scenario_pipeline_context& context)
 }
 
 // clang-format off
-std::vector<void (*)(scenario_pipeline_context&)> scenario_pipeline = {
+constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pipeline = {
     verbose_start_print,
     hook_before_scenario, 
     is_scenario_ignored,
