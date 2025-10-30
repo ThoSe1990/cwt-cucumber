@@ -15,8 +15,10 @@ inline void internal_assert(bool condition, std::string_view error_msg)
   {
     cuke::results::set_step_to(cuke::results::test_status::failed);
     cuke::results::steps_back().error_msg = error_msg;
-    cuke::log::info(cuke::log::red, error_msg, cuke::log::reset_color,
-                    cuke::log::new_line);
+    cuke::log::info(log::color::red());
+    cuke::log::info(error_msg);
+    cuke::log::info(log::color::reset());
+    cuke::log::info(cuke::log::new_line);
   }
 }
 

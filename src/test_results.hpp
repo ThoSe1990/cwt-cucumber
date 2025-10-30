@@ -4,7 +4,6 @@
 #include <string>
 
 #include "ast.hpp"
-#include "util.hpp"
 #include "table.hpp"
 
 namespace cuke::results
@@ -17,6 +16,7 @@ enum class test_status
   skipped,
   undefined
 };
+
 struct step
 {
   test_status status{test_status::passed};
@@ -90,39 +90,16 @@ class test_result
 };
 
 [[nodiscard]] test_result& test_results();
-
-[[nodiscard]] static test_status final_result()
-{
-  if (test_results().data().empty())
-  {
-    return test_status::passed;
-  }
-
-  if (test_results().scenarios_failed() == 0)
-  {
-    return test_status::passed;
-  }
-  return test_status::failed;
-}
-
+[[nodiscard]] test_status final_result();
 void new_feature(const cuke::ast::feature_node& current);
-void new_scenario(const cuke::ast::scenario_node& current);
-void new_step(const cuke::ast::step_node& current);
-void set_source_location(const std::string& location);
-void set_feature_to(test_status status);
-void set_scenario_to(test_status status);
+[[nodiscard]] scenario& new_scenario(const cuke::ast::scenario_node& current);
+[[nodiscard]] step& new_step(const cuke::ast::step_node& current);
+void remove_last_scenario();
 void set_step_to(test_status status);
 
-[[nodiscard]] static feature& features_back() { return test_results().back(); }
-[[nodiscard]] static scenario& scenarios_back()
-{
-  return test_results().back().scenarios.back();
-}
-[[nodiscard]] static step& steps_back()
-{
-  return test_results().back().scenarios.back().steps.back();
-}
-
+[[nodiscard]] feature& features_back();
+[[nodiscard]] scenario& scenarios_back();
+[[nodiscard]] step& steps_back();
 [[nodiscard]] std::string scenarios_to_string();
 [[nodiscard]] std::string steps_to_string();
 [[nodiscard]] const char* to_color(test_status status);
