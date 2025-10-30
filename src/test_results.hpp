@@ -109,9 +109,6 @@ void new_feature(const cuke::ast::feature_node& current);
 [[nodiscard]] scenario& new_scenario(const cuke::ast::scenario_node& current);
 [[nodiscard]] step& new_step(const cuke::ast::step_node& current);
 void remove_last_scenario();
-void set_source_location(const std::string& location);
-void set_feature_to(test_status status);
-void set_scenario_to(test_status status);
 void set_step_to(test_status status);
 
 [[nodiscard]] static feature& features_back() { return test_results().back(); }

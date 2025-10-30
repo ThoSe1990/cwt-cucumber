@@ -304,15 +304,6 @@ step& new_step(const cuke::ast::step_node& current)
   return test_results().back().scenarios.back().steps.back();
 }
 
-void set_source_location(const std::string& location)
-{
-  test_results().back().scenarios.back().steps.back().source_location =
-      location;
-}
-void set_scenario_to(test_status status)
-{
-  test_results().back().scenarios.back().status = status;
-}
 void set_step_to(test_status status)
 {
   test_results().back().scenarios.back().steps.back().status = status;

@@ -250,7 +250,7 @@ void find_step(step_pipeline_context& context)
 
 void hook_before_step(step_pipeline_context& context)
 {
-  results::set_source_location(context.step.source_location_definition());
+  context.result.source_location = context.step.source_location_definition();
   cuke::registry().run_hook_before_step();
 }
 
