@@ -14,16 +14,16 @@ jobs:
     env:
       HOME: /root
     steps:
-      - name: checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: build
+      - name: Build
         run: |
           conan install . -of ./build_gcc --build missing 
           cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF 
           cmake --build ./build_gcc -j12
-      - name: unittests
+      - name: Run unittests
         run: ./build_gcc/bin/unittests
-      - name: example 
+      - name: Run example 
         run: ./build_gcc/bin/example ./examples --exclude-file 11_manual_fails.feature
 
 
@@ -36,44 +36,44 @@ jobs:
     env:
       HOME: /root
     steps:
-      - name: checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
-      - name: build
+      - name: Build
         run: |
           conan install . -of ./build_clang --build missing -pr clang
           cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
           cmake --build ./build_clang -j12      
-      - name: unittests
+      - name: Run unittests
         run: ./build_clang/bin/unittests
-      - name: examples 
+      - name: Run examples 
         run: ./build_clang/bin/example ./examples --exclude-file 11_manual_fails.feature
 
   MSVC:
     runs-on: windows-latest 
     steps:
-      - name: checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v2
-      - name: set up Python
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.12'
-      - name: install pip tools
+      - name: Install pip tools
         run: |
           python -m pip install --upgrade pip
           pip install cmake conan
-      - name: conan
+      - name: Init conan
         run: |
           conan --version 
           conan profile detect
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.cppstd=14', 'compiler.cppstd=20' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
           powershell -Command "(gc C:\Users\runneradmin\.conan2\profiles\default) -replace 'compiler.runtime=dynamic', 'compiler.runtime=static' | Out-File -encoding ASCII C:\Users\runneradmin\.conan2\profiles\default"
           conan profile show
-      - name: build 
+      - name: Build 
         run: |
           conan install . -of build --build missing
           cmake -S . -B ./build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=".\build\conan_toolchain.cmake" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
           cmake --build ./build --config Release -j12
-      - name: unittests
+      - name: Run unittests
         run: .\build\bin\Release\unittests.exe
-      - name: example
+      - name: Run example
         run: .\build\bin\Release\example.exe ./examples --exclude-file 11_manual_fails.feature
