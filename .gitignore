@@ -11,3 +11,5 @@ CMakeUserPresets.json
 src/version.hpp
 .devcontainer/
 CMakeLists.txt.user
+site/
+docs/api/xml/

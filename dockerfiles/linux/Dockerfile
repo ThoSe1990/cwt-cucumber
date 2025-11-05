@@ -25,7 +25,6 @@ RUN apt-get update && \
     update-alternatives --install /usr/bin/cc cc /usr/bin/clang-17 100 && \
     update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-17 100 
 
-# Create Conan profiles
 RUN mkdir -p /root/.conan2/profiles && \
     echo "[settings]" > /root/.conan2/profiles/clang && \
     echo "arch=x86_64" >> /root/.conan2/profiles/clang && \
@@ -45,4 +44,4 @@ RUN mkdir -p /root/.conan2/profiles && \
     echo "os=Linux" >> /root/.conan2/profiles/gcc && \
     cp /root/.conan2/profiles/gcc /root/.conan2/profiles/default
 
-
+CMD ["/bin/bash"]
