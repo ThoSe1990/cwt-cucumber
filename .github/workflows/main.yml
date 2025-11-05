@@ -1,9 +1,3 @@
-
-# the docker image is build for linux/amd64 and pushed to docker hub: 
-# docker buildx build --platform linux/amd64 . -t those90/ci-image:1.0
-# docker push those90/ci-image:1.0
-
-
 name: CI
 
 on:
@@ -13,7 +7,7 @@ on:
 jobs:
   gcc:
     runs-on: ubuntu-latest
-    container: those90/ci-image:1.0
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
@@ -32,7 +26,7 @@ jobs:
 
   Clang:
     runs-on: ubuntu-latest
-    container: those90/ci-image:1.0
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
