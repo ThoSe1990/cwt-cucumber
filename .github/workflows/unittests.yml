@@ -10,9 +10,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    container: 
-      image: ghcr.io/those1990/linux-dev:1.0
-      options: --entrypoint "/bin/bash"
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
@@ -34,9 +32,7 @@ jobs:
     permissions:
       contents: read
       packages: read
-    container: 
-      image: ghcr.io/those1990/linux-dev:1.0
-      options: --entrypoint "/bin/bash"
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
