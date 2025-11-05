@@ -1,4 +1,4 @@
-name: CI
+name: Unittests
 
 on:
   push:
@@ -8,6 +8,9 @@ jobs:
   gcc:
     runs-on: ubuntu-latest
     container: ghcr.io/those1990/linux-dev:1.0
+    permissions:
+      contents: read
+      packages: read
     env:
       HOME: /root
     steps:
@@ -27,6 +30,9 @@ jobs:
   Clang:
     runs-on: ubuntu-latest
     container: ghcr.io/those1990/linux-dev:1.0
+    permissions:
+      contents: read
+      packages: read
     env:
       HOME: /root
     steps:
