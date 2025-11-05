@@ -1,3 +1,7 @@
+# Build for gha from mac osx
+# docker buildx build --push --provenance=false --platform linux/amd64 -t ghcr.io/those1990/linux-dev:1.0 .
+# docker buildx build --push --provenance=false --platform linux/amd64 -t ghcr.io/those1990/sphinx-docs:1.0 .
+
 FROM ubuntu:latest
 
 RUN apt-get update && \
