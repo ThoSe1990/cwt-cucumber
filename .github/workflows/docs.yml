@@ -1,0 +1,37 @@
+
+
+
+name: Documentation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+      pages: write
+    container: ghcr.io/those1990/sphinx-docs:1.0
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      - name: build docs
+          cd docs
+          mkdir _build
+          doxygen Doxyfile
+          make html
+          mv ./_build/html/ ../pages/
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: './pages'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
