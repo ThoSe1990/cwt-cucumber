@@ -8,13 +8,9 @@ jobs:
   gcc:
     runs-on: ubuntu-latest
     permissions:
-      packages: read
       contents: read
-    container:
-      image: ghcr.io/those1990/linux-dev:1.0
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
@@ -34,13 +30,9 @@ jobs:
   Clang:
     runs-on: ubuntu-latest
     permissions:
-      packages: read
       contents: read
-    container:
-      image: ghcr.io/those1990/linux-dev:1.0
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
