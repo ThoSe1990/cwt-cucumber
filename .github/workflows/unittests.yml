@@ -7,10 +7,10 @@ on:
 jobs:
   gcc:
     runs-on: ubuntu-latest
-    container: ghcr.io/those1990/linux-dev:1.0
     permissions:
       contents: read
       packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
@@ -29,10 +29,10 @@ jobs:
 
   Clang:
     runs-on: ubuntu-latest
-    container: ghcr.io/those1990/linux-dev:1.0
     permissions:
       contents: read
       packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
     env:
       HOME: /root
     steps:
