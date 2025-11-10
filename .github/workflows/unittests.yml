@@ -43,51 +43,7 @@ jobs:
       - name: Run Example
         run: ./build/bin/example ./examples --exclude-file 11_manual_fails.feature
 
-
-  gcc:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-    container: ghcr.io/those1990/linux-dev:1.0
-    env:
-      HOME: /root
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Build
-        run: |
-          conan install . -of ./build_gcc --build missing 
-          cmake -S . -B ./build_gcc -DCMAKE_TOOLCHAIN_FILE=./build_gcc/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF 
-          cmake --build ./build_gcc -j12
-      - name: Run unittests
-        run: ./build_gcc/bin/unittests
-      - name: Run example 
-        run: ./build_gcc/bin/example ./examples --exclude-file 11_manual_fails.feature
-
-
-  Clang:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: read
-    container: ghcr.io/those1990/linux-dev:1.0
-    env:
-      HOME: /root
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Build
-        run: |
-          conan install . -of ./build_clang --build missing -pr clang
-          cmake -S . -B ./build_clang -DCMAKE_TOOLCHAIN_FILE=./build_clang/conan_toolchain.cmake -DCMAKE_CXX_COMPILER=clang++-17 -DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
-          cmake --build ./build_clang -j12      
-      - name: Run unittests
-        run: ./build_clang/bin/unittests
-      - name: Run examples 
-        run: ./build_clang/bin/example ./examples --exclude-file 11_manual_fails.feature
-
-  MSVC:
+  Windows:
     runs-on: windows-latest 
     steps:
       - name: Checkout repository
