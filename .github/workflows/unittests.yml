@@ -1,10 +1,49 @@
-name: Unittests
+name: Build & Test 
 
 on:
   push:
     branches: [ "**" ]
 
 jobs:
+  linux: 
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
+    env:
+      HOME: /root
+    strategy:
+      matrix:
+        include:
+          - c_compiler: gcc
+            cpp_compiler: g++
+            conan_profile: ""
+          - c_compiler: clang-17
+            cpp_compiler: clang++-17
+            conan_profile: -pr clang
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build
+        run: |
+          conan install . -of ./build --build missing ${{ matrix.conan_profile }}
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -g" \
+            -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
+          cmake --build ./build -j12
+
+      - name: Run Unit Tests
+        run: ./build/bin/unittests
+
+      - name: Run Example
+        run: ./build/bin/example ./examples --exclude-file 11_manual_fails.feature
+
+
   gcc:
     runs-on: ubuntu-latest
     permissions:
