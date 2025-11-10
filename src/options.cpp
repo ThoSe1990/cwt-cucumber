@@ -128,7 +128,6 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
       return;
     }
     std::string_view arg(*next_it);
-    std::cout << "adding " << arg << std::endl;
     m_options.excluded_files.push_back(std::string{arg});
   }
 }
