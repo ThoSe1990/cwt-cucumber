@@ -5,7 +5,7 @@ on:
     branches: [ "**" ]
 
 jobs:
-  linux: 
+  Linux: 
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -72,3 +72,41 @@ jobs:
         run: .\build\bin\Release\unittests.exe
       - name: Run example
         run: .\build\bin\Release\example.exe ./examples --exclude-file 11_manual_fails.feature
+
+  Mac:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install CMake & Conan
+        run: |
+          python -m pip install --upgrade pip
+          pip install cmake conan
+
+      - name: Detect Conan profile
+        run: |
+          conan --version
+          conan profile detect
+
+      - name: Build
+        run: |
+          conan install . -of ./build --build missing
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
+          cmake --build ./build -j12
+
+      - name: Run Unit Tests
+        run: ./build/bin/unittests
+
+      - name: Run Example
+        run: ./build/bin/example ./examples --exclude-file 11_manual_fails.feature
