@@ -5,9 +5,11 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-# import os
 
-version = '2.8'
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+from _version import version
 
 project = 'CWT-Cucumber ' + version
 copyright = '2025, Thomas'

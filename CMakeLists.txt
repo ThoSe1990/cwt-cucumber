@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber VERSION 2.7)
 
+set(version_content "version = \"${PROJECT_VERSION}\"\n")
+file(WRITE "${CMAKE_SOURCE_DIR}/docs/_version.py" "${version_content}")
+
 option(CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE "The overall result will fail if the tests contain undefined steps" ON)
 if(CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE)
     add_definitions(-DUNDEFINED_STEPS_ARE_A_FAILURE)
