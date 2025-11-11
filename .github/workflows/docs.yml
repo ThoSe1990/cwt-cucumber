@@ -18,6 +18,7 @@ jobs:
 
       - name: Build docs
         run: |
+          cmake -S . -B ./build
           cd docs
           mkdir _build
           doxygen Doxyfile
