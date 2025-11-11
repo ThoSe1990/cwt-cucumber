@@ -36,9 +36,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 html_logo = '_static/logo.png'  # shows in the sidebar automatically
-# html_theme_options = {
-#     'sidebar_hide_name': False
-# }
+html_theme_options = {
+    'collapse_navigation': True,
+    'sticky_navigation': True,
+    'navigation_depth': 3,
+    'includehidden': False,
+    'titles_only': False
+}
 
 # build_all_docs = os.environ.get("build_all_docs")
 # pages_root = os.environ.get("pages_root", "")

@@ -22,11 +22,11 @@ Optionally, you can enable JSON reports by building it with `nlohmann/json <http
 Get started quickly by following the :doc:`Installation guide <chapters/installation>` and implement your first steps.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :maxdepth: 3
+  :caption: Contents:
 
-   chapters/installation
-   chapters/step_definitions
-   chapters/cucumber_features
-   chapters/program_arguments
-   chapters/api_reference
+  chapters/installation
+  chapters/step_definitions
+  chapters/cucumber_features
+  chapters/program_arguments
+  chapters/api_reference
