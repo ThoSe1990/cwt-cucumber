@@ -13,3 +13,5 @@ src/version.hpp
 CMakeLists.txt.user
 site/
 docs/api/xml/
+__pycache__
+_version.py
