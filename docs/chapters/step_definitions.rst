@@ -2,10 +2,8 @@
 Step Definitions
 ================
 
-
 Implementing Steps & Value Access
 ---------------------------------
-
 
 Hooks
 -----
@@ -33,7 +31,6 @@ Hashes
 
 Key/Value Pairs
 ^^^^^^^^^^^^^^^
-
 
 Custom Parameter Types
 ----------------------

@@ -29,4 +29,3 @@ Get started quickly by following the :doc:`Installation guide <chapters/installa
   chapters/step_definitions
   chapters/cucumber_features
   chapters/program_arguments
-  chapters/api_reference
