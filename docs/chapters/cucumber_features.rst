@@ -210,8 +210,7 @@ Currently supported languages are:
 - Spanish  
 - German  
 
-If you would like to add another language, please open an issue or contribute it yourself.  
-See :ref:`subch-contribution-adding-a-language` for details.
+If you would like to add another language, please open an issue in this repository.
 
 You can specify the language at the top of a feature file using the ``# language:`` directive.  
 Find all Gherkin keywords in each supported language in the  
