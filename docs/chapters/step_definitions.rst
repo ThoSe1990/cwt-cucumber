@@ -133,21 +133,183 @@ Accessing stored objects:
     cuke::equal(my_box.items_count(), items_count);
   }
 
-
 Word Alternations
 -----------------
 
+CWT-Cucumber supports **word alternations** in step definitions using parentheses `()` and slashes `/`.  
+This allows a single step definition to match multiple word variations in your feature files.
+
+Example:
+
+.. code-block:: cpp
+
+   THEN(alternative_words, "{int} item(s) is/are {string}")
+   {
+       // Implementation here
+   }
+
+With this step definition, you can write scenarios using either word form:
+
+.. code-block:: gherkin
+
+  Scenario: Alternative Words
+    Given An empty box
+    When I place 1 x "banana" in it
+    Then 1 item is "banana"
+    And I place 1 x "banana" in it
+    Then 2 items are "banana"
+
 Hooks
------
+=====
 
-Tagged Hooks 
-^^^^^^^^^^^^
+Hooks allow you to execute code **before or after scenarios or steps**.  
+They are easy to implement and can be used for setup, teardown, logging, or conditional scenario handling.  
+Multiple hooks of the same type are allowed; they are executed in the order they are defined.
 
-Skip & Ignore Scenarios
-^^^^^^^^^^^^^^^^^^^^^^^
+Basic Hooks
+-----------
 
-Manual Fail Steps & Scenarios
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+CWT-Cucumber provides several types of hooks:
+
+.. code-block:: cpp
+
+  BEFORE(before)
+  {
+      // Runs before every scenario
+  }
+
+  AFTER(after)
+  {
+      // Runs after every scenario
+  }
+
+  BEFORE_STEP(before_step)
+  {
+      // Runs before every step
+  }
+
+  AFTER_STEP(after_step)
+  {
+      // Runs after every step
+  }
+
+  BEFORE_ALL(before_all)
+  {
+      // Runs once at program start
+  }
+
+  AFTER_ALL(after_all)
+  {
+      // Runs once at program end
+  }
+
+Tagged Hooks
+------------
+
+Hooks can be limited to specific scenarios using **tag expressions**.  
+
+- ``BEFORE_T(name, "tag expression")`` – runs before a scenario that matches the tag expression  
+- ``AFTER_T(name, "tag expression")`` – runs after a scenario that matches the tag expression  
+
+A tagged hook is executed **only** when a scenario matches the specified tag expression. You can use any logical combination of tags.
+
+Example:
+
+.. code-block:: cpp
+
+  AFTER_T(dispatch_box, "@ship or @important")
+  {
+      std::cout << "The box is shipped!" << std::endl;
+  }
+
+.. code-block:: gherkin
+
+  @ship
+  Scenario: We want to ship cucumbers
+    Given An empty box
+    When I place 1 x "cucumber" in it
+    Then The box contains 1 item
+
+  @important
+  Scenario: Important items must be shipped immediately
+    Given An empty box
+    When I place 2 x "important items" in it
+    Then The box contains 2 items
+
+Skipping & Ignoring Scenarios
+-----------------------------
+
+You can skip or ignore scenarios from within hooks:
+
+- ``cuke::skip_scenario()`` – marks a scenario as skipped (reported as skipped)  
+- ``cuke::ignore_scenario()`` – marks a scenario as ignored (not reported)  
+
+Example:
+
+.. code-block:: cpp
+
+  BEFORE_T(skip, "@skip")
+  {
+      // Skip this scenario
+      cuke::skip_scenario();
+  }
+
+  BEFORE_T(ignore, "@ignore")
+  {
+      // Ignore this scenario
+      cuke::ignore_scenario();
+  }
+
+.. note::
+   The ``AFTER_ALL`` hook is always executed.  
+   Hooks ``AFTER`` and ``AFTER_T`` are **not** executed for skipped or ignored scenarios.
+
+Manual Failures
+---------------
+
+You can manually fail a scenario or a step from within hooks using:
+
+``cuke::fail_scenario()``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Fails the entire scenario, optionally with a custom message:
+
+.. code-block:: cpp
+
+  BEFORE(before)
+  {
+      // Fail scenario due to a setup error
+      cuke::fail_scenario();
+      cuke::fail_scenario("Custom error message");
+  }
+
+- When called in a *before* hook:
+  - All steps are skipped
+  - The message is displayed with each skipped step
+- When called in an *after* hook:
+  - The scenario is marked as failed even if all steps passed
+
+.. note::
+   CWT-Cucumber reports the message under the steps; the scenario itself does not display a separate error.
+
+``cuke::fail_step()``
+^^^^^^^^^^^^^^^^^^^^^
+
+Fails the current step, optionally with a custom message:
+
+.. code-block:: cpp
+
+  BEFORE_STEP(before_step)
+  {
+      // Fail the step due to an error condition
+      cuke::fail_step();
+      cuke::fail_step("Step failed due to invalid setup");
+  }
+
+- Intended for use in *before step* hooks
+- Has no effect in *after step* hooks
+- Marks the step as failed and shows the error message in output
+
 
 .. _subch-step-def-doc-strings:
    
