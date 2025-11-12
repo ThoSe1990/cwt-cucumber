@@ -160,14 +160,14 @@ With this step definition, you can write scenarios using either word form:
     Then 2 items are "banana"
 
 Hooks
-=====
+-----
 
 Hooks allow you to execute code **before or after scenarios or steps**.  
 They are easy to implement and can be used for setup, teardown, logging, or conditional scenario handling.  
 Multiple hooks of the same type are allowed; they are executed in the order they are defined.
 
 Basic Hooks
------------
+^^^^^^^^^^^
 
 CWT-Cucumber provides several types of hooks:
 
@@ -204,7 +204,7 @@ CWT-Cucumber provides several types of hooks:
   }
 
 Tagged Hooks
-------------
+^^^^^^^^^^^^
 
 Hooks can be limited to specific scenarios using **tag expressions**.  
 
@@ -237,7 +237,7 @@ Example:
     Then The box contains 2 items
 
 Skipping & Ignoring Scenarios
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can skip or ignore scenarios from within hooks:
 
@@ -265,12 +265,12 @@ Example:
    Hooks ``AFTER`` and ``AFTER_T`` are **not** executed for skipped or ignored scenarios.
 
 Manual Failures
----------------
+^^^^^^^^^^^^^^^
 
 You can manually fail a scenario or a step from within hooks using:
 
 ``cuke::fail_scenario()``
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""
 
 Fails the entire scenario, optionally with a custom message:
 
@@ -293,7 +293,7 @@ Fails the entire scenario, optionally with a custom message:
    CWT-Cucumber reports the message under the steps; the scenario itself does not display a separate error.
 
 ``cuke::fail_step()``
-^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""
 
 Fails the current step, optionally with a custom message:
 
@@ -312,25 +312,135 @@ Fails the current step, optionally with a custom message:
 
 
 .. _subch-step-def-doc-strings:
-   
+
 Doc Strings
 -----------
+
+Doc Strings are multi-line text blocks attached to a step, often used for JSON, configuration, or long messages.  
+
+You can access a doc string using the macro ``CUKE_DOC_STRING()``. There are two options:
+
+- As a single string containing the entire content  
+- As a ``std::vector<std::string>`` containing each line
+
+Example:
+
+.. code-block:: cpp
+
+  WHEN(doc_string, "There is a doc string:")
+  {
+      // Get the entire doc string as a single string
+      const std::string& str = CUKE_DOC_STRING();
+
+      // Or get each line separately in a vector
+      const std::vector<std::string>& lines = CUKE_DOC_STRING();
+  }
 
 .. _subch-step-def-datatables:
 
 Datatables
 ----------
 
-Raw Access 
+Datatables provide tabular input for a step.  
+You can access a table attached to a step using the macro ``CUKE_TABLE()``:
+
+- As a const reference: ``const cuke::table& t = CUKE_TABLE();``  
+- As a copy: ``cuke::table t = CUKE_TABLE();``
+
+The table contains ``cuke::value`` objects. You can access values with ``operator[]`` and convert them using ``as<>()`` or ``to_string()``:
+
+.. code-block:: cpp
+
+  const cuke::table& t = CUKE_TABLE();
+  std::string s = t[0][0].to_string();
+  int i = t[0][1].as<int>();
+
+There are three main ways to access table data:
+
+Raw Access
 ^^^^^^^^^^
+
+Use raw tables when there is no header row or descriptive column names:
+
+.. code-block:: gherkin
+
+  When I add all items with the raw function:
+    | apple      | 2 |
+    | strawberry | 3 |
+    | banana     | 5 |
+
+You can iterate over the table using ``raw()``:
+
+.. code-block:: cpp
+
+  WHEN(add_table_raw, "I add all items with the raw function:")
+  {
+      const cuke::table& t = CUKE_TABLE();
+
+      for (const auto& row : t.raw())
+      {
+          cuke::context<box>().add_items(row[0].to_string(), row[1].as<long>());
+      }
+  }
 
 Hashes
 ^^^^^^
 
-Key/Value Pairs
-^^^^^^^^^^^^^^^
+Use hashes tables when your table has a header row to make it more descriptive:
 
-.. _subch-step-def-custom-parameters:
+.. code-block:: gherkin
+
+  When I add all items with the hashes function:
+    | ITEM   | QUANTITY |
+    | apple  | 3        |
+    | banana | 6        |
+
+You can iterate over the table using ``hashes()`` and access elements by header name:
+
+.. code-block:: cpp
+
+  WHEN(add_table_hashes, "I add all items with the hashes function:")
+  {
+      const cuke::table& t = CUKE_TABLE();
+      for (const auto& row : t.hashes())
+      {
+          cuke::context<box>().add_items(row["ITEM"].to_string(), row["QUANTITY"].as<long>());
+      }
+  }
+
+Key/Value Pairs (Rows Hash)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The rows hash provides a convenient way to access table data using key/value pairs.  
+The first column acts as the key, and the second column holds the value:
+
+.. code-block:: gherkin
+
+   When I add the following item with the rows_hash function:
+    | ITEM     | really good apples |
+    | QUANTITY | 3                  |
+
+You can convert the table into a hash map using ``rows_hash()``:
+
+.. code-block:: cpp
+
+  WHEN(add_table_rows_hash, "I add the following item with the rows_hash function:")
+  {
+      const cuke::table& t = CUKE_TABLE();
+
+      // cuke::table::pair is an alias for std::unordered_map
+      cuke::table::pair hash_rows = t.rows_hash();
+
+      cuke::context<box>().add_items(hash_rows["ITEM"].to_string(), hash_rows["QUANTITY"].as<long>());
+  }
+
+.. note::
+   Always cast ``cuke::value`` objects to the correct type using ``as<>()`` or ``to_string()``.  
+   This ensures proper handling of integers, strings, or floating-point values.
+
+
+
+   .. _subch-step-def-custom-parameters:
 
 Custom Parameter Types
 ----------------------
