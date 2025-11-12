@@ -29,4 +29,5 @@ Get started quickly by following the :doc:`Installation guide <chapters/installa
   chapters/cucumber_features
   chapters/step_definitions
   chapters/program_arguments
+  chapters/environment_variables
   chapters/api_reference
