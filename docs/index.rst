@@ -26,6 +26,6 @@ Get started quickly by following the :doc:`Installation guide <chapters/installa
   :caption: Contents:
 
   chapters/installation
-  chapters/step_definitions
   chapters/cucumber_features
+  chapters/step_definitions
   chapters/program_arguments
