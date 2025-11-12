@@ -20,6 +20,8 @@ class box
   {
     return m_items.size();
   }
+  void add_weight(const std::size_t weight) { m_weight += weight; }
+  [[nodiscard]] std::size_t weight() const noexcept { return m_weight; }
   [[nodiscard]] const std::string& at(const std::size_t idx) const
   {
     return m_items.at(idx);
@@ -30,8 +32,13 @@ class box
   {
     return std::count(m_items.begin(), m_items.end(), item);
   }
+  bool contains(const std::string& item)
+  {
+    return std::find(m_items.begin(), m_items.end(), item) != m_items.end();
+  }
 
  private:
   bool m_is_open{true};
+  std::size_t m_weight{0};
   std::vector<std::string> m_items;
 };

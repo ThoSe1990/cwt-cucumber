@@ -1,83 +1,59 @@
 #include "../src/cucumber.hpp"
+#include "asserts.hpp"
+#include "box.hpp"
+#include "get_args.hpp"
 
 struct date
 {
-  int day;
-  std::string month;
-  int year;
+  int year{0};
+  int month{0};
+  int day{0};
+  auto operator<=>(const date& other) const = default;
+  std::string to_string() { return std::format("{}-{}-{}", year, month, day); }
 };
 
-struct date_range
+CUSTOM_PARAMETER(custom_parameter_date, "{date}", R"((\d{4})-(\d{2})-(\d{2}))",
+                 "shipping date")
 {
-  date start;
-  date end;
-};
+  date shipping_date;
+  shipping_date.year = CUKE_PARAM_ARG(1).as<int>();
+  shipping_date.month = CUKE_PARAM_ARG(2).as<int>();
+  shipping_date.day = CUKE_PARAM_ARG(3).as<int>();
 
-CUSTOM_PARAMETER(
-    custom_date, "{date}",
-    R"(from ([A-Za-z]+) (\d{1,2}), (\d{4}) to ([A-Za-z]+) (\d{1,2}), (\d{4}))",
-    "a custom date pattern")
-{
-  date begin;
-  begin.month = CUKE_PARAM_ARG(1).to_string();
-  begin.day = int(CUKE_PARAM_ARG(2));
-  begin.year = CUKE_PARAM_ARG(3).as<int>();
-
-  date end;
-  end.month = CUKE_PARAM_ARG(4).to_string();
-  end.day = static_cast<int>(CUKE_PARAM_ARG(5));
-  end.year = CUKE_PARAM_ARG(6).as<int>();
-
-  return date_range{begin, end};
+  return shipping_date;
 }
 
-CUSTOM_PARAMETER(custom_event, "{event}", R"('(.*?)')", "a custom event")
+WHEN(ship_the_box, "The box gets shipped at {date}")
 {
-  std::string event = CUKE_PARAM_ARG(1);
-  return event;
+  date shipping_date = CUKE_ARG(1);
+  cuke::context<date>(shipping_date);
 }
 
-WHEN(using_date, "{event} is {date}")
+THEN(box_label, "The box is labeled with: {string}")
 {
-  std::string event = CUKE_ARG(1);
-  date_range dr = CUKE_ARG(2);
-  std::cout << "Event: " << event << std::endl;
-  std::cout << "Begin: " << dr.start.month << ' ' << dr.start.day << ", "
-            << dr.start.year << std::endl;
-  std::cout << "End: " << dr.end.month << ' ' << dr.end.day << ", "
-            << dr.end.year << std::endl;
-  cuke::context<date_range>(dr);
-}
-THEN(checking_months,
-     "The beginning month is {word} and the ending month is {word}")
-{
-  std::string start = CUKE_ARG(1);
-  std::string end = CUKE_ARG(2);
-
-  cuke::equal(cuke::context<date_range>().start.month, start);
-  cuke::equal(cuke::context<date_range>().end.month, end);
+  std::string shipping_date = cuke::context<date>().to_string();
+  std::string box_label = CUKE_ARG(1);
+  cuke::is_true(box_label.find(shipping_date) != std::string::npos);
 }
 
-CUSTOM_PARAMETER(custom, "{pair of integers}", R"(var1=(\d+), var2=(\d+))",
-                 "two integers")
+CUSTOM_PARAMETER(item_with_weight, "{item with weight}",
+                 R"((\d+) kilograms? of (\w+))", "")
 {
-  int var1 = CUKE_PARAM_ARG(1);
-  int var2 = CUKE_PARAM_ARG(2);
-  return std::make_pair(var1, var2);
+  int weight = CUKE_PARAM_ARG(1);
+  std::string item = CUKE_PARAM_ARG(2);
+  return std::make_pair(weight, item);
 }
 
-WHEN(custom_par_when, "this is {pair of integers}")
+WHEN(add_item_with_weight, "I put {item with weight} in it")
 {
-  std::pair<int, int> p = CUKE_ARG(1);
-  std::cout << "Pair initialized with CUKE_ARG(1) and two values: " << p.first
-            << ' ' << p.second << std::endl;
-  cuke::context<std::pair<int, int>>(p);
+  std::pair<int, std::string> item_with_weigth = CUKE_ARG(1);
+  box& b = cuke::context<box>();
+  b.add_item(item_with_weigth.second);
+  b.add_weight(item_with_weigth.first);
 }
 
-THEN(custom_par_then, "their values are {int} and {int}")
+THEN(check_weight, "The box weights {int} kilogram(s)")
 {
-  const int var1 = CUKE_ARG(1);
-  const int var2 = CUKE_ARG(2);
-  cuke::equal(cuke::context<std::pair<int, int>>().first, var1);
-  cuke::equal(cuke::context<std::pair<int, int>>().second, var2);
+  const int weight = CUKE_ARG(1);
+  cuke::equal(weight, cuke::context<box>().weight());
 }

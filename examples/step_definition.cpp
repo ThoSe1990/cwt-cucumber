@@ -1,4 +1,5 @@
 #include "../src/cucumber.hpp"
+#include "asserts.hpp"
 #include "box.hpp"
 
 struct foo
@@ -95,6 +96,12 @@ THEN(check_box_size, "The box contains {int} item(s)")
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
   cuke::equal(my_box.items_count(), items_count);
+}
+
+THEN(find_item, "{word} is/are in the box")
+{
+  const std::string item = CUKE_ARG(1);
+  cuke::is_true(cuke::context<box>().contains(item));
 }
 
 THEN(alternative_words, "{int} item(s) is/are {string}")

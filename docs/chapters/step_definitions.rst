@@ -442,11 +442,145 @@ You can convert the table into a hash map using ``rows_hash()``:
 
    .. _subch-step-def-custom-parameters:
 
+
+
+
 Custom Parameter Types
 ----------------------
 
-Example: Pair of Integers
-^^^^^^^^^^^^^^^^^^^^^^^^^
+CWT-Cucumber allows defining **custom parameter types** to make step definitions more readable and expressive.  
+A custom parameter type converts a matched value from a step into a user-defined type.
 
-Example: Date-Range
-^^^^^^^^^^^^^^^^^^^
+Syntax
+^^^^^^
+
+Use the macro ``CUSTOM_PARAMETER``:
+
+.. code-block:: cpp
+
+  CUSTOM_PARAMETER(function_name,
+                   "{custom_type}",
+                   R"(regex_pattern)",
+                   "Description")
+  {
+      // access regex capture groups via CUKE_PARAM_ARG(index)
+      // return the desired type
+  }
+
+.. note::
+   It is recommended to use **raw string literals** ``R"( ... )"`` for the regex pattern.  
+   Raw strings allow you to write backslashes and quotes literally, avoiding excessive escaping.  
+   You'll notice it in the examples below.
+
+A few notes on ``CUKE_PARAMETER``:
+- The callback **must return the specified type**.  
+- Capture groups in the regex start counting from **1**.  
+- The description is used in catalogs for documentation purposes and does not affect scenario execution.
+
+Example: Items with Weight
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Suppose you want to match a step like:
+
+.. code-block:: gherkin
+
+  When I put 30 kilograms of apples in it
+
+You can define a custom parameter type for the quantity and item:
+
+.. code-block:: cpp
+
+  CUSTOM_PARAMETER(item_with_weight,
+                   "{item with weight}",
+                   R"((\d+) kilograms? of (\w+))",
+                   "Item and its weight in kilograms")
+  {
+      int weight = CUKE_PARAM_ARG(1);
+      std::string item = CUKE_PARAM_ARG(2);
+      return std::make_pair(weight, item); // returns a pair<int, std::string>
+  }
+
+Then, the step definition can consume the value:
+
+.. code-block:: cpp
+
+  WHEN(add_item_with_weight, "I put {item with weight} in it")
+  {
+      std::pair<int, std::string> item_with_weight = CUKE_ARG(1);
+      box& b = cuke::context<box>();
+      b.add_item(item_with_weight.second);
+      b.add_weight(item_with_weight.first);
+  }
+
+**Example Scenario:**
+
+.. code-block:: gherkin
+
+  Scenario: Items with more weight
+    Given An empty box
+    When I put 30 kilograms of apples in it 
+    Then The box weights 30 kilograms
+    And apples are in the box
+
+Example: Shipping Date
+^^^^^^^^^^^^^^^^^^^^^^
+
+Suppose you want to handle a shipping date in your scenarios. First, define a structured type:
+
+.. code-block:: cpp
+
+  struct date
+  {
+      int year{0};
+      int month{0};
+      int day{0};
+      auto operator<=>(const date& other) const = default;
+      std::string to_string() { return std::format("{}-{}-{}", year, month, day); }
+  };
+
+Define a **custom parameter type** that parses the date from a step:
+
+.. code-block:: cpp
+
+  CUSTOM_PARAMETER(custom_parameter_date,
+                   "{date}",
+                   R"((\d{4})-(\d{2})-(\d{2}))",
+                   "shipping date")
+  {
+      date shipping_date;
+      shipping_date.year  = CUKE_PARAM_ARG(1).as<int>();
+      shipping_date.month = CUKE_PARAM_ARG(2).as<int>();
+      shipping_date.day   = CUKE_PARAM_ARG(3).as<int>();
+      return shipping_date;
+  }
+
+Consume the value in a step definition:
+
+.. code-block:: cpp
+
+  WHEN(ship_the_box, "The box gets shipped at {date}")
+  {
+      date shipping_date = CUKE_ARG(1);
+      cuke::context<date>(shipping_date); // store in scenario context
+  }
+
+Use it later in another step:
+
+.. code-block:: cpp
+
+  THEN(box_label, "The box is labeled with: {string}")
+  {
+      std::string shipping_date = cuke::context<date>().to_string();
+      std::string box_label = CUKE_ARG(1);
+      cuke::is_true(box_label.find(shipping_date) != std::string::npos);
+  }
+
+**Example Scenario:**
+
+.. code-block:: gherkin
+
+  Scenario: Ship the box
+    Given An empty box
+    When The box gets shipped at 2025-11-12
+    Then The box is labeled with: "box shipped at 2025-11-12"
+
