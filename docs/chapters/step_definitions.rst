@@ -5,6 +5,9 @@ Step Definitions
 Implementing Steps & Value Access
 ---------------------------------
 
+Word Alternations
+-----------------
+
 Hooks
 -----
 
@@ -17,8 +20,12 @@ Skip & Ignore Scenarios
 Manual Fail Steps & Scenarios
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _subch-step-def-doc-strings:
+   
 Doc Strings
 -----------
+
+.. _subch-step-def-datatables:
 
 Datatables
 ----------
