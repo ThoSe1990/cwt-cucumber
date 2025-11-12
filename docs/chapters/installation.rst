@@ -12,7 +12,7 @@ This will build two libraries: ``cucumber`` and ``cucumber-no-main``.
 
 - ``cucumber`` includes a built-in ``main()`` function, so you only need to implement your step definitions.
 - ``cucumber-no-main`` lets you provide your own entry point.  
-  See :ref:`subch-using-your-own-main` for details.
+  See :ref:`subch-installation-using-your-own-main` for details.
 
 If ``nlohmann_json`` is available, CMake will automatically enable JSON report generation.
 CMake simply runs ``find_package(nlohmann_json)`` and checks ``if (nlohmann_json_FOUND)``,  
@@ -34,7 +34,7 @@ If you are using Conan for dependency management, you can add it to your ``conan
   CMakeDeps
 
 
-.. _subch-using-your-own-main:
+.. _subch-installation-using-your-own-main:
 
 Using your own ``main.cpp``
 ---------------------------
