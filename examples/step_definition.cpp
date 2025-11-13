@@ -91,7 +91,7 @@ THEN(test, "The {int}. item is {string}")
   cuke::equal(item, cuke::context<box>().at(idx_zero_based));
 }
 
-THEN(check_box_size, "The box contains {int} item(s)")
+THEN(box_items_count, "The box contains {int} item(s)")
 {
   const int items_count = CUKE_ARG(1);
   const box& my_box = cuke::context<box>();
