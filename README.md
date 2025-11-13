@@ -3,11 +3,13 @@
 
 ## Coding With Thomas Cucumber: A C++20 Cucumber Interpreter
 
-![CWT-Cucumber Logo](docs/_static/readme-logo.png)
+<p align="center">
+  <img src="docs/_static/readme-logo.png" width="180" alt="CWT-Cucumber Logo">
+</p>
 
 Welcome to **CWT-Cucumber**, a lightweight, modern **C++20 BDD testing framework** for native C++ projects.  
 
-📚 **Full docs & examples:** [Complete Documentation](https://those1990.github.io/cwt-cucumber)  
+📚 **Full docs & examples:** [Read the docs](https://those1990.github.io/cwt-cucumber)  
 🚀 **Available on Conan Center:** [cwt-cucumber](https://conan.io/center/recipes/cwt-cucumber)
 
 CWT-Cucumber interprets **Gherkin feature files**, letting you write test cases in plain language and define behavior-driven development (BDD) scenarios in C++.
