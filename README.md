@@ -1,13 +1,13 @@
 [![Build & Test](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml/badge.svg)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml)
 [![Conan Center](https://img.shields.io/conan/v/cwt-cucumber)](https://conan.io/center/recipes/cwt-cucumber)
 
-## Coding With Thomas Cucumber: A C++20 Cucumber Interpreter
+# CWT-Cucumber: A C++20 Cucumber Interpreter
 
 <p align="center">
   <img src="docs/_static/readme-logo.png" width="360" alt="CWT-Cucumber Logo">
 </p>
 
-Welcome to **CWT-Cucumber**, a lightweight, modern **C++20 BDD testing framework** for native C++ projects.  
+Welcome to **CWT-Cucumber**, a lightweight, modern **C++20 BDD testing framework** for native C++ projects.
 
 📚 **Full docs & examples:** [Read the docs](https://those1990.github.io/cwt-cucumber)  
 🚀 **Available on Conan Center:** [cwt-cucumber](https://conan.io/center/recipes/cwt-cucumber)
