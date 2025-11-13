@@ -3,13 +3,22 @@
 #include <chrono>
 #include <string>
 #include <fstream>
-#include <iostream>
 
 #include "token.hpp"
 
 namespace cuke::internal
 {
-
+[[nodiscard]] static std::string to_string_with_linebreaks(
+    const std::vector<std::string>& data)
+{
+  std::ostringstream oss;
+  for (size_t i = 0; i < data.size(); ++i)
+  {
+    oss << data[i];
+    if (i + 1 < data.size()) oss << '\n';
+  }
+  return oss.str();
+}
 [[nodiscard]] static std::string to_string(const std::vector<std::string>& data)
 {
   std::ostringstream oss;
@@ -25,7 +34,7 @@ namespace cuke::internal
   return result;
 }
 
-[[nodiscard]] inline bool quoted_string(const std::string str)
+[[nodiscard]] inline bool quoted_string(const std::string& str)
 {
   return (str[0] == '"' && str[str.size() - 1] == '"');
 }
