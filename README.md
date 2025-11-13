@@ -25,10 +25,10 @@ Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contribut
 - ✅ DataTables support via `cuke::table` in step definitions
 - ✅ Tagged hooks for filtering, skipping, or ignoring scenarios
 - ✅ Step definitions with Cucumber expressions
-- ✅ Custom parameter types for flexible step matching
+- ✅ Supports custom parameter types
 - ✅ Conan-ready for modern C++ projects
 - ✅ Lightweight, fast, and modern C++20-based
-- ✅ Full BDD support: Scenarios, Scenario Outlines, Backgrounds, Hooks
+- ✅ Full BDD support: Scenarios, Scenario Outlines, Rules, Backgrounds, Hooks
 
 ---
 
@@ -77,4 +77,5 @@ Cheers 🍻
   
 2025 Coding with Thomas  
 https://www.codingwiththomas.com/
+
 
