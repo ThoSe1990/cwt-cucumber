@@ -14,6 +14,7 @@
 
 - Passing 'false' in a step results in 'true' ([90](https://github.com/ThoSe1990/cwt-cucumber/pull/90))
 - Angle Brackets `<>` in a Scenario Outline string variable lead to miss reading following variables ([92](https://github.com/ThoSe1990/cwt-cucumber/pull/92))
+- `CUKE_DOC_STRING` does not include linebreaks when using `std::string` ([99](https://github.com/ThoSe1990/cwt-cucumber/pull/99))
 
 ### Removed 
 

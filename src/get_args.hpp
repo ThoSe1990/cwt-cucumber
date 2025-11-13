@@ -60,10 +60,7 @@ class string_or_vector
  public:
   string_or_vector(const std::vector<std::string>& data) : m_data(data) {}
 
-  operator std::string() const
-  {
-    return to_string(m_data);
-  }
+  operator std::string() const { return to_string_with_linebreaks(m_data); }
 
   operator std::vector<std::string>() const { return m_data; }
 
