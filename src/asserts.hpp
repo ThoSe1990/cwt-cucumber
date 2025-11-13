@@ -46,8 +46,6 @@ struct is_comparable<
  * The given types must be comparable. If they are not comparable (like string
  * and integer), the current step and the scenario are set to failed.
  *
- * @tparam T Type of the left-hand side value
- * @tparam U Type of the right-hand side value
  * @param lhs Left hand side parameter
  * @param rhs Right hand side parameter
  * @param custom_msg Custom optional error message given by the developer
@@ -67,25 +65,6 @@ inline void equal(const T& lhs, const U& rhs,
   {
     cuke::internal::internal_assert(false, "Expect values to be compareable.");
   }
-}
-
-/**
- * @brief Compares the given values not to be equal. If not, the current step
- * and scenario are set to Failed.
- *
- * The given types must be comparable. If they are not comparable (like string
- * and integer), the current step and the scenario are set to failed.
- *
- * @param t a value
- * @param u a value
- * @param str a value
- * @param custom_msg a value
- */
-template <typename T, typename U>
-inline void foo(const T& t, const U& u, std::string str = "hello",
-                const std::optional<std::string>& custom_msg = std::nullopt)
-{
-  str = "asdfasd";
 }
 
 /**
