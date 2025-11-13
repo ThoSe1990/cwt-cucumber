@@ -25,3 +25,4 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/src)
 add_subdirectory(${PROJECT_SOURCE_DIR}/examples)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/gtest)
+add_subdirectory(${PROJECT_SOURCE_DIR}/stress-tests)

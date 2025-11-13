@@ -25,6 +25,18 @@ Objects & Functions
 .. doxygenfunction:: cuke::entry_point
   :project: cwt-cucumber
 
+.. doxygenfunction:: cuke::skip_scenario
+  :project: cwt-cucumber
+
+.. doxygenfunction:: cuke::ignore_scenario
+  :project: cwt-cucumber
+
+.. doxygenfunction:: cuke::fail_scenario
+  :project: cwt-cucumber
+
+.. doxygenfunction:: cuke::fail_step
+  :project: cwt-cucumber
+
 .. _subch-api-ref-asserts:
 
 Asserts

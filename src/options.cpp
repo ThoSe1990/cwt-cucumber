@@ -21,20 +21,55 @@ runtime_options& get_runtime_options()
 
 }  // namespace internal
 
+/**
+ * @brief Marks the current scenario to be skipped.
+ *
+ * This function sets the runtime option to skip the currently executing
+ * scenario. The scenario will not be executed, but it will appear in the test
+ * report as skipped. After applying this option, the runtime will automatically
+ * reset it.
+ */
 void skip_scenario() { internal::get_runtime_options().skip_scenario(true); }
+
+/**
+ * @brief Marks the current scenario to be ignored.
+ *
+ * This function sets the runtime option to ignore the currently executing
+ * scenario. The scenario will not be executed and not be reported. After
+ * applying this option, the runtime will automatically reset it.
+ */
 void ignore_scenario()
 {
   internal::get_runtime_options().ignore_scenario(true);
 }
+
+/**
+ * @brief Marks the current scenario as failed.
+ *
+ * This function sets the runtime option to fail the currently executing
+ * scenario. After applying this option, the runtime will automatically
+ * reset it.
+ *
+ * @param msg Optional message describing the reason for failure.
+ */
 void fail_scenario(const std::string_view msg /* = "" */)
 {
   internal::get_runtime_options().fail_scenario(true, msg);
 }
+
+/**
+ * @brief Marks the current step as failed.
+ *
+ * This function sets the runtime option to fail the currently executing step.
+ *
+ * @param msg Optional message describing the reason for failure. Default is an
+ * empty string. After applying this option, the runtime will automatically
+ * reset it.
+ */
 void fail_step(const std::string_view msg /* = "" */)
 {
   internal::get_runtime_options().fail_step(true, msg);
 }
-
 void cuke_args::initialize(int argc, const char* argv[])
 {
   clear();

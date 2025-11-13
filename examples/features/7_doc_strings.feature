@@ -2,22 +2,26 @@
 Feature: This is a doc string example
 
   Scenario: Doc string with quotes
-    When There is a doc string:
+    Given An empty box with a label
     """
     This is a docstring with quotes
     after a step
     """
+    Then The box is labeled
 
   Scenario: Doc string with backticks
-    When There is a doc string:
+    Given An empty box with a label
     ```
     This is a docstring with backticks
     after a step
     ```
+    Then The box is labeled
+
   Scenario: Doc string as vector 
-    When There is a doc string as vector:
+    Given An empty box with a label
     """
     This is a docstring 
     which we access 
     as std::vector<std::string>
     """
+    Then The box is labeled

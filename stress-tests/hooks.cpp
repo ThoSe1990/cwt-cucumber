@@ -1,5 +1,4 @@
 #include "cucumber.hpp"
-#include "box.hpp"
 
 BEFORE_T(skip, "@skip") { cuke::skip_scenario(); }
 BEFORE_T(ignore, "@ignore") { cuke::ignore_scenario(); }
@@ -16,9 +15,23 @@ AFTER_T(will_fail_after, "@will_fail_after")
       "running it");
 }
 
-AFTER(close_boxes) { cuke::context<box>().close(); }
-
-AFTER_T(dispatch_box, "@ship or @important")
+BEFORE(before)
 {
-  std::cout << "The box is shipped! \n";
+  // this runs before every scenario
 }
+AFTER(after)
+{
+  // this runs after every scenario
+}
+BEFORE_STEP(before_step)
+{
+  // this runs before every step
+}
+AFTER_STEP(after_step)
+{
+  // this runs after every step
+}
+
+BEFORE_ALL(before_all) { std::cout << "-- Hook before all \n"; }
+
+AFTER_ALL(after_all) { std::cout << "-- Hook after all \n"; }
