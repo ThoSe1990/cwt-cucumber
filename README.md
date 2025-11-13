@@ -20,6 +20,18 @@ Thanks to [Jörg Kreuzberger](https://github.com/kreuzberger), who has contribut
 
 ---
 
+**Highlights & Advantages of CWT-Cucumber:**  
+- ✅ No mandatory dependencies – easy to integrate anywhere
+- ✅ DataTables support via `cuke::table` in step definitions
+- ✅ Tagged hooks for filtering, skipping, or ignoring scenarios
+- ✅ Step definitions with Cucumber expressions
+- ✅ Custom parameter types for flexible step matching
+- ✅ Conan-ready for modern C++ projects
+- ✅ Lightweight, fast, and modern C++20-based
+- ✅ Full BDD support: Scenarios, Scenario Outlines, Backgrounds, Hooks
+
+---
+
 ### Quick Example
 
 Feature file (`examples/features/1_first_scenario.feature`):
@@ -65,3 +77,4 @@ Cheers 🍻
   
 2025 Coding with Thomas  
 https://www.codingwiththomas.com/
+
