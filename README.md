@@ -4,7 +4,7 @@
 ## Coding With Thomas Cucumber: A C++20 Cucumber Interpreter
 
 <p align="center">
-  <img src="docs/_static/readme-logo.png" width="180" alt="CWT-Cucumber Logo">
+  <img src="docs/_static/readme-logo.png" width="360" alt="CWT-Cucumber Logo">
 </p>
 
 Welcome to **CWT-Cucumber**, a lightweight, modern **C++20 BDD testing framework** for native C++ projects.  
