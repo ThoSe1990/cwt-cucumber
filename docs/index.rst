@@ -4,6 +4,11 @@ CWT-Cucumber: A C++20 Cucumber Interpreter
 CWT-Cucumber is a lightweight, modern **C++20 BDD testing framework** for native C++ projects.  
 It interprets **Gherkin feature files**, allowing you to write test cases in plain language and define behavior-driven development (BDD) scenarios in C++:
 
+.. note::
+
+   All examples shown in this documentation can be found in the `examples <https://github.com/ThoSe1990/cwt-cucumber/tree/main/examples>`_ directory
+   of the GitHub repository.
+
 .. code-block:: gherkin
 
   Feature: Putting apples into a box 
