@@ -13,12 +13,57 @@
 
 namespace cuke
 {
+/**
+ * @brief Sets the current scenario to be skipped.
+ *
+ * This function sets the runtime option to skip the currently executing
+ * scenario. The scenario will not be executed, but it will appear in the
+ * test report as skipped. After applying this option, the runtime will
+ * automatically reset it.
+ */
+void skip_scenario();
+
+/**
+ * @brief Ignores the current scenario.
+ *
+ * This function sets the runtime option to ignore the currently executing
+ * scenario. The scenario will not be executed and not be reported. After
+ * applying this option, the runtime will automatically reset it.
+ */
+void ignore_scenario();
+
+/**
+ * @brief Sets the current scenario as failed.
+ *
+ * This function sets the runtime option to fail the currently executing
+ * scenario. After applying this option, the runtime will automatically
+ * reset it.
+ *
+ * @param msg Optional message describing the reason for failure.
+ */
+void fail_scenario(const std::string_view msg = "");
+
+/**
+ * @brief Sets the current step as failed.
+ *
+ * This function sets the runtime option to fail the currently executing step.
+ *
+ * @param msg Optional message describing the reason for failure. Default is an
+ * empty string. After applying this option, the runtime will automatically
+ * reset it.
+ */
+void fail_step(const std::string_view msg = "");
 
 struct feature_file
 {
   std::string path;
   std::vector<std::size_t> lines_to_run;
 };
+
+}  // namespace cuke
+
+namespace cuke
+{
 
 class sink
 {
@@ -250,10 +295,5 @@ class runtime_options
 runtime_options& get_runtime_options();
 
 }  // namespace internal
-
-void skip_scenario();
-void ignore_scenario();
-void fail_scenario(const std::string_view msg = "");
-void fail_step(const std::string_view msg = "");
 
 }  // namespace cuke

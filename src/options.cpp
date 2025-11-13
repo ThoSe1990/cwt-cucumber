@@ -34,7 +34,6 @@ void fail_step(const std::string_view msg /* = "" */)
 {
   internal::get_runtime_options().fail_step(true, msg);
 }
-
 void cuke_args::initialize(int argc, const char* argv[])
 {
   clear();

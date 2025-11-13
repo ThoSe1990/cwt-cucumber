@@ -1,15 +1,19 @@
-
-
 Feature: Custom Parameters
 
-  Scenario: An example 
-    When this is var1=123, var2=99
-    Then their values are 123 and 99
+  Scenario: Items with weight
+    Given An empty box
+    When I put 1 kilogram of bananas in it 
+    Then The box weights 1 kilograms
+    And bananas are in the box
 
-  Scenario: Public Festival 
-    When 'The public festival in town' is from April 25, 2025 to Mai 13, 2025
-    Then The beginning month is April and the ending month is Mai
+  Scenario: Items with more weight
+    Given An empty box
+    When I put 30 kilograms of apples in it 
+    Then The box weights 30 kilograms
+    And apples are in the box
 
-  Scenario: Christmas market  
-    When 'Christmas Market in Augsburg' is from November 25, 2024 to December 24, 2024
-    Then The beginning month is November and the ending month is December
+  Scenario: Ship the box 
+    Given An empty box
+    When The box gets shipped at 2025-11-12
+    Then The box is labeled with: "box shipped at 2025-11-12"
+
