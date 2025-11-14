@@ -103,7 +103,6 @@ struct options
     positional,
   };
   static const std::unordered_map<key, type> key_type;
-  static const std::unordered_map<std::string, key> key_lookup;
 };  // namespace cuke
 
 class cuke_args

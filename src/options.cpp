@@ -200,27 +200,7 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
                                std::span<const char*>::iterator end)
 {
   std::string_view option(*it);
-  // if (option.starts_with("-t") || option.starts_with("--tags"))
-  // {
-  //   auto next_it = std::next(it);
-  //   if (next_it == end)
-  //   {
-  //     log::error("Expect tag expression after '--tags/-t' option",
-  //                log::new_line);
-  //     return;
-  //   }
-  // std::string_view arg(*next_it);
-  // m_options.tag_expression = arg;
-  // }
-  // if (option.starts_with("-h") || option.starts_with("--help"))
-  // {
-  //   m_options.print_help = true;
-  // }
-  if (option.starts_with("-d") || option.starts_with("--dry-run"))
-  {
-    m_options.dry_run = true;
-  }
-  else if (option.starts_with("-q") || option.starts_with("--quiet"))
+  if (option.starts_with("-q") || option.starts_with("--quiet"))
   {
     cuke::log::set_level(cuke::log::level::quiet);
   }
