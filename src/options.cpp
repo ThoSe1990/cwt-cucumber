@@ -150,14 +150,9 @@ void cuke_args::initialize(int argc, const char* argv[])
 std::pair<cuke::options::type, cuke::options::key> cuke_args::to_internal_key(
     const std::string& option) const
 {
-  if (option.starts_with("--") && m_options.long_keys.contains(option))
+  if (option.starts_with('-') && m_options.keys.contains(option))
   {
-    const cuke::options::key internal_key = m_options.long_keys.at(option);
-    return {m_options.key_type.at(internal_key), internal_key};
-  }
-  else if (option.starts_with('-') && m_options.short_keys.contains(option))
-  {
-    const cuke::options::key internal_key = m_options.short_keys.at(option);
+    const cuke::options::key internal_key = m_options.keys.at(option);
     return {m_options.key_type.at(internal_key), internal_key};
   }
   else
@@ -172,24 +167,29 @@ void cuke_args::clear()
 }
 const options& cuke_args::get_options() const noexcept { return m_options; }
 
-const std::unordered_map<std::string, options::key> options::short_keys = {
-    {"-h", options::key::help},
-    {"-q", options::key::quiet},
-    {"-d", options::key::dry_run},
-    {"-v", options::key::verbose},
-    {"-c", options::key::continue_on_failure},
-    {"-t", options::key::tags},
-};
-const std::unordered_map<std::string, options::key> options::long_keys = {
+const std::unordered_map<std::string, options::key> options::keys = {
     {"--help", options::key::help},
+    {"-h", options::key::help},
+
     {"--quiet", options::key::quiet},
+    {"-q", options::key::quiet},
+
     {"--dry-run", options::key::dry_run},
+    {"-d", options::key::dry_run},
+
     {"--verbose", options::key::verbose},
+    {"-v", options::key::verbose},
+
     {"--continue-on-failure", options::key::continue_on_failure},
+    {"-c", options::key::continue_on_failure},
+
     {"--report-json", options::key::report_json},
     {"--steps-catalog", options::key::steps_catalog_readable},
     {"--steps-catalog-json", options::key::steps_catalog_json},
+
     {"--tags", options::key::tags},
+    {"-t", options::key::tags},
+
     {"--exclude-file", options::key::excluded_files},
 };
 const std::unordered_map<options::key, options::type> options::key_type = {

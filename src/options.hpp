@@ -88,8 +88,7 @@ struct options
       options;                          // e.g. --tags "expression"
   std::unordered_map<key, bool> flags;  // e.g. --quiet
 
-  static const std::unordered_map<std::string, key> long_keys;
-  static const std::unordered_map<std::string, key> short_keys;
+  static const std::unordered_map<std::string, key> keys;
   enum class type : int8_t
   {
     option = 0,
