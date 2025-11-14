@@ -99,8 +99,7 @@ void cuke_args::initialize(int argc, const char* argv[])
 
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {
-    const std::string_view sv{*it};
-    auto [type, key] = to_internal_key(std::string{sv});
+    auto [type, key] = to_internal_key(std::string{*it});
 
     switch (type)
     {
@@ -114,16 +113,14 @@ void cuke_args::initialize(int argc, const char* argv[])
       break;
       case options::type::file_to_exclude:
       {
-        auto next = it + 1;
-        if (next == m_args.end())
+        ++it;
+        if (it == m_args.end())
         {
           log::error("Expect file after '--exclude-file' option",
                      log::new_line);
           return;
         }
-        std::string opt = *it;
-        if (!opt.empty()) ++it;
-        m_options.excluded_files.push_back(*next);
+        m_options.excluded_files.push_back(*it);
       }
       break;
       case options::type::flag:
@@ -133,7 +130,7 @@ void cuke_args::initialize(int argc, const char* argv[])
       break;
       case options::type::positional:
       {
-        process_path(sv);
+        process_path(*it);
       }
       break;
     }
