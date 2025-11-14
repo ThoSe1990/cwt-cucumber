@@ -2,35 +2,11 @@
 
 #include "options.hpp"
 #include "registry.hpp"
+#include "util.hpp"
 
 #ifdef WITH_JSON
 #include <nlohmann/json.hpp>
 #endif  // WITH_JSON
-
-namespace
-{
-// FIXME: duplicated in report!
-void write_data(std::string_view data, const std::string& m_filepath)
-{
-  if (m_filepath.empty())
-  {
-    cuke::log::info(data, cuke::log::new_line);
-  }
-  else
-  {
-    std::ofstream file(m_filepath);
-    if (file.is_open())
-    {
-      file << data;
-      file.close();
-    }
-    else
-    {
-      cuke::log::error(std::format("Can not open file '{}'", m_filepath));
-    }
-  }
-}
-}  // namespace
 
 namespace cuke::catalog
 {
@@ -124,14 +100,15 @@ std::string as_json(std::size_t indents /* = 2 */)
 
 void print_readable_text_to_sink()
 {
-  write_data(
+  cuke::internal::write_to_file_or_stdout(
       as_readable_text(),
       get_program_option_value(cuke::options::key::steps_catalog_readable));
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
-  write_data(as_json(),
-             get_program_option_value(cuke::options::key::steps_catalog_json));
+  cuke::internal::write_to_file_or_stdout(
+      as_json(),
+      get_program_option_value(cuke::options::key::steps_catalog_json));
 }
 
 }  // namespace cuke::catalog
