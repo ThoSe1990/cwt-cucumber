@@ -112,6 +112,20 @@ void cuke_args::initialize(int argc, const char* argv[])
         m_options.options[key] = {true, opt};
       }
       break;
+      case options::type::file_to_exclude:
+      {
+        auto next = it + 1;
+        if (next == m_args.end())
+        {
+          log::error("Expect file after '--exclude-file' option",
+                     log::new_line);
+          return;
+        }
+        std::string opt = *it;
+        if (!opt.empty()) ++it;
+        m_options.excluded_files.push_back(*next);
+      }
+      break;
       case options::type::flag:
       {
         m_options.flags[key] = true;
@@ -119,22 +133,19 @@ void cuke_args::initialize(int argc, const char* argv[])
       break;
       case options::type::positional:
       {
-        m_options.positional.push_back(std::string(sv));
+        process_path(sv);
       }
+      break;
     }
   }
 
-  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
+  if (program_arg_is_set(options::key::quiet))
   {
-    std::string_view sv{*it};
-    if (sv.starts_with('-'))
-    {
-      process_option(it, m_args.end());
-    }
-    else
-    {
-      process_path(sv);
-    }
+    cuke::log::set_level(cuke::log::level::quiet);
+  }
+  if (program_arg_is_set(options::key::verbose))
+  {
+    cuke::log::set_level(cuke::log::level::verbose);
   }
   remove_excluded_files();
 }
@@ -182,6 +193,7 @@ const std::unordered_map<std::string, options::key> options::long_keys = {
     {"--steps-catalog", options::key::steps_catalog_readable},
     {"--steps-catalog-json", options::key::steps_catalog_json},
     {"--tags", options::key::tags},
+    {"--exclude-file", options::key::excluded_files},
 };
 const std::unordered_map<options::key, options::type> options::key_type = {
     {options::key::help, options::type::flag},
@@ -194,32 +206,9 @@ const std::unordered_map<options::key, options::type> options::key_type = {
     {options::key::steps_catalog_readable, options::type::option},
     {options::key::steps_catalog_json, options::type::option},
     {options::key::tags, options::type::option},
-};
 
-void cuke_args::process_option(std::span<const char*>::iterator it,
-                               std::span<const char*>::iterator end)
-{
-  std::string_view option(*it);
-  if (option.starts_with("-q") || option.starts_with("--quiet"))
-  {
-    cuke::log::set_level(cuke::log::level::quiet);
-  }
-  else if (option.starts_with("-v") || option.starts_with("--verbose"))
-  {
-    cuke::log::set_level(cuke::log::level::verbose);
-  }
-  else if (option == "--exclude-file")
-  {
-    auto next_it = std::next(it);
-    if (next_it == end)
-    {
-      log::error("Expect file after '--exclude-file' option", log::new_line);
-      return;
-    }
-    std::string_view arg(*next_it);
-    m_options.excluded_files.push_back(std::string{arg});
-  }
-}
+    {options::key::excluded_files, options::type::file_to_exclude},
+};
 
 void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
 {
@@ -279,10 +268,6 @@ cuke_args& program_arguments(std::optional<int> argc /*= std::nullopt*/,
     instance.initialize(argc.value(), argv);
   }
   return instance;
-}
-const std::vector<std::string> get_positional_args()
-{
-  return program_arguments().get_options().positional;
 }
 const bool program_arg_is_set(options::key key)
 {

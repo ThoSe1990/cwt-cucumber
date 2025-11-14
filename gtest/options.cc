@@ -11,7 +11,6 @@
 TEST(options, init_obj)
 {
   cuke::cuke_args targs;
-  EXPECT_TRUE(targs.get_options().positional.empty());
   EXPECT_TRUE(targs.get_options().flags.empty());
   EXPECT_TRUE(targs.get_options().options.empty());
 }

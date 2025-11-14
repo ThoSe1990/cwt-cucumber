@@ -71,10 +71,6 @@ namespace cuke
 
 struct options
 {
-  bool dry_run{false};
-  std::vector<feature_file> files;
-  std::vector<std::string> excluded_files;
-
   enum class key : int8_t
   {
     none = 0,
@@ -92,7 +88,6 @@ struct options
   std::unordered_map<key, std::pair<bool, std::string>>
       options;                          // e.g. --tags "expression"
   std::unordered_map<key, bool> flags;  // e.g. --quiet
-  std::vector<std::string> positional;  // e.g files
 
   static const std::unordered_map<std::string, key> long_keys;
   static const std::unordered_map<std::string, key> short_keys;
@@ -101,8 +96,11 @@ struct options
     option = 0,
     flag,
     positional,
+    file_to_exclude,
   };
   static const std::unordered_map<key, type> key_type;
+  std::vector<feature_file> files;
+  std::vector<std::string> excluded_files;
 };  // namespace cuke
 
 class cuke_args
@@ -116,8 +114,6 @@ class cuke_args
   std::pair<cuke::options::type, cuke::options::key> to_internal_key(
       const std::string& option) const;
   void process_path(std::string_view sv);
-  void process_option(std::span<const char*>::iterator it,
-                      std::span<const char*>::iterator end);
   void find_feature_in_dir(const std::filesystem::path& dir);
   void remove_excluded_files();
 
