@@ -107,11 +107,11 @@ TEST(options, tag_expression_1)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key::tags));
-  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key::tags).first);
+  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key_t::tags));
+  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key_t::tags).first);
 
   cuke::internal::tag_expression tags(
-      targs.get_options().options.at(cuke::options::key::tags).second);
+      targs.get_options().options.at(cuke::options::key_t::tags).second);
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
@@ -122,11 +122,11 @@ TEST(options, tag_expression_2)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key::tags));
-  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key::tags).first);
+  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key_t::tags));
+  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key_t::tags).first);
 
   cuke::internal::tag_expression tags(
-      targs.get_options().options.at(cuke::options::key::tags).second);
+      targs.get_options().options.at(cuke::options::key_t::tags).second);
 
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));

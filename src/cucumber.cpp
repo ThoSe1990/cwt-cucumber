@@ -67,7 +67,7 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
-  if (program_arg_is_set(options::key::report_json))
+  if (program_arg_is_set(options::key_t::report_json))
   {
     report::print_json_to_sink();
   }
@@ -86,7 +86,7 @@ const options& cwt_cucumber::get_options() const noexcept
 }
 bool cwt_cucumber::print_help() const noexcept
 {
-  if (program_arg_is_set(options::key::help))
+  if (program_arg_is_set(options::key_t::help))
   {
     print_help_screen();
     return true;
@@ -96,12 +96,12 @@ bool cwt_cucumber::print_help() const noexcept
 bool cwt_cucumber::export_catalog(
     std::size_t json_indents /* = 2 */) const noexcept
 {
-  if (program_arg_is_set(options::key::steps_catalog_readable))
+  if (program_arg_is_set(options::key_t::steps_catalog_readable))
   {
     catalog::print_readable_text_to_sink();
     return true;
   }
-  if (program_arg_is_set(options::key::steps_catalog_json))
+  if (program_arg_is_set(options::key_t::steps_catalog_json))
   {
     catalog::print_json_to_sink(json_indents);
     return true;

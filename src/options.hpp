@@ -80,7 +80,7 @@ static constexpr const char* tag_description =
 
 struct options
 {
-  enum class key : int8_t
+  enum class key_t : int8_t
   {
     none = 0,
     help,
@@ -94,7 +94,7 @@ struct options
     excluded_files,
     tags,
   };
-  enum class type : int8_t
+  enum class type_t : int8_t
   {
     option = 0,
     flag,
@@ -104,39 +104,39 @@ struct options
   {
     std::string_view short_key;
     std::string_view long_key;
-    key key;
-    type type;
+    key_t key;
+    type_t type;
     std::string_view description;
   };
   struct info
   {
-    key key;
-    type type;
+    key_t key;
+    type_t type;
     std::string_view description;
   };
   // clang-format off
   static constexpr definition defs[] = {
-      {"-h", "--help", key::help, type::flag, "Print the help screen to stdout"},
-      {"-q", "--quiet", key::quiet, type::flag, "Quiet mode, only the final result will be printed to stdout."},
-      {"-d", "--dry-run", options::key::dry_run, type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
-      {"-v", "--verbose", options::key::verbose, type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
-      {"-c", "--continue-on-failure", options::key::continue_on_failure, type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
-      {"-t", "--tags", options::key::tags, type::option, tag_description},
+      {"-h", "--help", key_t::help, type_t::flag, "Print the help screen to stdout"},
+      {"-q", "--quiet", key_t::quiet, type_t::flag, "Quiet mode, only the final result will be printed to stdout."},
+      {"-d", "--dry-run", key_t::dry_run, type_t::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
+      {"-v", "--verbose", key_t::verbose, type_t::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
+      {"-c", "--continue-on-failure", options::key_t::continue_on_failure, type_t::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
+      {"-t", "--tags", key_t::tags, type_t::option, tag_description},
 
-      {"", "--report-json", options::key::report_json, type::option, "[opt: file] Print the test results as json to stdout or a given file"},
-      {"", "--steps-catalog", options::key::steps_catalog_readable, type::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
-      {"", "--steps-catalog-json", options::key::steps_catalog_json, type::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
+      {"", "--report-json", key_t::report_json, type_t::option, "[opt: file] Print the test results as json to stdout or a given file"},
+      {"", "--steps-catalog", key_t::steps_catalog_readable, type_t::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
+      {"", "--steps-catalog-json", key_t::steps_catalog_json, type_t::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
 
-      {"", "--exclude-file", options::key::excluded_files, type::file_to_exclude, "Exclude a specific feature file from the test run\n"},
+      {"", "--exclude-file", key_t::excluded_files, type_t::file_to_exclude, "Exclude a specific feature file from the test run\n"},
 
   };
   // clang-format on
-  std::unordered_map<key, std::pair<bool, std::string>>
-      options;                          // e.g. --tags "expression"
-  std::unordered_map<key, bool> flags;  // e.g. --quiet
+  std::unordered_map<key_t, std::pair<bool, std::string>>
+      options;                            // e.g. --tags "expression"
+  std::unordered_map<key_t, bool> flags;  // e.g. --quiet
 
   static const std::unordered_map<std::string_view, info> keys;
-  static const std::unordered_map<key, type> key_type;
+  static const std::unordered_map<key_t, type_t> key_type;
   std::vector<feature_file> files;
   std::vector<std::string> excluded_files;
 };
@@ -149,7 +149,7 @@ class cuke_args
   const options& get_options() const noexcept;
 
  private:
-  std::pair<cuke::options::type, cuke::options::key> to_internal_key(
+  std::pair<cuke::options::type_t, cuke::options::key_t> to_internal_key(
       const std::string& option) const;
   void process_path(std::string_view sv);
   void find_feature_in_dir(const std::filesystem::path& dir);
@@ -163,8 +163,8 @@ class cuke_args
 [[nodiscard]] cuke_args& program_arguments(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
-[[nodiscard]] const bool program_arg_is_set(options::key key);
-[[nodiscard]] const std::string& get_program_option_value(options::key key);
+[[nodiscard]] const bool program_arg_is_set(options::key_t key);
+[[nodiscard]] const std::string& get_program_option_value(options::key_t key);
 
 static void print_help_screen()
 {

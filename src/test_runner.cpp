@@ -110,7 +110,7 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    if (program_arg_is_set(options::key::continue_on_failure))
+    if (program_arg_is_set(options::key_t::continue_on_failure))
     {
       return false;
     }
@@ -234,7 +234,7 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
   context.skip_scenario =
-      skip_flag() || program_arg_is_set(cuke::options::key::dry_run);
+      skip_flag() || program_arg_is_set(cuke::options::key_t::dry_run);
 
   if (context.skip_scenario)
   {
