@@ -99,16 +99,22 @@ void cuke_args::initialize(int argc, const char* argv[])
 
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
   {
-    auto [type, key] = to_internal_key(std::string{*it});
+    if (!m_options.keys.contains(*it))
+    {
+      process_path(*it);
+      continue;
+    }
 
-    switch (type)
+    auto& opt = m_options.keys.at(*it);
+
+    switch (opt.type)
     {
       case options::type::option:
       {
         auto next = it + 1;
-        auto opt = get_option_value(key, next, m_args.end());
-        if (!opt.empty()) ++it;
-        m_options.options[key] = {true, opt};
+        auto value = get_option_value(opt.key, next, m_args.end());
+        if (!value.empty()) ++it;
+        m_options.options[opt.key] = {true, value};
       }
       break;
       case options::type::file_to_exclude:
@@ -125,12 +131,7 @@ void cuke_args::initialize(int argc, const char* argv[])
       break;
       case options::type::flag:
       {
-        m_options.flags[key] = true;
-      }
-      break;
-      case options::type::positional:
-      {
-        process_path(*it);
+        m_options.flags[opt.key] = true;
       }
       break;
     }
@@ -147,19 +148,6 @@ void cuke_args::initialize(int argc, const char* argv[])
   remove_excluded_files();
 }
 
-std::pair<cuke::options::type, cuke::options::key> cuke_args::to_internal_key(
-    const std::string& option) const
-{
-  if (option.starts_with('-') && m_options.keys.contains(option))
-  {
-    const cuke::options::key internal_key = m_options.keys.at(option);
-    return {m_options.key_type.at(internal_key), internal_key};
-  }
-  else
-  {
-    return {options::type::positional, options::key::none};
-  }
-}
 void cuke_args::clear()
 {
   m_args = std::span<const char*>();
@@ -167,45 +155,17 @@ void cuke_args::clear()
 }
 const options& cuke_args::get_options() const noexcept { return m_options; }
 
-const std::unordered_map<std::string, options::key> options::keys = {
-    {"--help", options::key::help},
-    {"-h", options::key::help},
+const std::unordered_map<std::string_view, options::info> options::keys = []
+{
+  std::unordered_map<std::string_view, options::info> m;
 
-    {"--quiet", options::key::quiet},
-    {"-q", options::key::quiet},
-
-    {"--dry-run", options::key::dry_run},
-    {"-d", options::key::dry_run},
-
-    {"--verbose", options::key::verbose},
-    {"-v", options::key::verbose},
-
-    {"--continue-on-failure", options::key::continue_on_failure},
-    {"-c", options::key::continue_on_failure},
-
-    {"--report-json", options::key::report_json},
-    {"--steps-catalog", options::key::steps_catalog_readable},
-    {"--steps-catalog-json", options::key::steps_catalog_json},
-
-    {"--tags", options::key::tags},
-    {"-t", options::key::tags},
-
-    {"--exclude-file", options::key::excluded_files},
-};
-const std::unordered_map<options::key, options::type> options::key_type = {
-    {options::key::help, options::type::flag},
-    {options::key::quiet, options::type::flag},
-    {options::key::dry_run, options::type::flag},
-    {options::key::verbose, options::type::flag},
-    {options::key::continue_on_failure, options::type::flag},
-
-    {options::key::report_json, options::type::option},
-    {options::key::steps_catalog_readable, options::type::option},
-    {options::key::steps_catalog_json, options::type::option},
-    {options::key::tags, options::type::option},
-
-    {options::key::excluded_files, options::type::file_to_exclude},
-};
+  for (auto const& d : options::defs)
+  {
+    if (!d.short_key.empty()) m[d.short_key] = {d.key, d.type, d.description};
+    if (!d.long_key.empty()) m[d.long_key] = {d.key, d.type, d.description};
+  }
+  return m;
+}();
 
 void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
 {
