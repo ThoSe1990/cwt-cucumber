@@ -67,21 +67,16 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
-  switch (program_arguments().get_options().report.type)
+  if (program_arg_is_set(options::key::report_json))
   {
-    case report_type::none:
-      print_failed_scenarios();
-      log::always(log::new_line);
-      log::always(results::scenarios_to_string(), log::new_line);
-      log::always(results::steps_to_string(), log::new_line);
-      break;
-
-    case report_type::json:
-      report::print_json_to_sink();
-      break;
-
-    default:
-      log::error("Unknown report type");
+    report::print_json_to_sink();
+  }
+  else
+  {
+    print_failed_scenarios();
+    log::always(log::new_line);
+    log::always(results::scenarios_to_string(), log::new_line);
+    log::always(results::steps_to_string(), log::new_line);
   }
 }
 
@@ -91,7 +86,7 @@ const options& cwt_cucumber::get_options() const noexcept
 }
 bool cwt_cucumber::print_help() const noexcept
 {
-  if (get_options().print_help)
+  if (program_arg_is_set(options::key::help))
   {
     print_help_screen();
     return true;
@@ -101,12 +96,12 @@ bool cwt_cucumber::print_help() const noexcept
 bool cwt_cucumber::export_catalog(
     std::size_t json_indents /* = 2 */) const noexcept
 {
-  if (get_options().catalog.type == catalog_type::readable_text)
+  if (program_arg_is_set(options::key::steps_catalog_readable))
   {
     catalog::print_readable_text_to_sink();
     return true;
   }
-  if (get_options().catalog.type == catalog_type::json)
+  if (program_arg_is_set(options::key::steps_catalog_json))
   {
     catalog::print_json_to_sink(json_indents);
     return true;

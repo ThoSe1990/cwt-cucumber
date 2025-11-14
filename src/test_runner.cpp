@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "ast.hpp"
+#include "options.hpp"
 #include "test_results.hpp"
 #include "log.hpp"
 #include "log_util.hpp"
@@ -109,8 +110,7 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    const auto& opts = program_arguments().get_options();
-    if (opts.continue_on_failure)
+    if (program_arg_is_set(options::key::continue_on_failure))
     {
       return false;
     }

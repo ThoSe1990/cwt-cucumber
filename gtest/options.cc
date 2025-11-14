@@ -11,8 +11,9 @@
 TEST(options, init_obj)
 {
   cuke::cuke_args targs;
-  EXPECT_TRUE(targs.get_options().files.empty());
-  EXPECT_TRUE(targs.get_options().tag_expression.empty());
+  EXPECT_TRUE(targs.get_options().positional.empty());
+  EXPECT_TRUE(targs.get_options().flags.empty());
+  EXPECT_TRUE(targs.get_options().options.empty());
 }
 TEST(options, file_path_doesnt_exist)
 {
@@ -107,9 +108,11 @@ TEST(options, tag_expression_1)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_FALSE(targs.get_options().tag_expression.empty());
+  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key::tags));
+  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key::tags).first);
 
-  cuke::internal::tag_expression tags(targs.get_options().tag_expression);
+  cuke::internal::tag_expression tags(
+      targs.get_options().options.at(cuke::options::key::tags).second);
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
@@ -120,9 +123,12 @@ TEST(options, tag_expression_2)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::cuke_args targs;
   targs.initialize(argc, argv);
-  ASSERT_FALSE(targs.get_options().tag_expression.empty());
+  ASSERT_TRUE(targs.get_options().options.contains(cuke::options::key::tags));
+  ASSERT_TRUE(targs.get_options().options.at(cuke::options::key::tags).first);
 
-  cuke::internal::tag_expression tags(targs.get_options().tag_expression);
+  cuke::internal::tag_expression tags(
+      targs.get_options().options.at(cuke::options::key::tags).second);
+
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));

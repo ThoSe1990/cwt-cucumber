@@ -8,6 +8,30 @@
 #include <nlohmann/json.hpp>
 #endif  // WITH_JSON
 
+namespace
+{
+// FIXME: duplicated in catalog!
+void write_data(std::string_view data, const std::string& m_filepath)
+{
+  if (m_filepath.empty())
+  {
+    cuke::log::info(data, cuke::log::new_line);
+  }
+  else
+  {
+    std::ofstream file(m_filepath);
+    if (file.is_open())
+    {
+      file << data;
+      file.close();
+    }
+    else
+    {
+      cuke::log::error(std::format("Can not open file '{}'", m_filepath));
+    }
+  }
+}
+}  // namespace
 namespace cuke::report
 {
 
@@ -17,7 +41,7 @@ namespace internal
 #ifdef WITH_JSON
 void push_tags(nlohmann::json& field, const std::vector<std::string>& tags)
 {
-  for (const std::string tag : tags)
+  for (const std::string& tag : tags)
   {
     field["tags"].push_back(tag);
   }
@@ -141,7 +165,7 @@ std::string as_json(std::size_t indents /* = 2 */)
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
-  program_arguments().get_options().report.out.write(as_json());
+  write_data(as_json(), get_program_option_value(options::key::report_json));
 }
 
 }  // namespace cuke::report

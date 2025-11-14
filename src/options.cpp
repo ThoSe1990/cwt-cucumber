@@ -7,6 +7,59 @@
 #include "log.hpp"
 #include "util.hpp"
 
+namespace
+{
+bool is_catalog_or_report(cuke::options::key key)
+{
+  switch (key)
+  {
+    case cuke::options::key::report_json:
+    case cuke::options::key::steps_catalog_json:
+    case cuke::options::key::steps_catalog_readable:
+      return true;
+    default:
+      return false;
+  }
+}
+
+std::string get_optional_file_path(std::span<const char*>::iterator it,
+                                   std::span<const char*>::iterator end)
+{
+  if (it == end)
+  {
+    return "";
+  }
+
+  namespace fs = std::filesystem;
+  fs::path path = *it;
+  if (fs::is_directory(path))
+  {
+    return "";
+  }
+  if (path.string().find(".feature") != std::string::npos)
+  {
+    return "";
+  }
+  return path.string();
+}
+
+std::string get_option_value(cuke::options::key key,
+                             std::span<const char*>::iterator it,
+                             std::span<const char*>::iterator end)
+{
+  if (is_catalog_or_report(key))
+  {
+    return get_optional_file_path(it, end);
+  }
+  if (key == cuke::options::key::tags)
+  {
+    return it != end ? std::string(*it) : "";
+  }
+  return "";
+}
+
+}  // namespace
+
 namespace cuke
 {
 
@@ -40,8 +93,35 @@ void cuke_args::initialize(int argc, const char* argv[])
   m_args = std::span<const char*>(argv, argc);
   if (m_args.size() == 1)
   {
-    m_options.print_help = true;
+    m_options.flags[options::key::help] = true;
     return;
+  }
+
+  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
+  {
+    const std::string_view sv{*it};
+    auto [type, key] = to_internal_key(std::string{sv});
+
+    switch (type)
+    {
+      case options::type::option:
+      {
+        auto next = it + 1;
+        auto opt = get_option_value(key, next, m_args.end());
+        if (!opt.empty()) ++it;
+        m_options.options[key] = {true, opt};
+      }
+      break;
+      case options::type::flag:
+      {
+        m_options.flags[key] = true;
+      }
+      break;
+      case options::type::positional:
+      {
+        m_options.positional.push_back(std::string(sv));
+      }
+    }
   }
 
   for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
@@ -59,6 +139,24 @@ void cuke_args::initialize(int argc, const char* argv[])
   remove_excluded_files();
 }
 
+std::pair<cuke::options::type, cuke::options::key> cuke_args::to_internal_key(
+    const std::string& option) const
+{
+  if (option.starts_with("--") && m_options.long_keys.contains(option))
+  {
+    const cuke::options::key internal_key = m_options.long_keys.at(option);
+    return {m_options.key_type.at(internal_key), internal_key};
+  }
+  else if (option.starts_with('-') && m_options.short_keys.contains(option))
+  {
+    const cuke::options::key internal_key = m_options.short_keys.at(option);
+    return {m_options.key_type.at(internal_key), internal_key};
+  }
+  else
+  {
+    return {options::type::positional, options::key::none};
+  }
+}
 void cuke_args::clear()
 {
   m_args = std::span<const char*>();
@@ -66,27 +164,59 @@ void cuke_args::clear()
 }
 const options& cuke_args::get_options() const noexcept { return m_options; }
 
+const std::unordered_map<std::string, options::key> options::short_keys = {
+    {"-h", options::key::help},
+    {"-q", options::key::quiet},
+    {"-d", options::key::dry_run},
+    {"-v", options::key::verbose},
+    {"-c", options::key::continue_on_failure},
+    {"-t", options::key::tags},
+};
+const std::unordered_map<std::string, options::key> options::long_keys = {
+    {"--help", options::key::help},
+    {"--quiet", options::key::quiet},
+    {"--dry-run", options::key::dry_run},
+    {"--verbose", options::key::verbose},
+    {"--continue-on-failure", options::key::continue_on_failure},
+    {"--report-json", options::key::report_json},
+    {"--steps-catalog", options::key::steps_catalog_readable},
+    {"--steps-catalog-json", options::key::steps_catalog_json},
+    {"--tags", options::key::tags},
+};
+const std::unordered_map<options::key, options::type> options::key_type = {
+    {options::key::help, options::type::flag},
+    {options::key::quiet, options::type::flag},
+    {options::key::dry_run, options::type::flag},
+    {options::key::verbose, options::type::flag},
+    {options::key::continue_on_failure, options::type::flag},
+
+    {options::key::report_json, options::type::option},
+    {options::key::steps_catalog_readable, options::type::option},
+    {options::key::steps_catalog_json, options::type::option},
+    {options::key::tags, options::type::option},
+};
+
 void cuke_args::process_option(std::span<const char*>::iterator it,
                                std::span<const char*>::iterator end)
 {
   std::string_view option(*it);
-  if (option.starts_with("-t") || option.starts_with("--tags"))
-  {
-    auto next_it = std::next(it);
-    if (next_it == end)
-    {
-      log::error("Expect tag expression after '--tags/-t' option",
-                 log::new_line);
-      return;
-    }
-    std::string_view arg(*next_it);
-    m_options.tag_expression = arg;
-  }
-  else if (option.starts_with("-h") || option.starts_with("--help"))
-  {
-    m_options.print_help = true;
-  }
-  else if (option.starts_with("-d") || option.starts_with("--dry-run"))
+  // if (option.starts_with("-t") || option.starts_with("--tags"))
+  // {
+  //   auto next_it = std::next(it);
+  //   if (next_it == end)
+  //   {
+  //     log::error("Expect tag expression after '--tags/-t' option",
+  //                log::new_line);
+  //     return;
+  //   }
+  // std::string_view arg(*next_it);
+  // m_options.tag_expression = arg;
+  // }
+  // if (option.starts_with("-h") || option.starts_with("--help"))
+  // {
+  //   m_options.print_help = true;
+  // }
+  if (option.starts_with("-d") || option.starts_with("--dry-run"))
   {
     m_options.dry_run = true;
   }
@@ -97,26 +227,6 @@ void cuke_args::process_option(std::span<const char*>::iterator it,
   else if (option.starts_with("-v") || option.starts_with("--verbose"))
   {
     cuke::log::set_level(cuke::log::level::verbose);
-  }
-  else if (option.starts_with("-c") ||
-           option.starts_with("--continue-on-failure"))
-  {
-    m_options.continue_on_failure = true;
-  }
-  else if (option == "--steps-catalog")
-  {
-    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.type = catalog_type::readable_text;
-  }
-  else if (option == "--steps-catalog-json")
-  {
-    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.type = catalog_type::json;
-  }
-  else if (option == "--report-json")
-  {
-    m_options.report.out.try_to_set_file_sink(std::next(it), end);
-    m_options.report.type = report_type::json;
   }
   else if (option == "--exclude-file")
   {
@@ -180,9 +290,8 @@ void cuke_args::remove_excluded_files()
       m_options.files.end());
 }
 
-[[nodiscard]] cuke_args& program_arguments(
-    std::optional<int> argc /*= std::nullopt*/,
-    const char* argv[] /*= nullptr*/)
+cuke_args& program_arguments(std::optional<int> argc /*= std::nullopt*/,
+                             const char* argv[] /*= nullptr*/)
 {
   static cuke_args instance;
   if (argc && argv)
@@ -190,6 +299,32 @@ void cuke_args::remove_excluded_files()
     instance.initialize(argc.value(), argv);
   }
   return instance;
+}
+const std::vector<std::string> get_positional_args()
+{
+  return program_arguments().get_options().positional;
+}
+const bool program_arg_is_set(options::key key)
+{
+  const auto& opt = program_arguments().get_options();
+  if (opt.flags.contains(key))
+  {
+    return opt.flags.at(key);
+  }
+  if (opt.options.contains(key))
+  {
+    return opt.options.at(key).first;
+  }
+  return false;
+}
+const std::string& get_program_option_value(options::key key)
+{
+  const auto& opt = program_arguments().get_options();
+  if (opt.options.contains(key) && opt.options.at(key).first)
+  {
+    return opt.options.at(key).second;
+  }
+  throw std::runtime_error(std::format("Unknown program options {}", int(key)));
 }
 
 }  // namespace cuke

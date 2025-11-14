@@ -1,9 +1,13 @@
 #pragma once
 
-#include <fstream>
+#include <cstdint>
 #include <chrono>
+#include <functional>
+#include <optional>
+#include <string_view>
 #include <thread>
 #include <span>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -11,6 +15,29 @@
 #include "log.hpp"
 #include "version.hpp"
 
+namespace cuke
+{
+struct program_args_options
+{
+  std::string long_option{""};
+  std::string short_option{""};
+};
+}  // namespace cuke
+
+namespace std
+{
+template <>
+struct hash<cuke::program_args_options>
+{
+  size_t operator()(const cuke::program_args_options& option)
+  {
+    auto h1 = std::hash<std::string>{}(option.long_option);
+    auto h2 = std::hash<std::string>{}(option.short_option);
+    return h1 ^ h2;
+  }
+};
+
+}  // namespace std
 namespace cuke
 {
 /**
@@ -65,85 +92,41 @@ struct feature_file
 namespace cuke
 {
 
-class sink
-{
- public:
-  void try_to_set_file_sink(std::span<const char*>::iterator it,
-                            std::span<const char*>::iterator end)
-  {
-    if (it == end)
-    {
-      return;
-    }
-
-    namespace fs = std::filesystem;
-    fs::path path = *it;
-    if (fs::is_directory(path))
-    {
-      return;
-    }
-    if (path.string().find(".feature") != std::string::npos)
-    {
-      return;
-    }
-    m_filepath = path.string();
-  }
-
-  void write(std::string_view data) const
-  {
-    if (m_filepath.empty())
-    {
-      log::info(data, log::new_line);
-    }
-    else
-    {
-      std::ofstream file(m_filepath);
-      if (file.is_open())
-      {
-        file << data;
-        file.close();
-      }
-      else
-      {
-        log::error(std::format("Can not open file '{}'", m_filepath));
-      }
-    }
-  }
-
- private:
-  std::string m_filepath;
-};
-
-enum class catalog_type
-{
-  none = 0,
-  readable_text,
-  json
-};
-enum class report_type
-{
-  none = 0,
-  json
-};
-
 struct options
 {
-  bool print_help{false};
-  bool continue_on_failure{false};
   bool dry_run{false};
-  struct
-  {
-    catalog_type type{catalog_type::none};
-    sink out;
-  } catalog;
-  struct
-  {
-    report_type type{report_type::none};
-    sink out;
-  } report;
-  std::string tag_expression;
   std::vector<feature_file> files;
   std::vector<std::string> excluded_files;
+
+  enum class key : int8_t
+  {
+    none = 0,
+    help,
+    quiet,
+    dry_run,
+    verbose,
+    continue_on_failure,
+    report_json,
+    steps_catalog_readable,
+    steps_catalog_json,
+    excluded_files,
+    tags,
+  };
+  std::unordered_map<key, std::pair<bool, std::string>>
+      options;                          // e.g. --tags "expression"
+  std::unordered_map<key, bool> flags;  // e.g. --quiet
+  std::vector<std::string> positional;  // e.g files
+
+  static const std::unordered_map<std::string, key> long_keys;
+  static const std::unordered_map<std::string, key> short_keys;
+  enum class type : int8_t
+  {
+    option = 0,
+    flag,
+    positional,
+  };
+  static const std::unordered_map<key, type> key_type;
+  static const std::unordered_map<std::string, key> key_lookup;
 };  // namespace cuke
 
 class cuke_args
@@ -154,6 +137,8 @@ class cuke_args
   const options& get_options() const noexcept;
 
  private:
+  std::pair<cuke::options::type, cuke::options::key> to_internal_key(
+      const std::string& option) const;
   void process_path(std::string_view sv);
   void process_option(std::span<const char*>::iterator it,
                       std::span<const char*>::iterator end);
@@ -167,6 +152,10 @@ class cuke_args
 
 [[nodiscard]] cuke_args& program_arguments(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
+
+[[nodiscard]] const std::vector<std::string> get_positional_args();
+[[nodiscard]] const bool program_arg_is_set(options::key key);
+[[nodiscard]] const std::string& get_program_option_value(options::key key);
 
 static void print_help_screen()
 {
