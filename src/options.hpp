@@ -17,29 +17,6 @@
 
 namespace cuke
 {
-struct program_args_options
-{
-  std::string long_option{""};
-  std::string short_option{""};
-};
-}  // namespace cuke
-
-namespace std
-{
-template <>
-struct hash<cuke::program_args_options>
-{
-  size_t operator()(const cuke::program_args_options& option)
-  {
-    auto h1 = std::hash<std::string>{}(option.long_option);
-    auto h2 = std::hash<std::string>{}(option.short_option);
-    return h1 ^ h2;
-  }
-};
-
-}  // namespace std
-namespace cuke
-{
 /**
  * @brief Sets the current scenario to be skipped.
  *
