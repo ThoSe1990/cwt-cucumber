@@ -75,7 +75,8 @@ static constexpr const char* tag_description =
         "@tag1 or @tag2"
         "not @tag2"
         "(@tag1 and @tag2) or not @tag3"
-        "((@tag1 and @tag2) or @tag3) xor @tag4")";
+        "((@tag1 and @tag2) or @tag3) xor @tag4"
+)";
 
 struct options
 {
@@ -119,15 +120,15 @@ struct options
       {"-q", "--quiet", key::quiet, type::flag, "Quiet mode, only the final result will be printed to stdout."},
       {"-d", "--dry-run", options::key::dry_run, type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
       {"-v", "--verbose", options::key::verbose, type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
-      {"-c", "--continue-on-failure", options::key::continue_on_failure, type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures"},
+      {"-c", "--continue-on-failure", options::key::continue_on_failure, type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
+      {"-t", "--tags", options::key::tags, type::option, tag_description},
 
       {"", "--report-json", options::key::report_json, type::option, "[opt: file] Print the test results as json to stdout or a given file"},
       {"", "--steps-catalog", options::key::steps_catalog_readable, type::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
-      {"", "--steps-catalog-json", options::key::steps_catalog_json, type::option, "[opt: file] Write the implemented steps as json text to stdout or a file"},
+      {"", "--steps-catalog-json", options::key::steps_catalog_json, type::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
 
-      {"", "--exclude-file", options::key::excluded_files, type::file_to_exclude, "Exclude a specific feature file from the test run"},
+      {"", "--exclude-file", options::key::excluded_files, type::file_to_exclude, "Exclude a specific feature file from the test run\n"},
 
-      {"-t", "--tags", options::key::tags, type::option, tag_description},
   };
   // clang-format on
   std::unordered_map<key, std::pair<bool, std::string>>
