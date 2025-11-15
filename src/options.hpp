@@ -5,7 +5,6 @@
 #include <optional>
 #include <string_view>
 #include <thread>
-#include <span>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -80,6 +79,11 @@ static constexpr const char* tag_description =
 
 struct options
 {
+};
+
+class program_args
+{
+ public:
   enum class key_t : int8_t
   {
     none = 0,
@@ -100,6 +104,7 @@ struct options
     flag,
     file_to_exclude,
   };
+
   struct definition
   {
     std::string_view short_key;
@@ -115,12 +120,12 @@ struct options
     std::string_view description;
   };
   // clang-format off
-  static constexpr definition defs[] = {
+  static constexpr const definition defs[] = {
       {"-h", "--help", key_t::help, type_t::flag, "Print the help screen to stdout"},
       {"-q", "--quiet", key_t::quiet, type_t::flag, "Quiet mode, only the final result will be printed to stdout."},
       {"-d", "--dry-run", key_t::dry_run, type_t::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
       {"-v", "--verbose", key_t::verbose, type_t::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
-      {"-c", "--continue-on-failure", options::key_t::continue_on_failure, type_t::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
+      {"-c", "--continue-on-failure", key_t::continue_on_failure, type_t::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
       {"-t", "--tags", key_t::tags, type_t::option, tag_description},
 
       {"", "--report-json", key_t::report_json, type_t::option, "[opt: file] Print the test results as json to stdout or a given file"},
@@ -128,43 +133,35 @@ struct options
       {"", "--steps-catalog-json", key_t::steps_catalog_json, type_t::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
 
       {"", "--exclude-file", key_t::excluded_files, type_t::file_to_exclude, "Exclude a specific feature file from the test run\n"},
-
   };
   // clang-format on
-  std::unordered_map<key_t, std::pair<bool, std::string>>
-      options;                            // e.g. --tags "expression"
-  std::unordered_map<key_t, bool> flags;  // e.g. --quiet
 
-  static const std::unordered_map<std::string_view, info> keys;
-  static const std::unordered_map<key_t, type_t> key_type;
-  std::vector<feature_file> files;
-  std::vector<std::string> excluded_files;
-};
-
-class cuke_args
-{
  public:
   void initialize(int argc, const char* argv[]);
   void clear();
-  const options& get_options() const noexcept;
+
+  bool is_set(program_args::key_t key) const;
+  const std::string& get_value(program_args::key_t key) const;
+  const std::vector<feature_file>& get_feature_files() const;
+  const std::vector<std::string>& get_excluded_files() const;
 
  private:
-  std::pair<cuke::options::type_t, cuke::options::key_t> to_internal_key(
-      const std::string& option) const;
   void process_path(std::string_view sv);
   void find_feature_in_dir(const std::filesystem::path& dir);
   void remove_excluded_files();
 
  private:
-  std::span<const char*> m_args;
-  options m_options;
+  std::unordered_map<key_t, std::pair<bool, std::string>>
+      m_options;                            // e.g. --tags "expression"
+  std::unordered_map<key_t, bool> m_flags;  // e.g. --quiet
+  std::vector<feature_file> m_files;
+  std::vector<std::string> m_excluded_files;
+
+  static const std::unordered_map<std::string_view, info> keys;
 };
 
-[[nodiscard]] cuke_args& program_arguments(
+[[nodiscard]] program_args& get_program_args(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
-
-[[nodiscard]] const bool program_arg_is_set(options::key_t key);
-[[nodiscard]] const std::string& get_program_option_value(options::key_t key);
 
 static void print_help_screen()
 {
@@ -180,9 +177,9 @@ static void print_help_screen()
 
   Options:)";
   log::info(helptest, log::new_line);
-  for (const auto& opt : program_arguments().get_options().defs)
+  for (const auto& def : get_program_args().defs)
   {
-    log::info("    ", opt.short_key, " ", opt.long_key, " ", opt.description,
+    log::info("    ", def.short_key, " ", def.long_key, " ", def.description,
               log::new_line);
   }
 }

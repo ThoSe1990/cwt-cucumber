@@ -406,7 +406,7 @@ TEST_F(run_scenario_hook_fail_step, set_step_to_failed_3)
 
   const char* argv[] = {"program", "-c"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
+  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
 
   cuke::parser p;
   p.parse_script(script);

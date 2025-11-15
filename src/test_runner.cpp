@@ -110,7 +110,7 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    if (program_arg_is_set(options::key_t::continue_on_failure))
+    if (get_program_args().is_set(program_args::key_t::continue_on_failure))
     {
       return false;
     }
@@ -234,7 +234,8 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
   context.skip_scenario =
-      skip_flag() || program_arg_is_set(cuke::options::key_t::dry_run);
+      skip_flag() ||
+      get_program_args().is_set(cuke::program_args::key_t::dry_run);
 
   if (context.skip_scenario)
   {
@@ -299,7 +300,7 @@ void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run() const
 {
-  for (const auto& feature : program_arguments().get_options().files)
+  for (const auto& feature : get_program_args().get_feature_files())
   {
     parser p;
     p.parse_from_file(feature.path);

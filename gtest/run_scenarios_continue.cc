@@ -13,7 +13,7 @@ void make_args(std::string_view option)
 {
   const char* argv[] = {"program", option.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
+  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
 }
 
 bool has_skipped_steps(const cuke::results::feature& feature)
@@ -38,7 +38,7 @@ class run_scenarios_continue : public ::testing::Test
  protected:
   void TearDown() override
   {
-    [[maybe_unused]] auto& args = cuke::program_arguments(0, {});
+    [[maybe_unused]] auto& args = cuke::get_program_args(0, {});
     args.clear();
     call_count = 0;
   }

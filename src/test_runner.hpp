@@ -29,9 +29,10 @@ class test_runner
 {
  public:
   test_runner()
-      : m_tag_expression(program_arg_is_set(options::key_t::tags)
-                             ? get_program_option_value(options::key_t::tags)
-                             : "")
+      : m_tag_expression(
+            get_program_args().is_set(program_args::key_t::tags)
+                ? get_program_args().get_value(program_args::key_t::tags)
+                : "")
   {
   }
   void setup() const;
