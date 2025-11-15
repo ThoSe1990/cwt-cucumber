@@ -1,9 +1,11 @@
 #pragma once
 
-#include <fstream>
+#include <cstdint>
 #include <chrono>
+#include <optional>
+#include <string_view>
 #include <thread>
-#include <span>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -65,107 +67,100 @@ struct feature_file
 namespace cuke
 {
 
-class sink
-{
- public:
-  void try_to_set_file_sink(std::span<const char*>::iterator it,
-                            std::span<const char*>::iterator end)
-  {
-    if (it == end)
-    {
-      return;
-    }
-
-    namespace fs = std::filesystem;
-    fs::path path = *it;
-    if (fs::is_directory(path))
-    {
-      return;
-    }
-    if (path.string().find(".feature") != std::string::npos)
-    {
-      return;
-    }
-    m_filepath = path.string();
-  }
-
-  void write(std::string_view data) const
-  {
-    if (m_filepath.empty())
-    {
-      log::info(data, log::new_line);
-    }
-    else
-    {
-      std::ofstream file(m_filepath);
-      if (file.is_open())
-      {
-        file << data;
-        file.close();
-      }
-      else
-      {
-        log::error(std::format("Can not open file '{}'", m_filepath));
-      }
-    }
-  }
-
- private:
-  std::string m_filepath;
-};
-
-enum class catalog_type
-{
-  none = 0,
-  readable_text,
-  json
-};
-enum class report_type
-{
-  none = 0,
-  json
-};
+static constexpr const char* tag_description =
+    R"(Provide a tag expression to execute only Features/Scenarios with given tags
+      Examples:
+        "@tag1"
+        "@tag1 or @tag2"
+        "not @tag2"
+        "(@tag1 and @tag2) or not @tag3"
+        "((@tag1 and @tag2) or @tag3) xor @tag4"
+)";
 
 struct options
 {
-  bool print_help{false};
-  bool continue_on_failure{false};
-  bool dry_run{false};
-  struct
-  {
-    catalog_type type{catalog_type::none};
-    sink out;
-  } catalog;
-  struct
-  {
-    report_type type{report_type::none};
-    sink out;
-  } report;
-  std::string tag_expression;
-  std::vector<feature_file> files;
-  std::vector<std::string> excluded_files;
-};  // namespace cuke
+};
 
-class cuke_args
+class program_args
 {
+ public:
+  enum class arg : int8_t
+  {
+    none = 0,
+    help,
+    quiet,
+    dry_run,
+    verbose,
+    continue_on_failure,
+    report_json,
+    steps_catalog_readable,
+    steps_catalog_json,
+    exclude_file,
+    tags,
+  };
+  enum class arg_type : int8_t
+  {
+    option = 0,
+    flag,
+    exclude_file,
+  };
+
+  struct definition
+  {
+    std::string_view short_key;
+    std::string_view long_key;
+    arg key;
+    arg_type type;
+    std::string_view description;
+  };
+  struct info
+  {
+    arg key;
+    arg_type type;
+    std::string_view description;
+  };
+  // clang-format off
+  static constexpr const definition defs[] = {
+      {"-h", "--help", arg::help, arg_type::flag, "Print the help screen to stdout"},
+      {"-q", "--quiet", arg::quiet, arg_type::flag, "Quiet mode, only the final result will be printed to stdout."},
+      {"-d", "--dry-run", arg::dry_run, arg_type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
+      {"-v", "--verbose", arg::verbose, arg_type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
+      {"-c", "--continue-on-failure", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
+      {"-t", "--tags", arg::tags, arg_type::option, tag_description},
+
+      {"", "--report-json", arg::report_json, arg_type::option, "[opt: file] Print the test results as json to stdout or a given file"},
+      {"", "--steps-catalog", arg::steps_catalog_readable, arg_type::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
+      {"", "--steps-catalog-json", arg::steps_catalog_json, arg_type::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
+
+      {"", "--exclude-file", arg::exclude_file, arg_type::exclude_file, "Exclude a specific feature file from the test run\n"},
+  };
+  // clang-format on
+
  public:
   void initialize(int argc, const char* argv[]);
   void clear();
-  const options& get_options() const noexcept;
+
+  bool is_set(program_args::arg key) const;
+  const std::string& get_value(program_args::arg key) const;
+  const std::vector<feature_file>& get_feature_files() const;
+  const std::vector<std::string>& get_excluded_files() const;
 
  private:
   void process_path(std::string_view sv);
-  void process_option(std::span<const char*>::iterator it,
-                      std::span<const char*>::iterator end);
   void find_feature_in_dir(const std::filesystem::path& dir);
   void remove_excluded_files();
 
  private:
-  std::span<const char*> m_args;
-  options m_options;
+  std::unordered_map<arg, std::pair<bool, std::string>>
+      m_options;                            // e.g. --tags "expression"
+  std::unordered_map<arg, bool> m_flags;  // e.g. --quiet
+  std::vector<feature_file> m_files;
+  std::vector<std::string> m_excluded_files;
+
+  static const std::unordered_map<std::string_view, info> keys;
 };
 
-[[nodiscard]] cuke_args& program_arguments(
+[[nodiscard]] program_args& get_program_args(
     std::optional<int> argc = std::nullopt, const char* argv[] = nullptr);
 
 static void print_help_screen()
@@ -177,38 +172,16 @@ static void print_help_screen()
     ./<your-executable> ./<file>.feature [options]
     ./<your-executable> ./<dir> [options]
   Executing single scenarios from line (multiple lines possible): 
-   <your-executable> ./<file>.feature:4"
-   <your-executable> ./<file>.feature:4:10:15
+   <your-executable> ./<file>.feature:4 [options]
+   <your-executable> ./<file>.feature:4:10:15 [options]
 
-  Options:
-    -h --help  Print the help screen to stdout
-    
-    -q --quiet  Quiet mode, only the final result will be printed to stdout.
-
-    -d --dry-run Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined
-
-    -v --verbose  Print detailed information, e.g. skipped scenarios, tag evaluation
-
-    -c --continue-on-failure  Do not skip subsequent steps in a scenario after a failed step, 
-                              all steps will run regardless of intermediate failures
-
-    --report-json [opt: file]  Print the test results as json to stdout or a given file
-
-    --steps-catalog [opt: file]       Write the implemented steps as readable text to stdout or a file 
-    --steps-catalog-json [opt: file]  Write the implemented steps as json text to stdout or a file 
-      Note: Catalog option overwrites existing files, does not write to '.feature' files or directories
-  
-    --exclude-file "file"   Exclude a specific feature file from the test run
-
-    -t --tags "expression"  Provide a tag expression to execute only Features/Scenarios with given tags
-      Examples:
-        "@tag1"
-        "@tag1 or @tag2"
-        "not @tag2"
-        "(@tag1 and @tag2) or not @tag3"
-        "((@tag1 and @tag2) or @tag3) xor @tag4"
-)";
+  Options:)";
   log::info(helptest, log::new_line);
+  for (const auto& def : get_program_args().defs)
+  {
+    log::info("    ", def.short_key, " ", def.long_key, " ", def.description,
+              log::new_line);
+  }
 }
 
 namespace internal

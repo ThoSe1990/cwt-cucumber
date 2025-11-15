@@ -66,12 +66,6 @@ class cwt_cucumber
   [[nodiscard]] results::test_status final_result() const noexcept;
 
   /**
-   * @brief Returns the parsed command-line and environment options.
-   * @return Reference to the internal \c options object.
-   */
-  const options& get_options() const noexcept;
-
-  /**
    * @brief Prints the help message to stdout.
    * @return \c true if help was printed, otherwise \c false.
    */

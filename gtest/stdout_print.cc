@@ -12,7 +12,7 @@ class stdout_print : public ::testing::Test
  protected:
   void TearDown() override
   {
-    auto& args = cuke::program_arguments(0, {});
+    auto& args = cuke::get_program_args(0, {});
     args.clear();
   }
   void SetUp() override
@@ -187,10 +187,10 @@ TEST_F(stdout_print, scenario_from_file)
       std::format("{}/test_files/example.feature:3", unittests::test_dir());
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::cuke_args targs;
-  targs.initialize(argc, argv);
+  cuke::program_args prog_args;
+  prog_args.initialize(argc, argv);
 
-  const cuke::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -330,9 +330,9 @@ TEST_F(stdout_print, scenario_fail_final_form_file)
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::cuke_args& targs = cuke::program_arguments(argc, argv);
+  cuke::program_args& prog_args = cuke::get_program_args(argc, argv);
 
-  const cuke::feature_file& file = targs.get_options().files.back();
+  const cuke::feature_file& file = prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -358,8 +358,8 @@ TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
   const char* argv[] = {"program", file_arg.c_str(), "--quiet"};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::cuke_args& targs = cuke::program_arguments(argc, argv);
-  const cuke::feature_file& file = targs.get_options().files.back();
+  cuke::program_args& prog_args = cuke::get_program_args(argc, argv);
+  const cuke::feature_file& file = prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -385,8 +385,8 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   const char* argv[] = {"program", file_arg.c_str(), "-q"};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::cuke_args& targs = cuke::program_arguments(argc, argv);
-  const cuke::feature_file& file = targs.get_options().files.back();
+  cuke::program_args& prog_args = cuke::get_program_args(argc, argv);
+  const cuke::feature_file& file = prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -412,7 +412,7 @@ TEST_F(stdout_print, verbose_tags)
 
   const char* argv[] = {"program", "-v", "-t", "@tag2"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::program_arguments(argc, argv);
+  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
 
   cuke::parser p;
   p.parse_script(script);

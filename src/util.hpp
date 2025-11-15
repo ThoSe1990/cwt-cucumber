@@ -5,9 +5,33 @@
 #include <fstream>
 
 #include "token.hpp"
+#include "log.hpp"
 
 namespace cuke::internal
 {
+
+static void write_to_file_or_stdout(std::string_view data,
+                                    const std::string& filepath)
+{
+  if (filepath.empty())
+  {
+    cuke::log::info(data, cuke::log::new_line);
+  }
+  else
+  {
+    std::ofstream file(filepath);
+    if (file.is_open())
+    {
+      file << data;
+      file.close();
+    }
+    else
+    {
+      cuke::log::error(std::format("Can not open file '{}'", filepath));
+    }
+  }
+}
+
 [[nodiscard]] static std::string to_string_with_linebreaks(
     const std::vector<std::string>& data)
 {

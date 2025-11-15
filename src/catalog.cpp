@@ -100,11 +100,15 @@ std::string as_json(std::size_t indents /* = 2 */)
 
 void print_readable_text_to_sink()
 {
-  program_arguments().get_options().catalog.out.write(as_readable_text());
+  cuke::internal::write_to_file_or_stdout(
+      as_readable_text(),
+      get_program_args().get_value(cuke::program_args::arg::steps_catalog_readable));
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
-  program_arguments().get_options().catalog.out.write(as_json());
+  cuke::internal::write_to_file_or_stdout(
+      as_json(),
+      get_program_args().get_value(cuke::program_args::arg::steps_catalog_json));
 }
 
 }  // namespace cuke::catalog

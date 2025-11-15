@@ -1,3 +1,4 @@
+#include <span>
 #include <algorithm>
 #include <filesystem>
 #include <optional>
@@ -6,6 +7,59 @@
 #include "catalog.hpp"
 #include "log.hpp"
 #include "util.hpp"
+
+namespace
+{
+bool is_catalog_or_report(cuke::program_args::arg key)
+{
+  switch (key)
+  {
+    case cuke::program_args::arg::report_json:
+    case cuke::program_args::arg::steps_catalog_json:
+    case cuke::program_args::arg::steps_catalog_readable:
+      return true;
+    default:
+      return false;
+  }
+}
+
+std::string get_optional_file_path(std::span<const char*>::iterator it,
+                                   std::span<const char*>::iterator end)
+{
+  if (it == end)
+  {
+    return "";
+  }
+
+  namespace fs = std::filesystem;
+  fs::path path = *it;
+  if (fs::is_directory(path))
+  {
+    return "";
+  }
+  if (path.string().find(".feature") != std::string::npos)
+  {
+    return "";
+  }
+  return path.string();
+}
+
+std::string get_option_value(cuke::program_args::arg key,
+                             std::span<const char*>::iterator it,
+                             std::span<const char*>::iterator end)
+{
+  if (is_catalog_or_report(key))
+  {
+    return get_optional_file_path(it, end);
+  }
+  if (key == cuke::program_args::arg::tags)
+  {
+    return it != end ? std::string(*it) : "";
+  }
+  return "";
+}
+
+}  // namespace
 
 namespace cuke
 {
@@ -34,104 +88,89 @@ void fail_step(const std::string_view msg /* = "" */)
 {
   internal::get_runtime_options().fail_step(true, msg);
 }
-void cuke_args::initialize(int argc, const char* argv[])
+void program_args::initialize(int argc, const char* argv[])
 {
   clear();
-  m_args = std::span<const char*>(argv, argc);
-  if (m_args.size() == 1)
+  std::span<const char*> args = std::span<const char*>(argv, argc);
+  if (args.size() == 1)
   {
-    m_options.print_help = true;
+    m_flags[program_args::arg::help] = true;
     return;
   }
 
-  for (auto it = m_args.begin() + 1; it != m_args.end(); ++it)
+  for (auto it = args.begin() + 1; it != args.end(); ++it)
   {
-    std::string_view sv{*it};
-    if (sv.starts_with('-'))
+    if (!keys.contains(*it))
     {
-      process_option(it, m_args.end());
+      process_path(*it);
+      continue;
     }
-    else
+
+    auto& opt = keys.at(*it);
+
+    switch (opt.type)
     {
-      process_path(sv);
+      case program_args::arg_type::option:
+      {
+        auto next = it + 1;
+        auto value = get_option_value(opt.key, next, args.end());
+        if (!value.empty()) ++it;
+        m_options[opt.key] = {true, value};
+      }
+      break;
+      case program_args::arg_type::exclude_file:
+      {
+        ++it;
+        if (it == args.end())
+        {
+          log::error("Expect file after '--exclude-file' option",
+                     log::new_line);
+          return;
+        }
+        m_excluded_files.push_back(*it);
+      }
+      break;
+      case program_args::arg_type::flag:
+      {
+        m_flags[opt.key] = true;
+      }
+      break;
     }
+  }
+
+  if (is_set(program_args::arg::quiet))
+  {
+    cuke::log::set_level(cuke::log::level::quiet);
+  }
+  if (is_set(program_args::arg::verbose))
+  {
+    cuke::log::set_level(cuke::log::level::verbose);
   }
   remove_excluded_files();
 }
 
-void cuke_args::clear()
+void program_args::clear()
 {
-  m_args = std::span<const char*>();
-  m_options = options{};
-}
-const options& cuke_args::get_options() const noexcept { return m_options; }
-
-void cuke_args::process_option(std::span<const char*>::iterator it,
-                               std::span<const char*>::iterator end)
-{
-  std::string_view option(*it);
-  if (option.starts_with("-t") || option.starts_with("--tags"))
-  {
-    auto next_it = std::next(it);
-    if (next_it == end)
-    {
-      log::error("Expect tag expression after '--tags/-t' option",
-                 log::new_line);
-      return;
-    }
-    std::string_view arg(*next_it);
-    m_options.tag_expression = arg;
-  }
-  else if (option.starts_with("-h") || option.starts_with("--help"))
-  {
-    m_options.print_help = true;
-  }
-  else if (option.starts_with("-d") || option.starts_with("--dry-run"))
-  {
-    m_options.dry_run = true;
-  }
-  else if (option.starts_with("-q") || option.starts_with("--quiet"))
-  {
-    cuke::log::set_level(cuke::log::level::quiet);
-  }
-  else if (option.starts_with("-v") || option.starts_with("--verbose"))
-  {
-    cuke::log::set_level(cuke::log::level::verbose);
-  }
-  else if (option.starts_with("-c") ||
-           option.starts_with("--continue-on-failure"))
-  {
-    m_options.continue_on_failure = true;
-  }
-  else if (option == "--steps-catalog")
-  {
-    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.type = catalog_type::readable_text;
-  }
-  else if (option == "--steps-catalog-json")
-  {
-    m_options.catalog.out.try_to_set_file_sink(std::next(it), end);
-    m_options.catalog.type = catalog_type::json;
-  }
-  else if (option == "--report-json")
-  {
-    m_options.report.out.try_to_set_file_sink(std::next(it), end);
-    m_options.report.type = report_type::json;
-  }
-  else if (option == "--exclude-file")
-  {
-    auto next_it = std::next(it);
-    if (next_it == end)
-    {
-      log::error("Expect file after '--exclude-file' option", log::new_line);
-      return;
-    }
-    std::string_view arg(*next_it);
-    m_options.excluded_files.push_back(std::string{arg});
-  }
+  m_options.clear();
+  m_flags.clear();
+  m_files.clear();
+  m_excluded_files.clear();
 }
 
-void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
+const std::unordered_map<std::string_view, program_args::info>
+    program_args::keys = []
+{
+  std::unordered_map<std::string_view, program_args::info> m;
+
+  for (auto const& d : program_args::defs)
+  {
+    if (!d.short_key.empty()) m[d.short_key] = {d.key, d.type, d.description};
+    if (!d.long_key.empty()) m[d.long_key] = {d.key, d.type, d.description};
+  }
+  return m;
+}();
+
+void program_args::find_feature_in_dir(const std::filesystem::path& dir)
 {
   for (const auto& entry : std::filesystem::directory_iterator(dir))
   {
@@ -141,12 +180,12 @@ void cuke_args::find_feature_in_dir(const std::filesystem::path& dir)
     }
     else if (entry.path().extension() == ".feature")
     {
-      m_options.files.push_back(feature_file{entry.path().string(), {}});
+      m_files.push_back(feature_file{entry.path().string(), {}});
     }
   }
 }
 
-void cuke_args::process_path(std::string_view sv)
+void program_args::process_path(std::string_view sv)
 {
   namespace fs = std::filesystem;
   auto [file_path, lines] = internal::filepath_and_lines(sv);
@@ -159,32 +198,61 @@ void cuke_args::process_path(std::string_view sv)
     }
     else if (path.extension() == ".feature")
     {
-      m_options.files.push_back(feature_file{file_path, lines});
+      m_files.push_back(feature_file{file_path, lines});
     }
   }
 }
 
-void cuke_args::remove_excluded_files()
+void program_args::remove_excluded_files()
 {
-  m_options.files.erase(
-      std::remove_if(m_options.files.begin(), m_options.files.end(),
+  m_files.erase(
+      std::remove_if(m_files.begin(), m_files.end(),
                      [this](const feature_file& file)
                      {
                        return std::any_of(
-                           m_options.excluded_files.begin(),
-                           m_options.excluded_files.end(),
+                           m_excluded_files.begin(), m_excluded_files.end(),
                            [&file](const std::string& to_exclude)
                            { return file.path.ends_with(to_exclude); });
                        ;
                      }),
-      m_options.files.end());
+      m_files.end());
 }
 
-[[nodiscard]] cuke_args& program_arguments(
-    std::optional<int> argc /*= std::nullopt*/,
-    const char* argv[] /*= nullptr*/)
+bool program_args::is_set(program_args::arg key) const
 {
-  static cuke_args instance;
+  if (m_flags.contains(key))
+  {
+    return m_flags.at(key);
+  }
+  if (m_options.contains(key))
+  {
+    return m_options.at(key).first;
+  }
+  return false;
+}
+const std::vector<feature_file>& program_args::get_feature_files() const
+{
+  return m_files;
+}
+const std::vector<std::string>& program_args::get_excluded_files() const
+{
+  return m_excluded_files;
+}
+const std::string& program_args::get_value(program_args::arg key) const
+{
+  if (m_options.contains(key) && m_options.at(key).first)
+  {
+    return m_options.at(key).second;
+  }
+  // TODO: to_string
+  throw std::runtime_error(
+      std::format("Unknown program argument type {}", int(key)));
+}
+
+program_args& get_program_args(std::optional<int> argc /*= std::nullopt*/,
+                               const char* argv[] /*= nullptr*/)
+{
+  static program_args instance;
   if (argc && argv)
   {
     instance.initialize(argc.value(), argv);

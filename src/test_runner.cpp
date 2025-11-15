@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "ast.hpp"
+#include "options.hpp"
 #include "test_results.hpp"
 #include "log.hpp"
 #include "log_util.hpp"
@@ -109,8 +110,7 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    const auto& opts = program_arguments().get_options();
-    if (opts.continue_on_failure)
+    if (get_program_args().is_set(program_args::arg::continue_on_failure))
     {
       return false;
     }
@@ -234,7 +234,8 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
   context.skip_scenario =
-      skip_flag() || program_arguments().get_options().dry_run;
+      skip_flag() ||
+      get_program_args().is_set(cuke::program_args::arg::dry_run);
 
   if (context.skip_scenario)
   {
@@ -299,7 +300,7 @@ void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run() const
 {
-  for (const auto& feature : program_arguments().get_options().files)
+  for (const auto& feature : get_program_args().get_feature_files())
   {
     parser p;
     p.parse_from_file(feature.path);

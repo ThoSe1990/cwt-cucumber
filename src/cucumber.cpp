@@ -56,7 +56,7 @@ cuke::results::test_status entry_point(int argc, const char* argv[])
 
 cwt_cucumber::cwt_cucumber(int argc, const char* argv[])
 {
-  program_arguments().initialize(argc, argv);
+  get_program_args().initialize(argc, argv);
 }
 void cwt_cucumber::run_tests() const noexcept
 {
@@ -67,31 +67,22 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
-  switch (program_arguments().get_options().report.type)
+  if (get_program_args().is_set(program_args::arg::report_json))
   {
-    case report_type::none:
-      print_failed_scenarios();
-      log::always(log::new_line);
-      log::always(results::scenarios_to_string(), log::new_line);
-      log::always(results::steps_to_string(), log::new_line);
-      break;
-
-    case report_type::json:
-      report::print_json_to_sink();
-      break;
-
-    default:
-      log::error("Unknown report type");
+    report::print_json_to_sink();
+  }
+  else
+  {
+    print_failed_scenarios();
+    log::always(log::new_line);
+    log::always(results::scenarios_to_string(), log::new_line);
+    log::always(results::steps_to_string(), log::new_line);
   }
 }
 
-const options& cwt_cucumber::get_options() const noexcept
-{
-  return program_arguments().get_options();
-}
 bool cwt_cucumber::print_help() const noexcept
 {
-  if (get_options().print_help)
+  if (get_program_args().is_set(program_args::arg::help))
   {
     print_help_screen();
     return true;
@@ -101,12 +92,12 @@ bool cwt_cucumber::print_help() const noexcept
 bool cwt_cucumber::export_catalog(
     std::size_t json_indents /* = 2 */) const noexcept
 {
-  if (get_options().catalog.type == catalog_type::readable_text)
+  if (get_program_args().is_set(program_args::arg::steps_catalog_readable))
   {
     catalog::print_readable_text_to_sink();
     return true;
   }
-  if (get_options().catalog.type == catalog_type::json)
+  if (get_program_args().is_set(program_args::arg::steps_catalog_json))
   {
     catalog::print_json_to_sink(json_indents);
     return true;

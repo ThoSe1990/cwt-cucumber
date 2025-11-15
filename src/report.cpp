@@ -17,7 +17,7 @@ namespace internal
 #ifdef WITH_JSON
 void push_tags(nlohmann::json& field, const std::vector<std::string>& tags)
 {
-  for (const std::string tag : tags)
+  for (const std::string& tag : tags)
   {
     field["tags"].push_back(tag);
   }
@@ -141,7 +141,8 @@ std::string as_json(std::size_t indents /* = 2 */)
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
-  program_arguments().get_options().report.out.write(as_json());
+  cuke::internal::write_to_file_or_stdout(
+      as_json(), get_program_args().get_value(program_args::arg::report_json));
 }
 
 }  // namespace cuke::report
