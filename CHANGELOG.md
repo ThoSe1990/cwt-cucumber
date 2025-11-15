@@ -23,6 +23,7 @@
 ### Changed 
 
 - Reorganized / refactored `test_runner`, no changes to behavior or public API's ([97](https://github.com/ThoSe1990/cwt-cucumber/pull/97))
+- Refactored program arguments, help screen looks a little different, besides that no changes to behavior or public API's ([100](https://github.com/ThoSe1990/cwt-cucumber/pull/100))
 
 ## [2.7] 2025-06-16
 
