@@ -10,13 +10,13 @@
 
 namespace
 {
-bool is_catalog_or_report(cuke::program_args::key_t key)
+bool is_catalog_or_report(cuke::program_args::arg key)
 {
   switch (key)
   {
-    case cuke::program_args::key_t::report_json:
-    case cuke::program_args::key_t::steps_catalog_json:
-    case cuke::program_args::key_t::steps_catalog_readable:
+    case cuke::program_args::arg::report_json:
+    case cuke::program_args::arg::steps_catalog_json:
+    case cuke::program_args::arg::steps_catalog_readable:
       return true;
     default:
       return false;
@@ -44,7 +44,7 @@ std::string get_optional_file_path(std::span<const char*>::iterator it,
   return path.string();
 }
 
-std::string get_option_value(cuke::program_args::key_t key,
+std::string get_option_value(cuke::program_args::arg key,
                              std::span<const char*>::iterator it,
                              std::span<const char*>::iterator end)
 {
@@ -52,7 +52,7 @@ std::string get_option_value(cuke::program_args::key_t key,
   {
     return get_optional_file_path(it, end);
   }
-  if (key == cuke::program_args::key_t::tags)
+  if (key == cuke::program_args::arg::tags)
   {
     return it != end ? std::string(*it) : "";
   }
@@ -94,7 +94,7 @@ void program_args::initialize(int argc, const char* argv[])
   std::span<const char*> args = std::span<const char*>(argv, argc);
   if (args.size() == 1)
   {
-    m_flags[program_args::key_t::help] = true;
+    m_flags[program_args::arg::help] = true;
     return;
   }
 
@@ -110,7 +110,7 @@ void program_args::initialize(int argc, const char* argv[])
 
     switch (opt.type)
     {
-      case program_args::type_t::option:
+      case program_args::arg_type::option:
       {
         auto next = it + 1;
         auto value = get_option_value(opt.key, next, args.end());
@@ -118,7 +118,7 @@ void program_args::initialize(int argc, const char* argv[])
         m_options[opt.key] = {true, value};
       }
       break;
-      case program_args::type_t::file_to_exclude:
+      case program_args::arg_type::exclude_file:
       {
         ++it;
         if (it == args.end())
@@ -130,7 +130,7 @@ void program_args::initialize(int argc, const char* argv[])
         m_excluded_files.push_back(*it);
       }
       break;
-      case program_args::type_t::flag:
+      case program_args::arg_type::flag:
       {
         m_flags[opt.key] = true;
       }
@@ -138,11 +138,11 @@ void program_args::initialize(int argc, const char* argv[])
     }
   }
 
-  if (is_set(program_args::key_t::quiet))
+  if (is_set(program_args::arg::quiet))
   {
     cuke::log::set_level(cuke::log::level::quiet);
   }
-  if (is_set(program_args::key_t::verbose))
+  if (is_set(program_args::arg::verbose))
   {
     cuke::log::set_level(cuke::log::level::verbose);
   }
@@ -218,7 +218,7 @@ void program_args::remove_excluded_files()
       m_files.end());
 }
 
-bool program_args::is_set(program_args::key_t key) const
+bool program_args::is_set(program_args::arg key) const
 {
   if (m_flags.contains(key))
   {
@@ -238,7 +238,7 @@ const std::vector<std::string>& program_args::get_excluded_files() const
 {
   return m_excluded_files;
 }
-const std::string& program_args::get_value(program_args::key_t key) const
+const std::string& program_args::get_value(program_args::arg key) const
 {
   if (m_options.contains(key) && m_options.at(key).first)
   {

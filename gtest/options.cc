@@ -103,11 +103,11 @@ TEST(options, tag_expression_1)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::program_args prog_args;
   prog_args.initialize(argc, argv);
-  ASSERT_TRUE(prog_args.is_set(cuke::program_args::key_t::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::program_args::key_t::tags).empty());
+  ASSERT_TRUE(prog_args.is_set(cuke::program_args::arg::tags));
+  ASSERT_FALSE(prog_args.get_value(cuke::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
-      prog_args.get_value(cuke::program_args::key_t::tags));
+      prog_args.get_value(cuke::program_args::arg::tags));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
@@ -118,11 +118,11 @@ TEST(options, tag_expression_2)
   int argc = sizeof(argv) / sizeof(argv[0]);
   cuke::program_args prog_args;
   prog_args.initialize(argc, argv);
-  ASSERT_TRUE(prog_args.is_set(cuke::program_args::key_t::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::program_args::key_t::tags).empty());
+  ASSERT_TRUE(prog_args.is_set(cuke::program_args::arg::tags));
+  ASSERT_FALSE(prog_args.get_value(cuke::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
-      prog_args.get_value(cuke::program_args::key_t::tags));
+      prog_args.get_value(cuke::program_args::arg::tags));
 
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));

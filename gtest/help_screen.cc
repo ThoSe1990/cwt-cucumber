@@ -12,7 +12,7 @@ TEST(help_screen, check_print_1)
   cuke::program_args args;
   args.initialize(test_argc, test_argv);
 
-  EXPECT_TRUE(args.is_set(cuke::program_args::key_t::help));
+  EXPECT_TRUE(args.is_set(cuke::program_args::arg::help));
 }
 TEST(help_screen, check_print_2)
 {
@@ -22,7 +22,7 @@ TEST(help_screen, check_print_2)
   cuke::program_args args;
   args.initialize(test_argc, test_argv);
 
-  EXPECT_TRUE(args.is_set(cuke::program_args::key_t::help));
+  EXPECT_TRUE(args.is_set(cuke::program_args::arg::help));
 }
 TEST(help_screen, check_print_3)
 {
@@ -32,7 +32,7 @@ TEST(help_screen, check_print_3)
   cuke::program_args args;
   args.initialize(test_argc, test_argv);
 
-  EXPECT_TRUE(args.is_set(cuke::program_args::key_t::help));
+  EXPECT_TRUE(args.is_set(cuke::program_args::arg::help));
 }
 TEST(help_screen, check_print_4)
 {
@@ -42,5 +42,5 @@ TEST(help_screen, check_print_4)
   cuke::program_args args;
   args.initialize(test_argc, test_argv);
 
-  EXPECT_TRUE(args.is_set(cuke::program_args::key_t::help));
+  EXPECT_TRUE(args.is_set(cuke::program_args::arg::help));
 }

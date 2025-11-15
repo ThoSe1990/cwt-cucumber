@@ -102,13 +102,13 @@ void print_readable_text_to_sink()
 {
   cuke::internal::write_to_file_or_stdout(
       as_readable_text(),
-      get_program_args().get_value(cuke::program_args::key_t::steps_catalog_readable));
+      get_program_args().get_value(cuke::program_args::arg::steps_catalog_readable));
 }
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
   cuke::internal::write_to_file_or_stdout(
       as_json(),
-      get_program_args().get_value(cuke::program_args::key_t::steps_catalog_json));
+      get_program_args().get_value(cuke::program_args::arg::steps_catalog_json));
 }
 
 }  // namespace cuke::catalog

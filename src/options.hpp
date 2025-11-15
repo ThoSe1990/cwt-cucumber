@@ -84,7 +84,7 @@ struct options
 class program_args
 {
  public:
-  enum class key_t : int8_t
+  enum class arg : int8_t
   {
     none = 0,
     help,
@@ -95,44 +95,44 @@ class program_args
     report_json,
     steps_catalog_readable,
     steps_catalog_json,
-    excluded_files,
+    exclude_file,
     tags,
   };
-  enum class type_t : int8_t
+  enum class arg_type : int8_t
   {
     option = 0,
     flag,
-    file_to_exclude,
+    exclude_file,
   };
 
   struct definition
   {
     std::string_view short_key;
     std::string_view long_key;
-    key_t key;
-    type_t type;
+    arg key;
+    arg_type type;
     std::string_view description;
   };
   struct info
   {
-    key_t key;
-    type_t type;
+    arg key;
+    arg_type type;
     std::string_view description;
   };
   // clang-format off
   static constexpr const definition defs[] = {
-      {"-h", "--help", key_t::help, type_t::flag, "Print the help screen to stdout"},
-      {"-q", "--quiet", key_t::quiet, type_t::flag, "Quiet mode, only the final result will be printed to stdout."},
-      {"-d", "--dry-run", key_t::dry_run, type_t::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
-      {"-v", "--verbose", key_t::verbose, type_t::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
-      {"-c", "--continue-on-failure", key_t::continue_on_failure, type_t::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
-      {"-t", "--tags", key_t::tags, type_t::option, tag_description},
+      {"-h", "--help", arg::help, arg_type::flag, "Print the help screen to stdout"},
+      {"-q", "--quiet", arg::quiet, arg_type::flag, "Quiet mode, only the final result will be printed to stdout."},
+      {"-d", "--dry-run", arg::dry_run, arg_type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
+      {"-v", "--verbose", arg::verbose, arg_type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
+      {"-c", "--continue-on-failure", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
+      {"-t", "--tags", arg::tags, arg_type::option, tag_description},
 
-      {"", "--report-json", key_t::report_json, type_t::option, "[opt: file] Print the test results as json to stdout or a given file"},
-      {"", "--steps-catalog", key_t::steps_catalog_readable, type_t::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
-      {"", "--steps-catalog-json", key_t::steps_catalog_json, type_t::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
+      {"", "--report-json", arg::report_json, arg_type::option, "[opt: file] Print the test results as json to stdout or a given file"},
+      {"", "--steps-catalog", arg::steps_catalog_readable, arg_type::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
+      {"", "--steps-catalog-json", arg::steps_catalog_json, arg_type::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
 
-      {"", "--exclude-file", key_t::excluded_files, type_t::file_to_exclude, "Exclude a specific feature file from the test run\n"},
+      {"", "--exclude-file", arg::exclude_file, arg_type::exclude_file, "Exclude a specific feature file from the test run\n"},
   };
   // clang-format on
 
@@ -140,8 +140,8 @@ class program_args
   void initialize(int argc, const char* argv[]);
   void clear();
 
-  bool is_set(program_args::key_t key) const;
-  const std::string& get_value(program_args::key_t key) const;
+  bool is_set(program_args::arg key) const;
+  const std::string& get_value(program_args::arg key) const;
   const std::vector<feature_file>& get_feature_files() const;
   const std::vector<std::string>& get_excluded_files() const;
 
@@ -151,9 +151,9 @@ class program_args
   void remove_excluded_files();
 
  private:
-  std::unordered_map<key_t, std::pair<bool, std::string>>
+  std::unordered_map<arg, std::pair<bool, std::string>>
       m_options;                            // e.g. --tags "expression"
-  std::unordered_map<key_t, bool> m_flags;  // e.g. --quiet
+  std::unordered_map<arg, bool> m_flags;  // e.g. --quiet
   std::vector<feature_file> m_files;
   std::vector<std::string> m_excluded_files;
 
