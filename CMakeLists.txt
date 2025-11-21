@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(cwt-cucumber VERSION 2.7)
+project(cwt-cucumber VERSION 2.8)
 
 set(version_content "version = \"${PROJECT_VERSION}\"\n")
 file(WRITE "${CMAKE_SOURCE_DIR}/docs/_version.py" "${version_content}")

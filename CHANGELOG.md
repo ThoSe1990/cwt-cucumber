@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.8] 2025-11-21
+
 ### Added 
 
 - Manually fail a scenario or step with `cuke::fail_scenario()`, `cuke::fail_scenario("Optional error message")`, `cuke::fail_step()` or `cuke::fail_step("Optional error message")` ([89](https://github.com/ThoSe1990/cwt-cucumber/issues/89))
