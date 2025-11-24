@@ -66,6 +66,26 @@ THEN(box_items_count, "The box contains {int} item(s)")
 }
 ```
 
+Try it out, open a terminal in the project directory and build the examples:
+```shell
+cmake -S . -B ./build
+cmake --build ./build -j12
+```
+Now, just run it:
+```shell
+./build/bin/example examples/features/1_first_scenario.feature
+Feature: My first feature  examples/features/1_first_scenario.feature:1
+
+Scenario: First Scenario  examples/features/1_first_scenario.feature:4
+[   PASSED    ] Given An empty box  examples/features/1_first_scenario.feature:5
+[   PASSED    ] When I place 1 x "apple" in it  examples/features/1_first_scenario.feature:6
+[   PASSED    ] Then The box contains 1 item  examples/features/1_first_scenario.feature:7
+
+
+1 Scenarios (1 passed)
+3 Steps (3 passed)
+```
+
 ## Disclaimer
 
 This project has started as an educational project after reading "Crafting Interpreters" by Robert Nystorm. It has evolved into a stable production ready state and I'm happy to maintain it. All of the work here is done in my free time. 
@@ -77,5 +97,6 @@ Cheers 🍻
   
 2025 Coding with Thomas  
 https://www.codingwiththomas.com/
+
 
 
