@@ -71,9 +71,8 @@ Try it out, open a terminal in the project directory and build the examples:
 cmake -S . -B ./build
 cmake --build ./build -j12
 ```
-Now, just run it:
-```shell
-./build/bin/example examples/features/1_first_scenario.feature
+Now, just run it: `./build/bin/example examples/features/1_first_scenario.feature`
+```
 Feature: My first feature  examples/features/1_first_scenario.feature:1
 
 Scenario: First Scenario  examples/features/1_first_scenario.feature:4
