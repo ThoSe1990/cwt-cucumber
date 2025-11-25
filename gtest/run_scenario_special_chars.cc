@@ -94,7 +94,6 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_2)
           | a_word    | some < random > string | a_word        | some < random > string | 
   )*";
 
-
   cuke::parser p;
   p.parse_script(script);
   ASSERT_FALSE(p.error());
@@ -119,7 +118,6 @@ TEST_F(run_scenario_special_chars, outline_w_special_chars_3)
           | py.exe                                | C:\\Users\\some user\\python3.exe | py.exe                                    | C:\\Users\\some user\\python3.exe     | 
           | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | !@..#;;$::%,,''^&*(>><<)_+[]}{}<<??>> | 
   )*";
-
 
   cuke::parser p;
   p.parse_script(script);

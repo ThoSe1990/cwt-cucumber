@@ -9,19 +9,25 @@ class count_scenarios
   void visit(const cuke::ast::scenario_node&) { ++m_calls; }
   void visit(const cuke::ast::scenario_outline_node&) { ++m_calls; }
   void setup()
-  { 
-    ASSERT_FALSE(m_setup_called); 
-    m_setup_called = true; 
+  {
+    ASSERT_FALSE(m_setup_called);
+    m_setup_called = true;
   }
   void teardown()
-  { 
-    ASSERT_FALSE(m_teardown_called); 
-    m_teardown_called = true; 
+  {
+    ASSERT_FALSE(m_teardown_called);
+    m_teardown_called = true;
   }
 
   [[nodiscard]] std::size_t calls() const noexcept { return m_calls; }
-  [[nodiscard]] std::size_t setup_called() const noexcept { return m_setup_called; }
-  [[nodiscard]] std::size_t teardown_called() const noexcept { return m_teardown_called; }
+  [[nodiscard]] std::size_t setup_called() const noexcept
+  {
+    return m_setup_called;
+  }
+  [[nodiscard]] std::size_t teardown_called() const noexcept
+  {
+    return m_teardown_called;
+  }
 
  private:
   std::size_t m_calls{0};

@@ -11,11 +11,11 @@ class run_scenarios_rule : public ::testing::Test
   {
     cuke::registry().clear();
     cuke::registry().push_step(cuke::internal::step_definition(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { }, "a step"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "a step"));
     cuke::registry().push_step(cuke::internal::step_definition(
-        [](const cuke::value_array&, const auto&, const auto&, const auto&)
-        { }, "with {int}"));
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "with {int}"));
   }
 };
 
@@ -52,9 +52,11 @@ TEST_F(run_scenarios_rule, rule_2)
   EXPECT_FALSE(p.error());
   ASSERT_EQ(p.head().feature().scenarios().size(), 2);
 
-  auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(1).get());
+  auto scenario = static_cast<cuke::ast::scenario_node*>(
+      p.head().feature().scenarios().at(1).get());
   ASSERT_TRUE(scenario->rule().has_value());
-  EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a rule"));
+  EXPECT_EQ(scenario->rule().value().name(),
+            std::string("now here comes a rule"));
 }
 TEST_F(run_scenarios_rule, rule_error_w_tags_1)
 {
@@ -109,9 +111,11 @@ TEST_F(run_scenarios_rule, rule_example_w_tags)
   EXPECT_FALSE(p.error());
   ASSERT_EQ(p.head().feature().scenarios().size(), 2);
 
-  auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(1).get());
+  auto scenario = static_cast<cuke::ast::scenario_node*>(
+      p.head().feature().scenarios().at(1).get());
   ASSERT_TRUE(scenario->rule().has_value());
-  EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a rule"));
+  EXPECT_EQ(scenario->rule().value().name(),
+            std::string("now here comes a rule"));
   ASSERT_EQ(scenario->tags().size(), 1);
   EXPECT_EQ(scenario->tags().at(0), "@tag1");
 }
@@ -133,12 +137,16 @@ TEST_F(run_scenarios_rule, rule_w_description)
   p.parse_script(script);
   EXPECT_FALSE(p.error());
   ASSERT_EQ(p.head().feature().scenarios().size(), 2);
-  auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(1).get());
+  auto scenario = static_cast<cuke::ast::scenario_node*>(
+      p.head().feature().scenarios().at(1).get());
   ASSERT_TRUE(scenario->rule().has_value());
-  EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a rule"));
+  EXPECT_EQ(scenario->rule().value().name(),
+            std::string("now here comes a rule"));
   ASSERT_EQ(scenario->rule().value().description().size(), 2);
-  ASSERT_EQ(scenario->rule().value().description().at(0), std::string("and some"));
-  ASSERT_EQ(scenario->rule().value().description().at(1), std::string("descriptive text here"));
+  ASSERT_EQ(scenario->rule().value().description().at(0),
+            std::string("and some"));
+  ASSERT_EQ(scenario->rule().value().description().at(1),
+            std::string("descriptive text here"));
 }
 TEST_F(run_scenarios_rule, rule_with_scenario_outline)
 {
@@ -164,9 +172,11 @@ TEST_F(run_scenarios_rule, rule_with_scenario_outline)
   EXPECT_FALSE(p.error());
   ASSERT_EQ(p.head().feature().scenarios().size(), 2);
 
-  auto scenario = static_cast<cuke::ast::scenario_outline_node*>(p.head().feature().scenarios().at(1).get());
+  auto scenario = static_cast<cuke::ast::scenario_outline_node*>(
+      p.head().feature().scenarios().at(1).get());
   ASSERT_TRUE(scenario->rule().has_value());
-  EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a rule"));
+  EXPECT_EQ(scenario->rule().value().name(),
+            std::string("now here comes a rule"));
 }
 TEST_F(run_scenarios_rule, multiple_rules)
 {
@@ -203,26 +213,31 @@ TEST_F(run_scenarios_rule, multiple_rules)
   p.parse_script(script);
   EXPECT_FALSE(p.error());
   ASSERT_EQ(p.head().feature().scenarios().size(), 4);
-  
+
   {
-    auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(0).get());
+    auto scenario = static_cast<cuke::ast::scenario_node*>(
+        p.head().feature().scenarios().at(0).get());
     ASSERT_FALSE(scenario->rule().has_value());
   }
   {
-    auto scenario = static_cast<cuke::ast::scenario_outline_node*>(p.head().feature().scenarios().at(1).get());
+    auto scenario = static_cast<cuke::ast::scenario_outline_node*>(
+        p.head().feature().scenarios().at(1).get());
     ASSERT_TRUE(scenario->rule().has_value());
     EXPECT_EQ(scenario->rule().value().name(), std::string("first rule"));
   }
   {
-    auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(2).get());
+    auto scenario = static_cast<cuke::ast::scenario_node*>(
+        p.head().feature().scenarios().at(2).get());
     ASSERT_TRUE(scenario->rule().has_value());
     EXPECT_EQ(scenario->rule().value().name(), std::string("next rule"));
   }
   {
-    auto scenario = static_cast<cuke::ast::scenario_node*>(p.head().feature().scenarios().at(3).get());
+    auto scenario = static_cast<cuke::ast::scenario_node*>(
+        p.head().feature().scenarios().at(3).get());
     ASSERT_TRUE(scenario->rule().has_value());
     EXPECT_EQ(scenario->rule().value().name(), std::string("and another rule"));
   }
   // ASSERT_TRUE(scenario->rule().has_value());
-  // EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a rule"));
+  // EXPECT_EQ(scenario->rule().value().name(), std::string("now here comes a
+  // rule"));
 }

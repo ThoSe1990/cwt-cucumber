@@ -283,7 +283,7 @@ TEST(tag_evaluation, _4_tags_true_2)
 TEST(tag_evaluation, _4_tags_false)
 {
   std::vector<std::string> tags{std::string("@tag5"), std::string("@not_there"),
-                   std::string("@anything")};
+                                std::string("@anything")};
   cuke::internal::tag_expression tc("@tag1 or ((@tag2 and @tag3) or @tag4)");
   EXPECT_FALSE(tc.evaluate(tags));
 }
@@ -304,8 +304,8 @@ TEST(tag_evaluation, a_big_condition_true_1)
 TEST(tag_evaluation, a_big_condition_true_2)
 {
   std::vector<std::string> tags{std::string("@tag1"), std::string("@tag2"),
-                   std::string("@tag7"), std::string("@tag8"),
-                   std::string("@tag9")};
+                                std::string("@tag7"), std::string("@tag8"),
+                                std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 or (((@tag2 and @tag3) or (@tag4 and@tag5) or @tag7) and (@tag8 "
       "and @tag9))");
@@ -314,8 +314,8 @@ TEST(tag_evaluation, a_big_condition_true_2)
 TEST(tag_evaluation, a_big_condition_true_3)
 {
   std::vector<std::string> tags{std::string("@tag1"), std::string("@tag2"),
-                   std::string("@tag7"), std::string("@tag8"),
-                   std::string("@tag9")};
+                                std::string("@tag7"), std::string("@tag8"),
+                                std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 or (((@tag2 and @tag3) or (@tag4 and@tag5) or @tag7) and (@tag8 "
       "and @tag9))");
@@ -324,7 +324,7 @@ TEST(tag_evaluation, a_big_condition_true_3)
 TEST(tag_evaluation, a_big_condition_true_w_xor_4)
 {
   std::vector<std::string> tags{std::string("@tag4"), std::string("@tag5"),
-                   std::string("@tag8"), std::string("@tag9")};
+                                std::string("@tag8"), std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 xor (((@tag2 and @tag3) or (@tag4 and@tag5) or @tag7) and (@tag8 "
       "and @tag9))");
@@ -333,8 +333,8 @@ TEST(tag_evaluation, a_big_condition_true_w_xor_4)
 TEST(tag_evaluation, a_big_condition_false_w_xor)
 {
   std::vector<std::string> tags{std::string("@tag1"), std::string("@tag4"),
-                   std::string("@tag5"), std::string("@tag8"),
-                   std::string("@tag9")};
+                                std::string("@tag5"), std::string("@tag8"),
+                                std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 xor (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
       "and @tag9))");
@@ -343,7 +343,7 @@ TEST(tag_evaluation, a_big_condition_false_w_xor)
 TEST(tag_evaluation, a_big_condition_false_1)
 {
   std::vector<std::string> tags{std::string("@tag2"), std::string("@tag5"),
-                   std::string("@tag8"), std::string("@tag9")};
+                                std::string("@tag8"), std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 or (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
       "and @tag9))");
@@ -404,8 +404,8 @@ TEST(tag_evaluation, default_ctor_and_set_1)
 TEST(tag_evaluation, default_ctor_and_set_2)
 {
   std::vector<std::string> tags{std::string("@tag1"), std::string("@tag4"),
-                   std::string("@tag5"), std::string("@tag8"),
-                   std::string("@tag9")};
+                                std::string("@tag5"), std::string("@tag8"),
+                                std::string("@tag9")};
   cuke::internal::tag_expression tc(
       "@tag1 xor (((@tag2 and @tag3) or (@tag4 and @tag5) or @tag7) and (@tag8 "
       "and @tag9))");

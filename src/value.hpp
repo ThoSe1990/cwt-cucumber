@@ -126,4 +126,3 @@ class value
 using value_array = std::vector<value>;
 
 }  // namespace cuke
-

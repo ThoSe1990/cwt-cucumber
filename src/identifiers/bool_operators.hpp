@@ -22,12 +22,11 @@ class bool_operators : public identifier
   }
 
  private:
-   static constexpr std::array<std::pair<std::string_view, token_type>, 4>
+  static constexpr std::array<std::pair<std::string_view, token_type>, 4>
       m_identifiers{{{"and", token_type::_and},
-                        {"or", token_type::_or},
-                        {"xor", token_type::_xor},
-                        {"not", token_type::_not}}};
-
+                     {"or", token_type::_or},
+                     {"xor", token_type::_xor},
+                     {"not", token_type::_not}}};
 };
 
 }  // namespace cuke::internal

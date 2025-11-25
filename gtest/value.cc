@@ -108,4 +108,3 @@ TEST(value_array, get_arg_w_iterator)
       cuke::internal::get_param_value(v.begin() + 1, v.size() - 1, 2).as<int>();
   EXPECT_EQ(i, 3);
 }
-

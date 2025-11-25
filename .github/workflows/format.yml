@@ -1,0 +1,22 @@
+name: Check formatting
+
+on:
+  workflow_dispatch:
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install clang-format 
+        run: |
+          apt-get update
+          apt-get install -y clang-format-20
+          update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 100
+
+      - name: Check clang-format
+        run: |
+          find . -name '*.cpp' -o -name '*.hpp' -o -name '*.cc' | xargs clang-format --dry-run --Werror

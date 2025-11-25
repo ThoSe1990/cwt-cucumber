@@ -233,9 +233,8 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 }
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
-  context.skip_scenario =
-      skip_flag() ||
-      get_program_args().is_set(cuke::program_args::arg::dry_run);
+  context.skip_scenario = skip_flag() || get_program_args().is_set(
+                                             cuke::program_args::arg::dry_run);
 
   if (context.skip_scenario)
   {

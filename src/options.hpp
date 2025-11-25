@@ -152,7 +152,7 @@ class program_args
 
  private:
   std::unordered_map<arg, std::pair<bool, std::string>>
-      m_options;                            // e.g. --tags "expression"
+      m_options;                          // e.g. --tags "expression"
   std::unordered_map<arg, bool> m_flags;  // e.g. --quiet
   std::vector<feature_file> m_files;
   std::vector<std::string> m_excluded_files;
