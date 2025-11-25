@@ -1,7 +1,8 @@
 name: Check formatting
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ "**" ]
 
 jobs:
   format-check:
