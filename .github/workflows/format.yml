@@ -13,9 +13,9 @@ jobs:
 
       - name: Install clang-format 
         run: |
-          apt-get update
-          apt-get install -y clang-format-20
-          update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 100
+          sudo apt-get update
+          sudo apt-get install -y clang-format-20
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-20 100
 
       - name: Check clang-format
         run: |
