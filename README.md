@@ -1,5 +1,5 @@
 [![Build & Test](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml/badge.svg)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml)
-[![Formatting](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml/badge.svg)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml)
+[![Formatting](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml)
 [![Conan Center](https://img.shields.io/conan/v/cwt-cucumber)](https://conan.io/center/recipes/cwt-cucumber)
 
 # CWT-Cucumber: A C++20 Cucumber Interpreter
@@ -97,6 +97,7 @@ Cheers 🍻
   
 2025 Coding with Thomas  
 https://www.codingwiththomas.com/
+
 
 
 
