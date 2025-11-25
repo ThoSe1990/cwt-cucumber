@@ -13,7 +13,7 @@ void make_args(std::string_view option)
   int argc = sizeof(argv) / sizeof(argv[0]);
   [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
 }
-}
+}  // namespace
 
 class run_scenarios_dry_run : public ::testing::Test
 {
@@ -58,9 +58,9 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_long_option)
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
-  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(), 
-        [](const auto& scenario){ 
-          return scenario.status == test_status::skipped;}));
+  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(),
+                          [](const auto& scenario)
+                          { return scenario.status == test_status::skipped; }));
 }
 
 TEST_F(run_scenarios_dry_run, run_scenario_dry_short_option)
@@ -86,9 +86,9 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_short_option)
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
-  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(), 
-        [](const auto& scenario){ 
-          return scenario.status == test_status::skipped;}));
+  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(),
+                          [](const auto& scenario)
+                          { return scenario.status == test_status::skipped; }));
 }
 TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_short_option)
 {
@@ -118,9 +118,9 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_short_option)
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
-  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(), 
-        [](const auto& scenario){ 
-          return scenario.status == test_status::skipped;}));
+  EXPECT_TRUE(std::all_of(scenarios.begin(), scenarios.end(),
+                          [](const auto& scenario)
+                          { return scenario.status == test_status::skipped; }));
 }
 TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
 {
@@ -148,7 +148,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
 
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::failed);
-#else 
+#else
   using namespace cuke::results;
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::skipped);
@@ -187,7 +187,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_w_undefined_step)
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::failed);
   EXPECT_EQ(scenarios.at(1).status, test_status::failed);
-#else 
+#else
   using namespace cuke::results;
   EXPECT_EQ(final_result(), test_status::passed);
 

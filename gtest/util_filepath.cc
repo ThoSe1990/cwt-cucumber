@@ -4,7 +4,6 @@
 
 using namespace cuke::internal;
 
-
 TEST(util_filepath, absolute_path_win_wo_line)
 {
   const std::string str = "C:\\git\\cwt-cucumber\\any.feature";
@@ -82,7 +81,8 @@ TEST(util_filepath, relative_path_win_single_line_2)
 }
 TEST(util_filepath, absolute_path_win_multi_line)
 {
-  const std::string str = "C:\\git\\cwt-cucumber\\any.feature:12:123:999:123456789";
+  const std::string str =
+      "C:\\git\\cwt-cucumber\\any.feature:12:123:999:123456789";
   auto [fp, lines] = filepath_and_lines(str);
 
   EXPECT_EQ(fp, std::string("C:\\git\\cwt-cucumber\\any.feature"));
@@ -127,7 +127,8 @@ TEST(util_filepath, absolute_path_unix_single_line)
 }
 TEST(util_filepath, absolute_path_unix_multi_line)
 {
-  const std::string str = "/c/git/cwt-cucumber/any.feature:12:123:999:123456789";
+  const std::string str =
+      "/c/git/cwt-cucumber/any.feature:12:123:999:123456789";
   auto [fp, lines] = filepath_and_lines(str);
 
   EXPECT_EQ(fp, std::string("/c/git/cwt-cucumber/any.feature"));

@@ -7,7 +7,7 @@
 
 #include <string_view>
 
-namespace unittests 
+namespace unittests
 {
 
 [[nodiscard]] static constexpr std::string_view test_dir()
@@ -15,5 +15,4 @@ namespace unittests
   return std::string_view("/Users/thomas/git/cwt-cucumber/gtest");
 }
 
-
-} // namespace cuke::version
+}  // namespace unittests

@@ -27,7 +27,7 @@ class run_scenario_hooks : public ::testing::Test
         "a step"));
   }
 
-  void TearDown() override 
+  void TearDown() override
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
@@ -89,19 +89,19 @@ class run_scenario_hook_skip : public ::testing::Test
   {
     calls = 0;
 
-    cuke::registry().push_step(
-      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
-             { ++calls; }, "a step"));
+    cuke::registry().push_step(step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
+        { ++calls; }, "a step"));
 
-    cuke::registry().push_step(
-      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
-             { ++calls; }, "a step with {int}"));
+    cuke::registry().push_step(step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
+        { ++calls; }, "a step with {int}"));
 
     cuke::registry().push_hook_before(
         hook([]() { cuke::skip_scenario(); }, "@skip"));
   }
 
-  void TearDown() override 
+  void TearDown() override
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
@@ -260,20 +260,22 @@ TEST_F(run_scenario_hook_skip, run_taggeed_example)
   EXPECT_EQ(run_scenario_hook_skip::calls, 1);
 }
 
-class run_scenario_hook_fail_scenario: public ::testing::Test
+class run_scenario_hook_fail_scenario : public ::testing::Test
 {
  protected:
   void SetUp() override
   {
     calls = 0;
 
-    cuke::registry().push_step(
-      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
-             { ++calls; }, "a step"));
+    cuke::registry().push_step(step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
+        { ++calls; }, "a step"));
 
-    cuke::registry().push_hook_before(hook([]() { cuke::fail_scenario("Scenario Hook: An error occurred"); }, "@will_fail"));
+    cuke::registry().push_hook_before(
+        hook([]() { cuke::fail_scenario("Scenario Hook: An error occurred"); },
+             "@will_fail"));
   }
-  void TearDown() override 
+  void TearDown() override
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
@@ -328,20 +330,21 @@ TEST_F(run_scenario_hook_fail_scenario, set_scenario_to_failed_2)
   EXPECT_EQ(cuke::results::test_results().steps_passed(), 1);
 }
 
-class run_scenario_hook_fail_step: public ::testing::Test
+class run_scenario_hook_fail_step : public ::testing::Test
 {
  protected:
   void SetUp() override
   {
     calls = 0;
 
-    cuke::registry().push_step(
-      step_definition([](const cuke::value_array&, const auto&, const auto&, const auto&)
-             { ++calls; }, "a step"));
+    cuke::registry().push_step(step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
+        { ++calls; }, "a step"));
 
-    cuke::registry().push_hook_before_step(hook([]() { cuke::fail_step("Step Hook: An error occurred"); }));
+    cuke::registry().push_hook_before_step(
+        hook([]() { cuke::fail_step("Step Hook: An error occurred"); }));
   }
-  void TearDown() override 
+  void TearDown() override
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
