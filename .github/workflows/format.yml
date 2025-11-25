@@ -1,8 +1,7 @@
-name: lint
+name: Check formatting
 
 on:
   workflow_dispatch:
-
 
 jobs:
   format-check:
@@ -20,4 +19,4 @@ jobs:
 
       - name: Check clang-format
         run: |
-          find ./src -name '*.cpp' -o -name '*.hpp' | xargs clang-format --dry-run --Werror
+          find . -name '*.cpp' -o -name '*.hpp' -o -name '*.cc' | xargs clang-format --dry-run --Werror
