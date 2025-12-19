@@ -6,10 +6,10 @@
 #include "registry.hpp"    // NOLINT
 #include "expression.hpp"  // NOLINT
 
-#define _CONCAT_(a, b) a##b
-#define CONCAT(a, b) _CONCAT_(a, b)
+#define CWT_CONCAT_(a, b) a##b
+#define CONCAT(a, b) CWT_CONCAT_(a, b)
 
-#define _STEP(function_name, definition, type)                                \
+#define CWT_STEP(function_name, definition, type)                             \
   static void function_name(                                                  \
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
@@ -94,14 +94,16 @@
  * files later                                                                \
  */
 #define STEP(function_name, definition) \
-  _STEP(function_name, definition, cuke::internal::step_definition::type::step)
+  CWT_STEP(function_name, definition,   \
+           cuke::internal::step_definition::type::step)
 
 /**
  * @def GIVEN(function_name, definition)
  * @brief An alias to STEP(name,step) to increase readability of your code
  */
 #define GIVEN(function_name, definition) \
-  _STEP(function_name, definition, cuke::internal::step_definition::type::given)
+  CWT_STEP(function_name, definition,    \
+           cuke::internal::step_definition::type::given)
 
 /**
  * @def WHEN(function_name, definition)
@@ -109,7 +111,8 @@
  * readability of your code
  */
 #define WHEN(function_name, definition) \
-  _STEP(function_name, definition, cuke::internal::step_definition::type::when)
+  CWT_STEP(function_name, definition,   \
+           cuke::internal::step_definition::type::when)
 
 /**
  * @def THEN(function_name, definition)
@@ -117,9 +120,10 @@
  * readability of your code
  */
 #define THEN(function_name, definition) \
-  _STEP(function_name, definition, cuke::internal::step_definition::type::then)
+  CWT_STEP(function_name, definition,   \
+           cuke::internal::step_definition::type::then)
 
-#define _BEFORE(function_name, tag_expression, type)              \
+#define CWT_BEFORE(function_name, tag_expression, type)           \
   void function_name();                                           \
   namespace                                                       \
   {                                                               \
@@ -142,7 +146,7 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define BEFORE(function_name) _BEFORE(function_name, "", BEFORE)
+#define BEFORE(function_name) CWT_BEFORE(function_name, "", BEFORE)
 /**
  * @def BEFORE_T(function_name, tag_expression)
  * @brief Creates a hook with a tag expression, which can run before a tagged
@@ -157,9 +161,9 @@
  * @tag2"``
  */
 #define BEFORE_T(function_name, tag_expression) \
-  _BEFORE(function_name, tag_expression, BEFORE_T)
+  CWT_BEFORE(function_name, tag_expression, BEFORE_T)
 
-#define _AFTER(function_name, tag_expression, type)               \
+#define CWT_AFTER(function_name, tag_expression, type)            \
   void function_name();                                           \
   namespace                                                       \
   {                                                               \
@@ -182,7 +186,7 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define AFTER(function_name) _AFTER(function_name, "", AFTER)
+#define AFTER(function_name) CWT_AFTER(function_name, "", AFTER)
 /**
  * @def AFTER_T(function_name, tag_expression)
  * @brief Creates a hook with a tag expression, which can run after a tagged
@@ -197,9 +201,9 @@
  * @tag2"``
  */
 #define AFTER_T(function_name, tag_expression) \
-  _AFTER(function_name, tag_expression, AFTER_T)
+  CWT_AFTER(function_name, tag_expression, AFTER_T)
 
-#define _BEFORE_STEP(function_name)                                    \
+#define CWT_BEFORE_STEP(function_name)                                 \
   void function_name();                                                \
   namespace                                                            \
   {                                                                    \
@@ -222,9 +226,9 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define BEFORE_STEP(function_name) _BEFORE_STEP(function_name)
+#define BEFORE_STEP(function_name) CWT_BEFORE_STEP(function_name)
 
-#define _AFTER_STEP(function_name)                                    \
+#define CWT_AFTER_STEP(function_name)                                 \
   void function_name();                                               \
   namespace                                                           \
   {                                                                   \
@@ -247,9 +251,9 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define AFTER_STEP(function_name) _AFTER_STEP(function_name)
+#define AFTER_STEP(function_name) CWT_AFTER_STEP(function_name)
 
-#define _BEFORE_ALL(function_name)                                    \
+#define CWT_BEFORE_ALL(function_name)                                 \
   void function_name();                                               \
   namespace                                                           \
   {                                                                   \
@@ -272,9 +276,9 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define BEFORE_ALL(function_name) _BEFORE_ALL(function_name)
+#define BEFORE_ALL(function_name) CWT_BEFORE_ALL(function_name)
 
-#define _AFTER_ALL(function_name)                                    \
+#define CWT_AFTER_ALL(function_name)                                 \
   void function_name();                                              \
   namespace                                                          \
   {                                                                  \
@@ -297,4 +301,4 @@
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
-#define AFTER_ALL(function_name) _AFTER_ALL(function_name)
+#define AFTER_ALL(function_name) CWT_AFTER_ALL(function_name)
