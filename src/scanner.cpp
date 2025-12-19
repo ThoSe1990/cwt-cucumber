@@ -30,7 +30,9 @@ void scanner::find_language()
     switch (c)
     {
       case ' ':
+        [[fallthrough]];
       case '\r':
+        [[fallthrough]];
       case '\t':
         advance();
         break;
@@ -171,6 +173,7 @@ void scanner::skip_whitespaces()
     switch (c)
     {
       case ' ':
+        [[fallthrough]];
       case '\t':
         advance();
         break;
@@ -187,6 +190,7 @@ void scanner::skip()
     switch (c)
     {
       case ' ':
+        [[fallthrough]];
       case '\t':
         advance();
         break;
@@ -195,6 +199,7 @@ void scanner::skip()
         {
           advance();
         }
+        [[fallthrough]];
       default:
         return;
     }
