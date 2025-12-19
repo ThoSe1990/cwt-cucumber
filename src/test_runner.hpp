@@ -30,7 +30,7 @@ class test_runner
   void run_scenario(const ast::scenario_node& scenario) const;
 
  private:
-  const internal::tag_expression m_tag_expression;
+  internal::tag_expression m_tag_expression;
 };
 
 }  // namespace cuke
