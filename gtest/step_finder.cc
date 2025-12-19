@@ -178,7 +178,7 @@ TEST(step_finder, value_float)
   auto [pattern, types] = create_regex_definition("{float} a step");
   step_finder sf("1.1 a step");
   EXPECT_TRUE(sf.step_matches(pattern));
-  EXPECT_EQ(sf.values().at(0).as<float>(), 1.1f);
+  EXPECT_EQ(sf.values().at(0).as<float>(), 1.1F);
 }
 TEST(step_finder, value_string)
 {
@@ -195,7 +195,7 @@ TEST(step_finder, multiple_values)
   EXPECT_TRUE(sf.step_matches(pattern));
   EXPECT_EQ(sf.values().at(0).as<int>(), 1);
   EXPECT_EQ(sf.values().at(1).as<double>(), 2.2);
-  EXPECT_EQ(sf.values().at(2).as<float>(), 3.3f);
+  EXPECT_EQ(sf.values().at(2).as<float>(), 3.3F);
   EXPECT_EQ(sf.values().at(3).as<char>(), 4);
   EXPECT_EQ(sf.values().at(4).as<std::string>(), std::string("five"));
   EXPECT_EQ(sf.values().at(5).as<short>(), 6);
