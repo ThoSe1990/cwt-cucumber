@@ -35,23 +35,23 @@
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
-#define CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \
-  static ::cuke::internal::any function_name(                              \
-      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
-      [[maybe_unused]] std::size_t __cuke__values__count__);               \
-  namespace                                                                \
-  {                                                                        \
-  struct CONCAT(function_name, _t)                                         \
-  {                                                                        \
-    CONCAT(function_name, _t)()                                            \
-    {                                                                      \
-      ::cuke::registry().push_expression(                                  \
-          key, ::cuke::expression{pattern, description, function_name});   \
-    }                                                                      \
-  } CONCAT(g_, function_name);                                             \
-  }                                                                        \
-  static ::cuke::internal::any function_name(                              \
-      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
+#define CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description) \
+  static ::cuke::internal::any function_name(                               \
+      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__,  \
+      [[maybe_unused]] std::size_t __cuke__values__count__);                \
+  namespace                                                                 \
+  {                                                                         \
+  struct CONCAT(function_name, _t)                                          \
+  {                                                                         \
+    CONCAT(function_name, _t)()                                             \
+    {                                                                       \
+      ::cuke::registry().push_expression(                                   \
+          key, ::cuke::expression{pattern, description, function_name});    \
+    }                                                                       \
+  } CONCAT(g_, function_name);                                              \
+  }                                                                         \
+  static ::cuke::internal::any function_name(                               \
+      [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__,  \
       [[maybe_unused]] std::size_t __cuke__values__count__)
 
 /**
