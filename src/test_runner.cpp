@@ -16,6 +16,22 @@ namespace cuke
 namespace
 {
 
+struct step_pipeline_context
+{
+  const ast::step_node& step;
+  results::step& result;
+  const bool scenario_already_skpped;
+};
+
+struct scenario_pipeline_context
+{
+  const ast::scenario_node& scenario;
+  const internal::tag_expression& tag_expression;
+  bool skip_scenario = false;
+  bool ignore = false;
+  results::scenario& result;
+};
+
 [[nodiscard]] bool tags_valid(const scenario_pipeline_context& context)
 {
   if (context.tag_expression.empty())

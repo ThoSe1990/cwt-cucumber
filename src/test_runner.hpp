@@ -4,27 +4,10 @@
 
 #include "ast.hpp"
 #include "tags.hpp"
-#include "test_results.hpp"
 #include "options.hpp"
 
 namespace cuke
 {
-struct step_pipeline_context
-{
-  const ast::step_node& step;
-  results::step& result;
-  const bool scenario_already_skpped;
-};
-
-struct scenario_pipeline_context
-{
-  const ast::scenario_node& scenario;
-  const internal::tag_expression& tag_expression;
-  bool skip_scenario = false;
-  bool ignore = false;
-  results::scenario& result;
-};
-
 class test_runner
 {
  public:
