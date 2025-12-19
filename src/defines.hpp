@@ -35,7 +35,7 @@
       [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
-#define _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \
+#define CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \
   static ::cuke::internal::any function_name(                              \
       [[maybe_unused]] cuke::value_array::const_iterator __cuke__values__, \
       [[maybe_unused]] std::size_t __cuke__values__count__);               \
@@ -68,7 +68,7 @@
  * is in the steps-catalog.
  */
 #define CUSTOM_PARAMETER(function_name, key, pattern, description) \
-  _CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
+  CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)
 
 /**
  * @def CUKE_PARAM_ARG(index)
