@@ -266,7 +266,6 @@ parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags,
                 const ast::background_node* background,
                 const std::string& feature_id)
 {
-  std::string id_prefix = feature_id;
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
   std::optional<cuke::ast::rule_node> current_rule = std::nullopt;
 
@@ -274,9 +273,10 @@ parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags,
   {
     current_rule = parse_rule(lex);
 
-    id_prefix = current_rule.has_value()
-                    ? std::format("{};{}", feature_id, current_rule->name())
-                    : feature_id;
+    const std::string id_prefix =
+        current_rule.has_value()
+            ? std::format("{};{}", feature_id, current_rule->name())
+            : feature_id;
 
     auto tags = parse_tags(lex);
     for (const auto& t : feature_tags)

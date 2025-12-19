@@ -55,7 +55,6 @@ namespace cuke::internal
                                                      std::vector<param_info>>
 create_regex_definition(const std::string& step)
 {
-  std::string test = step;
   std::string result = '^' + create_word_alternation(step);
   std::regex pattern(cuke::registry().create_expression_key_regex_pattern());
   std::smatch match;
