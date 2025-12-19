@@ -337,7 +337,7 @@ parse_background(lexer& lex)
   if (!lex.check(cuke::internal::token_type::feature))
   {
     lex.error_at(lex.current(), "Expect FeatureLine");
-    return cuke::ast::feature_node();
+    return cuke::ast::feature_node{};
   }
   const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex, true);
