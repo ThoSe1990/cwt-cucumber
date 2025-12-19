@@ -92,7 +92,7 @@ class logger
  private:
   logger()
   {
-    bool is_tty = isatty(fileno(stdout));
+    bool is_tty = static_cast<bool>(isatty(fileno(stdout)));
     const char* no_color_env = std::getenv("NO_COLOR");
     m_use_color = is_tty && (no_color_env == nullptr);
   }
