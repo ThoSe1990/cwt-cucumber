@@ -10,7 +10,7 @@ lexer::lexer(std::string_view source, std::string_view filepath)
     : m_scanner(source), m_filepath(filepath)
 {
 }
-lexer::lexer(std::string_view source, bool_operators)
+lexer::lexer(std::string_view source, const bool_operators&)
     : m_scanner(source, bool_operators{})
 {
 }

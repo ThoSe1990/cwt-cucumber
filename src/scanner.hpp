@@ -15,7 +15,7 @@ class scanner
 {
  public:
   scanner(std::string_view source);
-  scanner(std::string_view source, bool_operators);
+  scanner(std::string_view source, const bool_operators&);
   [[nodiscard]] token scan_token();
   [[nodiscard]] token scan_word(std::size_t length);
   [[nodiscard]] token scan_token_until(const token& end);

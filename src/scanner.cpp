@@ -17,7 +17,7 @@ scanner::scanner(std::string_view source) : m_source(source)
 {
   find_language();
 }
-scanner::scanner(std::string_view source, bool_operators)
+scanner::scanner(std::string_view source, const bool_operators&)
     : m_source(source), m_identifiers(std::make_shared<bool_operators>())
 {
 }
