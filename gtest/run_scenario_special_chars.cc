@@ -29,7 +29,7 @@ class run_scenario_special_chars : public ::testing::Test
           EXPECT_EQ(run_scenario_special_chars::given_anonymous,
                     values[1].as<std::string>());
         },
-        "They will match \"{word}\" and \"{}\""));
+        R"(They will match "{word}" and "{}")"));
   }
 
   void TearDown() override
