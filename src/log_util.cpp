@@ -66,12 +66,12 @@ void info(const cuke::ast::scenario_outline_node& scenario_outline,
 
 void info(const std::vector<std::string>& doc_string)
 {
-  info("\"\"\"", new_line);
+  info(R"(""")", new_line);
   for (const std::string& line : doc_string)
   {
     info(line, new_line);
   }
-  info("\"\"\"", new_line);
+  info(R"(""")", new_line);
 }
 void info(const cuke::table& t)
 {

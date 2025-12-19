@@ -182,7 +182,7 @@ template <typename Func, typename... Args>
 static std::string_view rtrim(std::string_view str)
 {
   std::size_t end = str.size();
-  while (end > 0 && std::isspace(static_cast<unsigned char>(str[end - 1])))
+  while (end > 0 && std::isspace(static_cast<unsigned char>(str[end - 1])) > 0)
   {
     --end;
   }

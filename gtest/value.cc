@@ -63,7 +63,7 @@ TEST(value, std_size_t)
 TEST(value, float_value)
 {
   cuke::value v{"1.1"};
-  EXPECT_EQ(v.as<float>(), 1.1f);
+  EXPECT_EQ(v.as<float>(), 1.1F);
   EXPECT_EQ(v.as<double>(), 1.1);
 }
 TEST(value, string_value)
@@ -74,7 +74,7 @@ TEST(value, string_value)
 TEST(value, string_value_implicit)
 {
   cuke::value v{std::string{"hello value"}};
-  std::string str = v;
+  std::string str = v;  // NOLINT
   EXPECT_EQ(str, "hello value");
 }
 TEST(value, string_view_value)

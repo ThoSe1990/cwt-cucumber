@@ -20,11 +20,8 @@ class count_scenarios
   }
 
   [[nodiscard]] std::size_t calls() const noexcept { return m_calls; }
-  [[nodiscard]] std::size_t setup_called() const noexcept
-  {
-    return m_setup_called;
-  }
-  [[nodiscard]] std::size_t teardown_called() const noexcept
+  [[nodiscard]] bool setup_called() const noexcept { return m_setup_called; }
+  [[nodiscard]] bool teardown_called() const noexcept
   {
     return m_teardown_called;
   }

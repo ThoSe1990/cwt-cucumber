@@ -6,10 +6,10 @@ using namespace cuke::internal;
 
 TEST(util_filepath, absolute_path_win_wo_line)
 {
-  const std::string str = "C:\\git\\cwt-cucumber\\any.feature";
+  const std::string str = R"(C:\git\cwt-cucumber\any.feature)";
   auto [fp, lines] = filepath_and_lines(str);
 
-  EXPECT_EQ(fp, std::string("C:\\git\\cwt-cucumber\\any.feature"));
+  EXPECT_EQ(fp, std::string(R"(C:\git\cwt-cucumber\any.feature)"));
   EXPECT_EQ(lines.size(), 0);
 }
 TEST(util_filepath, relative_path_win_wo_line_1)
@@ -54,10 +54,10 @@ TEST(util_filepath, absolute_path_unix_wo_line)
 }
 TEST(util_filepath, absolute_path_win_single_line)
 {
-  const std::string str = "C:\\git\\cwt-cucumber\\any.feature:12";
+  const std::string str = R"(C:\git\cwt-cucumber\any.feature:12)";
   auto [fp, lines] = filepath_and_lines(str);
 
-  EXPECT_EQ(fp, std::string("C:\\git\\cwt-cucumber\\any.feature"));
+  EXPECT_EQ(fp, std::string(R"(C:\git\cwt-cucumber\any.feature)"));
   EXPECT_EQ(lines.size(), 1);
   EXPECT_EQ(lines[0], 12);
 }
@@ -82,10 +82,10 @@ TEST(util_filepath, relative_path_win_single_line_2)
 TEST(util_filepath, absolute_path_win_multi_line)
 {
   const std::string str =
-      "C:\\git\\cwt-cucumber\\any.feature:12:123:999:123456789";
+      R"(C:\git\cwt-cucumber\any.feature:12:123:999:123456789)";
   auto [fp, lines] = filepath_and_lines(str);
 
-  EXPECT_EQ(fp, std::string("C:\\git\\cwt-cucumber\\any.feature"));
+  EXPECT_EQ(fp, std::string(R"(C:\git\cwt-cucumber\any.feature)"));
   EXPECT_EQ(lines.size(), 4);
   EXPECT_EQ(lines[3], 12);
   EXPECT_EQ(lines[2], 123);

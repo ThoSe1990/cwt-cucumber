@@ -151,7 +151,7 @@ TEST(step_finder, step_with_variables_2)
 
   auto [pattern, types] =
       create_regex_definition("A Step with a {string} {string} and {int}");
-  step_finder sf("A Step with a \"<value>\" \"<value>\" and <integer>",
+  step_finder sf(R"(A Step with a "<value>" "<value>" and <integer>)",
                  t.hash_row(1));
   ASSERT_TRUE(sf.step_matches(pattern));
   ASSERT_EQ(sf.values().size(), 3);
@@ -178,7 +178,7 @@ TEST(step_finder, value_float)
   auto [pattern, types] = create_regex_definition("{float} a step");
   step_finder sf("1.1 a step");
   EXPECT_TRUE(sf.step_matches(pattern));
-  EXPECT_EQ(sf.values().at(0).as<float>(), 1.1f);
+  EXPECT_EQ(sf.values().at(0).as<float>(), 1.1F);
 }
 TEST(step_finder, value_string)
 {
@@ -195,7 +195,7 @@ TEST(step_finder, multiple_values)
   EXPECT_TRUE(sf.step_matches(pattern));
   EXPECT_EQ(sf.values().at(0).as<int>(), 1);
   EXPECT_EQ(sf.values().at(1).as<double>(), 2.2);
-  EXPECT_EQ(sf.values().at(2).as<float>(), 3.3f);
+  EXPECT_EQ(sf.values().at(2).as<float>(), 3.3F);
   EXPECT_EQ(sf.values().at(3).as<char>(), 4);
   EXPECT_EQ(sf.values().at(4).as<std::string>(), std::string("five"));
   EXPECT_EQ(sf.values().at(5).as<short>(), 6);
@@ -428,7 +428,7 @@ TEST(step_finder, multiple_strings_1)
   auto [pattern, types] =
       create_regex_definition("the program {string} is started");
   step_finder sf(
-      "the program \"echo\" with parameters \"should be shown\" is started");
+      R"(the program "echo" with parameters "should be shown" is started)");
   ASSERT_FALSE(sf.step_matches(pattern));
 }
 TEST(step_finder, multiple_strings_2)
@@ -436,7 +436,7 @@ TEST(step_finder, multiple_strings_2)
   auto [pattern, types] = create_regex_definition(
       "the program {string} with parameters {string} is started");
   step_finder sf(
-      "the program \"echo\" with parameters \"should be shown\" is started");
+      R"(the program "echo" with parameters "should be shown" is started)");
   ASSERT_TRUE(sf.step_matches(pattern));
   ASSERT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values().at(0).to_string(), std::string("echo"));

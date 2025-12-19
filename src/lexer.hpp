@@ -13,7 +13,7 @@ class lexer
  public:
   lexer(std::string_view source);
   lexer(std::string_view source, std::string_view filepath);
-  lexer(std::string_view source, bool_operators);
+  lexer(std::string_view source, const bool_operators&);
 
   [[nodiscard]] const std::string& filepath() const noexcept;
   [[nodiscard]] const token& current() const noexcept;
