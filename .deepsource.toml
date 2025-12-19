@@ -1,0 +1,7 @@
+version = 1
+
+[[analyzers]]
+name = "cxx"
+
+[[code_formatters]]
+name = "clang-format"
