@@ -1,5 +1,11 @@
 version = 1
 
+test_patterns = [
+    "examples/**",
+    "stress-tests/**",
+    "gtest/**",
+]
+
 [[analyzers]]
 name = "cxx"
 
