@@ -133,7 +133,7 @@ class step_node : public node
   }
   void call() const noexcept
   {
-    if (m_step_definition)
+    if (m_step_definition != nullptr)
     {
       m_step_definition->call(m_values, m_doc_string, m_table);
     }
@@ -141,7 +141,7 @@ class step_node : public node
 
   std::string source_location_definition() const noexcept
   {
-    if (m_step_definition) [[likely]]
+    if (m_step_definition != nullptr) [[likely]]
     {
       return m_step_definition->source_location();
     }
