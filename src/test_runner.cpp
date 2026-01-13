@@ -313,7 +313,7 @@ constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pi
 
 void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
-void test_runner::run() const
+void test_runner::run()
 {
   for (const auto& feature : get_program_args().get_feature_files())
   {
@@ -337,18 +337,17 @@ void test_runner::run() const
   }
 }
 
-void test_runner::visit(const cuke::ast::feature_node& feature) const
+void test_runner::visit(const ast::feature_node& feature)
 {
   results::new_feature(feature);
   log::info(feature);
 }
 
-void test_runner::visit(const cuke::ast::scenario_node& scenario) const
+void test_runner::visit(const ast::scenario_node& scenario)
 {
   run_scenario(scenario);
 }
-void test_runner::visit(
-    const cuke::ast::scenario_outline_node& scenario_outline) const
+void test_runner::visit(const ast::scenario_outline_node& scenario_outline)
 {
   for (const auto& scenario : scenario_outline.concrete_scenarios())
   {

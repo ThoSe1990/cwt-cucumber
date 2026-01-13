@@ -26,6 +26,20 @@ enum class node_type
   example
 };
 
+class feature_node;
+class scenario_node;
+class scenario_outline_node;
+
+class node_visitor
+{
+ public:
+  virtual ~node_visitor() = default;
+
+  virtual void visit(const feature_node&) = 0;
+  virtual void visit(const scenario_node&) = 0;
+  virtual void visit(const scenario_outline_node&) = 0;
+};
+
 class node
 {
  public:
@@ -45,6 +59,7 @@ class node
 
   virtual ~node() = default;
   virtual node_type type() const noexcept = 0;
+  virtual void accept(node_visitor& visitor) const {}
 
   [[nodiscard]] const std::string& name() const { return m_name; }
   [[nodiscard]] const std::string& keyword() const { return m_keyword; }
@@ -218,6 +233,8 @@ class scenario_node : public node
   scenario_node(const scenario_outline_node& scenario_outline,
                 const example_node& examples, std::size_t row,
                 const background_node* background, const std::string& id);
+
+  void accept(node_visitor& visitor) const override { visitor.visit(*this); }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::scenario;
@@ -313,9 +330,17 @@ class scenario_outline_node : public node
         m_rule(rule)
   {
   }
-  const std::vector<step_node>& steps() const noexcept { return m_steps; }
-  const std::vector<std::string>& tags() const noexcept { return m_tags; }
-  const std::vector<std::string>& description() const noexcept
+
+  void accept(node_visitor& visitor) const override { visitor.visit(*this); }
+  [[nodiscard]] const std::vector<step_node>& steps() const noexcept
+  {
+    return m_steps;
+  }
+  [[nodiscard]] const std::vector<std::string>& tags() const noexcept
+  {
+    return m_tags;
+  }
+  [[nodiscard]] const std::vector<std::string>& description() const noexcept
   {
     return m_description;
   }
@@ -382,6 +407,7 @@ class feature_node : public node
         m_id(this->name())
   {
   }
+  void accept(node_visitor& visitor) const override { visitor.visit(*this); }
   [[nodiscard]] node_type type() const noexcept override
   {
     return node_type::feature;

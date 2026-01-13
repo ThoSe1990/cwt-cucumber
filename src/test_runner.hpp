@@ -8,7 +8,7 @@
 
 namespace cuke
 {
-class test_runner
+class test_runner : public ast::node_visitor
 {
  public:
   test_runner()
@@ -20,11 +20,11 @@ class test_runner
   }
   void setup() const;
   void teardown() const;
-  void run() const;
+  void run();
 
-  void visit(const cuke::ast::feature_node& feature) const;
-  void visit(const cuke::ast::scenario_node& scenario) const;
-  void visit(const cuke::ast::scenario_outline_node& scenario_outline) const;
+  void visit(const ast::feature_node& feature) override;
+  void visit(const ast::scenario_node& scenario) override;
+  void visit(const ast::scenario_outline_node& scenario_outline) override;
 
  private:
   void run_scenario(const ast::scenario_node& scenario) const;
