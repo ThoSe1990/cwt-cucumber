@@ -411,11 +411,6 @@ class parser
     return nullptr;
   }
 
-  auto make_scenario_view() const
-  {
-    return m_head.feature().scenarios() | std::ranges::views::all;
-  }
-
   void for_each_scenario(ast::node_visitor& visitor) const
   {
     visitor.visit(m_head.feature());
