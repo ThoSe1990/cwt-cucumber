@@ -6,6 +6,7 @@
 #include <string_view>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -59,7 +60,7 @@ void fail_step(const std::string_view msg = "");
 struct feature_file
 {
   std::string path;
-  std::vector<std::size_t> lines_to_run;
+  std::unordered_set<std::size_t> lines_to_run;
 };
 
 }  // namespace cuke

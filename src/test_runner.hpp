@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <unordered_set>
 
 #include "ast.hpp"
 #include "tags.hpp"
@@ -8,6 +9,14 @@
 
 namespace cuke
 {
+
+class filter
+{
+ public:
+  virtual ~filter() = default;
+  virtual bool matches(const ast::scenario_node& scenario) const = 0;
+};
+
 class test_runner : public ast::node_visitor
 {
  public:
@@ -31,6 +40,7 @@ class test_runner : public ast::node_visitor
 
  private:
   internal::tag_expression m_tag_expression;
+  std::vector<std::unique_ptr<filter>> m_filters;
 };
 
 }  // namespace cuke

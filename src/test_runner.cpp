@@ -1,5 +1,6 @@
 #include "test_runner.hpp"
 
+#include <memory>
 #include <string>
 #include <algorithm>
 
@@ -15,6 +16,22 @@ namespace cuke
 {
 namespace
 {
+
+class line_filter : public filter
+{
+ public:
+  line_filter(std::unordered_set<std::size_t> lines) : m_lines(std::move(lines))
+  {
+  }
+
+  bool matches(const ast::scenario_node& scenario) const override
+  {
+    return m_lines.contains(scenario.line());
+  }
+
+ private:
+  std::unordered_set<std::size_t> m_lines;
+};
 
 struct step_pipeline_context
 {
@@ -319,21 +336,11 @@ void test_runner::run()
   {
     parser p;
     p.parse_from_file(feature.path);
-    if (feature.lines_to_run.empty())
+    if (!feature.lines_to_run.empty())
     {
-      p.for_each_scenario(*this);
+      m_filters.push_back(std::make_unique<line_filter>(feature.lines_to_run));
     }
-    else
-    {
-      visit(p.head().feature());
-      for (const std::size_t line : feature.lines_to_run)
-      {
-        if (const ast::scenario_node* scenario = p.get_scenario_from_line(line))
-        {
-          run_scenario(*scenario);
-        }
-      }
-    }
+    p.for_each_scenario(*this);
   }
 }
 
@@ -357,6 +364,17 @@ void test_runner::visit(const ast::scenario_outline_node& scenario_outline)
 
 void test_runner::run_scenario(const ast::scenario_node& scenario) const
 {
+  if (!m_filters.empty())
+  {
+    for (const auto& filter : m_filters)
+    {
+      if (!filter->matches(scenario))
+      {
+        return;
+      }
+    }
+  }
+
   scenario_pipeline_context context{.scenario = scenario,
                                     .tag_expression = m_tag_expression,
                                     .result = results::new_scenario(scenario)};
