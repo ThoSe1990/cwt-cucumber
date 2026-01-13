@@ -328,6 +328,13 @@ constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pi
 
 }  // namespace
 
+test_runner::test_runner()
+    : m_tag_expression(
+          get_program_args().is_set(program_args::arg::tags)
+              ? get_program_args().get_value(program_args::arg::tags)
+              : "")
+{
+}
 void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run()

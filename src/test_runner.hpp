@@ -20,13 +20,7 @@ class filter
 class test_runner : public ast::node_visitor
 {
  public:
-  test_runner()
-      : m_tag_expression(
-            get_program_args().is_set(program_args::arg::tags)
-                ? get_program_args().get_value(program_args::arg::tags)
-                : "")
-  {
-  }
+  test_runner();
   void setup() const;
   void teardown() const;
   void run();
