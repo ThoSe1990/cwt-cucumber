@@ -17,22 +17,6 @@ namespace cuke
 namespace
 {
 
-class line_filter : public filter
-{
- public:
-  line_filter(std::unordered_set<std::size_t> lines) : m_lines(std::move(lines))
-  {
-  }
-
-  bool matches(const ast::scenario_node& scenario) const override
-  {
-    return m_lines.contains(scenario.line());
-  }
-
- private:
-  std::unordered_set<std::size_t> m_lines;
-};
-
 struct step_pipeline_context
 {
   const ast::step_node& step;
@@ -345,9 +329,10 @@ void test_runner::run()
     p.parse_from_file(feature.path);
     if (!feature.lines_to_run.empty())
     {
-      m_filters.push_back(std::make_unique<line_filter>(feature.lines_to_run));
+      m_line_filter.emplace(feature.lines_to_run);
     }
     p.for_each_scenario(*this);
+    m_line_filter.reset();
   }
 }
 
@@ -369,17 +354,21 @@ void test_runner::visit(const ast::scenario_outline_node& scenario_outline)
   }
 }
 
+bool test_runner::passes_filters(const ast::scenario_node& scenario) const
+{
+  if (m_line_filter && !m_line_filter->matches(scenario))
+  {
+    return false;
+  }
+
+  return true;
+}
+
 void test_runner::run_scenario(const ast::scenario_node& scenario) const
 {
-  if (!m_filters.empty())
+  if (!passes_filters(scenario))
   {
-    for (const auto& filter : m_filters)
-    {
-      if (!filter->matches(scenario))
-      {
-        return;
-      }
-    }
+    return;
   }
 
   scenario_pipeline_context context{.scenario = scenario,

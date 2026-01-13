@@ -1,9 +1,9 @@
-
 #include <gtest/gtest.h>
 #include <algorithm>
 
 #include "../src/test_runner.hpp"
 #include "../src/test_results.hpp"
+#include "../src/options.hpp"
 
 #include "test_paths.hpp"
 

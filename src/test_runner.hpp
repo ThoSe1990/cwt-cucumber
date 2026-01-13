@@ -1,20 +1,32 @@
 #pragma once
 
 #include <cstddef>
-#include <unordered_set>
 
 #include "ast.hpp"
 #include "tags.hpp"
-#include "options.hpp"
 
 namespace cuke
 {
 
-class filter
+class line_filter
 {
  public:
-  virtual ~filter() = default;
-  virtual bool matches(const ast::scenario_node& scenario) const = 0;
+  line_filter(std::unordered_set<std::size_t> lines) : m_lines(std::move(lines))
+  {
+  }
+
+  bool matches(const ast::scenario_node& scenario) const
+  {
+    return m_lines.contains(scenario.line());
+  }
+
+ private:
+  std::unordered_set<std::size_t> m_lines;
+};
+
+class name_filter
+{
+  bool matches(const ast::scenario_node& scenario) const { return true; }
 };
 
 class test_runner : public ast::node_visitor
@@ -31,10 +43,12 @@ class test_runner : public ast::node_visitor
 
  private:
   void run_scenario(const ast::scenario_node& scenario) const;
+  bool passes_filters(const ast::scenario_node& scenario) const;
 
  private:
   internal::tag_expression m_tag_expression;
-  std::vector<std::unique_ptr<filter>> m_filters;
+  std::optional<line_filter> m_line_filter;
+  std::optional<name_filter> m_name_filter;
 };
 
 }  // namespace cuke
