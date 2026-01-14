@@ -359,15 +359,6 @@ parse_background(lexer& lex)
 namespace cuke
 {
 
-template <typename T>
-concept CukeVisitor = requires(
-    T t, const ast::feature_node& feature, const ast::scenario_node& scenario,
-    const ast::scenario_outline_node& scenario_outline) {
-  t.visit(feature);
-  t.visit(scenario);
-  t.visit(scenario_outline);
-};
-
 class parser
 {
  public:
@@ -420,20 +411,12 @@ class parser
     return nullptr;
   }
 
-  template <CukeVisitor Visitor>
-  void for_each_scenario(Visitor& visitor)
+  void for_each_scenario(ast::node_visitor& visitor) const
   {
     visitor.visit(m_head.feature());
     for (const auto& n : m_head.feature().scenarios())
     {
-      if (n->type() == ast::node_type::scenario)
-      {
-        visitor.visit(static_cast<ast::scenario_node&>(*n));
-      }
-      else if (n->type() == ast::node_type::scenario_outline)
-      {
-        visitor.visit(static_cast<ast::scenario_outline_node&>(*n));
-      }
+      n->accept(visitor);
     }
   }
 

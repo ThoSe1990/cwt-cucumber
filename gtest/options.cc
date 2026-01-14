@@ -79,7 +79,7 @@ TEST(options, file_path_does_exist_w_line)
   EXPECT_EQ(prog_args.get_feature_files().at(0).path,
             details::remove_trailing_char(argv[1], 2));
   ASSERT_FALSE(prog_args.get_feature_files().at(0).lines_to_run.empty());
-  EXPECT_EQ(prog_args.get_feature_files().at(0).lines_to_run.at(0), 3);
+  EXPECT_TRUE(prog_args.get_feature_files().at(0).lines_to_run.contains(3));
 }
 TEST(options, file_path_does_exist_w_lines)
 {
@@ -93,9 +93,9 @@ TEST(options, file_path_does_exist_w_lines)
   EXPECT_EQ(prog_args.get_feature_files().at(0).path,
             details::remove_trailing_char(argv[1], 11));
   ASSERT_EQ(prog_args.get_feature_files().at(0).lines_to_run.size(), 3);
-  EXPECT_EQ(prog_args.get_feature_files().at(0).lines_to_run.at(2), 3);
-  EXPECT_EQ(prog_args.get_feature_files().at(0).lines_to_run.at(1), 123);
-  EXPECT_EQ(prog_args.get_feature_files().at(0).lines_to_run.at(0), 9999);
+  EXPECT_TRUE(prog_args.get_feature_files().at(0).lines_to_run.contains(3));
+  EXPECT_TRUE(prog_args.get_feature_files().at(0).lines_to_run.contains(123));
+  EXPECT_TRUE(prog_args.get_feature_files().at(0).lines_to_run.contains(9999));
 }
 TEST(options, tag_expression_1)
 {

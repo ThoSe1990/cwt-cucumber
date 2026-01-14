@@ -1,13 +1,14 @@
 #include <gtest/gtest.h>
 
+#include "../src/ast.hpp"
 #include "../src/parser.hpp"
 
-class count_scenarios
+class count_scenarios : public cuke::ast::node_visitor
 {
  public:
-  void visit(const cuke::ast::feature_node&) {}
-  void visit(const cuke::ast::scenario_node&) { ++m_calls; }
-  void visit(const cuke::ast::scenario_outline_node&) { ++m_calls; }
+  void visit(const cuke::ast::feature_node&) override {}
+  void visit(const cuke::ast::scenario_node&) override { ++m_calls; }
+  void visit(const cuke::ast::scenario_outline_node&) override { ++m_calls; }
   void setup()
   {
     ASSERT_FALSE(m_setup_called);

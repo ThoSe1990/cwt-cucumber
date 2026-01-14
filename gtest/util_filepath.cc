@@ -59,7 +59,7 @@ TEST(util_filepath, absolute_path_win_single_line)
 
   EXPECT_EQ(fp, std::string(R"(C:\git\cwt-cucumber\any.feature)"));
   EXPECT_EQ(lines.size(), 1);
-  EXPECT_EQ(lines[0], 12);
+  EXPECT_TRUE(lines.contains(12));
 }
 TEST(util_filepath, relative_path_win_single_line_1)
 {
@@ -68,7 +68,7 @@ TEST(util_filepath, relative_path_win_single_line_1)
 
   EXPECT_EQ(fp, std::string("some_dir\\any.feature"));
   EXPECT_EQ(lines.size(), 1);
-  EXPECT_EQ(lines[0], 12);
+  EXPECT_TRUE(lines.contains(12));
 }
 TEST(util_filepath, relative_path_win_single_line_2)
 {
@@ -77,7 +77,7 @@ TEST(util_filepath, relative_path_win_single_line_2)
 
   EXPECT_EQ(fp, std::string(".\\some_dir\\any.feature"));
   EXPECT_EQ(lines.size(), 1);
-  EXPECT_EQ(lines[0], 12);
+  EXPECT_TRUE(lines.contains(12));
 }
 TEST(util_filepath, absolute_path_win_multi_line)
 {
@@ -87,10 +87,10 @@ TEST(util_filepath, absolute_path_win_multi_line)
 
   EXPECT_EQ(fp, std::string(R"(C:\git\cwt-cucumber\any.feature)"));
   EXPECT_EQ(lines.size(), 4);
-  EXPECT_EQ(lines[3], 12);
-  EXPECT_EQ(lines[2], 123);
-  EXPECT_EQ(lines[1], 999);
-  EXPECT_EQ(lines[0], 123456789);
+  EXPECT_TRUE(lines.contains(12));
+  EXPECT_TRUE(lines.contains(123));
+  EXPECT_TRUE(lines.contains(999));
+  EXPECT_TRUE(lines.contains(123456789));
 }
 TEST(util_filepath, relative_path_win_multi_line_1)
 {
@@ -99,10 +99,10 @@ TEST(util_filepath, relative_path_win_multi_line_1)
 
   EXPECT_EQ(fp, std::string("some_dir\\any.feature"));
   EXPECT_EQ(lines.size(), 4);
-  EXPECT_EQ(lines[3], 12);
-  EXPECT_EQ(lines[2], 123);
-  EXPECT_EQ(lines[1], 999);
-  EXPECT_EQ(lines[0], 123456789);
+  EXPECT_TRUE(lines.contains(12));
+  EXPECT_TRUE(lines.contains(123));
+  EXPECT_TRUE(lines.contains(999));
+  EXPECT_TRUE(lines.contains(123456789));
 }
 TEST(util_filepath, relative_path_win_multi_line_2)
 {
@@ -111,10 +111,10 @@ TEST(util_filepath, relative_path_win_multi_line_2)
 
   EXPECT_EQ(fp, std::string(".\\some_dir\\any.feature"));
   EXPECT_EQ(lines.size(), 4);
-  EXPECT_EQ(lines[3], 12);
-  EXPECT_EQ(lines[2], 123);
-  EXPECT_EQ(lines[1], 999);
-  EXPECT_EQ(lines[0], 123456789);
+  EXPECT_TRUE(lines.contains(12));
+  EXPECT_TRUE(lines.contains(123));
+  EXPECT_TRUE(lines.contains(999));
+  EXPECT_TRUE(lines.contains(123456789));
 }
 TEST(util_filepath, absolute_path_unix_single_line)
 {
@@ -123,7 +123,7 @@ TEST(util_filepath, absolute_path_unix_single_line)
 
   EXPECT_EQ(fp, std::string("/c/git/cwt-cucumber/any.feature"));
   EXPECT_EQ(lines.size(), 1);
-  EXPECT_EQ(lines[0], 12);
+  EXPECT_TRUE(lines.contains(12));
 }
 TEST(util_filepath, absolute_path_unix_multi_line)
 {
@@ -133,8 +133,8 @@ TEST(util_filepath, absolute_path_unix_multi_line)
 
   EXPECT_EQ(fp, std::string("/c/git/cwt-cucumber/any.feature"));
   EXPECT_EQ(lines.size(), 4);
-  EXPECT_EQ(lines[3], 12);
-  EXPECT_EQ(lines[2], 123);
-  EXPECT_EQ(lines[1], 999);
-  EXPECT_EQ(lines[0], 123456789);
+  EXPECT_TRUE(lines.contains(12));
+  EXPECT_TRUE(lines.contains(123));
+  EXPECT_TRUE(lines.contains(999));
+  EXPECT_TRUE(lines.contains(123456789));
 }

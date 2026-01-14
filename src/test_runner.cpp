@@ -311,44 +311,46 @@ constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pi
 
 }  // namespace
 
+test_runner::test_runner()
+    : m_tag_expression(
+          get_program_args().is_set(program_args::arg::tags)
+              ? get_program_args().get_value(program_args::arg::tags)
+              : "")
+{
+}
 void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
-void test_runner::run() const
+void test_runner::run()
 {
+  if (get_program_args().is_set(program_args::arg::name_filter))
+  {
+    m_name_filter.emplace(
+        get_program_args().get_value(program_args::arg::name_filter));
+  }
   for (const auto& feature : get_program_args().get_feature_files())
   {
     parser p;
     p.parse_from_file(feature.path);
-    if (feature.lines_to_run.empty())
+    if (!feature.lines_to_run.empty())
     {
-      p.for_each_scenario(*this);
+      m_line_filter.emplace(feature.lines_to_run);
     }
-    else
-    {
-      visit(p.head().feature());
-      for (const std::size_t line : feature.lines_to_run)
-      {
-        if (const ast::scenario_node* scenario = p.get_scenario_from_line(line))
-        {
-          run_scenario(*scenario);
-        }
-      }
-    }
+    p.for_each_scenario(*this);
+    m_line_filter.reset();
   }
 }
 
-void test_runner::visit(const cuke::ast::feature_node& feature) const
+void test_runner::visit(const ast::feature_node& feature)
 {
   results::new_feature(feature);
   log::info(feature);
 }
 
-void test_runner::visit(const cuke::ast::scenario_node& scenario) const
+void test_runner::visit(const ast::scenario_node& scenario)
 {
   run_scenario(scenario);
 }
-void test_runner::visit(
-    const cuke::ast::scenario_outline_node& scenario_outline) const
+void test_runner::visit(const ast::scenario_outline_node& scenario_outline)
 {
   for (const auto& scenario : scenario_outline.concrete_scenarios())
   {
@@ -356,8 +358,27 @@ void test_runner::visit(
   }
 }
 
+bool test_runner::passes_filters(const ast::scenario_node& scenario) const
+{
+  if (m_line_filter && !m_line_filter->matches(scenario))
+  {
+    return false;
+  }
+  if (m_name_filter && !m_name_filter->matches(scenario.name()))
+  {
+    return false;
+  }
+
+  return true;
+}
+
 void test_runner::run_scenario(const ast::scenario_node& scenario) const
 {
+  if (!passes_filters(scenario))
+  {
+    return;
+  }
+
   scenario_pipeline_context context{.scenario = scenario,
                                     .tag_expression = m_tag_expression,
                                     .result = results::new_scenario(scenario)};

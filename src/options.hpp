@@ -6,6 +6,7 @@
 #include <string_view>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -59,7 +60,7 @@ void fail_step(const std::string_view msg = "");
 struct feature_file
 {
   std::string path;
-  std::vector<std::size_t> lines_to_run;
+  std::unordered_set<std::size_t> lines_to_run;
 };
 
 }  // namespace cuke
@@ -69,12 +70,12 @@ namespace cuke
 
 static constexpr const char* tag_description =
     R"(Provide a tag expression to execute only Features/Scenarios with given tags
-      Examples:
-        "@tag1"
-        "@tag1 or @tag2"
-        "not @tag2"
-        "(@tag1 and @tag2) or not @tag3"
-        "((@tag1 and @tag2) or @tag3) xor @tag4"
+          Examples:
+            "@tag1"
+            "@tag1 or @tag2"
+            "not @tag2"
+            "(@tag1 and @tag2) or not @tag3"
+            "((@tag1 and @tag2) or @tag3) xor @tag4"
 )";
 
 struct options
@@ -97,6 +98,7 @@ class program_args
     steps_catalog_json,
     exclude_file,
     tags,
+    name_filter,
   };
   enum class arg_type : int8_t
   {
@@ -109,6 +111,7 @@ class program_args
   {
     std::string_view short_key;
     std::string_view long_key;
+    std::string_view value;
     arg key;
     arg_type type;
     std::string_view description;
@@ -121,18 +124,20 @@ class program_args
   };
   // clang-format off
   static constexpr const definition defs[] = {
-      {"-h", "--help", arg::help, arg_type::flag, "Print the help screen to stdout"},
-      {"-q", "--quiet", arg::quiet, arg_type::flag, "Quiet mode, only the final result will be printed to stdout."},
-      {"-d", "--dry-run", arg::dry_run, arg_type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
-      {"-v", "--verbose", arg::verbose, arg_type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
-      {"-c", "--continue-on-failure", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
-      {"-t", "--tags", arg::tags, arg_type::option, tag_description},
+      {"-h", "--help", "", arg::help, arg_type::flag, "Print the help screen to stdout"},
+      {"-q", "--quiet", "", arg::quiet, arg_type::flag, "Quiet mode, only the final result will be printed to stdout."},
+      {"-d", "--dry-run", "", arg::dry_run, arg_type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
+      {"-v", "--verbose", "", arg::verbose, arg_type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
+      {"-c", "--continue-on-failure", "", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
 
-      {"", "--report-json", arg::report_json, arg_type::option, "[opt: file] Print the test results as json to stdout or a given file"},
-      {"", "--steps-catalog", arg::steps_catalog_readable, arg_type::option, "[opt: file] Write the implemented steps as readable text to stdout or a file"},
-      {"", "--steps-catalog-json", arg::steps_catalog_json, arg_type::option, "[opt: file] Write the implemented steps as json text to stdout or a file\n"},
+      {"-t", "--tags", "<EXPRESSION>", arg::tags, arg_type::option, tag_description},
+      {"-n", "--name", "<PATTERN>", arg::name_filter, arg_type::option, "Run only scenarios whose names match the given pattern. Supports '*' (zero or more characters) and '?' (exactly one character). Multiple patterns can be separated by ':'"},
 
-      {"", "--exclude-file", arg::exclude_file, arg_type::exclude_file, "Exclude a specific feature file from the test run\n"},
+      {"", "--report-json", "<opt: FILE>", arg::report_json, arg_type::option, "Print the test results as json to stdout or a given file"},
+      {"", "--steps-catalog", "<opt: FILE>", arg::steps_catalog_readable, arg_type::option, "Write the implemented steps as readable text to stdout or a file"},
+      {"", "--steps-catalog-json", "<opt: FILE>", arg::steps_catalog_json, arg_type::option, "Write the implemented steps as json text to stdout or a file\n"},
+
+      {"", "--exclude-file", "", arg::exclude_file, arg_type::exclude_file, "Exclude a specific feature file from the test run\n"},
   };
   // clang-format on
 
@@ -179,8 +184,9 @@ static void print_help_screen()
   log::info(helptest, log::new_line);
   for (const auto& def : get_program_args().defs)
   {
-    log::info("    ", def.short_key, " ", def.long_key, " ", def.description,
-              log::new_line);
+    log::info("    ", def.short_key.empty() ? "  " : def.short_key, " ",
+              def.long_key, def.value.empty() ? "" : " ", def.value, "  ",
+              def.description, log::new_line);
   }
 }
 

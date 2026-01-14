@@ -3,12 +3,26 @@
 #include <chrono>
 #include <string>
 #include <fstream>
+#include <ranges>
+#include <unordered_set>
 
 #include "token.hpp"
 #include "log.hpp"
 
 namespace cuke::internal
 {
+
+static std::vector<std::string> to_vector(std::string_view sv,
+                                          const char delimiter)
+{
+  std::vector<std::string> result;
+  auto view = sv | std::ranges::views::split(delimiter);
+  for (auto&& part : view)
+  {
+    result.emplace_back(part.begin(), part.end());
+  }
+  return result;
+}
 
 static void write_to_file_or_stdout(std::string_view data,
                                     const std::string& filepath)
@@ -118,10 +132,10 @@ template <typename T>
   return true;
 }
 
-[[nodiscard]] inline std::pair<std::string, std::vector<std::size_t>>
+[[nodiscard]] inline std::pair<std::string, std::unordered_set<std::size_t>>
 filepath_and_lines(std::string_view sv)
 {
-  std::vector<std::size_t> lines;
+  std::unordered_set<std::size_t> lines;
   long pos = static_cast<long>(sv.size());
   long last_pos = pos;
   while (pos > 0)
@@ -130,7 +144,7 @@ filepath_and_lines(std::string_view sv)
     const std::string_view sub = sv.substr(pos + 1, last_pos - pos);
     if (is_number(sub))
     {
-      lines.push_back(std::stoul(sub.data()));
+      lines.insert(std::stoul(sub.data()));
     }
     else
     {
