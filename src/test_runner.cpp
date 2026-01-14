@@ -1,6 +1,5 @@
 #include "test_runner.hpp"
 
-#include <memory>
 #include <string>
 #include <algorithm>
 
