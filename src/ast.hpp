@@ -59,6 +59,8 @@ class node
 
   virtual ~node() = default;
   virtual node_type type() const noexcept = 0;
+  /// `@brief` Default no-op implementation. Override in nodes that participate
+  /// in visitor traversal.
   virtual void accept(node_visitor& visitor) const {}
 
   [[nodiscard]] const std::string& name() const { return m_name; }

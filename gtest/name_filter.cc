@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "../src/test_runner.hpp"
-#include "util.hpp"
+#include "../src/util.hpp"
 
 TEST(name_filter_util, string_to_vector1)
 {
@@ -95,7 +95,6 @@ TEST(name_filter, multiple_filters_with_question_mark_and_asterisk)
   EXPECT_TRUE(filter.matches("Example"));
   EXPECT_TRUE(filter.matches("Scenario-Outline"));
   EXPECT_TRUE(filter.matches("Scenario Outline"));
-  EXPECT_TRUE(filter.matches("Example"));
   EXPECT_TRUE(filter.matches("Example Outline"));
   EXPECT_FALSE(filter.matches("Scenarios"));
   EXPECT_FALSE(filter.matches("ScenarioOutline"));
