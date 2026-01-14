@@ -4,7 +4,7 @@
 
 ### Added 
 
-- Scenario filtering by name with the program option `-n`/`--name`, including placehoders (*) and single-character (?) matching ([107](https://github.com/ThoSe1990/cwt-cucumber/pull/107))
+- Scenario filtering by name with the program option `-n`/`--name`, including placeholders (*) and single-character (?) matching ([107](https://github.com/ThoSe1990/cwt-cucumber/pull/107))
 
 ## [2.8] 2025-11-21
 
