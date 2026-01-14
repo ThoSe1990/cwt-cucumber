@@ -3,6 +3,7 @@
 #include <chrono>
 #include <string>
 #include <fstream>
+#include <ranges>
 #include <unordered_set>
 
 #include "token.hpp"
@@ -10,6 +11,18 @@
 
 namespace cuke::internal
 {
+
+static std::vector<std::string> to_vector(std::string_view sv,
+                                          const char delimiter)
+{
+  std::vector<std::string> result;
+  auto view = sv | std::ranges::views::split(delimiter);
+  for (auto&& part : view)
+  {
+    result.emplace_back(part.begin(), part.end());
+  }
+  return result;
+}
 
 static void write_to_file_or_stdout(std::string_view data,
                                     const std::string& filepath)

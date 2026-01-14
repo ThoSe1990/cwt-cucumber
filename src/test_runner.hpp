@@ -4,6 +4,7 @@
 
 #include "ast.hpp"
 #include "tags.hpp"
+#include "util.hpp"
 
 namespace cuke
 {
@@ -23,10 +24,42 @@ class line_filter
  private:
   std::unordered_set<std::size_t> m_lines;
 };
-
 class name_filter
 {
-  bool matches(const ast::scenario_node& scenario) const { return true; }
+ public:
+  name_filter(std::string_view pattern)
+      : m_patterns(internal::to_vector(pattern, ':'))
+  {
+  }
+
+  bool matches(std::string_view scenario_name) const
+  {
+    for (const auto& pattern : m_patterns)
+    {
+      if (find_pattern(pattern, scenario_name))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
+ private:
+  bool find_pattern(std::string_view pattern, std::string_view str) const
+  {
+    // TODO:
+    // placeholders:
+    // 1: *scenario name
+    // 2: scenario name*
+    // 3: *scenario name*
+    // 4: scenario?name
+    // colon separated (= multiple patterns):
+    // 5: scenario name*:*outline*
+    return pattern == str;
+  }
+
+ private:
+  std::vector<std::string> m_patterns;
 };
 
 class test_runner : public ast::node_visitor
