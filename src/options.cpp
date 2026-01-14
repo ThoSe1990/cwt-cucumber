@@ -52,11 +52,7 @@ std::string get_option_value(cuke::program_args::arg key,
   {
     return get_optional_file_path(it, end);
   }
-  if (key == cuke::program_args::arg::tags)
-  {
-    return it != end ? std::string(*it) : "";
-  }
-  return "";
+  return it != end ? std::string(*it) : "";
 }
 
 }  // namespace

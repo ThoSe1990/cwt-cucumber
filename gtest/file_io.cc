@@ -26,6 +26,15 @@ void make_args(std::string_view file_arg)
   prog_args.initialize(argc, argv);
   [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
 }
+void make_args_name_filter(std::string_view file_arg,
+                           std::string_view name_filter)
+{
+  const char* argv[] = {"program", file_arg.data(), "-n", name_filter.data()};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::program_args prog_args;
+  prog_args.initialize(argc, argv);
+  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+}
 }  // namespace
 
 class file_io : public ::testing::Test
@@ -228,6 +237,68 @@ TEST_F(file_io, skip_run_single_scenario_no_tag)
   std::string file_arg =
       std::format("{}/test_files/skip.feature:9", unittests::test_dir());
   make_args(file_arg);
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
+}
+TEST_F(file_io, run_with_name_filter_1)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature", unittests::test_dir());
+  make_args_name_filter(file_arg, "first scenario");
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
+}
+TEST_F(file_io, run_with_name_filter_2)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature", unittests::test_dir());
+  make_args_name_filter(file_arg, "first scenario*");
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 5);
+}
+TEST_F(file_io, run_with_name_filter_3)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature", unittests::test_dir());
+  make_args_name_filter(file_arg, "*scenario*");
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 7);
+}
+TEST_F(file_io, run_with_name_filter_4)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature", unittests::test_dir());
+  make_args_name_filter(file_arg, "*scenario*:*empty*");
+  cuke::test_runner runner;
+  runner.run();
+
+  ASSERT_EQ(cuke::results::test_results().data().size(), 1);
+  auto& scenarios = cuke::results::features_back().scenarios;
+  ASSERT_EQ(scenarios.size(), 9);
+}
+TEST_F(file_io, run_with_name_filter_5)
+{
+  std::string file_arg =
+      std::format("{}/test_files/example.feature", unittests::test_dir());
+  make_args_name_filter(file_arg, "first?scenario");
   cuke::test_runner runner;
   runner.run();
 

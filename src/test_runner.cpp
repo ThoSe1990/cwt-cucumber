@@ -323,6 +323,11 @@ void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run()
 {
+  if (get_program_args().is_set(program_args::arg::name_filter))
+  {
+    m_name_filter.emplace(
+        get_program_args().get_value(program_args::arg::name_filter));
+  }
   for (const auto& feature : get_program_args().get_feature_files())
   {
     parser p;
@@ -357,6 +362,10 @@ void test_runner::visit(const ast::scenario_outline_node& scenario_outline)
 bool test_runner::passes_filters(const ast::scenario_node& scenario) const
 {
   if (m_line_filter && !m_line_filter->matches(scenario))
+  {
+    return false;
+  }
+  if (m_name_filter && !m_name_filter->matches(scenario.name()))
   {
     return false;
   }
