@@ -34,6 +34,11 @@ class name_filter
 
   bool matches(std::string_view scenario_name) const
   {
+    if (m_patterns.empty())
+    {
+      return true;
+    }
+
     for (const auto& pattern : m_patterns)
     {
       if (find_pattern(pattern, scenario_name))
@@ -45,17 +50,30 @@ class name_filter
   }
 
  private:
-  bool find_pattern(std::string_view pattern, std::string_view str) const
+  bool find_pattern(std::string_view pattern,
+                    std::string_view scenario_name) const
   {
-    // TODO:
-    // placeholders:
-    // 1: *scenario name
-    // 2: scenario name*
-    // 3: *scenario name*
-    // 4: scenario?name
-    // colon separated (= multiple patterns):
-    // 5: scenario name*:*outline*
-    return pattern == str;
+    if (pattern.empty())
+    {
+      return scenario_name.empty();
+    }
+
+    if (pattern.front() == '*')
+    {
+      std::string_view rest = pattern.substr(1);
+      return find_pattern(rest, scenario_name) ||
+             (!scenario_name.empty() &&
+              find_pattern(pattern, scenario_name.substr(1)));
+    }
+
+    if (pattern.front() == '?')
+    {
+      return !scenario_name.empty() &&
+             find_pattern(pattern.substr(1), scenario_name.substr(1));
+    }
+
+    return !scenario_name.empty() && pattern.front() == scenario_name.front() &&
+           find_pattern(pattern.substr(1), scenario_name.substr(1));
   }
 
  private:
