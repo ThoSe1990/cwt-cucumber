@@ -131,7 +131,7 @@ class program_args
       {"-c", "--continue-on-failure", "", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
 
       {"-t", "--tags", "<EXPRESSION>", arg::tags, arg_type::option, tag_description},
-      {"-n", "--name", "<NAME>", arg::name_filter, arg_type::option, "Run only scenarios whose names match the given pattern. Supports '*' (zero or more characters) and '?' (exactly one character). Multiple patterns can be separated by ':'"},
+      {"-n", "--name", "<PATTERN>", arg::name_filter, arg_type::option, "Run only scenarios whose names match the given pattern. Supports '*' (zero or more characters) and '?' (exactly one character). Multiple patterns can be separated by ':'"},
 
       {"", "--report-json", "<opt: FILE>", arg::report_json, arg_type::option, "Print the test results as json to stdout or a given file"},
       {"", "--steps-catalog", "<opt: FILE>", arg::steps_catalog_readable, arg_type::option, "Write the implemented steps as readable text to stdout or a file"},
