@@ -56,3 +56,47 @@ TEST(name_filter, asterisk_sufix)
   EXPECT_TRUE(filter.matches("AllScenarios"));
   EXPECT_FALSE(filter.matches("Scenario"));
 }
+TEST(name_filter, asterisk_prefix_and_sufix)
+{
+  cuke::name_filter filter("*Scenario*");
+  EXPECT_TRUE(filter.matches("AllScenarios"));
+  EXPECT_TRUE(filter.matches("Some Scenarios are good, some are bad"));
+  EXPECT_FALSE(filter.matches("This wont find anything"));
+}
+TEST(name_filter, asterisk_prefix_and_sufix_plus_question_mark)
+{
+  cuke::name_filter filter("*Scenario?Outline*");
+  EXPECT_TRUE(filter.matches("AllScenario-Outlines"));
+  EXPECT_TRUE(filter.matches("Scenario-Outline"));
+  EXPECT_TRUE(filter.matches("^(&%*%T^&*GScenario-Outline123456789"));
+  EXPECT_TRUE(filter.matches("Some Scenario Outlines are good, some are bad"));
+  EXPECT_FALSE(filter.matches("This wont find anything"));
+}
+TEST(name_filter, asterisk_and_question_mark)
+{
+  cuke::name_filter filter("*Scenario?");
+  EXPECT_TRUE(filter.matches("AllScenarios"));
+  EXPECT_TRUE(filter.matches("A-Scenario!"));
+  EXPECT_TRUE(filter.matches("AnotherScenario!"));
+
+  EXPECT_FALSE(filter.matches("Scenario"));
+  EXPECT_FALSE(filter.matches("AnotherScenario"));
+}
+TEST(name_filter, multiple_filters)
+{
+  cuke::name_filter filter("Scenario:Scenario Outline");
+  EXPECT_TRUE(filter.matches("Scenario"));
+  EXPECT_TRUE(filter.matches("Scenario Outline"));
+  EXPECT_FALSE(filter.matches("Scenarios"));
+}
+TEST(name_filter, multiple_filters_with_question_mark_and_asterisk)
+{
+  cuke::name_filter filter("Example*:Scenario?Outline");
+  EXPECT_TRUE(filter.matches("Example"));
+  EXPECT_TRUE(filter.matches("Scenario-Outline"));
+  EXPECT_TRUE(filter.matches("Scenario Outline"));
+  EXPECT_TRUE(filter.matches("Example"));
+  EXPECT_TRUE(filter.matches("Example Outline"));
+  EXPECT_FALSE(filter.matches("Scenarios"));
+  EXPECT_FALSE(filter.matches("ScenarioOutline"));
+}
