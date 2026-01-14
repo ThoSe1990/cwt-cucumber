@@ -19,7 +19,8 @@ This allows you to run a subset of scenarios in a feature without executing the 
 Name Filter: ``-n`` / ``--name``
 --------------------------------
 
-The program option ``-n`` or ``--name`` executes only Scenarios with the given pattern. It uses a pattern matching, like its used in other libraries (e.g. GTest): 
+The program option ``-n <PATTERN>`` or ``--name <PATTERN>`` executes only Scenarios with the given pattern. It uses a pattern matching, like its used in other libraries (e.g. GTest): 
+
 - ``*`` matches zero or more characters
 - ``?`` matches exactly one character
 - Multiple patterns can be separated by a colon (``:``)
