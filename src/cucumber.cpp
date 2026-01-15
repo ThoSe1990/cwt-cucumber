@@ -24,15 +24,15 @@ void print_failed_scenarios()
                     {
                       if (first)
                       {
-                        log::always("Failed Scenarios:", log::new_line);
+                        log::report("Failed Scenarios:", log::new_line);
                         first = false;
                       }
-                      log::always(log::color::red());
-                      log::always(scenario.name);
-                      log::always(log::color::black());
-                      log::always("  ", feature.file, ':', scenario.line);
-                      log::always(log::color::reset());
-                      log::always(log::new_line);
+                      log::report(log::color::red());
+                      log::report(scenario.name);
+                      log::report(log::color::black());
+                      log::report("  ", feature.file, ':', scenario.line);
+                      log::report(log::color::reset());
+                      log::report(log::new_line);
                     }
                   });
   }
@@ -74,9 +74,9 @@ void cwt_cucumber::print_results() const noexcept
   else
   {
     print_failed_scenarios();
-    log::always(log::new_line);
-    log::always(results::scenarios_to_string(), log::new_line);
-    log::always(results::steps_to_string(), log::new_line);
+    log::report(log::new_line);
+    log::report(results::scenarios_to_string(), log::new_line);
+    log::report(results::steps_to_string(), log::new_line);
   }
 }
 

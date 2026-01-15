@@ -1,6 +1,7 @@
 set(target unittests)
 
 find_package(GTest)
+find_package(nlohmann_json)
 
 if(GTest_FOUND)
  
@@ -40,7 +41,8 @@ if(GTest_FOUND)
     ${CMAKE_CURRENT_SOURCE_DIR}/value.cc
   )
 
-  target_link_libraries(${target} cucumber-no-main GTest::gtest_main)
+  target_link_libraries(${target} cucumber-no-main GTest::gtest_main nlohmann_json::nlohmann_json)
+  add_compile_definitions(WITH_JSON)
   install(
 	TARGETS ${target}
     DESTINATION ${CMAKE_INSTALL_PREFIX}

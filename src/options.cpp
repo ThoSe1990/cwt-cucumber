@@ -134,6 +134,10 @@ void program_args::initialize(int argc, const char* argv[])
     }
   }
 
+  if (is_set(program_args::arg::report_json))
+  {
+    cuke::log::disable();
+  }
   if (is_set(program_args::arg::quiet))
   {
     cuke::log::set_level(cuke::log::level::quiet);

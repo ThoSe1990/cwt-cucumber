@@ -29,7 +29,7 @@ static void write_to_file_or_stdout(std::string_view data,
 {
   if (filepath.empty())
   {
-    cuke::log::info(data, cuke::log::new_line);
+    cuke::log::to_stdout(data, cuke::log::new_line);
   }
   else
   {
