@@ -6,10 +6,10 @@
 #include "../src/log.hpp"
 #include "../src/options.hpp"
 
-#include "report.hpp"
 #include "test_paths.hpp"
 
 #ifdef WITH_JSON
+#include "../src/report.hpp"
 #include <nlohmann/json.hpp>
 #endif  // WITH_JSON
 
