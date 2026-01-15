@@ -41,16 +41,17 @@ class logger
     return cwt_logger;
   }
 
+  void disable() { m_disabled = true; }
+  void enable() { m_disabled = false; }
   void set_level(level l) { m_level = l; }
-
   void enable_colors(bool enable) { m_use_color = enable; }
-
   bool colors_enabled() const { return m_use_color; }
 
   template <typename... Args>
   void Log(level l, Args&&... args)
   {
     if (l < m_level) return;
+    if (m_disabled) return;
 
     (std::cout << ... << std::forward<Args>(args));
   }
@@ -97,10 +98,14 @@ class logger
     m_use_color = is_tty && (no_color_env == nullptr);
   }
 
+ private:
   level m_level = level::info;
+  bool m_disabled = false;
   bool m_use_color = true;
 };
 
+inline void disable() { logger::instance().disable(); }
+inline void enable() { logger::instance().enable(); }
 inline void set_level(level l) { logger::instance().set_level(l); }
 
 template <typename... Args>
@@ -131,6 +136,14 @@ template <typename... Args>
 void info(Args&&... args)
 {
   logger::instance().info(std::forward<Args>(args)...);
+}
+
+/// `@brief` Write directly to stdout, bypassing logger settings
+/// e.g. writing JSON results to stdout for piping
+template <typename... Args>
+void to_stdout(Args&&... args)
+{
+  (std::cout << ... << std::forward<Args>(args));
 }
 
 namespace color

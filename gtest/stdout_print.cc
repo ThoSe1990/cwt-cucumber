@@ -3,9 +3,15 @@
 #include "../src/test_runner.hpp"
 #include "../src/parser.hpp"
 #include "../src/asserts.hpp"
+#include "../src/log.hpp"
+#include "../src/options.hpp"
 
-#include "options.hpp"
+#include "report.hpp"
 #include "test_paths.hpp"
+
+#ifdef WITH_JSON
+#include <nlohmann/json.hpp>
+#endif  // WITH_JSON
 
 class stdout_print : public ::testing::Test
 {
@@ -14,6 +20,7 @@ class stdout_print : public ::testing::Test
   {
     auto& args = cuke::get_program_args(0, {});
     args.clear();
+    cuke::log::enable();
   }
   void SetUp() override
   {
@@ -421,5 +428,61 @@ TEST_F(stdout_print, verbose_tags)
   p.for_each_scenario(runner);
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_FALSE(has_substr(output, "[    VERBOSE   ]"));
-  std::cout << output << std::endl;
 }
+TEST_F(stdout_print, log_disabled)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+  )*";
+
+  cuke::log::disable();
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(output.empty());
+}
+#ifdef WITH_JSON
+TEST_F(stdout_print, log_disabled_w_json_output)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario: a scenario 
+    Given a step 
+  )*";
+
+  const char* argv[] = {"program", "--report-json"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  std::string output = testing::internal::GetCapturedStdout();
+  ASSERT_TRUE(output.empty());
+
+  testing::internal::CaptureStdout();
+  cuke::report::print_json_to_sink();
+  auto is_valid_json = [](const std::string& s)
+  {
+    try
+    {
+      auto j = nlohmann::json::parse(s);
+      return true;
+    }
+    catch (nlohmann::json::parse_error&)
+    {
+      return false;
+    }
+  };
+
+  EXPECT_TRUE(is_valid_json(testing::internal::GetCapturedStdout()));
+}
+#endif  // WITH_JSON
