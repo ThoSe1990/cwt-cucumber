@@ -29,7 +29,7 @@ enum class level
   info,
   quiet,
   error,
-  always
+  report
 };
 
 class logger
@@ -62,9 +62,9 @@ class logger
   }
 
   template <typename... Args>
-  void always(Args&&... args)
+  void report(Args&&... args)
   {
-    Log(level::always, std::forward<Args>(args)...);
+    Log(level::report, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
@@ -110,9 +110,9 @@ void error(Args&&... args)
 }
 
 template <typename... Args>
-void always(Args&&... args)
+void report(Args&&... args)
 {
-  logger::instance().always(std::forward<Args>(args)...);
+  logger::instance().report(std::forward<Args>(args)...);
 }
 
 template <typename... Args>
