@@ -95,8 +95,9 @@ Don't hesitate and open an Issue.
 
 Cheers 🍻  
   
-2025 Coding with Thomas  
+2026 Coding with Thomas  
 https://www.codingwiththomas.com/
+
 
 
 
