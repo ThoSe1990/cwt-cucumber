@@ -227,6 +227,28 @@ TEST(tag_expression, some_more_spaces)
   EXPECT_EQ(tc[4].token, token_type::_and);
 }
 
+TEST(tag_expression, tag_with_hyphen)
+{
+  cuke::internal::tag_expression tc("@my-tag");
+  ASSERT_EQ(tc.size(), 1);
+  EXPECT_EQ(tc[0].value, "@my-tag");
+}
+TEST(tag_expression, tag_with_hyphen_and_operator)
+{
+  cuke::internal::tag_expression tc("@my-tag and @other-tag");
+  ASSERT_EQ(tc.size(), 3);
+  EXPECT_EQ(tc[0].value, "@my-tag");
+  EXPECT_EQ(tc[1].value, "@other-tag");
+  EXPECT_EQ(tc[2].token, token_type::_and);
+}
+TEST(tag_expression, tag_with_hyphen_not)
+{
+  cuke::internal::tag_expression tc("not @skip-me");
+  ASSERT_EQ(tc.size(), 2);
+  EXPECT_EQ(tc[0].value, "@skip-me");
+  EXPECT_EQ(tc[1].token, token_type::_not);
+}
+
 TEST(tag_expression, syntax_error_1)
 {
   cuke::internal::tag_expression tc("some bad syntax");
@@ -433,5 +455,23 @@ TEST(tag_evaluation, tag2_and_tag3)
 {
   std::vector<std::string> tags{std::string("@tag2"), std::string("@tag3")};
   cuke::internal::tag_expression tc("@tag3 and @tag2");
+  EXPECT_TRUE(tc.evaluate(tags));
+}
+TEST(tag_evaluation, hyphenated_tag_true)
+{
+  std::vector<std::string> tags{std::string("@my-tag")};
+  cuke::internal::tag_expression tc("@my-tag");
+  EXPECT_TRUE(tc.evaluate(tags));
+}
+TEST(tag_evaluation, hyphenated_tag_false)
+{
+  std::vector<std::string> tags{std::string("@my-tag")};
+  cuke::internal::tag_expression tc("@other-tag");
+  EXPECT_FALSE(tc.evaluate(tags));
+}
+TEST(tag_evaluation, hyphenated_tag_and)
+{
+  std::vector<std::string> tags{std::string("@tag-1"), std::string("@tag-2")};
+  cuke::internal::tag_expression tc("@tag-1 and @tag-2");
   EXPECT_TRUE(tc.evaluate(tags));
 }
