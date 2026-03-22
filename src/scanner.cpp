@@ -224,7 +224,7 @@ token scanner::number()
 
 token scanner::tag()
 {
-  while (is_alpha(peek()) || is_digit(peek()))
+  while (is_alpha(peek()) || is_digit(peek()) || peek() == '-')
   {
     advance();
   }
