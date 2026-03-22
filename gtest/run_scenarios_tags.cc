@@ -338,11 +338,11 @@ TEST_F(run_scenarios_tags, tagged_scenario_and_scenario_outline_2)
 TEST_F(run_scenarios_tags, tagged_scenario_with_hyphen)
 {
   const char* script = R"*(
-    Feature: a feature
+    Feature: a feature 
 
     @my-tag
-    Scenario: a scenario
-    Given a step
+    Scenario: a scenario 
+    Given a step 
   )*";
   cuke::parser p;
   p.parse_script(script);
@@ -357,11 +357,11 @@ TEST_F(run_scenarios_tags, tagged_scenario_with_hyphen)
 TEST_F(run_scenarios_tags, tagged_scenario_with_hyphen_not_matching)
 {
   const char* script = R"*(
-    Feature: a feature
+    Feature: a feature 
 
     @my-tag
-    Scenario: a scenario
-    Given a step
+    Scenario: a scenario 
+    Given a step 
   )*";
   cuke::parser p;
   p.parse_script(script);
