@@ -90,6 +90,24 @@ TEST(scanner, tag_2)
   EXPECT_EQ(t.type, token_type::tag);
   EXPECT_EQ(t.value, "@tag1with2numbers");
 }
+TEST(scanner, tag_with_hyphen)
+{
+  token t = scanner("@my-tag").scan_token();
+  EXPECT_EQ(t.type, token_type::tag);
+  EXPECT_EQ(t.value, "@my-tag");
+}
+TEST(scanner, tag_with_multiple_hyphens)
+{
+  token t = scanner("@my-tag-name").scan_token();
+  EXPECT_EQ(t.type, token_type::tag);
+  EXPECT_EQ(t.value, "@my-tag-name");
+}
+TEST(scanner, tag_with_hyphen_and_numbers)
+{
+  token t = scanner("@tag-123-test").scan_token();
+  EXPECT_EQ(t.type, token_type::tag);
+  EXPECT_EQ(t.value, "@tag-123-test");
+}
 TEST(scanner, parameter_int)
 {
   EXPECT_EQ(scanner("{int}").scan_token().type, token_type::parameter_int);

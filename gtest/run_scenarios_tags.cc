@@ -335,6 +335,45 @@ TEST_F(run_scenarios_tags, tagged_scenario_and_scenario_outline_2)
   EXPECT_EQ(run_scenarios_tags::test_value, 99);
 }
 
+TEST_F(run_scenarios_tags, tagged_scenario_with_hyphen)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    @my-tag
+    Scenario: a scenario 
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+
+  make_args("@my-tag");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_tags::call_count, 1);
+}
+TEST_F(run_scenarios_tags, tagged_scenario_with_hyphen_not_matching)
+{
+  const char* script = R"*(
+    Feature: a feature 
+
+    @my-tag
+    Scenario: a scenario 
+    Given a step 
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+
+  make_args("@other-tag");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_tags::call_count, 0);
+}
+
 #include "../src/hooks.hpp"
 class run_scenarios_special_tags : public ::testing::Test
 {
