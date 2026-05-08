@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(cwt-cucumber VERSION 2.8)
 
 set(version_content "version = \"${PROJECT_VERSION}\"\n")
-file(WRITE "${CMAKE_SOURCE_DIR}/docs/_version.py" "${version_content}")
+file(WRITE "${CMAKE_CURRENT_SOURCE_DIR}/docs/_version.py" "${version_content}")
 
 option(CUCUMBER_BUILD_TESTS_AND_EXAMPLES "Enable example and test targets" ON)
 option(CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE "The overall result will fail if the tests contain undefined steps" ON)
