@@ -31,7 +31,7 @@ When reviewing code, prefer consistency with existing implementations over intro
 
 ## Types
 
-Classes, structs, enums and concepts use PascalCase.
+Classes, structs, enums and concepts use snake_case.
 
 Examples:
 
