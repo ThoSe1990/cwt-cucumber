@@ -1,6 +1,12 @@
 
 # Copilot Instructions
 
+When requested to format code:
+
+1. Run clang-format using the repository configuration.
+2. Never perform manual formatting edits.
+3. Commit formatting changes separately from functional changes.
+
 When generating code, suggesting changes, or reviewing pull requests, follow the conventions described in `.github/STYLE_CONSISTENCY.md`.
 
 Review priorities:
