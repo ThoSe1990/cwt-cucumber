@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "../src/parser.hpp"
+#include "../src/parser_internal.hpp"
+#include "../src/lexer.hpp"
 #include "../src/ast.hpp"
 #include "../src/table.hpp"
 

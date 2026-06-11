@@ -53,6 +53,14 @@ bool lexer::check(token_type type) const noexcept
 {
   return m_current.type == type;
 }
+bool lexer::check(std::initializer_list<token_type> types) const noexcept
+{
+  for (token_type t : types)
+  {
+    if (check(t)) return true;
+  }
+  return false;
+}
 bool lexer::match(token_type type) noexcept
 {
   if (check(type))
