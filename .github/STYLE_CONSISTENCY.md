@@ -95,6 +95,29 @@ unless the abstraction genuinely requires it.
 
 ---
 
+## Factory Functions
+
+Construction helpers use the `make_*` naming convention.
+
+Examples:
+
+- make_name(...)
+- make_scenario(...)
+- make_scenario_outline(...)
+
+Avoid introducing alternative construction prefixes such as:
+
+- create_*
+- build_*
+- new_*
+- generate_*
+
+unless there is a clear semantic distinction.
+
+Prefer consistency with existing factory APIs.
+
+---
+
 ## Variables
 
 Prefer descriptive names.
