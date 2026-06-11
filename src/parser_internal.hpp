@@ -12,7 +12,8 @@
 namespace cuke::internal
 {
 
-[[nodiscard]] cuke::value parse_cell(lexer& lex, bool remove_quotes_from_strings);
+[[nodiscard]] cuke::value parse_cell(lexer& lex,
+                                     bool remove_quotes_from_strings);
 
 [[nodiscard]] cuke::ast::example_node parse_example(
     lexer& lex, std::vector<std::string>&& tags);

@@ -65,7 +65,8 @@ class lexer
     return match(type) || match(args...);
   }
   [[nodiscard]] bool check(token_type type) const noexcept;
-  [[nodiscard]] bool check(std::initializer_list<token_type> types) const noexcept;
+  [[nodiscard]] bool check(
+      std::initializer_list<token_type> types) const noexcept;
   [[nodiscard]] bool match(token_type type) noexcept;
 
   void skip_linebreaks();

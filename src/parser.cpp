@@ -115,7 +115,7 @@ namespace cuke::internal
 }
 
 [[nodiscard]] cuke::value parse_cell(lexer& lex,
-                                            bool remove_quotes_from_strings)
+                                     bool remove_quotes_from_strings)
 {
   token begin = lex.current();
 
@@ -240,8 +240,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
       std::move(tags), std::move(description), rule, background, id_prefix);
 }
 
-[[nodiscard]] static std::optional<cuke::ast::rule_node> parse_rule(
-    lexer& lex)
+[[nodiscard]] static std::optional<cuke::ast::rule_node> parse_rule(lexer& lex)
 {
   if (lex.check(token_type::rule))
   {
@@ -258,10 +257,9 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
   return std::nullopt;
 }
 
-[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>>
-parse_scenarios(lexer& lex, const std::vector<std::string>& feature_tags,
-                const ast::background_node* background,
-                const std::string& feature_id)
+[[nodiscard]] std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(
+    lexer& lex, const std::vector<std::string>& feature_tags,
+    const ast::background_node* background, const std::string& feature_id)
 {
   std::vector<std::unique_ptr<cuke::ast::node>> scenarios;
   std::optional<cuke::ast::rule_node> current_rule = std::nullopt;
@@ -339,9 +337,8 @@ parse_background(lexer& lex)
   const std::size_t line = lex.current().line;
   auto [key, name] = parse_keyword_and_name(lex, true);
   auto description = parse_description(
-      lex, {token_type::scenario, token_type::scenario_outline,
-            token_type::tag, token_type::background, token_type::rule,
-            token_type::eof});
+      lex, {token_type::scenario, token_type::scenario_outline, token_type::tag,
+            token_type::background, token_type::rule, token_type::eof});
   lex.skip_linebreaks();
   auto background = parse_background(lex);
   auto scenarios = parse_scenarios(lex, tags, background.get(), name);
@@ -385,8 +382,7 @@ void parser::parse_script(std::string_view script)
   parse_impl(script, "<no file>");
 }
 
-const ast::scenario_node* parser::get_scenario_from_line(
-    std::size_t line) const
+const ast::scenario_node* parser::get_scenario_from_line(std::size_t line) const
 {
   for (const auto& n : m_head.feature().scenarios())
   {
