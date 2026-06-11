@@ -225,7 +225,7 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
       std::move(tags), std::move(description), rule);
 }
 
-[[nodiscard]] static std::unique_ptr<cuke::ast::scenario_node> create_scenario(
+[[nodiscard]] static std::unique_ptr<cuke::ast::scenario_node> make_scenario(
     lexer& lex, std::vector<std::string>&& tags,
     const std::optional<cuke::ast::rule_node>& rule,
     const ast::background_node* background, const std::string& id_prefix)
@@ -284,8 +284,8 @@ make_scenario_outline(lexer& lex, std::vector<std::string>&& tags,
 
     if (lex.check(token_type::scenario))
     {
-      scenarios.push_back(create_scenario(lex, std::move(tags), current_rule,
-                                          background, id_prefix));
+      scenarios.push_back(make_scenario(lex, std::move(tags), current_rule,
+                                        background, id_prefix));
     }
     else if (lex.check(token_type::scenario_outline))
     {
