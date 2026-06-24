@@ -280,22 +280,22 @@ class registry
          {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
         {"{word}",
          {"([^\\s]*)", "word",
-          [](cuke::value_array::const_iterator begin,
-             std::size_t count) -> any
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
           {
-            std::string val = get_param_value(begin, count, 1).as<std::string>();
+            std::string val =
+                get_param_value(begin, count, 1).as<std::string>();
             return (val == "\"\"") ? std::string{} : val;
           }}},
         {"{string}",
          {"\"([^\"]*)\"", "string", make_parameter_value<std::string>}},
-        {"{}", {"(.*)", "anonymous",
-                [](cuke::value_array::const_iterator begin,
-                   std::size_t count) -> any
-                {
-                  std::string val =
-                      get_param_value(begin, count, 1).as<std::string>();
-                  return (val == "\"\"") ? std::string{} : val;
-                }}}};
+        {"{}",
+         {"(.*)", "anonymous",
+          [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+          {
+            std::string val =
+                get_param_value(begin, count, 1).as<std::string>();
+            return (val == "\"\"") ? std::string{} : val;
+          }}}};
     std::unordered_map<std::string, expression> custom;
   } m_expressions;
 };
