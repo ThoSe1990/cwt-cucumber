@@ -49,7 +49,7 @@ Feature: Stress tests
   
 
   Scenario Outline: Empty cells in examples
-    When Some values <val1> <val2> and <val3> are empty
+    When Some values <val1>, <val2> and <val3> are empty
 
     Examples:
       | val1 | val2 | val3 |

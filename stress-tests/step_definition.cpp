@@ -59,7 +59,7 @@ WHEN(empty_table_cell, "There is an empty table cell")
   }
 }
 
-WHEN(empty_cells_in_examples, "Some values {word} {} and {string} are empty")
+WHEN(empty_cells_in_examples, "Some values {word}, {} and {string} are empty")
 {
   const std::string word_value = CUKE_ARG(1);
   cuke::is_true(word_value.empty());
