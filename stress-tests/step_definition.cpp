@@ -64,9 +64,9 @@ WHEN(empty_cells_in_examples, "Some values {word} {} and {string} are empty")
   const std::string word_value = CUKE_ARG(1);
   cuke::is_true(word_value.empty());
 
-  const std::string anonymous_value = CUKE_ARG(1);
+  const std::string anonymous_value = CUKE_ARG(2);
   cuke::is_true(anonymous_value.empty());
 
-  const std::string string_value = CUKE_ARG(1);
+  const std::string string_value = CUKE_ARG(3);
   cuke::is_true(string_value.empty());
 }
