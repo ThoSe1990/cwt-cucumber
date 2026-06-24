@@ -45,3 +45,28 @@ WHEN(doc_string_vector, "There is a doc string as vector:")
   const std::vector<std::string> doc_string = CUKE_DOC_STRING();
   cuke::is_false(doc_string.empty());
 }
+
+WHEN(empty_table_cell, "There is an empty table cell")
+{
+  const auto& table = CUKE_TABLE();
+  for (const auto& row : table.raw())
+  {
+    for (std::size_t i = 0; i < row.col_count(); ++i)
+    {
+      cuke::is_true(row[i].is_nil());
+      cuke::is_true(row[i].as<std::string>().empty());
+    }
+  }
+}
+
+WHEN(empty_cells_in_examples, "Some values {word} {} and {string} are empty")
+{
+  const std::string word_value = CUKE_ARG(1);
+  cuke::is_true(word_value.empty());
+
+  const std::string anonymous_value = CUKE_ARG(1);
+  cuke::is_true(anonymous_value.empty());
+
+  const std::string string_value = CUKE_ARG(1);
+  cuke::is_true(string_value.empty());
+}

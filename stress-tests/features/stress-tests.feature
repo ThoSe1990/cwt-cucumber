@@ -41,3 +41,29 @@ Feature: Stress tests
     which we access 
     as std::vector<std::string>
     """
+
+  Scenario: Empty cells in data table
+    When There is an empty table cell
+      | | | |
+      | | | |
+  
+
+  Scenario Outline: Empty cells in examples
+    When Some values <val1> <val2> and <val3> are empty
+
+    Examples:
+      | val1 | val2 | val3 |
+      |      |      |      |
+      |      |      |      |
+    Examples:
+      | val1 | val2 | val3 |
+      | ""   | ""   | ""   |
+      | ""   | ""   | ""   |
+    Examples:
+      | val1 | val2 | val3 |
+      | ""   | ""   |      |
+      | ""   | ""   |      |
+    Examples:
+      | val1 | val2 | val3 |
+      |      | ""   |      |
+      |      | ""   |      |

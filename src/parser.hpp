@@ -128,8 +128,7 @@ template <typename... Ts>
 
   if (count == 0)
   {
-    lex.error_at(lex.current(), "Expect value in table cell");
-    return {};
+    return cuke::value(std::string{});
   }
 
   cuke::value v(create_string(begin, lex.previous()));
