@@ -62,7 +62,7 @@ Placeholders inside the scenario are replaced by values defined in the ``Example
       | orange | 3     |
 
 Each row in the ``Examples`` table executes the scenario once,  
-substituting the placeholders ``<item>`` and ``<count>`` accordingly.
+substituting the placeholders ``<item>`` and ``<count>`` accordingly. Empty cells are considered as empty strings.
 
 Background
 ----------
