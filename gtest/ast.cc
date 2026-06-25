@@ -842,7 +842,7 @@ TEST(ast, parse_cell_empty_cell)
 
   cuke::value v = cuke::internal::parse_cell(lex, false);
   EXPECT_TRUE(v.is_nil());
-  EXPECT_TRUE(lex.error());
+  EXPECT_TRUE(v.as<std::string>().empty());
 }
 TEST(ast, scenario_outline_w_example)
 {

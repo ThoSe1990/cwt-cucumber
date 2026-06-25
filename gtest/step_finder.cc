@@ -46,6 +46,12 @@ TEST(step_finder, step_with_string)
         step_finder("or a trailing \"string value\"").step_matches(pattern));
   }
   {
+    auto [pattern, types] =
+        create_regex_definition("just an empty string {string} here");
+    EXPECT_TRUE(
+        step_finder("just an empty string \"\" here").step_matches(pattern));
+  }
+  {
     auto [pattern, types] = create_regex_definition(
         "{string} at the beginning, {string} inside and a trailing {string}");
     EXPECT_TRUE(

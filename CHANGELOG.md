@@ -10,6 +10,7 @@
 
 - Tags with hyphens are not parsed correctly ([111](https://github.com/ThoSe1990/cwt-cucumber/pull/111))
 - Removed Cucumber prints to `stdout` when using `--report-json`, only JSON report is printed to stdout. No prints when printing JSON results to a file ([108](https://github.com/ThoSe1990/cwt-cucumber/pull/108))
+- Parser fails with empty table cells in data tables or Scenario Outlines ([116](https://github.com/ThoSe1990/cwt-cucumber/pull/116))
 
 ## [2.8] 2025-11-21
 

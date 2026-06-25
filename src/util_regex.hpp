@@ -22,7 +22,8 @@ namespace cuke::internal
   {
     result.append(search_start, match[0].first);
     std::string key = match[1].str();
-    result += row[key].to_string();
+    const std::string& value = row[key].to_string();
+    result += value.empty() ? "\"\"" : value;
     search_start = match[0].second;
   }
   result.append(search_start, step.cend());

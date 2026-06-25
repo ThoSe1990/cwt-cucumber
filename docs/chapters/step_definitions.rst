@@ -347,7 +347,7 @@ You can access a table attached to a step using the macro ``CUKE_TABLE()``:
 - As a const reference: ``const cuke::table& t = CUKE_TABLE();``  
 - As a copy: ``cuke::table t = CUKE_TABLE();``
 
-The table contains ``cuke::value`` objects. You can access values with ``operator[]`` and convert them using ``as<>()`` or ``to_string()``:
+The table contains ``cuke::value`` objects. Empty tables are considered as empty strings. You can access values with ``operator[]`` and convert them using ``as<>()`` or ``to_string()``:
 
 .. code-block:: cpp
 

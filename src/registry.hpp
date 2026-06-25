@@ -39,6 +39,13 @@ static any make_parameter_value(cuke::value_array::const_iterator begin,
   return get_param_value(begin, count, 1).as<T>();
 }
 
+static any make_parameter_from_words_and_anonymous(
+    cuke::value_array::const_iterator begin, std::size_t count)
+{
+  std::string val = get_param_value(begin, count, 1).as<std::string>();
+  return (val == "\"\"") ? std::string{} : val;
+}
+
 template <typename Hook>
 static void run_hook(const std::vector<Hook>& hooks)
 {
@@ -278,10 +285,11 @@ class registry
         {"{float}", {"(-?\\d*\\.?\\d+)", "float", make_parameter_value<float>}},
         {"{double}",
          {"(-?\\d*\\.?\\d+)", "double", make_parameter_value<double>}},
-        {"{word}", {"([^\\s]+)", "word", make_parameter_value<std::string>}},
+        {"{word}",
+         {"([^\\s]*)", "word", make_parameter_from_words_and_anonymous}},
         {"{string}",
          {"\"([^\"]*)\"", "string", make_parameter_value<std::string>}},
-        {"{}", {"(.+)", "anonymous", make_parameter_value<std::string>}}};
+        {"{}", {"(.*)", "anonymous", make_parameter_from_words_and_anonymous}}};
     std::unordered_map<std::string, expression> custom;
   } m_expressions;
 };
