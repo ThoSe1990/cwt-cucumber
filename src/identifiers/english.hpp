@@ -24,15 +24,18 @@ class english : public identifier
   }
 
  private:
-  static constexpr std::array<std::pair<std::string_view, token_type>, 12>
+  static constexpr std::array<std::pair<std::string_view, token_type>, 14>
       m_identifiers{{{std::string_view("Feature:"), token_type::feature},
                      {std::string_view("Scenario:"), token_type::scenario},
                      {std::string_view("Example:"), token_type::scenario},
                      {std::string_view("Scenario Outline:"),
                       token_type::scenario_outline},
+                     {std::string_view("Scenario Template:"),
+                      token_type::scenario_outline},
                      {std::string_view("Rule:"), token_type::rule},
                      {std::string_view("Background:"), token_type::background},
                      {std::string_view("Examples:"), token_type::examples},
+                     {std::string_view("Scenarios:"), token_type::examples},
                      {std::string_view("Given"), token_type::step},
                      {std::string_view("When"), token_type::step},
                      {std::string_view("Then"), token_type::step},
