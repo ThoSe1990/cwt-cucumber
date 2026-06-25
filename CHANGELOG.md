@@ -5,6 +5,7 @@
 ### Added 
 
 - Scenario filtering by name with the program option `-n`/`--name`, including placeholders (*) and single-character (?) matching ([107](https://github.com/ThoSe1990/cwt-cucumber/pull/107))
+- English keywords: `Scenario Template` and `Scenarios` ([117](https://github.com/ThoSe1990/cwt-cucumber/pull/117))
 
 ### Fixed 
 

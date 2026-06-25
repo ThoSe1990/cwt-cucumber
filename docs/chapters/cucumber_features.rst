@@ -43,11 +43,11 @@ Alternatively, you can use the universal **\*** keyword.
 
 Scenarios are independent from one another and are executed in isolation.
 
-Scenario Outlines
------------------
+Scenario Outline / Scenario Template
+------------------------------------
 
-A *Scenario Outline* allows you to run the same scenario multiple times with different data sets.  
-Placeholders inside the scenario are replaced by values defined in the ``Examples`` table.
+A *Scenario Outline* (or *Scenario Template*) allows you to run the same scenario multiple times with different data sets.  
+Placeholders inside the scenario are replaced by values defined in the ``Examples`` (or ``Scenarios``) table.
 
 .. code-block:: gherkin
 

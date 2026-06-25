@@ -10,5 +10,13 @@ Feature: Examples - Scenario Outline
       | count | item       |
       | 1     | "apple"    |
       | 2     | "bananas"  |
-      | 3     | "gherkins" |
 
+  Scenario Template: Alternative Keywords
+    Given An empty box
+    When I place <count> x <item> in it
+    Then The box contains <count> items
+
+    Scenarios:
+      | count | item            |
+      | 1     | "pen"           |
+      | 3     | "collegeblocks" |
