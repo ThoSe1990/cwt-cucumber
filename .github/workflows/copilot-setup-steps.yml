@@ -1,0 +1,70 @@
+name: "Copilot Setup Steps"
+
+# Runs automatically when this file changes (for validation),
+# and can be triggered manually from the Actions tab.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # The job MUST be called `copilot-setup-steps`.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3 \
+            python3-pip \
+            pipx
+          pipx ensurepath
+
+      - name: Install Conan
+        run: pipx install conan
+
+      # Cache the Conan package store so dependency downloads are fast
+      # on subsequent agent runs.
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2
+          key: conan-ubuntu-${{ hashFiles('conanfile.txt') }}
+          restore-keys: |
+            conan-ubuntu-
+
+      - name: Initialise Conan default profile
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          conan profile detect --force
+
+      # Install all declared dependencies (gtest, nlohmann_json) and
+      # generate the CMake toolchain file that the build relies on.
+      - name: Install Conan dependencies
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          conan install . -of ./build --build missing
+
+      # Pre-configure and pre-build every target so the agent can run
+      # tests immediately after making a change with just:
+      #   cmake --build ./build -j$(nproc)
+      - name: Configure and build
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
+          cmake --build ./build -j$(nproc)
