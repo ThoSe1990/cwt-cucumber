@@ -483,3 +483,27 @@ TEST_F(run_scenarios_special_tags, ignore_2)
   EXPECT_EQ(cuke::results::test_results().scenarios_skipped(), 0);
   EXPECT_FALSE(cuke::internal::get_runtime_options().ignore_scenario());
 }
+TEST_F(run_scenarios_special_tags, tag_with_special_chars)
+{
+  const char* script = R"*(
+    Feature: a feature
+    @$*./<>::'|%^&!?_-#
+    Scenario: a scenario
+    Given a step
+ 
+    @my.tag.with.dots
+    Scenario: this runs
+    Given a step
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  make_args("@$*./<>::'|%^&!?_-# or @my.tag.with.dots");
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  ASSERT_EQ(cuke::results::test_results().scenarios_count(), 2);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 2);
+  EXPECT_EQ(cuke::results::test_results().scenarios_skipped(), 0);
+  EXPECT_FALSE(cuke::internal::get_runtime_options().ignore_scenario());
+}

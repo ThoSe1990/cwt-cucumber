@@ -13,6 +13,14 @@ static bool is_alpha(char c)
 
 static bool is_digit(char c) { return c >= '0' && c <= '9'; }
 
+static bool is_tag_char(char c)
+{
+  return is_alpha(c) || is_digit(c) || c == '-' || c == '.' || c == '#' ||
+         c == '/' || c == ':' || c == '$' || c == '*' || c == '<' || c == '>' ||
+         c == '\'' || c == '|' || c == '%' || c == '^' || c == '&' ||
+         c == '!' || c == '?';
+}
+
 scanner::scanner(std::string_view source) : m_source(source)
 {
   find_language();
@@ -224,7 +232,7 @@ token scanner::number()
 
 token scanner::tag()
 {
-  while (is_alpha(peek()) || is_digit(peek()) || peek() == '-')
+  while (is_tag_char(peek()))
   {
     advance();
   }
