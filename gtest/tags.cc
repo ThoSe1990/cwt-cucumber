@@ -233,6 +233,18 @@ TEST(tag_expression, tag_with_hyphen)
   ASSERT_EQ(tc.size(), 1);
   EXPECT_EQ(tc[0].value, "@my-tag");
 }
+TEST(tag_expression, tag_with_dots)
+{
+  cuke::internal::tag_expression tc("@my.tag");
+  ASSERT_EQ(tc.size(), 1);
+  EXPECT_EQ(tc[0].value, "@my.tag");
+}
+TEST(tag_expression, tag_with_special_chars)
+{
+  cuke::internal::tag_expression tc("@$*./<>::'|%^&!?_-#");
+  ASSERT_EQ(tc.size(), 1);
+  EXPECT_EQ(tc[0].value, "@$*./<>::'|%^&!?_-#");
+}
 TEST(tag_expression, tag_with_hyphen_and_operator)
 {
   cuke::internal::tag_expression tc("@my-tag and @other-tag");
@@ -473,5 +485,17 @@ TEST(tag_evaluation, hyphenated_tag_and)
 {
   std::vector<std::string> tags{std::string("@tag-1"), std::string("@tag-2")};
   cuke::internal::tag_expression tc("@tag-1 and @tag-2");
+  EXPECT_TRUE(tc.evaluate(tags));
+}
+TEST(tag_evaluation, tags_with_dots)
+{
+  std::vector<std::string> tags{std::string("@tag.1"), std::string("@tag.2")};
+  cuke::internal::tag_expression tc("@tag.1 and @tag.2");
+  EXPECT_TRUE(tc.evaluate(tags));
+}
+TEST(tag_evaluation, tags_with_special_char)
+{
+  std::vector<std::string> tags{std::string("@$*./<>::'|%^&!?_-#")};
+  cuke::internal::tag_expression tc("@$*./<>::'|%^&!?_-#");
   EXPECT_TRUE(tc.evaluate(tags));
 }
