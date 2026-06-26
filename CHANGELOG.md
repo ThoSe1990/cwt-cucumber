@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.9] 2026-06-26
+
 ### Added 
 
 - Scenario filtering by name with the program option `-n`/`--name`, including placeholders (*) and single-character (?) matching ([107](https://github.com/ThoSe1990/cwt-cucumber/pull/107))
