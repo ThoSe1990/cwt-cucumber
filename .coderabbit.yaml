@@ -1,0 +1,119 @@
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+
+language: en-US
+early_access: false
+tone_instructions: >
+  Be concise and technical. Focus on correctness, memory safety, and API
+  contract violations over style nitpicks (style is enforced by clang-format
+  and CI, not review).
+
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  sequence_diagrams: true
+  changed_files_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+
+  path_filters:
+    - "!**/*.md"
+    - "!docs/**"
+    - "!build/**"
+    - "!**/CMakeLists.txt.user"
+    - "!conan_toolchain.cmake"
+
+  path_instructions:
+    - path: "src/**/*.{hpp,cpp}"
+      instructions: >
+        This is the core cwt-cucumber interpreter library (scanner, lexer,
+        parser, step_finder, test_runner, registry). Apply these project
+        conventions strictly:
+        - Allman braces, 2-space indent (Google base style per .clang-format).
+        - [[nodiscard]] on every function returning a value that must be used.
+        - noexcept on getters and functions with no failure path.
+        - const references for read-only parameters; std::string_view for
+          read-only string params, std::string for stored values.
+        - No raw owning pointers — require std::unique_ptr or value semantics.
+        - Use std::format for string formatting; flag any printf/ostringstream.
+        - Route all output through cuke::log::info/cuke::log::error, never
+          std::cout/std::cerr directly.
+        - Flag any change from std::regex_match back to std::regex_search in
+          step_finder.cpp — regex_search with (.*) patterns in a while loop
+          causes infinite loops on empty suffixes.
+        - Built-in cucumber expressions (registry.hpp m_expressions.standard)
+          must have exactly one capturing group; multi-group patterns belong
+          in CUSTOM_PARAMETER instead. Verify param_info offset arithmetic
+          (offset += value_count - 1) stays consistent if this is touched.
+        - Expressions must use ([^\s]*) / (.*) — not ([^\s]+) / (.+) — so
+          empty-value cells in Scenario Outlines still match.
+        - step_finder must remain stateless — flag any added state that
+          persists across calls.
+        - No new mandatory third-party dependencies (nlohmann_json stays
+          optional behind WITH_JSON).
+
+    - path: "src/identifiers/**"
+      instructions: >
+        Keyword tables map Gherkin tokens to token_type. Check that more
+        specific/longer keywords are ordered before shorter keywords sharing
+        a prefix (to avoid false-positive matches), and that array sizes
+        match the actual number of entries.
+
+    - path: "gtest/**"
+      instructions: >
+        Unit tests using Google Test. Check that new .cc files are registered
+        in gtest/CMakeLists.txt's add_executable list. Prefer the two
+        established patterns: pure-logic tests (parser/step_finder/scanner
+        without registry) and full scenario tests via
+        cuke::parser::parse_script + cuke::test_runner with
+        cuke::registry().clear() in SetUp to avoid cross-test leakage.
+
+    - path: "stress-tests/**"
+      instructions: >
+        End-to-end edge-case scenarios (.feature files + step_definition.cpp)
+        exercising the full pipeline. Verify new scenarios use
+        cuke::is_true/cuke::equal for assertions and that step text has no
+        unmatched/undefined steps given
+        CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE.
+
+    - path: "examples/**"
+      instructions: >
+        Documentation-oriented example features and step definitions used as
+        a CI smoke test. Keep examples simple and idiomatic since they double
+        as user-facing documentation of the public API (GIVEN/WHEN/THEN,
+        CUKE_ARG, CUKE_TABLE, CUKE_DOC_STRING, cuke::context).
+
+    - path: "**/CMakeLists.txt"
+      instructions: >
+        Verify new source files are added to the correct target's source
+        list and that no new mandatory dependencies are introduced without
+        matching updates to the Conan recipe.
+
+    - path: ".github/workflows/**"
+      instructions: >
+        CI must keep testing Linux (GCC 13 + Clang 17), Windows, and macOS.
+        Flag any change that silently narrows platform/compiler coverage.
+
+  abort_on_close: true
+
+  tools:
+    clang-tidy:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  code_guidelines:
+    filePatterns:
+      - "AGENTS.md"
+      - ".clang-format"
+    enabled: true
