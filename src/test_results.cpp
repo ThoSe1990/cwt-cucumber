@@ -278,10 +278,6 @@ test_status final_result()
   return test_status::failed;
 }
 
-const feature& current_feature() { return internal::features_back(); }
-const scenario& current_scenario() { return internal::scenarios_back(); }
-const step& current_step() { return internal::steps_back(); }
-
 }  // namespace cuke::results
 
 namespace cuke::results::internal
@@ -340,3 +336,18 @@ step& steps_back()
 }
 
 }  // namespace cuke::results::internal
+
+namespace cuke
+{
+
+const results::feature& current_feature()
+{
+  return results::internal::features_back();
+}
+const results::scenario& current_scenario()
+{
+  return results::internal::scenarios_back();
+}
+const results::step& current_step() { return results::internal::steps_back(); }
+
+}  // namespace cuke
