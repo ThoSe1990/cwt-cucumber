@@ -70,8 +70,8 @@ TEST_F(file_io, run_scenario)
   cuke::test_runner runner;
   runner.run();
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::internal::features_back().scenarios.size(), 9);
-  EXPECT_EQ(cuke::results::internal::scenarios_back().status,
+  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 9);
+  EXPECT_EQ(cuke::results::scenarios_back().status,
             cuke::results::test_status::passed);
 }
 
@@ -94,7 +94,7 @@ TEST_F(file_io, run_single_scenario)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
@@ -106,7 +106,7 @@ TEST_F(file_io, run_single_scenario_wrong_line)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_TRUE(scenarios.empty());
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 0);
@@ -120,7 +120,7 @@ TEST_F(file_io, run_single_scenario_outline_1)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
@@ -134,7 +134,7 @@ TEST_F(file_io, run_single_scenario_outline_2)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
@@ -148,7 +148,7 @@ TEST_F(file_io, run_single_scenario_outline_3)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 2);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 2);
@@ -162,7 +162,7 @@ TEST_F(file_io, run_multiple_scenario)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 3);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 0);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 3);
@@ -176,7 +176,7 @@ TEST_F(file_io, skip_run_all)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 2);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
@@ -190,7 +190,7 @@ TEST_F(file_io, skip_run_single_scenario)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::skipped), 1);
 }
@@ -203,7 +203,7 @@ TEST_F(file_io, skip_run_single_scenario_w_tag)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
@@ -216,7 +216,7 @@ TEST_F(file_io, skip_run_all_scenario_w_tag)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
@@ -229,7 +229,7 @@ TEST_F(file_io, skip_run_single_scenario_w_tag_no_match)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 0);
 }
 TEST_F(file_io, skip_run_single_scenario_no_tag)
@@ -241,7 +241,7 @@ TEST_F(file_io, skip_run_single_scenario_no_tag)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
@@ -254,7 +254,7 @@ TEST_F(file_io, run_with_name_filter_1)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }
@@ -267,7 +267,7 @@ TEST_F(file_io, run_with_name_filter_2)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 5);
 }
 TEST_F(file_io, run_with_name_filter_3)
@@ -279,7 +279,7 @@ TEST_F(file_io, run_with_name_filter_3)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 7);
 }
 TEST_F(file_io, run_with_name_filter_4)
@@ -291,7 +291,7 @@ TEST_F(file_io, run_with_name_filter_4)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 9);
 }
 TEST_F(file_io, run_with_name_filter_5)
@@ -303,7 +303,7 @@ TEST_F(file_io, run_with_name_filter_5)
   runner.run();
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  auto& scenarios = cuke::results::internal::features_back().scenarios;
+  auto& scenarios = cuke::results::features_back().scenarios;
   ASSERT_EQ(scenarios.size(), 1);
   EXPECT_EQ(details::count(scenarios, cuke::results::test_status::passed), 1);
 }

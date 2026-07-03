@@ -280,7 +280,7 @@ test_status final_result()
 
 }  // namespace cuke::results
 
-namespace cuke::results::internal
+namespace cuke::results
 {
 
 void new_feature(const cuke::ast::feature_node& current)
@@ -335,19 +335,16 @@ step& steps_back()
   return test_results().back().scenarios.back().steps.back();
 }
 
-}  // namespace cuke::results::internal
+}  // namespace cuke::results
 
 namespace cuke
 {
 
-const results::feature& current_feature()
-{
-  return results::internal::features_back();
-}
+const results::feature& current_feature() { return results::features_back(); }
 const results::scenario& current_scenario()
 {
-  return results::internal::scenarios_back();
+  return results::scenarios_back();
 }
-const results::step& current_step() { return results::internal::steps_back(); }
+const results::step& current_step() { return results::steps_back(); }
 
 }  // namespace cuke

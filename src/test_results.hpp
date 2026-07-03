@@ -103,9 +103,6 @@ class test_result
 [[nodiscard]] std::string to_string(test_status status);
 [[nodiscard]] std::string step_prefix(test_status status);
 
-namespace internal
-{
-
 void new_feature(const cuke::ast::feature_node& current);
 [[nodiscard]] scenario& new_scenario(const cuke::ast::scenario_node& current);
 [[nodiscard]] step& new_step(const cuke::ast::step_node& current);
@@ -115,8 +112,6 @@ void set_step_to(test_status status);
 [[nodiscard]] feature& features_back();
 [[nodiscard]] scenario& scenarios_back();
 [[nodiscard]] step& steps_back();
-
-}  // namespace internal
 
 }  // namespace cuke::results
 

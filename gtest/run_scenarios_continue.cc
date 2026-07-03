@@ -81,10 +81,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_1)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::internal::scenarios_back();
+  const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::internal::features_back();
+  const auto& feature = cuke::results::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_2)
@@ -106,10 +106,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_2)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::internal::scenarios_back();
+  const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::internal::features_back();
+  const auto& feature = cuke::results::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_3)
@@ -133,10 +133,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_3)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::internal::scenarios_back();
+  const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::passed);
 
-  const auto& feature = cuke::results::internal::features_back();
+  const auto& feature = cuke::results::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_4)
@@ -157,9 +157,9 @@ TEST_F(run_scenarios_continue, continue_on_fail_4)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 1);
 
-  const auto& scenario = cuke::results::internal::scenarios_back();
+  const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::internal::features_back();
+  const auto& feature = cuke::results::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }

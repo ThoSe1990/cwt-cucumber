@@ -415,7 +415,7 @@ TEST_F(run_scenarios_special_tags, skip_1)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().scenarios_count(), 1);
-  const auto& scenario = cuke::results::internal::scenarios_back();
+  const auto& scenario = cuke::results::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::skipped);
   EXPECT_FALSE(cuke::internal::get_runtime_options().skip_scenario());
 }
