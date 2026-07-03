@@ -101,7 +101,7 @@ reviews:
   abort_on_close: true
 
   tools:
-    clang-tidy:
+    clang:
       enabled: true
 
 chat:
