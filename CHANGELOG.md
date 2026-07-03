@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `cuke::results::current_feature()`, `cuke::results::current_scenario()` and `cuke::results::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
+
 ## [2.9] 2026-06-26
 
 ### Added 
