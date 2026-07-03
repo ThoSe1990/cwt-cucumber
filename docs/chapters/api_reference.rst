@@ -37,6 +37,15 @@ Objects & Functions
 .. doxygenfunction:: cuke::fail_step
   :project: cwt-cucumber
 
+.. doxygenfunction:: cuke::current_feature
+  :project: cwt-cucumber
+
+.. doxygenfunction:: cuke::current_scenario
+  :project: cwt-cucumber
+
+.. doxygenfunction:: cuke::current_step
+  :project: cwt-cucumber
+
 .. _subch-api-ref-asserts:
 
 Asserts

@@ -126,7 +126,8 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    if (get_program_args().is_set(program_args::arg::continue_on_failure))
+    if (internal::get_program_args().is_set(
+            internal::program_args::arg::continue_on_failure))
     {
       return false;
     }
@@ -249,8 +250,9 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 }
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
-  context.skip_scenario = skip_flag() || get_program_args().is_set(
-                                             cuke::program_args::arg::dry_run);
+  context.skip_scenario =
+      skip_flag() || internal::get_program_args().is_set(
+                         cuke::internal::program_args::arg::dry_run);
 
   if (context.skip_scenario)
   {
@@ -313,8 +315,9 @@ constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pi
 
 test_runner::test_runner()
     : m_tag_expression(
-          get_program_args().is_set(program_args::arg::tags)
-              ? get_program_args().get_value(program_args::arg::tags)
+          internal::get_program_args().is_set(internal::program_args::arg::tags)
+              ? internal::get_program_args().get_value(
+                    internal::program_args::arg::tags)
               : "")
 {
 }
@@ -322,12 +325,13 @@ void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run()
 {
-  if (get_program_args().is_set(program_args::arg::name_filter))
+  if (internal::get_program_args().is_set(
+          internal::program_args::arg::name_filter))
   {
-    m_name_filter.emplace(
-        get_program_args().get_value(program_args::arg::name_filter));
+    m_name_filter.emplace(internal::get_program_args().get_value(
+        internal::program_args::arg::name_filter));
   }
-  for (const auto& feature : get_program_args().get_feature_files())
+  for (const auto& feature : internal::get_program_args().get_feature_files())
   {
     parser p;
     p.parse_from_file(feature.path);

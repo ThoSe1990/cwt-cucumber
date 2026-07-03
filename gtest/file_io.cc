@@ -14,26 +14,26 @@ void make_args(std::string_view file_arg, std::string_view tag_expr)
   const char* argv[] = {"program", file_arg.data(), "-t", tag_expr.data(),
                         "-v"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 void make_args(std::string_view file_arg)
 {
   const char* argv[] = {"program", file_arg.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 void make_args_name_filter(std::string_view file_arg,
                            std::string_view name_filter)
 {
   const char* argv[] = {"program", file_arg.data(), "-n", name_filter.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 }  // namespace
 
@@ -58,7 +58,7 @@ class file_io : public ::testing::Test
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
-    auto& args = cuke::get_program_args(0, {});
+    auto& args = cuke::internal::get_program_args(0, {});
     args.clear();
   }
 };

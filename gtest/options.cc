@@ -12,7 +12,7 @@ TEST(options, file_path_doesnt_exist)
 {
   const char* argv[] = {"program", "path/doesnt/exist/to/file.feature"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_TRUE(prog_args.get_feature_files().empty());
   ASSERT_TRUE(prog_args.get_excluded_files().empty());
@@ -23,7 +23,7 @@ TEST(options, file_path_does_exist)
       std::format("{}/test_files/any.feature", unittests::test_dir());
   const char* argv[] = {"program", path.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_FALSE(prog_args.get_feature_files().empty());
   EXPECT_EQ(prog_args.get_feature_files().at(0).path, std::string(argv[1]));
@@ -31,10 +31,11 @@ TEST(options, file_path_does_exist)
 
 namespace details
 {
-[[nodiscard]] bool has_file(const std::vector<cuke::feature_file>& container,
-                            std::string_view file_name)
+[[nodiscard]] bool has_file(
+    const std::vector<cuke::internal::feature_file>& container,
+    std::string_view file_name)
 {
-  for (const cuke::feature_file& file : container)
+  for (const cuke::internal::feature_file& file : container)
   {
     if (file.path.ends_with(file_name))
     {
@@ -50,7 +51,7 @@ TEST(options, find_files_in_dir)
   std::string path = std::format("{}/test_files", unittests::test_dir());
   const char* argv[] = {"program", path.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_EQ(prog_args.get_feature_files().size(), 4);
 
@@ -73,7 +74,7 @@ TEST(options, file_path_does_exist_w_line)
       std::format("{}/test_files/any.feature:3", unittests::test_dir());
   const char* argv[] = {"program", path.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_FALSE(prog_args.get_feature_files().empty());
   EXPECT_EQ(prog_args.get_feature_files().at(0).path,
@@ -87,7 +88,7 @@ TEST(options, file_path_does_exist_w_lines)
                                  unittests::test_dir());
   const char* argv[] = {"program", path.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_FALSE(prog_args.get_feature_files().empty());
   EXPECT_EQ(prog_args.get_feature_files().at(0).path,
@@ -101,13 +102,14 @@ TEST(options, tag_expression_1)
 {
   const char* argv[] = {"program", "-t", "@tag1 or @tag2"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
-  ASSERT_TRUE(prog_args.is_set(cuke::program_args::arg::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::program_args::arg::tags).empty());
+  ASSERT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::tags));
+  ASSERT_FALSE(
+      prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
-      prog_args.get_value(cuke::program_args::arg::tags));
+      prog_args.get_value(cuke::internal::program_args::arg::tags));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
@@ -116,13 +118,14 @@ TEST(options, tag_expression_2)
 {
   const char* argv[] = {"program", "--tags", "@tag1 or @tag2"};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  cuke::program_args prog_args;
+  cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
-  ASSERT_TRUE(prog_args.is_set(cuke::program_args::arg::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::program_args::arg::tags).empty());
+  ASSERT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::tags));
+  ASSERT_FALSE(
+      prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
-      prog_args.get_value(cuke::program_args::arg::tags));
+      prog_args.get_value(cuke::internal::program_args::arg::tags));
 
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));

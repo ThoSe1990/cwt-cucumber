@@ -57,16 +57,16 @@ void fail_scenario(const std::string_view msg = "");
  */
 void fail_step(const std::string_view msg = "");
 
+}  // namespace cuke
+
+namespace cuke::internal
+{
+
 struct feature_file
 {
   std::string path;
   std::unordered_set<std::size_t> lines_to_run;
 };
-
-}  // namespace cuke
-
-namespace cuke
-{
 
 static constexpr const char* tag_description =
     R"(Provide a tag expression to execute only Features/Scenarios with given tags
@@ -190,9 +190,6 @@ static void print_help_screen()
   }
 }
 
-namespace internal
-{
-
 class runtime_options
 {
  public:
@@ -273,6 +270,4 @@ class runtime_options
 
 runtime_options& get_runtime_options();
 
-}  // namespace internal
-
-}  // namespace cuke
+}  // namespace cuke::internal

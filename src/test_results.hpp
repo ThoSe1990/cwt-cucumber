@@ -3,8 +3,14 @@
 #include <vector>
 #include <string>
 
-#include "ast.hpp"
 #include "table.hpp"
+
+namespace cuke::ast
+{
+class feature_node;
+class scenario_node;
+class step_node;
+}  // namespace cuke::ast
 
 namespace cuke::results
 {
@@ -91,6 +97,12 @@ class test_result
 
 [[nodiscard]] test_result& test_results();
 [[nodiscard]] test_status final_result();
+[[nodiscard]] std::string scenarios_to_string();
+[[nodiscard]] std::string steps_to_string();
+[[nodiscard]] const char* to_color(test_status status);
+[[nodiscard]] std::string to_string(test_status status);
+[[nodiscard]] std::string step_prefix(test_status status);
+
 void new_feature(const cuke::ast::feature_node& current);
 [[nodiscard]] scenario& new_scenario(const cuke::ast::scenario_node& current);
 [[nodiscard]] step& new_step(const cuke::ast::step_node& current);
@@ -100,10 +112,42 @@ void set_step_to(test_status status);
 [[nodiscard]] feature& features_back();
 [[nodiscard]] scenario& scenarios_back();
 [[nodiscard]] step& steps_back();
-[[nodiscard]] std::string scenarios_to_string();
-[[nodiscard]] std::string steps_to_string();
-[[nodiscard]] const char* to_color(test_status status);
-[[nodiscard]] std::string to_string(test_status status);
-[[nodiscard]] std::string step_prefix(test_status status);
 
 }  // namespace cuke::results
+
+namespace cuke
+{
+
+/**
+ * @brief Returns the feature currently being executed.
+ * @details Valid from the moment a feature starts running (before any of
+ * its scenarios) until the next feature begins. Intended for use in hooks
+ * (`BEFORE`, `AFTER`, `BEFORE_STEP`, `AFTER_STEP`) or step definitions that
+ * need to know which feature is currently running, e.g. for logging.
+ * @attention Only call this while a feature is running; calling it before
+ * any feature has started is undefined behavior.
+ */
+[[nodiscard]] const results::feature& current_feature();
+
+/**
+ * @brief Returns the scenario currently being executed.
+ * @details Valid from the moment a scenario is selected to run - i.e.
+ * already usable in a `BEFORE` hook - through its `AFTER` hook. `status`
+ * reflects the scenario's outcome so far and is only final once the
+ * scenario has finished.
+ * @attention Only call this while a scenario is running; calling it
+ * outside of a scenario's lifetime is undefined behavior.
+ */
+[[nodiscard]] const results::scenario& current_scenario();
+
+/**
+ * @brief Returns the step currently being executed.
+ * @details Valid from `BEFORE_STEP` through `AFTER_STEP`, including inside
+ * the step definition itself. `status` reflects the step's outcome so far
+ * and is only final once the step has finished.
+ * @attention Only call this while a step is running; calling it outside of
+ * a step's lifetime is undefined behavior.
+ */
+[[nodiscard]] const results::step& current_step();
+
+}  // namespace cuke

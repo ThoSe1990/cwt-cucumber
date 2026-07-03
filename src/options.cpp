@@ -10,13 +10,13 @@
 
 namespace
 {
-bool is_catalog_or_report(cuke::program_args::arg key)
+bool is_catalog_or_report(cuke::internal::program_args::arg key)
 {
   switch (key)
   {
-    case cuke::program_args::arg::report_json:
-    case cuke::program_args::arg::steps_catalog_json:
-    case cuke::program_args::arg::steps_catalog_readable:
+    case cuke::internal::program_args::arg::report_json:
+    case cuke::internal::program_args::arg::steps_catalog_json:
+    case cuke::internal::program_args::arg::steps_catalog_readable:
       return true;
     default:
       return false;
@@ -44,7 +44,7 @@ std::string get_optional_file_path(std::span<const char*>::iterator it,
   return path.string();
 }
 
-std::string get_option_value(cuke::program_args::arg key,
+std::string get_option_value(cuke::internal::program_args::arg key,
                              std::span<const char*>::iterator it,
                              std::span<const char*>::iterator end)
 {
@@ -60,17 +60,6 @@ std::string get_option_value(cuke::program_args::arg key,
 namespace cuke
 {
 
-namespace internal
-{
-
-runtime_options& get_runtime_options()
-{
-  static runtime_options opt;
-  return opt;
-}
-
-}  // namespace internal
-
 void skip_scenario() { internal::get_runtime_options().skip_scenario(true); }
 void ignore_scenario()
 {
@@ -84,6 +73,18 @@ void fail_step(const std::string_view msg /* = "" */)
 {
   internal::get_runtime_options().fail_step(true, msg);
 }
+
+}  // namespace cuke
+
+namespace cuke::internal
+{
+
+runtime_options& get_runtime_options()
+{
+  static runtime_options opt;
+  return opt;
+}
+
 void program_args::initialize(int argc, const char* argv[])
 {
   clear();
@@ -260,4 +261,4 @@ program_args& get_program_args(std::optional<int> argc /*= std::nullopt*/,
   return instance;
 }
 
-}  // namespace cuke
+}  // namespace cuke::internal

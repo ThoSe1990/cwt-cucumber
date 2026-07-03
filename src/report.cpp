@@ -142,7 +142,8 @@ std::string as_json(std::size_t indents /* = 2 */)
 void print_json_to_sink(std::size_t indents /* = 2 */)
 {
   cuke::internal::write_to_file_or_stdout(
-      as_json(), get_program_args().get_value(program_args::arg::report_json));
+      as_json(), cuke::internal::get_program_args().get_value(
+                     cuke::internal::program_args::arg::report_json));
 }
 
 }  // namespace cuke::report
