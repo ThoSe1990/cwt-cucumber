@@ -310,6 +310,36 @@ Fails the current step, optionally with a custom message:
 - Has no effect in *after step* hooks
 - Marks the step as failed and shows the error message in output
 
+Accessing the Current Feature, Scenario or Step
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+From within a hook or a step definition, you can query information about
+what is currently running:
+
+.. code-block:: cpp
+
+  BEFORE(before)
+  {
+      const cuke::results::scenario& s = cuke::current_scenario();
+      std::cout << "Running: " << s.name << '\n';
+  }
+
+  AFTER_STEP(after_step)
+  {
+      const cuke::results::step& s = cuke::current_step();
+      if (s.status == cuke::results::test_status::failed)
+      {
+          std::cout << "Step failed: " << s.name << '\n';
+      }
+  }
+
+- ``cuke::current_feature()`` returns the ``cuke::results::feature`` of the feature currently running
+- ``cuke::current_scenario()`` returns the ``cuke::results::scenario`` of the scenario currently running
+- ``cuke::current_step()`` returns the ``cuke::results::step`` of the step currently running
+
+.. note::
+   Each accessor is only valid while the corresponding feature/scenario/step is actually running (e.g. ``current_step()`` from ``BEFORE_STEP`` through ``AFTER_STEP``). The returned ``status`` reflects the outcome so far and is only final once execution has finished.
+
 
 .. _subch-step-def-doc-strings:
 
