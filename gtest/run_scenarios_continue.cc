@@ -13,7 +13,7 @@ void make_args(std::string_view option)
 {
   const char* argv[] = {"program", option.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 
 bool has_skipped_steps(const cuke::results::feature& feature)
@@ -38,7 +38,7 @@ class run_scenarios_continue : public ::testing::Test
  protected:
   void TearDown() override
   {
-    [[maybe_unused]] auto& args = cuke::get_program_args(0, {});
+    [[maybe_unused]] auto& args = cuke::internal::get_program_args(0, {});
     args.clear();
     call_count = 0;
   }
@@ -81,10 +81,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_1)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_2)
@@ -106,10 +106,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_2)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_3)
@@ -133,10 +133,10 @@ TEST_F(run_scenarios_continue, continue_on_fail_3)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 3);
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::passed);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }
 TEST_F(run_scenarios_continue, continue_on_fail_4)
@@ -157,9 +157,9 @@ TEST_F(run_scenarios_continue, continue_on_fail_4)
 
   EXPECT_EQ(run_scenarios_continue::call_count, 1);
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_FALSE(has_skipped_steps(feature));
 }

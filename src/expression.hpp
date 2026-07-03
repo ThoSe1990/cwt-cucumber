@@ -4,10 +4,10 @@
 #include "any.hpp"
 #include "value.hpp"
 
-namespace cuke
+namespace cuke::internal
 {
-using expression_callback = internal::any (*)(
-    cuke::value_array::const_iterator begin, std::size_t count);
+using expression_callback = any (*)(cuke::value_array::const_iterator begin,
+                                    std::size_t count);
 
 struct expression
 {
@@ -16,4 +16,4 @@ struct expression
   expression_callback callback;
 };
 
-}  // namespace cuke
+}  // namespace cuke::internal

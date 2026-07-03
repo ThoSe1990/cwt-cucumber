@@ -35,10 +35,10 @@ TEST_F(test_results_1, scenario_passed)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 1);
-  ASSERT_EQ(cuke::results::scenarios_back().steps.size(), 1);
+  ASSERT_EQ(cuke::results::internal::features_back().scenarios.size(), 1);
+  ASSERT_EQ(cuke::results::internal::scenarios_back().steps.size(), 1);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_EQ(feature.id, std::string("A Feature"));
   EXPECT_EQ(feature.name, std::string("A Feature"));
   EXPECT_TRUE(feature.description.empty());
@@ -46,7 +46,7 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(feature.line, 2);
   EXPECT_EQ(feature.keyword, std::string("Feature"));
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::passed);
   EXPECT_EQ(scenario.id, std::string("A Feature;First Scenario"));
   EXPECT_EQ(scenario.name, std::string("First Scenario"));
@@ -55,7 +55,7 @@ TEST_F(test_results_1, scenario_passed)
   EXPECT_EQ(scenario.tags.size(), 0);
   EXPECT_TRUE(scenario.description.empty());
 
-  const auto& step = cuke::results::steps_back();
+  const auto& step = cuke::results::internal::steps_back();
   EXPECT_EQ(step.status, cuke::results::test_status::passed);
   // NOTE: source location is set in step constructor in SetUp() function of
   // this suite
@@ -83,16 +83,16 @@ TEST_F(test_results_1, german_keys)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 1);
-  ASSERT_EQ(cuke::results::scenarios_back().steps.size(), 1);
+  ASSERT_EQ(cuke::results::internal::features_back().scenarios.size(), 1);
+  ASSERT_EQ(cuke::results::internal::scenarios_back().steps.size(), 1);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_EQ(feature.keyword, std::string("Funktionalität"));
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.keyword, std::string("Szenario"));
 
-  const auto& step = cuke::results::steps_back();
+  const auto& step = cuke::results::internal::steps_back();
   EXPECT_EQ(step.keyword, std::string("Gegeben sei"));
 }
 
@@ -110,11 +110,11 @@ TEST_F(test_results_1, scenario_fails_1)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  EXPECT_EQ(cuke::results::scenarios_back().status,
+  EXPECT_EQ(cuke::results::internal::scenarios_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().status,
+  EXPECT_EQ(cuke::results::internal::steps_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().error_msg,
+  EXPECT_EQ(cuke::results::internal::steps_back().error_msg,
             std::string("Expected given condition true, but its false:"));
 }
 TEST_F(test_results_1, scenario_fails_2)
@@ -132,9 +132,9 @@ TEST_F(test_results_1, scenario_fails_2)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  EXPECT_EQ(cuke::results::scenarios_back().status,
+  EXPECT_EQ(cuke::results::internal::scenarios_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().status,
+  EXPECT_EQ(cuke::results::internal::steps_back().status,
             cuke::results::test_status::skipped);
 }
 
@@ -153,9 +153,9 @@ TEST_F(test_results_1, undefined_step_1)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  EXPECT_EQ(cuke::results::scenarios_back().status,
+  EXPECT_EQ(cuke::results::internal::scenarios_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().status,
+  EXPECT_EQ(cuke::results::internal::steps_back().status,
             cuke::results::test_status::undefined);
 }
 TEST_F(test_results_1, undefined_step_2)
@@ -174,11 +174,11 @@ TEST_F(test_results_1, undefined_step_2)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  EXPECT_EQ(cuke::results::scenarios_back().status,
+  EXPECT_EQ(cuke::results::internal::scenarios_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().status,
+  EXPECT_EQ(cuke::results::internal::steps_back().status,
             cuke::results::test_status::skipped);
-  EXPECT_EQ(cuke::results::steps_back().status,
+  EXPECT_EQ(cuke::results::internal::steps_back().status,
             cuke::results::test_status::skipped);
 }
 TEST_F(test_results_1, rule_id_check)
@@ -196,16 +196,16 @@ TEST_F(test_results_1, rule_id_check)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().data().size(), 1);
-  ASSERT_EQ(cuke::results::features_back().scenarios.size(), 1);
-  ASSERT_EQ(cuke::results::scenarios_back().steps.size(), 1);
+  ASSERT_EQ(cuke::results::internal::features_back().scenarios.size(), 1);
+  ASSERT_EQ(cuke::results::internal::scenarios_back().steps.size(), 1);
 
-  const auto& feature = cuke::results::features_back();
+  const auto& feature = cuke::results::internal::features_back();
   EXPECT_EQ(feature.id, std::string("A Feature"));
 
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.id, std::string("A Feature;A rule;First Scenario"));
 
-  const auto& step = cuke::results::steps_back();
+  const auto& step = cuke::results::internal::steps_back();
   EXPECT_EQ(step.id, std::string("A Feature;A rule;First Scenario;a step"));
 }
 class test_results_2 : public ::testing::Test

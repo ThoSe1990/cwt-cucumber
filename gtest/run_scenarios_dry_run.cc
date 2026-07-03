@@ -11,7 +11,7 @@ void make_args(std::string_view option)
 {
   const char* argv[] = {"program", option.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 }  // namespace
 
@@ -55,6 +55,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_long_option)
   EXPECT_EQ(run_scenarios_dry_run::call_count, 0);
 
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
@@ -83,6 +84,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_short_option)
   EXPECT_EQ(run_scenarios_dry_run::call_count, 0);
 
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
@@ -115,6 +117,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_short_option)
   EXPECT_EQ(run_scenarios_dry_run::call_count, 0);
 
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;
@@ -144,16 +147,19 @@ TEST_F(run_scenarios_dry_run, run_scenario_dry_w_undefined_step)
 
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::failed);
 
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::failed);
 #else
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   const auto& scenarios = features_back().scenarios;
   EXPECT_EQ(scenarios.at(0).status, test_status::skipped);
 
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::passed);
 #endif
 }
@@ -182,6 +188,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_w_undefined_step)
 
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::failed);
 
   const auto& scenarios = features_back().scenarios;
@@ -189,6 +196,7 @@ TEST_F(run_scenarios_dry_run, run_scenario_outline_dry_w_undefined_step)
   EXPECT_EQ(scenarios.at(1).status, test_status::failed);
 #else
   using namespace cuke::results;
+  using namespace cuke::results::internal;
   EXPECT_EQ(final_result(), test_status::passed);
 
   const auto& scenarios = features_back().scenarios;

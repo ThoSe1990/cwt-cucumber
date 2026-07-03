@@ -264,6 +264,29 @@ std::string step_prefix(test_status status)
   }
 }
 
+test_status final_result()
+{
+  if (test_results().data().empty())
+  {
+    return test_status::passed;
+  }
+
+  if (test_results().scenarios_failed() == 0)
+  {
+    return test_status::passed;
+  }
+  return test_status::failed;
+}
+
+const feature& current_feature() { return internal::features_back(); }
+const scenario& current_scenario() { return internal::scenarios_back(); }
+const step& current_step() { return internal::steps_back(); }
+
+}  // namespace cuke::results
+
+namespace cuke::results::internal
+{
+
 void new_feature(const cuke::ast::feature_node& current)
 {
   feature result;
@@ -304,20 +327,6 @@ step& new_step(const cuke::ast::step_node& current)
   return test_results().back().scenarios.back().steps.back();
 }
 
-test_status final_result()
-{
-  if (test_results().data().empty())
-  {
-    return test_status::passed;
-  }
-
-  if (test_results().scenarios_failed() == 0)
-  {
-    return test_status::passed;
-  }
-  return test_status::failed;
-}
-
 void set_step_to(test_status status)
 {
   test_results().back().scenarios.back().steps.back().status = status;
@@ -329,4 +338,5 @@ step& steps_back()
 {
   return test_results().back().scenarios.back().steps.back();
 }
-}  // namespace cuke::results
+
+}  // namespace cuke::results::internal

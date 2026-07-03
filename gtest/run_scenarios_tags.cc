@@ -11,7 +11,7 @@ void make_args(std::string_view tags)
 {
   const char* argv[] = {"program", "-t", tags.data()};
   int argc = sizeof(argv) / sizeof(argv[0]);
-  [[maybe_unused]] auto& args = cuke::get_program_args(argc, argv);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
 }
 }  // namespace
 
@@ -20,7 +20,7 @@ class run_scenarios_tags : public ::testing::Test
  protected:
   void TearDown() override
   {
-    [[maybe_unused]] auto& args = cuke::get_program_args(0, {});
+    [[maybe_unused]] auto& args = cuke::internal::get_program_args(0, {});
     args.clear();
   }
   void SetUp() override
@@ -380,7 +380,7 @@ class run_scenarios_special_tags : public ::testing::Test
  protected:
   void TearDown() override
   {
-    [[maybe_unused]] auto& args = cuke::get_program_args(0, {});
+    [[maybe_unused]] auto& args = cuke::internal::get_program_args(0, {});
     args.clear();
   }
   void SetUp() override
@@ -415,7 +415,7 @@ TEST_F(run_scenarios_special_tags, skip_1)
   p.for_each_scenario(runner);
 
   ASSERT_EQ(cuke::results::test_results().scenarios_count(), 1);
-  const auto& scenario = cuke::results::scenarios_back();
+  const auto& scenario = cuke::results::internal::scenarios_back();
   EXPECT_EQ(scenario.status, cuke::results::test_status::skipped);
   EXPECT_FALSE(cuke::internal::get_runtime_options().skip_scenario());
 }

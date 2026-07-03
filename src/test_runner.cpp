@@ -87,7 +87,7 @@ struct scenario_pipeline_context
 
 void update_scenario_status(scenario_pipeline_context& context)
 {
-  const auto& steps = results::scenarios_back().steps;
+  const auto& steps = results::internal::scenarios_back().steps;
   if (context.skip_scenario)
   {
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
@@ -126,12 +126,13 @@ void skip_step(step_pipeline_context& context)
 {
   const bool continue_on_failure_or_prev_step_failed = []()
   {
-    if (get_program_args().is_set(program_args::arg::continue_on_failure))
+    if (internal::get_program_args().is_set(
+            internal::program_args::arg::continue_on_failure))
     {
       return false;
     }
 
-    const auto& this_scenario = results::scenarios_back();
+    const auto& this_scenario = results::internal::scenarios_back();
     if (this_scenario.steps.size() <= 1)
     {
       return false;
@@ -139,8 +140,8 @@ void skip_step(step_pipeline_context& context)
     else
     {
       const auto& last_step =
-          results::scenarios_back()
-              .steps[results::scenarios_back().steps.size() - 2];
+          results::internal::scenarios_back()
+              .steps[results::internal::scenarios_back().steps.size() - 2];
 
       return last_step.status != results::test_status::passed;
     }
@@ -188,7 +189,7 @@ void call_step_and_hook_after(step_pipeline_context& context)
 }
 void teardown_step(step_pipeline_context& context)
 {
-  results::test_results().add_step(results::steps_back().status);
+  results::test_results().add_step(results::internal::steps_back().status);
   internal::get_runtime_options().reset_fail_step();
   internal::get_runtime_options().sleep_if_has_delay();
   log::info(context.step, context.result.status);
@@ -209,7 +210,7 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
 {
   step_pipeline_context context{
       .step = step,
-      .result = results::new_step(step),
+      .result = results::internal::new_step(step),
       .scenario_already_skpped = scenario_already_skpped};
 
   for (const auto& pipeline_step : step_pipeline)
@@ -244,13 +245,14 @@ void is_scenario_ignored(scenario_pipeline_context& context)
     log::verbose_end();
     internal::get_runtime_options().skip_scenario(false);
     context.ignore = true;
-    results::remove_last_scenario();
+    results::internal::remove_last_scenario();
   }
 }
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
-  context.skip_scenario = skip_flag() || get_program_args().is_set(
-                                             cuke::program_args::arg::dry_run);
+  context.skip_scenario =
+      skip_flag() || internal::get_program_args().is_set(
+                         cuke::internal::program_args::arg::dry_run);
 
   if (context.skip_scenario)
   {
@@ -313,8 +315,9 @@ constexpr const std::array<void (*)(scenario_pipeline_context&), 10> scenario_pi
 
 test_runner::test_runner()
     : m_tag_expression(
-          get_program_args().is_set(program_args::arg::tags)
-              ? get_program_args().get_value(program_args::arg::tags)
+          internal::get_program_args().is_set(internal::program_args::arg::tags)
+              ? internal::get_program_args().get_value(
+                    internal::program_args::arg::tags)
               : "")
 {
 }
@@ -322,12 +325,13 @@ void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
 void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
 void test_runner::run()
 {
-  if (get_program_args().is_set(program_args::arg::name_filter))
+  if (internal::get_program_args().is_set(
+          internal::program_args::arg::name_filter))
   {
-    m_name_filter.emplace(
-        get_program_args().get_value(program_args::arg::name_filter));
+    m_name_filter.emplace(internal::get_program_args().get_value(
+        internal::program_args::arg::name_filter));
   }
-  for (const auto& feature : get_program_args().get_feature_files())
+  for (const auto& feature : internal::get_program_args().get_feature_files())
   {
     parser p;
     p.parse_from_file(feature.path);
@@ -342,7 +346,7 @@ void test_runner::run()
 
 void test_runner::visit(const ast::feature_node& feature)
 {
-  results::new_feature(feature);
+  results::internal::new_feature(feature);
   log::info(feature);
 }
 
@@ -379,9 +383,10 @@ void test_runner::run_scenario(const ast::scenario_node& scenario) const
     return;
   }
 
-  scenario_pipeline_context context{.scenario = scenario,
-                                    .tag_expression = m_tag_expression,
-                                    .result = results::new_scenario(scenario)};
+  scenario_pipeline_context context{
+      .scenario = scenario,
+      .tag_expression = m_tag_expression,
+      .result = results::internal::new_scenario(scenario)};
   for (const auto& pipeline_step : scenario_pipeline)
   {
     pipeline_step(context);

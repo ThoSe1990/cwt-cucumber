@@ -9,6 +9,12 @@
 namespace cuke
 {
 
+/**
+ * @class line_filter
+ * @brief Internal helper used by \c test_runner to restrict execution to
+ * specific line numbers (e.g. `./file.feature:12:20`), as parsed from the
+ * command line. Not part of the public step-definition API.
+ */
 class line_filter
 {
  public:
@@ -24,6 +30,12 @@ class line_filter
  private:
   std::unordered_set<std::size_t> m_lines;
 };
+/**
+ * @class name_filter
+ * @brief Internal helper used by \c test_runner to restrict execution to
+ * scenarios whose name matches a `--name` glob-style pattern (`*`/`?`), as
+ * given on the command line. Not part of the public step-definition API.
+ */
 class name_filter
 {
  public:
@@ -80,6 +92,15 @@ class name_filter
   std::vector<std::string> m_patterns;
 };
 
+/**
+ * @class test_runner
+ * @brief AST visitor that executes every scenario/step of a parsed feature
+ * file against the globally registered step definitions.
+ *
+ * @details Internal execution engine driven by \c cwt_cucumber::run_tests().
+ * Not part of the public step-definition API - exposed mainly for unit
+ * testing (see \c gtest/run_scenarios*.cc).
+ */
 class test_runner : public ast::node_visitor
 {
  public:
