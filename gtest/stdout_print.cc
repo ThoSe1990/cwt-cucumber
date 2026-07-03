@@ -197,7 +197,8 @@ TEST_F(stdout_print, scenario_from_file)
   cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
 
-  const cuke::internal::feature_file& file = prog_args.get_feature_files().back();
+  const cuke::internal::feature_file& file =
+      prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -337,9 +338,11 @@ TEST_F(stdout_print, scenario_fail_final_form_file)
   const char* argv[] = {"program", file_arg.c_str()};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::internal::program_args& prog_args = cuke::internal::get_program_args(argc, argv);
+  cuke::internal::program_args& prog_args =
+      cuke::internal::get_program_args(argc, argv);
 
-  const cuke::internal::feature_file& file = prog_args.get_feature_files().back();
+  const cuke::internal::feature_file& file =
+      prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -365,8 +368,10 @@ TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
   const char* argv[] = {"program", file_arg.c_str(), "--quiet"};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::internal::program_args& prog_args = cuke::internal::get_program_args(argc, argv);
-  const cuke::internal::feature_file& file = prog_args.get_feature_files().back();
+  cuke::internal::program_args& prog_args =
+      cuke::internal::get_program_args(argc, argv);
+  const cuke::internal::feature_file& file =
+      prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);
@@ -392,8 +397,10 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   const char* argv[] = {"program", file_arg.c_str(), "-q"};
   int argc = sizeof(argv) / sizeof(argv[0]);
 
-  cuke::internal::program_args& prog_args = cuke::internal::get_program_args(argc, argv);
-  const cuke::internal::feature_file& file = prog_args.get_feature_files().back();
+  cuke::internal::program_args& prog_args =
+      cuke::internal::get_program_args(argc, argv);
+  const cuke::internal::feature_file& file =
+      prog_args.get_feature_files().back();
 
   cuke::parser p;
   p.parse_from_file(file);

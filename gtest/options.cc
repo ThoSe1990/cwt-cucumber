@@ -31,8 +31,9 @@ TEST(options, file_path_does_exist)
 
 namespace details
 {
-[[nodiscard]] bool has_file(const std::vector<cuke::internal::feature_file>& container,
-                            std::string_view file_name)
+[[nodiscard]] bool has_file(
+    const std::vector<cuke::internal::feature_file>& container,
+    std::string_view file_name)
 {
   for (const cuke::internal::feature_file& file : container)
   {
@@ -104,7 +105,8 @@ TEST(options, tag_expression_1)
   cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
+  ASSERT_FALSE(
+      prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
       prog_args.get_value(cuke::internal::program_args::arg::tags));
@@ -119,7 +121,8 @@ TEST(options, tag_expression_2)
   cuke::internal::program_args prog_args;
   prog_args.initialize(argc, argv);
   ASSERT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::tags));
-  ASSERT_FALSE(prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
+  ASSERT_FALSE(
+      prog_args.get_value(cuke::internal::program_args::arg::tags).empty());
 
   cuke::internal::tag_expression tags(
       prog_args.get_value(cuke::internal::program_args::arg::tags));
