@@ -34,10 +34,34 @@ namespace cuke::internal
 [[nodiscard]] static std::string create_word_alternation(
     const std::string& step)
 {
-  std::string result = step;
+  std::string result;
+  result.reserve(step.size());
 
-  result = std::regex_replace(result, std::regex("\\)"), ")?");
-  result = std::regex_replace(result, std::regex("\\("), "(?:");
+  for (std::size_t i = 0; i < step.size(); ++i)
+  {
+    const char c = step[i];
+
+    if (c == '\\' && i + 1 < step.size() &&
+        (step[i + 1] == '(' || step[i + 1] == ')' || step[i + 1] == '{' ||
+         step[i + 1] == '}'))
+    {
+      result += '\\';
+      result += step[i + 1];
+      ++i;
+    }
+    else if (c == '(')
+    {
+      result += "(?:";
+    }
+    else if (c == ')')
+    {
+      result += ")?";
+    }
+    else
+    {
+      result += c;
+    }
+  }
 
   std::regex pattern("(\\w+)/(\\w+)");
   std::smatch match;
@@ -91,8 +115,20 @@ static std::string add_escape_chars(const std::string& input)
       /* '|' */};
 
   std::string result;
-  for (char c : input)
+  for (std::size_t i = 0; i < input.size(); ++i)
   {
+    const char c = input[i];
+
+    if (c == '\\' && i + 1 < input.size() &&
+        (input[i + 1] == '(' || input[i + 1] == ')' || input[i + 1] == '{' ||
+         input[i + 1] == '}'))
+    {
+      result += c;
+      result += input[i + 1];
+      ++i;
+      continue;
+    }
+
     if (special_chars.find(c) != special_chars.end())
     {
       result += '\\';

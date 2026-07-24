@@ -207,6 +207,17 @@ TEST(step_finder, multiple_values)
   EXPECT_EQ(sf.values().at(5).as<short>(), 6);
 }
 
+TEST(step_finder, ints_in_parenthesis)
+{
+  auto [pattern, types] =
+      create_regex_definition("these are \\({int},{int}\\) coordinates");
+  step_finder sf("these are (1,2) coordinates");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  EXPECT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 2);
+}
+
 TEST(step_finder, word_at_stepend)
 {
   auto [pattern, types] = create_regex_definition("step with {word}");
@@ -493,6 +504,156 @@ TEST(step_finder, step_alternation_2)
     ASSERT_EQ(sf.values().size(), 1);
     EXPECT_EQ(sf.values().at(0).as<int>(), 1);
   }
+}
+
+TEST(step_finder, escaped_literal_parenthesis)
+{
+  auto [pattern, types] =
+      create_regex_definition("this is a literal \\(parenthesis\\)");
+  step_finder sf("this is a literal (parenthesis)");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, escaped_parenthesis_do_not_match_without_them)
+{
+  auto [pattern, types] =
+      create_regex_definition("this is a literal \\(parenthesis\\)");
+  step_finder sf("this is a literal parenthesis");
+  EXPECT_FALSE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, mixed_escaped_and_optional_parenthesis)
+{
+  auto [pattern, types] =
+      create_regex_definition("these are \\({int},{int}\\) coordinate(s)");
+  {
+    step_finder sf("these are (1,2) coordinate");
+    ASSERT_TRUE(sf.step_matches(pattern));
+    ASSERT_EQ(sf.values().size(), 2);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+    EXPECT_EQ(sf.values().at(1).as<int>(), 2);
+  }
+  {
+    step_finder sf("these are (3,4) coordinates");
+    ASSERT_TRUE(sf.step_matches(pattern));
+    ASSERT_EQ(sf.values().size(), 2);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 3);
+    EXPECT_EQ(sf.values().at(1).as<int>(), 4);
+  }
+}
+
+TEST(step_finder, escaped_literal_curly_braces)
+{
+  auto [pattern, types] =
+      create_regex_definition("I see \\{foo\\} in the output");
+  step_finder sf("I see {foo} in the output");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, escaped_curly_braces_do_not_match_without_them)
+{
+  auto [pattern, types] =
+      create_regex_definition("I see \\{foo\\} in the output");
+  step_finder sf("I see foo in the output");
+  EXPECT_FALSE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, escaped_curly_braces_are_not_treated_as_a_type)
+{
+  auto [pattern, types] = create_regex_definition("value is \\{5\\}");
+  step_finder sf("value is {5}");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  EXPECT_EQ(sf.values().size(), 0);
+}
+
+TEST(step_finder, mixed_escaped_braces_and_real_type)
+{
+  auto [pattern, types] =
+      create_regex_definition("I see \\{foo\\} and {int} items");
+  step_finder sf("I see {foo} and 3 items");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 3);
+}
+
+TEST(step_finder, escaped_brace_wraps_a_real_type)
+{
+  auto [pattern, types] = create_regex_definition("value is \\{{int}\\}");
+  step_finder sf("value is {5}");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 5);
+}
+
+TEST(step_finder, multiple_separate_escaped_parenthesis_groups)
+{
+  auto [pattern, types] = create_regex_definition("\\(a\\) and \\(b\\)");
+  step_finder sf("(a) and (b)");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, consecutive_escaped_parens_and_braces)
+{
+  auto [pattern, types] = create_regex_definition("\\(\\)\\{\\}");
+  step_finder sf("(){}");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, escaped_parenthesis_at_string_start_and_end)
+{
+  auto [pattern, types] = create_regex_definition("\\(start and end\\)");
+  {
+    step_finder sf("(start and end)");
+    EXPECT_TRUE(sf.step_matches(pattern));
+  }
+  {
+    step_finder sf("start and end");
+    EXPECT_FALSE(sf.step_matches(pattern));
+  }
+}
+
+TEST(step_finder, escaped_parenthesis_next_to_slash_alternation)
+{
+  auto [pattern, types] = create_regex_definition("\\(cat/dog\\) is a pet");
+  {
+    step_finder sf("(cat) is a pet");
+    EXPECT_TRUE(sf.step_matches(pattern));
+  }
+  {
+    step_finder sf("(dog) is a pet");
+    EXPECT_TRUE(sf.step_matches(pattern));
+  }
+  {
+    step_finder sf("(cat/dog) is a pet");
+    EXPECT_FALSE(sf.step_matches(pattern));
+  }
+}
+
+TEST(step_finder, escaped_brace_combined_with_optional_text)
+{
+  auto [pattern, types] =
+      create_regex_definition("The result(s) show \\{status\\}");
+  {
+    step_finder sf("The result show {status}");
+    EXPECT_TRUE(sf.step_matches(pattern));
+  }
+  {
+    step_finder sf("The results show {status}");
+    EXPECT_TRUE(sf.step_matches(pattern));
+  }
+  {
+    // missing literal braces must not match
+    step_finder sf("The result show status");
+    EXPECT_FALSE(sf.step_matches(pattern));
+  }
+}
+
+TEST(step_finder, unrelated_backslash_is_still_escaped_normally)
+{
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars(R"(The path is C:\Users)"));
+  step_finder sf(R"(The path is C:\Users)");
+  EXPECT_TRUE(sf.step_matches(pattern));
 }
 
 class custom_types : public ::testing::Test

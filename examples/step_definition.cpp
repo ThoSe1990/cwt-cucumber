@@ -18,6 +18,13 @@ WHEN(add_item, "I place {int} x {string} in it")
 
   cuke::context<box>().add_items(item, count);
 }
+WHEN(coords, "I have {int},{int} as coordinates")
+{
+  const int x = CUKE_ARG(1);
+  const int y = CUKE_ARG(2);
+
+  std::cout << "given coordinates x=" << x << " y=" << y << '\n';
+}
 WHEN(add_table_raw, "I add all items with the raw function:")
 {
   const cuke::table& t = CUKE_TABLE();

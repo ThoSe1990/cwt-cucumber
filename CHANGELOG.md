@@ -6,6 +6,10 @@
 
 - `cuke::current_feature()`, `cuke::current_scenario()` and `cuke::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
 
+### Fixed
+
+- Literal parentheses `()` and curly braces `{}` in step text are not matched; escape them with `\(`, `\)`, `\{`, `\}` to use them literally instead of as optional text or a parameter type ([129](https://github.com/ThoSe1990/cwt-cucumber/pull/129))
+
 ## [2.9] 2026-06-26
 
 ### Added 

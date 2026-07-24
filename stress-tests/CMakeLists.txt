@@ -3,6 +3,7 @@ set(target stress-tests)
 
 add_executable(${target} 
   ${CMAKE_CURRENT_SOURCE_DIR}/step_definition.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/hooks.cpp
 )
 install(
 	TARGETS ${target}

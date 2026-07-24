@@ -70,3 +70,46 @@ WHEN(empty_cells_in_examples, "Some values {word}, {} and {string} are empty")
   const std::string string_value = CUKE_ARG(3);
   cuke::is_true(string_value.empty());
 }
+
+struct point
+{
+  int x = 0;
+  int y = 0;
+};
+
+WHEN(point_at, "There is a point at \\({int},{int}\\)")
+{
+  cuke::context<point>().x = CUKE_ARG(1);
+  cuke::context<point>().y = CUKE_ARG(2);
+}
+
+THEN(point_check, "The point should be at coordinates {int} and {int}")
+{
+  const int expected_x = CUKE_ARG(1);
+  const int expected_y = CUKE_ARG(2);
+
+  cuke::equal(expected_x, cuke::context<point>().x);
+  cuke::equal(expected_y, cuke::context<point>().y);
+}
+
+WHEN(items_in_stock, "I have {int} item(s) in stock")
+{
+  cuke::context<int>() = CUKE_ARG(1);
+}
+
+THEN(stock_count_check, "The stock count should be {int}")
+{
+  const int expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<int>());
+}
+
+WHEN(raw_output, "I see \\{status\\} in the raw output")
+{
+  cuke::context<std::string>() = "{status}";
+}
+
+THEN(raw_output_check, "The captured text should be {string}")
+{
+  const std::string expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<std::string>());
+}
