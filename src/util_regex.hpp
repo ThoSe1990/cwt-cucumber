@@ -34,10 +34,39 @@ namespace cuke::internal
 [[nodiscard]] static std::string create_word_alternation(
     const std::string& step)
 {
-  std::string result = step;
+  // Cucumber Expressions use unescaped parentheses for optional text, e.g.
+  // "cucumber(s)" matches "cucumber" or "cucumbers". A backslash-escaped
+  // parenthesis ("\(" / "\)") is treated as a literal parenthesis instead
+  // (e.g. for step text like "(1,2) coordinates"). std::regex (ECMAScript)
+  // has no look-behind support, so this is done with a manual scan rather
+  // than a single regex_replace.
+  std::string result;
+  result.reserve(step.size());
 
-  result = std::regex_replace(result, std::regex("\\)"), ")?");
-  result = std::regex_replace(result, std::regex("\\("), "(?:");
+  for (std::size_t i = 0; i < step.size(); ++i)
+  {
+    const char c = step[i];
+
+    if (c == '\\' && i + 1 < step.size() &&
+        (step[i + 1] == '(' || step[i + 1] == ')'))
+    {
+      result += '\\';
+      result += step[i + 1];
+      ++i;
+    }
+    else if (c == '(')
+    {
+      result += "(?:";
+    }
+    else if (c == ')')
+    {
+      result += ")?";
+    }
+    else
+    {
+      result += c;
+    }
+  }
 
   std::regex pattern("(\\w+)/(\\w+)");
   std::smatch match;

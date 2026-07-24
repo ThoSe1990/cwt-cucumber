@@ -209,9 +209,9 @@ TEST(step_finder, multiple_values)
 
 TEST(step_finder, ints_in_parenthesis)
 {
-  auto [pattern, types] =
-      create_regex_definition("these are ({int},{int}) coordinates");
-  step_finder sf("these (1,2) are coordinates");
+  auto [pattern, types] = create_regex_definition(
+      "these are \\({int},{int}\\) coordinates");
+  step_finder sf("these are (1,2) coordinates");
   ASSERT_TRUE(sf.step_matches(pattern));
   EXPECT_EQ(sf.values().size(), 2);
   EXPECT_EQ(sf.values().at(0).as<int>(), 1);
@@ -503,6 +503,43 @@ TEST(step_finder, step_alternation_2)
     EXPECT_TRUE(sf.step_matches(pattern));
     ASSERT_EQ(sf.values().size(), 1);
     EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  }
+}
+
+TEST(step_finder, escaped_literal_parenthesis)
+{
+  auto [pattern, types] =
+      create_regex_definition("this is a literal \\(parenthesis\\)");
+  step_finder sf("this is a literal (parenthesis)");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, escaped_parenthesis_do_not_match_without_them)
+{
+  auto [pattern, types] =
+      create_regex_definition("this is a literal \\(parenthesis\\)");
+  step_finder sf("this is a literal parenthesis");
+  EXPECT_FALSE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, mixed_escaped_and_optional_parenthesis)
+{
+  // "\(" / "\)" stay literal, unescaped "(s)" is still optional text
+  auto [pattern, types] = create_regex_definition(
+      "these are \\({int},{int}\\) coordinate(s)");
+  {
+    step_finder sf("these are (1,2) coordinate");
+    ASSERT_TRUE(sf.step_matches(pattern));
+    ASSERT_EQ(sf.values().size(), 2);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+    EXPECT_EQ(sf.values().at(1).as<int>(), 2);
+  }
+  {
+    step_finder sf("these are (3,4) coordinates");
+    ASSERT_TRUE(sf.step_matches(pattern));
+    ASSERT_EQ(sf.values().size(), 2);
+    EXPECT_EQ(sf.values().at(0).as<int>(), 3);
+    EXPECT_EQ(sf.values().at(1).as<int>(), 4);
   }
 }
 
