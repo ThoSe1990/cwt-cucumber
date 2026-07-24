@@ -67,3 +67,23 @@ Feature: Stress tests
       | val1 | val2 | val3 |
       |      | ""   |      |
       |      | ""   |      |
+
+  Scenario: Literal parenthesis in step text
+    When There is a point at (3,4)
+    Then The point should be at coordinates 3 and 4
+
+  Scenario: Literal parenthesis in step text
+    When There is a point at (-3,-4)
+    Then The point should be at coordinates -3 and -4
+
+  Scenario: Singular optional text
+    When I have 1 item in stock
+    Then The stock count should be 1
+
+  Scenario: Plural optional text
+    When I have 5 items in stock
+    Then The stock count should be 5
+
+  Scenario: Literal curly braces in step text
+    When I see {status} in the raw output
+    Then The captured text should be "{status}"

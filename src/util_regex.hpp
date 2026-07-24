@@ -34,12 +34,6 @@ namespace cuke::internal
 [[nodiscard]] static std::string create_word_alternation(
     const std::string& step)
 {
-  // Cucumber Expressions use unescaped parentheses for optional text, e.g.
-  // "cucumber(s)" matches "cucumber" or "cucumbers". A backslash-escaped
-  // parenthesis ("\(" / "\)") is treated as a literal parenthesis instead
-  // (e.g. for step text like "(1,2) coordinates"). std::regex (ECMAScript)
-  // has no look-behind support, so this is done with a manual scan rather
-  // than a single regex_replace.
   std::string result;
   result.reserve(step.size());
 
@@ -48,7 +42,8 @@ namespace cuke::internal
     const char c = step[i];
 
     if (c == '\\' && i + 1 < step.size() &&
-        (step[i + 1] == '(' || step[i + 1] == ')'))
+        (step[i + 1] == '(' || step[i + 1] == ')' || step[i + 1] == '{' ||
+         step[i + 1] == '}'))
     {
       result += '\\';
       result += step[i + 1];
@@ -120,8 +115,20 @@ static std::string add_escape_chars(const std::string& input)
       /* '|' */};
 
   std::string result;
-  for (char c : input)
+  for (std::size_t i = 0; i < input.size(); ++i)
   {
+    const char c = input[i];
+
+    if (c == '\\' && i + 1 < input.size() &&
+        (input[i + 1] == '(' || input[i + 1] == ')' || input[i + 1] == '{' ||
+         input[i + 1] == '}'))
+    {
+      result += c;
+      result += input[i + 1];
+      ++i;
+      continue;
+    }
+
     if (special_chars.find(c) != special_chars.end())
     {
       result += '\\';
