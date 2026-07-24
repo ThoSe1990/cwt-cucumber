@@ -207,6 +207,17 @@ TEST(step_finder, multiple_values)
   EXPECT_EQ(sf.values().at(5).as<short>(), 6);
 }
 
+TEST(step_finder, ints_in_parenthesis)
+{
+  auto [pattern, types] =
+      create_regex_definition("these are ({int},{int}) coordinates");
+  step_finder sf("these (1,2) are coordinates");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  EXPECT_EQ(sf.values().size(), 2);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 1);
+  EXPECT_EQ(sf.values().at(1).as<int>(), 2);
+}
+
 TEST(step_finder, word_at_stepend)
 {
   auto [pattern, types] = create_regex_definition("step with {word}");
