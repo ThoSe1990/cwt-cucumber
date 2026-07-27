@@ -41,7 +41,7 @@ class context_type
     c_model() = default;
 
     template <typename... Args>
-    c_model(Args&&... args) : m_value(std::forward<Args>(args)...) {};
+    c_model(Args&&... args) : m_value(std::forward<Args>(args)...){};
 
     T m_value;
   };
