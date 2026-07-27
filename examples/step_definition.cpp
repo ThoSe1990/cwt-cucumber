@@ -11,6 +11,24 @@ GIVEN(box_with_label, "An empty box with a label")
   std::string label = CUKE_DOC_STRING();
   cuke::context<box>(label);
 }
+WHEN(box_customs_declaration, "The box gets a customs declaration")
+{
+  cuke::context<std::string>() = CUKE_DOC_STRING_TYPE();
+}
+THEN(box_customs_declaration_type, "The customs declaration content type should be {string}")
+{
+  const std::string expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<std::string>());
+}
+WHEN(box_shipping_label, "The box gets a shipping label")
+{
+  cuke::context<std::string>() = CUKE_DOC_STRING();
+}
+THEN(box_shipping_label_check, "The shipping label should equal {string}")
+{
+  const std::string expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<std::string>());
+}
 WHEN(add_item, "I place {int} x {string} in it")
 {
   const std::size_t count = CUKE_ARG(1);
