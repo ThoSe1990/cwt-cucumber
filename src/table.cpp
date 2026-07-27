@@ -113,6 +113,24 @@ const cuke::value& table::row::operator[](std::string_view key) const
   throw std::runtime_error(std::format(
       "table::row::operator[]: Given key '{}' not found in table", key));
 }
+bool table::row::contains(std::string_view key) const noexcept
+{
+  if (!m_header.has_value())
+  {
+    return false;
+  }
+
+  auto value = m_current;
+  for (auto it = m_header.value(); it != (m_current + m_col_count);
+       ++it, ++value)
+  {
+    if (it->to_string() == key)
+    {
+      return true;
+    }
+  }
+  return false;
+}
 
 table::raw_access table::raw() const
 {

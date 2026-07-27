@@ -159,6 +159,35 @@ TEST(table, hashes_access_row)
     EXPECT_EQ(data["AGE"].as<int>(), 12);
   }
 }
+TEST(table, hashes_access_row_contains)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value("34"));
+  cuke::table t(values, 3);
+
+  const cuke::table::row& data = t.hash_row(1);
+  EXPECT_TRUE(data.contains("NAME"));
+  EXPECT_TRUE(data.contains("CITY"));
+  EXPECT_TRUE(data.contains("AGE"));
+  EXPECT_FALSE(data.contains("UNKNOWN"));
+}
+TEST(table, row_contains_wo_header)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value("34"));
+  cuke::table t(values, 3);
+
+  const cuke::table::row& data = t[0];
+  EXPECT_FALSE(data.contains("NAME"));
+}
 
 TEST(table, rows_hash)
 {

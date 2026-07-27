@@ -1353,3 +1353,49 @@ TEST_F(ast_steps_w_values, scenario_outline_var_replacement_doc_string)
   EXPECT_EQ(doc_string_2.at(0), std::string("and a doc string"));
   EXPECT_EQ(doc_string_2.at(1), std::string("with 999 and \"world\""));
 }
+class ast_steps_w_doc_string_xml : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const auto&, const auto&, const auto&, const auto&) {},
+        "a step with {int}"));
+  }
+};
+TEST_F(ast_steps_w_doc_string_xml,
+       scenario_outline_doc_string_with_non_matching_angle_brackets)
+{
+  // Angle-bracket content that is not an Examples column (e.g. XML/HTML
+  // tags) must be left untouched instead of throwing.
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario 
+    Given a step with <value-1> 
+    """ 
+    <note><to>Someone</to><text><value-1></text></note> 
+    """
+
+    Examples: 
+    | value-1 |
+    | 101     |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.scenarios_count(), 1);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  const std::vector<std::string>& doc_string =
+      first.steps().at(0).doc_string();
+  ASSERT_EQ(doc_string.size(), 1);
+  EXPECT_EQ(doc_string.at(0),
+            std::string("<note><to>Someone</to><text>101</text></note>"));
+}

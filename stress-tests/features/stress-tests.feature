@@ -42,6 +42,17 @@ Feature: Stress tests
     as std::vector<std::string>
     """
 
+  Scenario Outline: Doc string with XML content in a scenario outline
+    When There is a doc string with an xml payload:
+    """
+    <note><to>Someone</to><text><value></text></note>
+    """
+
+    Examples:
+      | value  |
+      | hello  |
+      | world  |
+
   Scenario: Empty cells in data table
     When There is an empty table cell
       | | | |

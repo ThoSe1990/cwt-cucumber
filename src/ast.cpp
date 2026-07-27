@@ -20,7 +20,9 @@ std::vector<std::string> replace_vars_in_doc_string(
 
   for (const std::string& line : doc_string)
   {
-    result.push_back(internal::replace_variables(line, row));
+    constexpr bool ignore_missing_key = true;
+    result.push_back(
+        internal::replace_variables(line, row, ignore_missing_key));
   }
   return result;
 }

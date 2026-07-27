@@ -46,6 +46,12 @@ WHEN(doc_string_vector, "There is a doc string as vector:")
   cuke::is_false(doc_string.empty());
 }
 
+WHEN(xml_doc_string, "There is a doc string with an xml payload:")
+{
+  const std::string& doc_string = CUKE_DOC_STRING();
+  cuke::is_true(doc_string.find("<note>") != std::string::npos);
+}
+
 WHEN(empty_table_cell, "There is an empty table cell")
 {
   const auto& table = CUKE_TABLE();
