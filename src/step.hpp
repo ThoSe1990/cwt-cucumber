@@ -16,8 +16,7 @@ struct doc_string
 
 using step_callback = void (*)(const cuke::value_array& args,
                                const std::vector<param_info>& info,
-                               const doc_string& doc_str,
-                               const cuke::table& t);
+                               const doc_string& doc_str, const cuke::table& t);
 
 class step_definition
 {

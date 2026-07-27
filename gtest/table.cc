@@ -159,7 +159,8 @@ TEST(table, hashes_access_row)
     EXPECT_EQ(data["AGE"].as<int>(), 12);
   }
 }
-TEST(table, hashes_access_row_contains)
+
+TEST(table, hashes_access_row_contains)
 {
   cuke::value_array values;
   values.push_back(cuke::value(std::string("NAME")));

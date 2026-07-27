@@ -206,9 +206,9 @@ std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
     auto doc_str = parse_doc_string(lex);
     auto [data_table, line_table_begin] = parse_table(lex, true);
 
-    steps.push_back(cuke::ast::step_node(
-        std::move(key), std::move(name), lex.filepath(), line,
-        std::move(doc_str), std::move(data_table)));
+    steps.push_back(
+        cuke::ast::step_node(std::move(key), std::move(name), lex.filepath(),
+                             line, std::move(doc_str), std::move(data_table)));
 
     lex.skip_linebreaks();
   }

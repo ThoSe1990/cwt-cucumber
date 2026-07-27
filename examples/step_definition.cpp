@@ -15,7 +15,8 @@ WHEN(box_customs_declaration, "The box gets a customs declaration")
 {
   cuke::context<std::string>() = CUKE_DOC_STRING_TYPE();
 }
-THEN(box_customs_declaration_type, "The customs declaration content type should be {string}")
+THEN(box_customs_declaration_type,
+     "The customs declaration content type should be {string}")
 {
   const std::string expected = CUKE_ARG(1);
   cuke::equal(expected, cuke::context<std::string>());

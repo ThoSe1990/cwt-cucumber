@@ -9,30 +9,32 @@
 #define CWT_CONCAT_(a, b) a##b
 #define CONCAT(a, b) CWT_CONCAT_(a, b)
 
-#define CWT_STEP(function_name, definition, type)                             \
-  static void function_name(                                                  \
-      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
-      [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
-          __cuke__parameter_info__,                                           \
-      [[maybe_unused]] const ::cuke::internal::doc_string& __cuke__doc__string__, \
-      [[maybe_unused]] const ::cuke::table& __cuke__table__);                 \
-  namespace                                                                   \
-  {                                                                           \
-  struct CONCAT(function_name, _t)                                            \
-  {                                                                           \
-    CONCAT(function_name, _t)()                                               \
-    {                                                                         \
-      ::cuke::registry().push_step(::cuke::internal::step_definition(         \
-          function_name, definition, type, #function_name, __FILE__,          \
-          __LINE__));                                                         \
-    }                                                                         \
-  } CONCAT(g_, function_name);                                                \
-  }                                                                           \
-  static void function_name(                                                  \
-      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
-      [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
-          __cuke__parameter_info__,                                           \
-      [[maybe_unused]] const ::cuke::internal::doc_string& __cuke__doc__string__, \
+#define CWT_STEP(function_name, definition, type)                       \
+  static void function_name(                                            \
+      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,     \
+      [[maybe_unused]] const std::vector<::cuke::internal::param_info>& \
+          __cuke__parameter_info__,                                     \
+      [[maybe_unused]] const ::cuke::internal::doc_string&              \
+          __cuke__doc__string__,                                        \
+      [[maybe_unused]] const ::cuke::table& __cuke__table__);           \
+  namespace                                                             \
+  {                                                                     \
+  struct CONCAT(function_name, _t)                                      \
+  {                                                                     \
+    CONCAT(function_name, _t)()                                         \
+    {                                                                   \
+      ::cuke::registry().push_step(::cuke::internal::step_definition(   \
+          function_name, definition, type, #function_name, __FILE__,    \
+          __LINE__));                                                   \
+    }                                                                   \
+  } CONCAT(g_, function_name);                                          \
+  }                                                                     \
+  static void function_name(                                            \
+      [[maybe_unused]] const ::cuke::value_array& __cuke__values__,     \
+      [[maybe_unused]] const std::vector<::cuke::internal::param_info>& \
+          __cuke__parameter_info__,                                     \
+      [[maybe_unused]] const ::cuke::internal::doc_string&              \
+          __cuke__doc__string__,                                        \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
 #define CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \

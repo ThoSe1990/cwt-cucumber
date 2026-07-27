@@ -553,7 +553,8 @@ TEST(ast, parse_step_w_doc_string_type_json)
   ASSERT_FALSE(lex.error());
   EXPECT_EQ(steps.at(0).doc_string_type(), std::string("json"));
   ASSERT_EQ(steps.at(0).doc_string().size(), 1);
-  EXPECT_EQ(steps.at(0).doc_string().at(0), std::string("{ \"key\": \"value\" }"));
+  EXPECT_EQ(steps.at(0).doc_string().at(0),
+            std::string("{ \"key\": \"value\" }"));
 }
 TEST(ast, parse_step_w_doc_string_type_w_backticks)
 {
@@ -1450,8 +1451,7 @@ TEST_F(ast_steps_w_doc_string_xml,
   ASSERT_EQ(scenario_outline.scenarios_count(), 1);
 
   const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
-  const std::vector<std::string>& doc_string =
-      first.steps().at(0).doc_string();
+  const std::vector<std::string>& doc_string = first.steps().at(0).doc_string();
   ASSERT_EQ(doc_string.size(), 1);
   EXPECT_EQ(doc_string.at(0),
             std::string("<note><to>Someone</to><text>101</text></note>"));

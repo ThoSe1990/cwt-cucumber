@@ -38,8 +38,8 @@ const std::string& step_definition::regex_string() const noexcept
 {
   return m_regex_definition;
 }
-void step_definition::call(const value_array& values,
-                           const doc_string& doc_str, const table& t) const
+void step_definition::call(const value_array& values, const doc_string& doc_str,
+                           const table& t) const
 {
   m_callback(values, m_type_info, doc_str, t);
 }
