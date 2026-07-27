@@ -14,7 +14,7 @@
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
-      [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
+      [[maybe_unused]] const ::cuke::internal::doc_string& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__);                 \
   namespace                                                                   \
   {                                                                           \
@@ -32,7 +32,7 @@
       [[maybe_unused]] const ::cuke::value_array& __cuke__values__,           \
       [[maybe_unused]] const std::vector<::cuke::internal::param_info>&       \
           __cuke__parameter_info__,                                           \
-      [[maybe_unused]] const std::vector<std::string>& __cuke__doc__string__, \
+      [[maybe_unused]] const ::cuke::internal::doc_string& __cuke__doc__string__, \
       [[maybe_unused]] const ::cuke::table& __cuke__table__)
 
 #define CWT_CUSTOM_PARAMETER_IMPL(function_name, key, pattern, description)   \

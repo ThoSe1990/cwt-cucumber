@@ -98,7 +98,22 @@ class string_or_vector
  *
  */
 #define CUKE_DOC_STRING() \
-  cuke::internal::string_or_vector(__cuke__doc__string__)
+  cuke::internal::string_or_vector(__cuke__doc__string__.content)
+
+/**
+ * @def CUKE_DOC_STRING_TYPE()
+ * @brief Access the content type (media type) tag of a doc string in a step,
+ * e.g. the ``json`` in:
+ * ```
+ * """json
+ * { "key": "value" }
+ * """
+ * ```
+ * Use std::string as type here, e.g.: ``std::string type =
+ * CUKE_DOC_STRING_TYPE();``. Returns an empty string if no tag was given.
+ *
+ */
+#define CUKE_DOC_STRING_TYPE() __cuke__doc__string__.type
 
 /**
  * @def CUKE_TABLE()

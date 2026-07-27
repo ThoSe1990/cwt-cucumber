@@ -93,11 +93,26 @@ std::vector<std::string> doc_string_to_vector(const std::string_view s)
   return lines;
 }
 
-std::vector<std::string> parse_doc_string(lexer& lex)
+std::string doc_string_type_from_token(const std::string_view s)
+{
+  auto lines_view = s | std::ranges::views::split('\n');
+  auto it = lines_view.begin();
+  if (it == lines_view.end())
+  {
+    return {};
+  }
+  const std::string first_line = trim(std::string((*it).begin(), (*it).end()));
+  // first_line is the opening delimiter (""" or ```) optionally followed by
+  // a content type tag, e.g. """json -> tag is "json"
+  return first_line.size() > 3 ? first_line.substr(3) : std::string{};
+}
+
+cuke::internal::doc_string parse_doc_string(lexer& lex)
 {
   if (lex.match(token_type::doc_string))
   {
-    return doc_string_to_vector(lex.previous().value);
+    return {doc_string_to_vector(lex.previous().value),
+            doc_string_type_from_token(lex.previous().value)};
   }
   else
   {
@@ -188,12 +203,12 @@ std::vector<cuke::ast::step_node> parse_steps(lexer& lex)
   {
     const std::size_t line = lex.current().line;
     auto [key, name] = parse_keyword_and_name(lex, false);
-    std::vector<std::string> doc_string = parse_doc_string(lex);
+    auto doc_str = parse_doc_string(lex);
     auto [data_table, line_table_begin] = parse_table(lex, true);
 
     steps.push_back(cuke::ast::step_node(
         std::move(key), std::move(name), lex.filepath(), line,
-        std::move(doc_string), std::move(data_table)));
+        std::move(doc_str), std::move(data_table)));
 
     lex.skip_linebreaks();
   }

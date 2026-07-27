@@ -1,4 +1,5 @@
 #pragma once
+#include <format>
 #include <regex>
 #include <unordered_set>
 
@@ -6,6 +7,7 @@
 #include "expression.hpp"
 #include "registry.hpp"
 #include "table.hpp"
+#include "log.hpp"
 
 namespace cuke::internal
 {
@@ -26,6 +28,11 @@ namespace cuke::internal
     {
       // Not an Examples column (e.g. XML/HTML tag in a doc string) - leave
       // the original text untouched and continue searching after it.
+      cuke::log::verbose(
+          std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
+                      "Examples, left unchanged",
+                      key),
+          cuke::log::new_line);
       result.append(search_start, match[0].second);
       search_start = match[0].second;
     }

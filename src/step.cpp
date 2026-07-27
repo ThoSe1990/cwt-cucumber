@@ -39,10 +39,9 @@ const std::string& step_definition::regex_string() const noexcept
   return m_regex_definition;
 }
 void step_definition::call(const value_array& values,
-                           const std::vector<std::string>& doc_string,
-                           const table& t) const
+                           const doc_string& doc_str, const table& t) const
 {
-  m_callback(values, m_type_info, doc_string, t);
+  m_callback(values, m_type_info, doc_str, t);
 }
 step_definition::type step_definition::step_type() const noexcept
 {
