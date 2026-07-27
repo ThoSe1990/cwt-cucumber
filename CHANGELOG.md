@@ -5,10 +5,12 @@
 ### Added
 
 - `cuke::current_feature()`, `cuke::current_scenario()` and `cuke::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
+- `CUKE_DOC_STRING_TYPE()` to access a doc string's content type tag (e.g. `json` in ` ```json`) ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
 
 ### Fixed
 
 - Literal parentheses `()` and curly braces `{}` in step text are not matched; escape them with `\(`, `\)`, `\{`, `\}` to use them literally instead of as optional text or a parameter type ([129](https://github.com/ThoSe1990/cwt-cucumber/pull/129))
+- `Scenario Outline` doc strings containing angle-bracket text that is not an Examples column (e.g. XML/HTML tags) crashed with an uncaught exception; such placeholders are now left untouched instead ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
 
 ## [2.9] 2026-06-26
 
