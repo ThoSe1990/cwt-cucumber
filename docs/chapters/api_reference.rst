@@ -98,6 +98,9 @@ Macros
 .. doxygendefine:: CUKE_DOC_STRING
   :project: cwt-cucumber
 
+.. doxygendefine:: CUKE_DOC_STRING_TYPE
+  :project: cwt-cucumber
+
 .. doxygendefine:: CUKE_TABLE
   :project: cwt-cucumber
 

@@ -64,6 +64,12 @@ Placeholders inside the scenario are replaced by values defined in the ``Example
 Each row in the ``Examples`` table executes the scenario once,  
 substituting the placeholders ``<item>`` and ``<count>`` accordingly. Empty cells are considered as empty strings.
 
+.. note::
+   Doc strings attached to a step are substituted the same way. Any
+   ``<placeholder>`` that does not match an ``Examples`` column (e.g. an
+   XML/HTML tag) is left untouched instead of raising an error. See
+   :ref:`subch-step-def-doc-strings`.
+
 Background
 ----------
 

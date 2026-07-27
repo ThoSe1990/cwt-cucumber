@@ -366,6 +366,33 @@ Example:
       const std::vector<std::string>& lines = CUKE_DOC_STRING();
   }
 
+A doc string can also carry a content type tag, following the opening
+delimiter without a space, e.g. ``json`` in:
+
+.. code-block:: gherkin
+
+  Given a payload
+  """json
+  { "key": "value" }
+  """
+
+Access the tag with ``CUKE_DOC_STRING_TYPE()``. It returns an empty string
+if no tag was given:
+
+.. code-block:: cpp
+
+  WHEN(doc_string_with_type, "There is a doc string with a type:")
+  {
+      std::string type = CUKE_DOC_STRING_TYPE();
+  }
+
+.. note::
+   In a ``Scenario Outline``, doc strings are substituted the same way as
+   step text: ``<placeholder>`` tokens matching an Examples column are
+   replaced with the row's value. Any other angle-bracket text (e.g. XML or
+   HTML tags) is left untouched instead of raising an error. The content
+   type tag is treated as plain metadata and is never substituted.
+
 .. _subch-step-def-datatables:
 
 Datatables
