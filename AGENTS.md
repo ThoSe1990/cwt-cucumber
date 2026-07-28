@@ -390,6 +390,25 @@ WHEN(fn, "I have a doc string:")
 }
 ```
 
+A doc string's opening delimiter may carry a content type tag with no space
+(e.g. ` ```json` / `"""json`). Access it with `CUKE_DOC_STRING_TYPE()` —
+returns an empty string if no tag was given. The tag is metadata only: in a
+`Scenario Outline` it is carried through unchanged, never substituted.
+
+```cpp
+WHEN(fn, "I have a tagged doc string:")
+{
+  std::string type = CUKE_DOC_STRING_TYPE();  // e.g. "json"
+}
+```
+
+In a `Scenario Outline`, doc string content is substituted like step text —
+`<placeholder>` tokens matching an `Examples` column are replaced with the
+row's value. Any other angle-bracket text (e.g. XML/HTML tags) is left
+untouched instead of raising an error (`replace_variables()` in
+`src/util_regex.hpp`, called with `ignore_missing_key = true` for doc
+strings). A verbose-level log message is emitted for each ignored key.
+
 ### Shared state between steps — `cuke::context<T>`
 
 `cuke::context<T>` is reset at the start of each scenario.
@@ -760,6 +779,8 @@ THEN(special_word_then, "It should equal {string}")
 | `Scenario: Doc string with quotes` | `"""…"""` doc string parsing |
 | `Scenario: Doc string with backticks` | `` ```…``` `` doc string parsing |
 | `Scenario: Doc string as vector` | `CUKE_DOC_STRING()` as `std::vector<std::string>` |
+| `Scenario Outline: Doc string with XML content in a scenario outline` | Non-Examples angle-bracket text (XML tags) in a doc string left unchanged, while real `<placeholder>`s are substituted |
+| `Scenario: Doc string with a content type tag` / `Scenario: Doc string without a content type tag` | `CUKE_DOC_STRING_TYPE()` with and without a ` ```json`/`"""json` tag |
 | `Scenario: Empty cells in data table` | `CUKE_TABLE()` with fully empty rows |
 | `Scenario Outline: Empty cells in examples` | `{word}`, `{}`, `{string}` with empty outline cells (`""` sentinel) |
 
@@ -836,6 +857,31 @@ Replace the `## [Unreleased]` heading with the new version and today's date
 
 The date format is `YYYY-MM-DD`. The version number must match exactly what
 is set in `CMakeLists.txt`.
+
+---
+
+## Documentation
+
+The `docs/` directory (Sphinx + Doxygen/Breathe) is built by CI / Read the
+Docs, not locally. **No local Sphinx/Doxygen build is necessary** — do not
+install `sphinx-build`, `doxygen`, or related tooling just to validate a
+docs change; instead, review the `.rst` edits manually for correct syntax
+(directives, indentation, `.. _label:` anchors and matching `:ref:` targets —
+grep for the label name across `docs/chapters/*.rst` to confirm it's
+referenced correctly).
+
+**Always update documentation for any feature or change that affects a
+public API** (new/changed macros such as `GIVEN`/`WHEN`/`THEN`/`CUKE_ARG`/
+`CUKE_DOC_STRING()`, anything under the `cuke::` namespace, CLI flags, or
+Gherkin/keyword behavior). This includes, as relevant to the change:
+
+- `docs/chapters/step_definitions.rst` and/or `docs/chapters/cucumber_features.rst`
+  — user-facing usage and examples
+- `docs/chapters/api_reference.rst` — add a `.. doxygendefine::` /
+  `.. doxygenfunction::` entry for new public macros/functions
+- `AGENTS.md` — the relevant "Step Definition API" / architecture section,
+  so this reference document stays accurate
+- `CHANGELOG.md` — a one-liner under `### Added`/`### Fixed` in `[Unreleased]`
 
 ---
 

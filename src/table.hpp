@@ -73,6 +73,12 @@ class table
      */
     [[nodiscard]] const cuke::value& operator[](std::string_view key) const;
     /**
+     * @brief Checks if a given key exists in the header of this row
+     * @param key Columns key to check for
+     * @return Returns true if the header is available and contains key
+     */
+    [[nodiscard]] bool contains(std::string_view key) const noexcept;
+    /**
      * @brief Total count of columns in this table / row
      */
     [[nodiscard]] std::size_t col_count() const noexcept { return m_col_count; }

@@ -31,7 +31,9 @@ class lexer;
 
 [[nodiscard]] std::vector<std::string> doc_string_to_vector(std::string_view s);
 
-[[nodiscard]] std::vector<std::string> parse_doc_string(lexer& lex);
+[[nodiscard]] std::string doc_string_type_from_token(std::string_view s);
+
+[[nodiscard]] cuke::internal::doc_string parse_doc_string(lexer& lex);
 
 [[nodiscard]] std::size_t advance_to_cell_end(lexer& lex);
 

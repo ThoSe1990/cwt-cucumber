@@ -8,10 +8,15 @@
 namespace cuke::internal
 {
 
+struct doc_string
+{
+  std::vector<std::string> content;
+  std::string type;
+};
+
 using step_callback = void (*)(const cuke::value_array& args,
                                const std::vector<param_info>& info,
-                               const std::vector<std::string>& doc_string,
-                               const cuke::table& t);
+                               const doc_string& doc_str, const cuke::table& t);
 
 class step_definition
 {
@@ -33,8 +38,8 @@ class step_definition
   const std::vector<param_info>& type_info() const noexcept;
   const std::string& regex_string() const noexcept;
   std::string source_location() const noexcept;
-  void call(const value_array& values,
-            const std::vector<std::string>& doc_string, const table& t) const;
+  void call(const value_array& values, const doc_string& doc_str,
+            const table& t) const;
   type step_type() const noexcept;
 
  private:

@@ -523,6 +523,64 @@ TEST(ast, parse_step_w_doc_string_w_backticks)
   EXPECT_EQ(steps.at(0).doc_string().at(1), std::string("a multiline"));
   EXPECT_EQ(steps.at(0).doc_string().at(2), std::string("doc string"));
 }
+TEST(ast, parse_step_w_doc_string_wo_type)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    """
+    no type tag here
+    """ 
+  )*";
+  cuke::internal::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cuke::internal::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  EXPECT_TRUE(steps.at(0).doc_string_type().empty());
+}
+TEST(ast, parse_step_w_doc_string_type_json)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    """json
+    { "key": "value" }
+    """ 
+  )*";
+  cuke::internal::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cuke::internal::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  EXPECT_EQ(steps.at(0).doc_string_type(), std::string("json"));
+  ASSERT_EQ(steps.at(0).doc_string().size(), 1);
+  EXPECT_EQ(steps.at(0).doc_string().at(0),
+            std::string("{ \"key\": \"value\" }"));
+}
+TEST(ast, parse_step_w_doc_string_type_w_backticks)
+{
+  const char* script = R"*(
+    Given A step with value 5
+    ```xml
+    <note>hello</note>
+    ``` 
+  )*";
+  cuke::internal::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cuke::internal::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  EXPECT_EQ(steps.at(0).doc_string_type(), std::string("xml"));
+}
+TEST(ast, step_wo_doc_string_has_empty_doc_string_type)
+{
+  const char* script = "Given A step with value 5";
+  cuke::internal::lexer lex(script);
+  lex.advance();  // TODO delete me
+
+  auto steps = cuke::internal::parse_steps(lex);
+  ASSERT_FALSE(lex.error());
+  EXPECT_TRUE(steps.at(0).doc_string_type().empty());
+}
 
 TEST(ast, multiple_steps)
 {
@@ -1352,4 +1410,82 @@ TEST_F(ast_steps_w_values, scenario_outline_var_replacement_doc_string)
   ASSERT_EQ(doc_string_2.size(), 2);
   EXPECT_EQ(doc_string_2.at(0), std::string("and a doc string"));
   EXPECT_EQ(doc_string_2.at(1), std::string("with 999 and \"world\""));
+}
+class ast_steps_w_doc_string_xml : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    cuke::registry().clear();
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const auto&, const auto&, const auto&, const auto&) {},
+        "a step with {int}"));
+  }
+};
+TEST_F(ast_steps_w_doc_string_xml,
+       scenario_outline_doc_string_with_non_matching_angle_brackets)
+{
+  // Angle-bracket content that is not an Examples column (e.g. XML/HTML
+  // tags) must be left untouched instead of throwing.
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario 
+    Given a step with <value-1> 
+    """ 
+    <note><to>Someone</to><text><value-1></text></note> 
+    """
+
+    Examples: 
+    | value-1 |
+    | 101     |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+  ASSERT_EQ(p.head().feature().scenarios().size(), 1);
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.scenarios_count(), 1);
+
+  const cuke::ast::scenario_node& first = scenario_outline.scenario(0);
+  const std::vector<std::string>& doc_string = first.steps().at(0).doc_string();
+  ASSERT_EQ(doc_string.size(), 1);
+  EXPECT_EQ(doc_string.at(0),
+            std::string("<note><to>Someone</to><text>101</text></note>"));
+}
+TEST_F(ast_steps_w_doc_string_xml,
+       scenario_outline_doc_string_type_is_preserved_unchanged)
+{
+  // The doc string content type tag is metadata only - it must be carried
+  // over to every concrete scenario as-is, with no variable substitution.
+  const char* script = R"*(
+  Feature: A Feature
+
+    Scenario Outline: a scenario 
+    Given a step with <value-1> 
+    """xml
+    <note><value-1></note> 
+    """
+
+    Examples: 
+    | value-1 |
+    | 101     |
+    | 999     |
+  )*";
+  cuke::parser p;
+  p.parse_script(script);
+  ASSERT_FALSE(p.error());
+
+  cuke::ast::scenario_outline_node& scenario_outline =
+      static_cast<cuke::ast::scenario_outline_node&>(
+          *p.head().feature().scenarios().at(0));
+  ASSERT_EQ(scenario_outline.scenarios_count(), 2);
+
+  EXPECT_EQ(scenario_outline.scenario(0).steps().at(0).doc_string_type(),
+            std::string("xml"));
+  EXPECT_EQ(scenario_outline.scenario(1).steps().at(0).doc_string_type(),
+            std::string("xml"));
 }

@@ -88,11 +88,11 @@ class step_node : public node
   }
   step_node(const std::string& key, const std::string& name,
             const std::string& file, std::size_t line,
-            const std::vector<std::string>& doc_string,
-            const cuke::table& data_table, const value_array& values,
+            const internal::doc_string& doc_str, const cuke::table& data_table,
+            const value_array& values,
             const internal::step_definition* step_definition)
       : node(key, name, line, file),
-        m_doc_string(doc_string),
+        m_doc_string(doc_str),
         m_table(data_table),
         m_values(values),
         m_step_definition(step_definition),
@@ -100,10 +100,10 @@ class step_node : public node
   {
   }
   step_node(std::string&& key, std::string&& name, const std::string& file,
-            std::size_t line, std::vector<std::string>&& doc_string,
+            std::size_t line, internal::doc_string&& doc_str,
             cuke::table&& data_table)
       : node(std::move(key), std::move(name), line, file),
-        m_doc_string(std::move(doc_string)),
+        m_doc_string(std::move(doc_str)),
         m_table(std::move(data_table))
   {
     internal::step_finder finder(this->name());
@@ -122,7 +122,11 @@ class step_node : public node
   }
   [[nodiscard]] const std::vector<std::string>& doc_string() const noexcept
   {
-    return m_doc_string;
+    return m_doc_string.content;
+  }
+  [[nodiscard]] const std::string& doc_string_type() const noexcept
+  {
+    return m_doc_string.type;
   }
   [[nodiscard]] const value_array& values() const noexcept { return m_values; }
   [[nodiscard]] const cuke::table& data_table() const noexcept
@@ -154,7 +158,7 @@ class step_node : public node
   }
 
  private:
-  std::vector<std::string> m_doc_string;
+  internal::doc_string m_doc_string;
   cuke::table m_table;
   bool m_has_step_definition;
   const internal::step_definition* m_step_definition;

@@ -46,6 +46,26 @@ WHEN(doc_string_vector, "There is a doc string as vector:")
   cuke::is_false(doc_string.empty());
 }
 
+WHEN(xml_doc_string, "There is a doc string with an xml payload:")
+{
+  cuke::context<std::string>() = CUKE_DOC_STRING();
+}
+THEN(xml_doc_string_check, "The doc string should equal {string}")
+{
+  const std::string expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<std::string>());
+}
+
+WHEN(tagged_doc_string, "There is a tagged doc string:")
+{
+  cuke::context<std::string>() = CUKE_DOC_STRING_TYPE();
+}
+THEN(tagged_doc_string_check, "The doc string type should be {string}")
+{
+  const std::string expected = CUKE_ARG(1);
+  cuke::equal(expected, cuke::context<std::string>());
+}
+
 WHEN(empty_table_cell, "There is an empty table cell")
 {
   const auto& table = CUKE_TABLE();

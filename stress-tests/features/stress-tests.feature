@@ -42,6 +42,32 @@ Feature: Stress tests
     as std::vector<std::string>
     """
 
+  Scenario Outline: Doc string with XML content in a scenario outline
+    When There is a doc string with an xml payload:
+    """
+    <note><to>Someone</to><text><value></text></note>
+    """
+    Then The doc string should equal "<expected>"
+
+    Examples:
+      | value  | expected                                          |
+      | hello  | <note><to>Someone</to><text>hello</text></note>  |
+      | world  | <note><to>Someone</to><text>world</text></note>  |
+
+  Scenario: Doc string with a content type tag
+    When There is a tagged doc string:
+    """json
+    { "key": "value" }
+    """
+    Then The doc string type should be "json"
+
+  Scenario: Doc string without a content type tag
+    When There is a tagged doc string:
+    """
+    plain text, no tag
+    """
+    Then The doc string type should be ""
+
   Scenario: Empty cells in data table
     When There is an empty table cell
       | | | |

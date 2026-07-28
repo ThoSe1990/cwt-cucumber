@@ -1,6 +1,5 @@
 #include "ast.hpp"
 #include "registry.hpp"
-#include "test_runner.hpp"
 #include "util_regex.hpp"
 
 namespace cuke::ast
@@ -20,7 +19,9 @@ std::vector<std::string> replace_vars_in_doc_string(
 
   for (const std::string& line : doc_string)
   {
-    result.push_back(internal::replace_variables(line, row));
+    constexpr bool ignore_missing_key = true;
+    result.push_back(
+        internal::replace_variables(line, row, ignore_missing_key));
   }
   return result;
 }
@@ -83,7 +84,9 @@ scenario_node::scenario_node(const scenario_outline_node& scenario_outline,
       m_steps.push_back(step_node(
           step.keyword(), internal::replace_variables(step.name(), current_row),
           step.file(), step.line(),
-          replace_vars_in_doc_string(step.doc_string(), current_row),
+          internal::doc_string{
+              replace_vars_in_doc_string(step.doc_string(), current_row),
+              step.doc_string_type()},
           replace_vars_in_tables(step.data_table(), current_row),
           finder.values(), &*it));
     }

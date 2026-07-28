@@ -25,3 +25,30 @@ Feature: This is a doc string example
     as std::vector<std::string>
     """
     Then The box is labeled
+
+  Scenario: Doc string with a content type tag for a customs declaration
+    Given An empty box with a label
+    """
+    Fragile electronics
+    """
+    When The box gets a customs declaration
+    """json
+    { "value_usd": 250, "contents": "electronics" }
+    """
+    Then The customs declaration content type should be "json"
+
+  Scenario Outline: Doc string with a shipping label template in a scenario outline
+    Given An empty box with a label
+    """
+    Fragile electronics
+    """
+    When The box gets a shipping label
+    """
+    Ship to: <destination>. Barcode template: <barcode>
+    """
+    Then The shipping label should equal "<expected_label>"
+
+    Examples:
+      | destination      | expected_label                                          |
+      | Berlin, Germany  | Ship to: Berlin, Germany. Barcode template: <barcode>   |
+      | Tokyo, Japan     | Ship to: Tokyo, Japan. Barcode template: <barcode>      |

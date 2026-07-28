@@ -1,4 +1,5 @@
 #pragma once
+#include <format>
 #include <regex>
 #include <unordered_set>
 
@@ -6,12 +7,14 @@
 #include "expression.hpp"
 #include "registry.hpp"
 #include "table.hpp"
+#include "log.hpp"
 
 namespace cuke::internal
 {
 
-[[nodiscard]] static std::string replace_variables(const std::string& step,
-                                                   const table::row& row)
+[[nodiscard]] static std::string replace_variables(
+    const std::string& step, const table::row& row,
+    bool ignore_missing_key = false)
 {
   std::regex pattern("<(.*?)>");
   std::smatch match;
@@ -20,11 +23,26 @@ namespace cuke::internal
 
   while (std::regex_search(search_start, step.cend(), match, pattern))
   {
-    result.append(search_start, match[0].first);
     std::string key = match[1].str();
-    const std::string& value = row[key].to_string();
-    result += value.empty() ? "\"\"" : value;
-    search_start = match[0].second;
+    if (!row.contains(key) && ignore_missing_key)
+    {
+      // Not an Examples column (e.g. XML/HTML tag in a doc string) - leave
+      // the original text untouched and continue searching after it.
+      cuke::log::verbose(
+          std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
+                      "Examples, left unchanged",
+                      key),
+          cuke::log::new_line);
+      result.append(search_start, match[0].second);
+      search_start = match[0].second;
+    }
+    else
+    {
+      result.append(search_start, match[0].first);
+      const std::string& value = row[key].to_string();
+      result += value.empty() ? "\"\"" : value;
+      search_start = match[0].second;
+    }
   }
   result.append(search_start, step.cend());
 

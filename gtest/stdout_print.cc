@@ -434,7 +434,41 @@ TEST_F(stdout_print, verbose_tags)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_FALSE(has_substr(output, "[    VERBOSE   ]"));
+  EXPECT_TRUE(has_substr(output, "[   VERBOSE   ] Scenario tags '@tag1'"));
+  EXPECT_TRUE(
+      has_substr(output,
+                 "checked against tag expression '@tag2' -> 'False', stopping "
+                 "scenario"));
+}
+TEST_F(stdout_print, verbose_doc_string_key_not_found)
+{
+  const char* script = R"*(
+    Feature: a feature 
+    Scenario Outline: a scenario outline 
+    Given a step 
+    """
+    <value> and <note>
+    """
+    Examples:
+      | value |
+      | hello |
+  )*";
+
+  const char* argv[] = {"program", "-v"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
+
+  cuke::parser p;
+  p.parse_script(script);
+
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_TRUE(has_substr(
+      output,
+      "[   VERBOSE   ] Doc string key '<note>' not found in Examples, "
+      "left unchanged"));
+  EXPECT_FALSE(has_substr(output, "Doc string key '<value>'"));
 }
 TEST_F(stdout_print, log_disabled)
 {
