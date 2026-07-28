@@ -102,8 +102,8 @@ const cuke::value& table::row::operator[](std::string_view key) const
   }
 
   auto value = m_current;
-  for (auto it = m_header.value(); it != (m_current + m_col_count);
-       ++it, ++value)
+  auto header_end = m_header.value() + m_col_count;
+  for (auto it = m_header.value(); it != header_end; ++it, ++value)
   {
     if (it->to_string() == key)
     {
@@ -120,9 +120,8 @@ bool table::row::contains(std::string_view key) const noexcept
     return false;
   }
 
-  auto value = m_current;
-  for (auto it = m_header.value(); it != (m_current + m_col_count);
-       ++it, ++value)
+  auto header_end = m_header.value() + m_col_count;
+  for (auto it = m_header.value(); it != header_end; ++it)
   {
     if (it->to_string() == key)
     {

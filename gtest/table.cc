@@ -178,6 +178,72 @@ TEST(table, hashes_access_row_contains)
   EXPECT_TRUE(data.contains("AGE"));
   EXPECT_FALSE(data.contains("UNKNOWN"));
 }
+
+TEST(table, hashes_access_row_contains_multiple_rows_no_false_positive)
+{
+  cuke::value_array values;
+
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value("34"));
+
+  values.push_back(cuke::value(std::string("GHOST")));
+  values.push_back(cuke::value(std::string("Nowhere")));
+  values.push_back(cuke::value("1"));
+
+  values.push_back(cuke::value(std::string("Alf")));
+  values.push_back(cuke::value(std::string("Melmac")));
+  values.push_back(cuke::value("12"));
+  cuke::table t(values, 3);
+
+  const cuke::table::row& row2 = t.hash_row(2);
+  EXPECT_TRUE(row2.contains("NAME"));
+  EXPECT_TRUE(row2.contains("CITY"));
+  EXPECT_TRUE(row2.contains("AGE"));
+
+  EXPECT_FALSE(row2.contains("GHOST"));
+  EXPECT_FALSE(row2.contains("Thomas"));
+  EXPECT_FALSE(row2.contains("Augsburg"));
+  EXPECT_FALSE(row2.contains("UNKNOWN"));
+
+  const cuke::table::row& row1 = t.hash_row(1);
+  EXPECT_TRUE(row1.contains("NAME"));
+  EXPECT_TRUE(row1.contains("CITY"));
+  EXPECT_TRUE(row1.contains("AGE"));
+  EXPECT_FALSE(row1.contains("Thomas"));
+  EXPECT_FALSE(row1.contains("UNKNOWN"));
+}
+TEST(table, row_operator_key_access_multiple_rows_no_false_positive)
+{
+  cuke::value_array values;
+  values.push_back(cuke::value(std::string("NAME")));
+  values.push_back(cuke::value(std::string("CITY")));
+  values.push_back(cuke::value(std::string("AGE")));
+
+  values.push_back(cuke::value(std::string("Thomas")));
+  values.push_back(cuke::value(std::string("Augsburg")));
+  values.push_back(cuke::value("34"));
+
+  values.push_back(cuke::value(std::string("AGE")));
+  values.push_back(cuke::value(std::string("Nowhere")));
+  values.push_back(cuke::value("1"));
+
+  values.push_back(cuke::value(std::string("Alf")));
+  values.push_back(cuke::value(std::string("Melmac")));
+  values.push_back(cuke::value("12"));
+  cuke::table t(values, 3);
+
+  const cuke::table::row& row2 = t.hash_row(3);
+  EXPECT_EQ(row2["NAME"].to_string(), std::string("Alf"));
+  EXPECT_EQ(row2["CITY"].to_string(), std::string("Melmac"));
+  EXPECT_EQ(row2["AGE"].as<int>(), 12);
+  EXPECT_THROW([[maybe_unused]] const cuke::value& v = row2["Nowhere"],
+               std::runtime_error);
+}
 TEST(table, row_contains_wo_header)
 {
   cuke::value_array values;
