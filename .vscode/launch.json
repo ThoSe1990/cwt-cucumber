@@ -1,0 +1,108 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Unit Tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/bin/unittests",
+      "args": ["--gtest_filter=${input:gtestFilter}"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    },
+    {
+      "name": "Debug Stress Tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/bin/stress-tests",
+      "args": ["${input:stressFeatureFile}"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    },
+    {
+      "name": "Debug Examples",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/bin/example",
+      "args": ["${input:exampleFeatureFile}"],
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false
+    }
+  ],
+  "inputs": [
+    {
+      "id": "gtestFilter",
+      "type": "promptString",
+      "description": "gtest_filter pattern (e.g. table.*, step_finder.word_empty, *)",
+      "default": ""
+    },
+    {
+      "id": "exampleFeatureFile",
+      "type": "pickString",
+      "description": "Feature file to run with the example binary (type 0 or press Enter for all)",
+      "options": [
+        {
+          "label": "1_first_scenario.feature",
+          "value": "./examples/features/1_first_scenario.feature"
+        },
+        {
+          "label": "2_scenario_outline.feature",
+          "value": "./examples/features/2_scenario_outline.feature"
+        },
+        {
+          "label": "3_background.feature",
+          "value": "./examples/features/3_background.feature"
+        },
+        {
+          "label": "4_tags.feature",
+          "value": "./examples/features/4_tags.feature"
+        },
+        {
+          "label": "5_tagged_hooks.feature",
+          "value": "./examples/features/5_tagged_hooks.feature"
+        },
+        {
+          "label": "6_tables.feature",
+          "value": "./examples/features/6_tables.feature"
+        },
+        {
+          "label": "7_doc_strings.feature",
+          "value": "./examples/features/7_doc_strings.feature"
+        },
+        {
+          "label": "8_custom_parameters.feature",
+          "value": "./examples/features/8_custom_parameters.feature"
+        },
+        {
+          "label": "9_rules.feature",
+          "value": "./examples/features/9_rules.feature"
+        },
+        {
+          "label": "10_continue_on_failure.feature",
+          "value": "./examples/features/10_continue_on_failure.feature"
+        },
+        {
+          "label": "11_manual_fails.feature",
+          "value": "./examples/features/11_manual_fails.feature"
+        }
+      ],
+      "default": "./examples"
+    },
+    {
+      "id": "stressFeatureFile",
+      "type": "pickString",
+      "description": "Feature file to run with the stress-tests binary (type 0 or press Enter for all)",
+      "options": [
+        {
+          "label": "All feature files (stress-tests/)",
+          "value": "./stress-tests"
+        },
+        {
+          "label": "stress-tests.feature",
+          "value": "./stress-tests/features/stress-tests.feature"
+        }
+      ],
+      "default": "./stress-tests"
+    }
+  ]
+}
