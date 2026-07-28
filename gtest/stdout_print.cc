@@ -434,7 +434,11 @@ TEST_F(stdout_print, verbose_tags)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
   std::string output = testing::internal::GetCapturedStdout();
-  EXPECT_FALSE(has_substr(output, "[    VERBOSE   ]"));
+  EXPECT_TRUE(has_substr(output, "[   VERBOSE   ] Scenario tags '@tag1'"));
+  EXPECT_TRUE(
+      has_substr(output,
+                 "checked against tag expression '@tag2' -> 'False', stopping "
+                 "scenario"));
 }
 TEST_F(stdout_print, verbose_doc_string_key_not_found)
 {
