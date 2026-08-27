@@ -1,0 +1,27 @@
+# Test-specific overrides on top of the root .clang-tidy.
+#
+# These checks are disabled here (but stay enabled for src/) because they
+# are false positives against patterns that are idiomatic/intentional in
+# this test suite rather than real bugs:
+#
+# - bugprone-use-after-move: several tests deliberately assert the
+#   moved-from state right after a std::move(...) call, e.g.
+#     cuke::table t(std::move(row));
+#     ASSERT_TRUE(row.empty());
+#   That is the point of the test, not a bug.
+# - bugprone-unchecked-optional-access: the gtest idiom
+#     ASSERT_TRUE(x.has_value());
+#     EXPECT_EQ(x.value(), ...);
+#   is used throughout; the checker doesn't recognize ASSERT_TRUE as a
+#   guard, so it flags every occurrence.
+# - bugprone-throwing-static-initialization: several test fixtures use
+#   static class members (e.g. `static std::string expected_value;`) to
+#   share state between statically-registered step lambdas and TEST_F
+#   bodies. They're initialized with trivial literals ("", 0) that will
+#   never throw; restructuring them would break the test mechanism for
+#   no real benefit.
+InheritParentConfig: true
+Checks: >
+  -bugprone-use-after-move,
+  -bugprone-unchecked-optional-access,
+  -bugprone-throwing-static-initialization
