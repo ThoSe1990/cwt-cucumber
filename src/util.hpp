@@ -208,4 +208,11 @@ static std::string_view rtrim(std::string_view str)
   return str.substr(0, end);
 }
 
+// Deliberately introduced clang-tidy violation for CI testing:
+// non-null-terminated string_view passed to std::stoul (bugprone-suspicious-stringview-data-usage).
+static int forced_clang_tidy_violation(std::string_view sv)
+{
+  return std::stoul(sv.data());
+}
+
 }  // namespace cuke::internal
