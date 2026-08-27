@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <regex>
 
 #include "value.hpp"
 #include "param_info.hpp"
@@ -37,6 +38,7 @@ class step_definition
   const std::string& definition() const noexcept;
   const std::vector<param_info>& type_info() const noexcept;
   const std::string& regex_string() const noexcept;
+  const std::regex& regex() const noexcept;
   std::string source_location() const noexcept;
   void call(const value_array& values, const doc_string& doc_str,
             const table& t) const;
@@ -46,6 +48,7 @@ class step_definition
   step_callback m_callback;
   std::string m_definition;
   std::string m_regex_definition;
+  std::regex m_regex;
   std::vector<param_info> m_type_info;
   std::string m_function_name;
   std::string m_file;

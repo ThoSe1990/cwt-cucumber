@@ -2,7 +2,6 @@
 
 #include "util_regex.hpp"
 
-#include <iostream>
 namespace cuke::internal
 {
 
@@ -21,6 +20,7 @@ step_definition::step_definition(step_callback cb,
 {
   std::tie(m_regex_definition, m_type_info) =
       create_regex_definition(add_escape_chars(m_definition));
+  m_regex = std::regex(m_regex_definition);
 }
 const std::string& step_definition::function_name() const noexcept
 {
@@ -38,6 +38,7 @@ const std::string& step_definition::regex_string() const noexcept
 {
   return m_regex_definition;
 }
+const std::regex& step_definition::regex() const noexcept { return m_regex; }
 void step_definition::call(const value_array& values, const doc_string& doc_str,
                            const table& t) const
 {

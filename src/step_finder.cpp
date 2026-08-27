@@ -21,7 +21,10 @@ step_finder::step_finder(std::string_view feature,
 cuke::value_array& step_finder::values() noexcept { return m_values; }
 bool step_finder::step_matches(const std::string& pattern)
 {
-  std::regex regex_pattern(pattern);
+  return step_matches(std::regex(pattern));
+}
+bool step_finder::step_matches(const std::regex& regex_pattern)
+{
   std::smatch match;
   if (std::regex_match(m_feature_string, match, regex_pattern))
   {
