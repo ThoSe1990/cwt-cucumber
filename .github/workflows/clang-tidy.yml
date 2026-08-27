@@ -1,0 +1,96 @@
+name: Clang-Tidy
+
+on:
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
+    env:
+      HOME: /root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure
+        run: |
+          conan install . -of ./build --build missing
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCMAKE_C_COMPILER=clang-17 \
+            -DCMAKE_CXX_COMPILER=clang++-17 \
+            -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
+
+      - name: Install clang-tidy
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq clang-tidy-17
+          clang-tidy-17 --version
+
+      - name: Find changed files
+        id: changed
+        uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            src/**/*.cpp
+            src/**/*.hpp
+            gtest/**/*.cc
+            gtest/**/*.hpp
+            stress-tests/**/*.cpp
+            stress-tests/**/*.hpp
+            examples/**/*.cpp
+            examples/**/*.hpp
+
+      - name: Run clang-tidy
+        id: clang-tidy
+        if: steps.changed.outputs.any_changed == 'true'
+        shell: bash
+        run: |
+          xargs -P "$(nproc)" -I{} \
+            clang-tidy-17 -p ./build {} \
+            > clang-tidy-report.txt 2>&1 <<< "${{ steps.changed.outputs.all_changed_files }}" || true
+
+          # Full log, always available even if there is nothing to annotate.
+          {
+            echo "## Clang-Tidy Report"
+            echo '```'
+            cat clang-tidy-report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Turn every "file:line:col: warning|error: message [check]" line
+          # into a GitHub Actions annotation so it shows up inline on the
+          # PR's "Files changed" tab.
+          warning_count=0
+          while IFS= read -r line; do
+            if [[ "$line" =~ ^(.+):([0-9]+):([0-9]+):\ (warning|error):\ (.+)$ ]]; then
+              file="${BASH_REMATCH[1]#"$PWD"/}"
+              lineno="${BASH_REMATCH[2]}"
+              col="${BASH_REMATCH[3]}"
+              level="${BASH_REMATCH[4]}"
+              message="${BASH_REMATCH[5]}"
+              gh_level="warning"
+              [ "$level" = "error" ] && gh_level="error"
+              echo "::${gh_level} file=${file},line=${lineno},col=${col}::${message}"
+              warning_count=$((warning_count + 1))
+            fi
+          done < clang-tidy-report.txt
+
+          echo "Found ${warning_count} clang-tidy finding(s)."
+          if [ "$warning_count" -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Upload full report
+        if: steps.changed.outputs.any_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clang-tidy-report
+          path: clang-tidy-report.txt
