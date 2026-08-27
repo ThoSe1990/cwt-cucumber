@@ -89,7 +89,7 @@ jobs:
           fi
 
       - name: Upload full report
-        if: steps.changed.outputs.any_changed == 'true'
+        if: always() && steps.changed.outputs.any_changed == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: clang-tidy-report
