@@ -13,7 +13,7 @@ struct expression
 {
   std::string pattern;
   std::string type_info;
-  expression_callback callback;
+  expression_callback callback{nullptr};
 };
 
 }  // namespace cuke::internal

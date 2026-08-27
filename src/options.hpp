@@ -118,8 +118,8 @@ class program_args
   };
   struct info
   {
-    arg key;
-    arg_type type;
+    arg key{arg::none};
+    arg_type type{arg_type::option};
     std::string_view description;
   };
   // clang-format off
@@ -162,7 +162,7 @@ class program_args
   std::vector<feature_file> m_files;
   std::vector<std::string> m_excluded_files;
 
-  static const std::unordered_map<std::string_view, info> keys;
+  static const std::unordered_map<std::string_view, info>& keys();
 };
 
 [[nodiscard]] program_args& get_program_args(

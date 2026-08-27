@@ -92,6 +92,11 @@ static void write_to_file_or_stdout(std::string_view data,
 [[nodiscard]] inline std::string create_string(std::string_view begin,
                                                std::string_view end)
 {
+  // `begin` and `end` are always sub-views of the same underlying
+  // source-script buffer (scanner/lexer invariant), so the range
+  // [begin.data(), end.data()+end.size()) is valid even though begin's
+  // data() is used without its own size.
+  // NOLINTNEXTLINE(bugprone-suspicious-stringview-data-usage)
   return std::string(begin.data(), end.data() + end.size());
 }
 [[nodiscard]] inline std::string create_string(const token& begin,
@@ -144,7 +149,7 @@ filepath_and_lines(std::string_view sv)
     const std::string_view sub = sv.substr(pos + 1, last_pos - pos);
     if (is_number(sub))
     {
-      lines.insert(std::stoul(sub.data()));
+      lines.insert(std::stoul(std::string(sub)));
     }
     else
     {
@@ -158,7 +163,7 @@ filepath_and_lines(std::string_view sv)
 
 [[nodiscard]] inline std::string read_file(std::string_view path)
 {
-  std::ifstream in(path.data());
+  std::ifstream in{std::string(path)};
   std::string script((std::istreambuf_iterator<char>(in)),
                      std::istreambuf_iterator<char>());
   return script;

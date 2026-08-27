@@ -161,7 +161,7 @@ class step_node : public node
   internal::doc_string m_doc_string;
   cuke::table m_table;
   bool m_has_step_definition;
-  const internal::step_definition* m_step_definition;
+  const internal::step_definition* m_step_definition{nullptr};
   value_array m_values;
 };
 

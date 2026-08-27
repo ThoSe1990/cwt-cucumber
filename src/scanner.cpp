@@ -158,18 +158,7 @@ bool scanner::is_whitespace() const
 }
 bool scanner::end_of_line() const
 {
-  if (peek() == '\n')
-  {
-    return true;
-  }
-  else if (peek() == '\r' && peek_next() == '\n')
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
+  return peek() == '\n' || (peek() == '\r' && peek_next() == '\n');
 }
 void scanner::skip_whitespaces()
 {
@@ -417,6 +406,9 @@ token scanner::scan_token()
       m_line++;
       return make_token(token_type::linebreak);
     }
+    default:
+      // no case matched: fall through to identifier/word lookup below
+      break;
   }
 
   auto [identifier, length] =

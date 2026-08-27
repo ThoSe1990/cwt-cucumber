@@ -18,6 +18,7 @@ TEST(spanish_keywords, feature_2)
   # language:  es
   Necesidad del negocio:
 )*";
+  EXPECT_EQ(scanner(script).scan_token().type, token_type::feature);
 }
 TEST(spanish_keywords, feature_3)
 {

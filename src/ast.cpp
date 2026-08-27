@@ -7,7 +7,7 @@ namespace cuke::ast
 namespace
 {
 std::vector<std::string> replace_vars_in_doc_string(
-    const std::vector<std::string> doc_string, const cuke::table::row& row)
+    const std::vector<std::string>& doc_string, const cuke::table::row& row)
 {
   if (doc_string.empty())
   {

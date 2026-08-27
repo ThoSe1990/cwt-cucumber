@@ -130,7 +130,7 @@ std::string as_json(std::size_t indents /* = 2 */)
     json_features.push_back(current_feature);
   }
 
-  return json_features.dump(indents);
+  return json_features.dump(static_cast<int>(indents));
 #else
   log::error(
       "nlohmann-json is not added as dependency in this build. Can not "

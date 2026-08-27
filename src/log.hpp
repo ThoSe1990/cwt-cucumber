@@ -48,7 +48,7 @@ class logger
   bool colors_enabled() const { return m_use_color; }
 
   template <typename... Args>
-  void Log(level l, Args&&... args)
+  void log_message(level l, Args&&... args)
   {
     if (l < m_level) return;
     if (m_disabled) return;
@@ -59,35 +59,35 @@ class logger
   template <typename... Args>
   void quiet(Args&&... args)
   {
-    Log(level::quiet, std::forward<Args>(args)...);
+    log_message(level::quiet, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   void report(Args&&... args)
   {
-    Log(level::report, std::forward<Args>(args)...);
+    log_message(level::report, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   void verbose(Args&&... args)
   {
-    if (m_use_color) Log(level::verbose, log::black);
-    Log(level::verbose, std::forward<Args>(args)...);
-    if (m_use_color) Log(level::verbose, log::reset_color);
+    if (m_use_color) log_message(level::verbose, log::black);
+    log_message(level::verbose, std::forward<Args>(args)...);
+    if (m_use_color) log_message(level::verbose, log::reset_color);
   }
 
   template <typename... Args>
   void info(Args&&... args)
   {
-    Log(level::info, std::forward<Args>(args)...);
+    log_message(level::info, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
   void error(Args&&... args)
   {
-    if (m_use_color) Log(level::error, log::red);
-    Log(level::error, std::forward<Args>(args)...);
-    if (m_use_color) Log(level::error, log::reset_color);
+    if (m_use_color) log_message(level::error, log::red);
+    log_message(level::error, std::forward<Args>(args)...);
+    if (m_use_color) log_message(level::error, log::reset_color);
   }
 
  private:
