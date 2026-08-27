@@ -26,7 +26,11 @@ TEST(token, token_3)
   EXPECT_EQ(t.value, expected);
 }
 
-TEST(scanner, scan_vertical) { token t = scanner("|").scan_token(); }
+TEST(scanner, scan_vertical)
+{
+  const token t = scanner("|").scan_token();
+  EXPECT_EQ(t.type, token_type::vertical);
+}
 TEST(scanner, scan_minus)
 {
   EXPECT_EQ(scanner("-").scan_token().type, token_type::minus);

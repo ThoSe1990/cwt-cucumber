@@ -773,9 +773,9 @@ TEST_F(custom_types, custom_conversions_4)
 
 struct date
 {
-  int day;
+  int day{0};
   std::string month;
-  int year;
+  int year{0};
 };
 
 struct date_range
