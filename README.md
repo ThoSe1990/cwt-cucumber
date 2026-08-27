@@ -1,4 +1,3 @@
-[![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github)](https://github.com/sponsors/ThoSe1990)
 [![Build & Test](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml/badge.svg)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/unittests.yml)
 [![Formatting](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml/badge.svg?branch=main)](https://github.com/ThoSe1990/cwt-cucumber/actions/workflows/format.yml)
 [![Conan Center](https://img.shields.io/conan/v/cwt-cucumber)](https://conan.io/center/recipes/cwt-cucumber)
@@ -99,6 +98,8 @@ Don't hesitate and open an Issue.
 If you find `cwt-cucumber` useful and want to support its development, you can [sponsor me on GitHub](https://github.com/sponsors/ThoSe1990).
 
 Every bit of support is greatly appreciated and helps me keep improving the project. Thank you! 🙌
+
+---
 
 Cheers 🍻  
   
