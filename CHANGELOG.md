@@ -7,6 +7,10 @@
 - `cuke::current_feature()`, `cuke::current_scenario()` and `cuke::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
 - `CUKE_DOC_STRING_TYPE()` to access a doc string's content type tag (e.g. `json` in ` ```json`) ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
 
+### Changed
+
+- Step matching now reuses a precompiled regex per step definition instead of recompiling it on every match attempt ([136](https://github.com/ThoSe1990/cwt-cucumber/pull/136))
+
 ### Fixed
 
 - Literal parentheses `()` and curly braces `{}` in step text are not matched; escape them with `\(`, `\)`, `\{`, `\}` to use them literally instead of as optional text or a parameter type ([129](https://github.com/ThoSe1990/cwt-cucumber/pull/129))
