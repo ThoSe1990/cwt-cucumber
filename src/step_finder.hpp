@@ -3,6 +3,7 @@
 #include <optional>
 #include <string_view>
 #include <algorithm>
+#include <regex>
 
 #include "value.hpp"
 #include "table.hpp"
@@ -18,6 +19,7 @@ class step_finder
               std::optional<cuke::table::row> hash_row = std::nullopt);
 
   [[nodiscard]] bool step_matches(const std::string& pattern);
+  [[nodiscard]] bool step_matches(const std::regex& pattern);
   [[nodiscard]] cuke::value_array& values() noexcept;
 
   template <typename Iterator>
@@ -25,7 +27,7 @@ class step_finder
   {
     return std::find_if(first, last,
                         [this](const cuke::internal::step_definition& s)
-                        { return step_matches(s.regex_string()); });
+                        { return step_matches(s.regex()); });
   }
 
  private:
