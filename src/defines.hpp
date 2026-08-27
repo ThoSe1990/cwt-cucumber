@@ -6,8 +6,8 @@
 #include "registry.hpp"    // NOLINT
 #include "expression.hpp"  // NOLINT
 
-#define CWT_CONCAT_(a, b) a##b
-#define CONCAT(a, b) CWT_CONCAT_(a, b)
+#define CWT_CONCAT_IMPL(a, b) a##b
+#define CONCAT(a, b) CWT_CONCAT_IMPL(a, b)
 
 #define CWT_STEP(function_name, definition, type)                       \
   static void function_name(                                            \

@@ -1,10 +1,8 @@
-#include <regex>
 #include <algorithm>
 #include <stdexcept>
 #include <utility>
 
 #include "table.hpp"
-#include "util_regex.hpp"
 
 namespace cuke
 {
@@ -57,7 +55,8 @@ table::row table::operator[](std::size_t idx) const
 {
   if (idx < row_count())
   {
-    return row(m_data.begin() + idx * m_col_count, m_col_count);
+    return row(m_data.begin() + static_cast<std::ptrdiff_t>(idx * m_col_count),
+               m_col_count);
   }
   else
   {
@@ -84,7 +83,7 @@ const cuke::value& table::row::operator[](std::size_t idx) const
 {
   if (idx < m_col_count)
   {
-    return *(m_current + idx);
+    return *(m_current + static_cast<std::ptrdiff_t>(idx));
   }
   else
   {
@@ -102,7 +101,7 @@ const cuke::value& table::row::operator[](std::string_view key) const
   }
 
   auto value = m_current;
-  auto header_end = m_header.value() + m_col_count;
+  auto header_end = m_header.value() + static_cast<std::ptrdiff_t>(m_col_count);
   for (auto it = m_header.value(); it != header_end; ++it, ++value)
   {
     if (it->to_string() == key)
@@ -120,7 +119,7 @@ bool table::row::contains(std::string_view key) const noexcept
     return false;
   }
 
-  auto header_end = m_header.value() + m_col_count;
+  auto header_end = m_header.value() + static_cast<std::ptrdiff_t>(m_col_count);
   for (auto it = m_header.value(); it != header_end; ++it)
   {
     if (it->to_string() == key)
@@ -143,8 +142,9 @@ table::row table::hash_row(std::size_t row_index) const
 {
   if (row_index < row_count()) [[likely]]
   {
-    return row(m_data.begin() + row_index * m_col_count, m_col_count,
-               m_data.begin());
+    return row(
+        m_data.begin() + static_cast<std::ptrdiff_t>(row_index * m_col_count),
+        m_col_count, m_data.begin());
   }
   throw std::runtime_error(
       std::format("table::hash: Row index '{}' does not exist", row_index));
@@ -196,10 +196,11 @@ std::vector<std::string> table::to_string_array() const noexcept
     {
       line += ' ';
       line.append(row[i].to_string());
-      int padding = col_size[i] - row[i].to_string().length();
+      const auto value_length = static_cast<long>(row[i].to_string().length());
+      const long padding = static_cast<long>(col_size[i]) - value_length;
       if (padding > 0)
       {
-        line.append(padding, ' ');
+        line.append(static_cast<std::size_t>(padding), ' ');
       }
       line += ' ';
       line += '|';

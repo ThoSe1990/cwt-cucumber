@@ -97,13 +97,13 @@ void program_args::initialize(int argc, const char* argv[])
 
   for (auto it = args.begin() + 1; it != args.end(); ++it)
   {
-    if (!keys.contains(*it))
+    if (!keys().contains(*it))
     {
       process_path(*it);
       continue;
     }
 
-    auto& opt = keys.at(*it);
+    auto& opt = keys().at(*it);
 
     switch (opt.type)
     {
@@ -158,18 +158,27 @@ void program_args::clear()
   m_excluded_files.clear();
 }
 
-const std::unordered_map<std::string_view, program_args::info>
-    program_args::keys = []
+const std::unordered_map<std::string_view, program_args::info>&
+program_args::keys()
 {
-  std::unordered_map<std::string_view, program_args::info> m;
-
-  for (auto const& d : program_args::defs)
+  static const std::unordered_map<std::string_view, program_args::info> m = []
   {
-    if (!d.short_key.empty()) m[d.short_key] = {d.key, d.type, d.description};
-    if (!d.long_key.empty()) m[d.long_key] = {d.key, d.type, d.description};
-  }
+    std::unordered_map<std::string_view, program_args::info> result;
+    for (auto const& d : program_args::defs)
+    {
+      if (!d.short_key.empty())
+      {
+        result[d.short_key] = {d.key, d.type, d.description};
+      }
+      if (!d.long_key.empty())
+      {
+        result[d.long_key] = {d.key, d.type, d.description};
+      }
+    }
+    return result;
+  }();
   return m;
-}();
+}
 
 void program_args::find_feature_in_dir(const std::filesystem::path& dir)
 {

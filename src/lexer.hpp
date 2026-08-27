@@ -25,7 +25,9 @@ class lexer
   template <typename... Args>
   void advance_to(Args... args)
   {
-    while (!check(std::forward<Args>(args)...))
+    // args are checked again on every loop iteration, so they must not be
+    // forwarded (which could move from them on the first iteration).
+    while (!check(args...))
     {
       advance();
     }
@@ -50,7 +52,9 @@ class lexer
       advance_to(token_type::linebreak, token_type::eof);
       if (match(token_type::linebreak))
       {
-        if (check(std::forward<Args>(args)...))
+        // args are re-checked on every outer loop iteration, so they must
+        // not be forwarded (which could move from them on first use).
+        if (check(args...))
         {
           return;
         }

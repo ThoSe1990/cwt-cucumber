@@ -44,7 +44,9 @@ template <typename... Ts>
                                                          Ts&&... terminators)
 {
   std::vector<std::string> lines;
-  while (!lex.check(std::forward<Ts>(terminators)...))
+  // terminators are re-checked on every loop iteration, so they must not be
+  // forwarded (which could move from them on the first iteration).
+  while (!lex.check(terminators...))
   {
     token begin = lex.current();
     lex.advance_to(token_type::linebreak);

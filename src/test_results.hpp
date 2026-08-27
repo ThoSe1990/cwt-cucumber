@@ -26,7 +26,7 @@ enum class test_status
 struct step
 {
   test_status status{test_status::passed};
-  std::size_t line;
+  std::size_t line{0};
   std::string id;
   std::string name;
   std::string keyword;
@@ -39,7 +39,7 @@ struct scenario
 {
   std::string id;
   test_status status{test_status::passed};
-  std::size_t line;
+  std::size_t line{0};
   std::string name;
   std::string description;
   std::string keyword;
@@ -53,7 +53,7 @@ struct feature
   std::string name;
   std::string description;
   std::string file;
-  std::size_t line;
+  std::size_t line{0};
   std::vector<std::string> tags;
   std::vector<scenario> scenarios{};
 };

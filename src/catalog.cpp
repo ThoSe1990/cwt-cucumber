@@ -88,7 +88,7 @@ std::string as_json(std::size_t indents /* = 2 */)
     steps_catalog["types"].push_back(type_entry);
   }
 
-  return steps_catalog.dump(indents);
+  return steps_catalog.dump(static_cast<int>(indents));
 #else
   log::error(
       "nlohmann-json is not added as dependency in this build. Can not "

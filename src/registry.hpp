@@ -24,7 +24,7 @@ static const cuke::value& get_param_value(
   std::size_t zero_based_idx = idx - 1;
   if (zero_based_idx < values_count)
   {
-    return *(begin + zero_based_idx);
+    return *(begin + static_cast<std::ptrdiff_t>(zero_based_idx));
   }
   else
   {
@@ -128,27 +128,27 @@ class registry
   void push_expression(std::string_view key,
                        const expression& custom_expression)
   {
-    if (m_expressions.custom.contains(key.data()))
+    if (m_expressions.custom.contains(std::string(key)))
     {
       throw std::runtime_error(
           std::format("Custom parameter type '{}' already exists.", key));
     }
-    m_expressions.custom[key.data()] = custom_expression;
+    m_expressions.custom[std::string(key)] = custom_expression;
   }
   [[nodiscard]] bool has_expression(std::string_view key) const noexcept
   {
-    return m_expressions.standard.contains(key.data()) ||
-           m_expressions.custom.contains(key.data());
+    return m_expressions.standard.contains(std::string(key)) ||
+           m_expressions.custom.contains(std::string(key));
   }
   [[nodiscard]] const expression& get_expression(std::string_view key) const
   {
-    if (m_expressions.standard.contains(key.data()))
+    if (m_expressions.standard.contains(std::string(key)))
     {
-      return m_expressions.standard.at(key.data());
+      return m_expressions.standard.at(std::string(key));
     }
-    if (m_expressions.custom.contains(key.data()))
+    if (m_expressions.custom.contains(std::string(key)))
     {
-      return m_expressions.custom.at(key.data());
+      return m_expressions.custom.at(std::string(key));
     }
     throw std::runtime_error(
         std::format("Expression '{}' does not exists", key));
@@ -158,21 +158,19 @@ class registry
     std::stringstream pattern;
     pattern << "(";
     bool first = true;
-    for (auto it = m_expressions.standard.begin();
-         it != m_expressions.standard.end(); ++it)
+    for (const auto& expr : m_expressions.standard)
     {
       if (!first)
       {
         pattern << "|";
       }
       first = false;
-      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+      pattern << "\\{" << expr.first.substr(1, expr.first.size() - 2) << "\\}";
     }
-    for (auto it = m_expressions.custom.begin();
-         it != m_expressions.custom.end(); ++it)
+    for (const auto& expr : m_expressions.custom)
     {
       pattern << "|";
-      pattern << "\\{" << it->first.substr(1, it->first.size() - 2) << "\\}";
+      pattern << "\\{" << expr.first.substr(1, expr.first.size() - 2) << "\\}";
     }
     pattern << ")";
     return pattern.str();

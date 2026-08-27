@@ -49,9 +49,9 @@ enum class token_type
 
 struct token
 {
-  token_type type;
+  token_type type{token_type::none};
   std::string_view value;
-  std::size_t line;
+  std::size_t line{0};
 };
 
 }  // namespace cuke::internal

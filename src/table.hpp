@@ -85,7 +85,7 @@ class table
 
     // private:
     value_array::const_iterator m_current;
-    std::size_t m_col_count;
+    std::size_t m_col_count{0};
     std::optional<value_array::const_iterator> m_header{std::nullopt};
   };
 
@@ -111,7 +111,7 @@ class table
     row operator*() const { return row(m_current, m_col_count, m_header); }
     row_iterator& operator++()
     {
-      m_current += m_col_count;
+      m_current += static_cast<std::ptrdiff_t>(m_col_count);
       return *this;
     }
     bool operator!=(const row_iterator& rhs) const
@@ -152,7 +152,8 @@ class table
     }
     row_iterator begin() const
     {
-      return row_iterator(m_begin + m_col_count, m_begin, m_col_count);
+      return row_iterator(m_begin + static_cast<std::ptrdiff_t>(m_col_count),
+                          m_begin, m_col_count);
     }
     row_iterator end() const { return row_iterator(m_end, m_col_count); }
 

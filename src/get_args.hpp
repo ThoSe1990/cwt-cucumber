@@ -26,12 +26,13 @@ struct conversion
     // NOTE: MSVC treats std::size_t differently then mac/linux
     if constexpr (std::is_same_v<T, std::size_t>)
     {
-      return make_parameter_value<std::size_t>(begin + idx, values_count);
+      return make_parameter_value<std::size_t>(
+          begin + static_cast<std::ptrdiff_t>(idx), values_count);
     }
     else
     {
-      return cuke::registry().get_expression(key).callback(begin + idx,
-                                                           values_count);
+      return cuke::registry().get_expression(key).callback(
+          begin + static_cast<std::ptrdiff_t>(idx), values_count);
     }
   }
 };

@@ -43,7 +43,7 @@ class context_type
     template <typename... Args>
     c_model(Args&&... args) : m_value(std::forward<Args>(args)...){};
 
-    T m_value;
+    T m_value{};
   };
 
  private:
