@@ -48,11 +48,26 @@ cmake --build ./build -j$(nproc)
 ./build/bin/example ./examples --exclude-file 11_manual_fails.feature
 ```
 
+### Benchmarks
+
+```sh
+# Step-matching throughput benchmark (registers ~50 step definitions,
+# runs many step_finder::find() lookups, reports avg time per lookup)
+./build/bin/step-matching-benchmark            # default: 100000 iterations
+./build/bin/step-matching-benchmark 1000000    # custom iteration count
+```
+
+Use this to quantify the effect of changes to `step_finder`/`step_definition`
+matching (e.g. before/after a regex-caching or matcher-backend change).
+It is a plain, dependency-free timer harness (`cuke::internal::execute_and_count_time`),
+not a statistical microbenchmarking framework — treat results as a rough
+relative signal, not an absolute number to publish.
+
 ### CMake build options
 
 | Option | Default | Effect |
 |---|---|---|
-| `CUCUMBER_BUILD_TESTS_AND_EXAMPLES` | `ON` | Build `unittests`, `example`, `stress-tests` targets |
+| `CUCUMBER_BUILD_TESTS_AND_EXAMPLES` | `ON` | Build `unittests`, `example`, `stress-tests`, `step-matching-benchmark` targets |
 | `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE` | `ON` | Final result is FAILED if any step has no definition. Set `OFF` in CI and agent runs |
 
 ---
@@ -97,6 +112,9 @@ cwt-cucumber/
 │   ├── step_definition.cpp  # Example step implementations
 │   ├── custom_parameters.cpp
 │   └── hooks.cpp
+├── benchmarks/
+│   ├── step_matching_benchmark.cpp  # step_finder::find() throughput harness
+│   └── CMakeLists.txt
 ├── .github/workflows/
 │   ├── copilot-setup-steps.yml  # Pre-builds env for Copilot cloud agent
 │   └── unittests.yml            # CI: Linux (GCC 13 + Clang 17), Windows, macOS
@@ -796,12 +814,23 @@ From `.clang-format`:
 - `SortIncludes: false` — keep include order as written
 - Max line length: 80 (Google default)
 
-Run before committing:
+**Always run `clang-format` on changed/added files before committing** —
+CI runs a format check on the diff and will reject PRs that fail it (this
+is the most common avoidable CI failure). Format only the files you
+touched, relative to the branch's merge base with `main`:
+
 ```sh
-clang-format -i src/*.hpp src/*.cpp gtest/*.cc
+# Format every changed/added .cpp/.hpp/.cc file vs. main
+git diff --name-only --diff-filter=d main... -- '*.cpp' '*.hpp' '*.cc' \
+  | xargs -r clang-format -i
+
+# Re-check nothing is left unformatted
+git diff --name-only --diff-filter=d main... -- '*.cpp' '*.hpp' '*.cc' \
+  | xargs -r clang-format --dry-run --Werror
 ```
 
-CI will reject PRs that fail the format check.
+(For a single file you're actively editing, `clang-format -i path/to/file`
+is sufficient.)
 
 Additional conventions observed in the codebase:
 
