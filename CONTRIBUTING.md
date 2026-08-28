@@ -32,6 +32,17 @@ cmake --build ./build -j$(nproc)
 ./build/bin/example ./examples --exclude-file 11_manual_fails.feature
 ```
 
+## Benchmarking step matching
+
+If you change `step_finder`/`step_definition` matching logic, run this
+before and after your change on the same machine to sanity-check the
+performance impact (not a precise, cross-platform benchmark — see
+[Benchmarks](AGENTS.md#benchmarks) in AGENTS.md for details):
+
+```sh
+./build/bin/step-matching-benchmark
+```
+
 ---
 
 ## Making changes
