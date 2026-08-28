@@ -585,6 +585,48 @@ TEST(step_finder, escaped_brace_wraps_a_real_type)
   EXPECT_EQ(sf.values().at(0).as<int>(), 5);
 }
 
+TEST(step_finder, quantifier_shaped_literal_braces_after_anonymous_type)
+{
+  // Regression test: "{}" expands to "(.*)". An unescaped, digit-only
+  // "{56}" directly after it used to be handed to std::regex unchanged,
+  // where it is parsed as a repetition quantifier, producing "(.*){56}" -
+  // a catastrophic-backtracking pattern found via fuzz testing. Since
+  // "{56}" is not a registered expression key, add_escape_chars() now
+  // escapes such digit-only brace groups so they stay literal text.
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars("I have {}{56} things"));
+  step_finder sf("I have foo{56} things");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<std::string>(), "foo");
+}
+
+TEST(step_finder, quantifier_shaped_literal_braces_do_not_match_without_them)
+{
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars("I have {}{56} things"));
+  step_finder sf("I have foo things");
+  EXPECT_FALSE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, comma_quantifier_shaped_literal_braces_stay_literal)
+{
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars("range {2,4}"));
+  step_finder sf("range {2,4}");
+  EXPECT_TRUE(sf.step_matches(pattern));
+}
+
+TEST(step_finder, non_digit_braces_are_still_treated_as_a_type)
+{
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars("I have {int} things"));
+  step_finder sf("I have 5 things");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 5);
+}
+
 TEST(step_finder, multiple_separate_escaped_parenthesis_groups)
 {
   auto [pattern, types] = create_regex_definition("\\(a\\) and \\(b\\)");

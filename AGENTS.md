@@ -129,16 +129,17 @@ Once fixed, turn the crashing input into a regression test (e.g.
 `gtest/ast.cc` for parser bugs, `gtest/step_finder.cc` for step-matching
 bugs) so it can never silently regress.
 
-> **Known limitation, not a bug to fix:** `fuzz-step-finder` will reliably
-> find inputs that hang instead of crash — `std::regex_match`'s
-> catastrophic backtracking on patterns like `(.*){56}` (an anonymous `{}`
-> immediately followed by an unescaped, digit-only `{N}`). This is a
-> structural `std::regex` limitation, not a cwt-cucumber bug; the
-> mitigation is to always escape literal braces (`\{`, `\}`) in step
-> definitions, as already documented in
-> `docs/chapters/step_definitions.rst`. No regression seed is committed for
-> this case — a seed that reliably hangs would make every future run
-> immediately report a timeout.
+> **Fixed finding:** `fuzz-step-finder` previously found an input that hung
+> instead of crashed — `std::regex_match`'s catastrophic backtracking on
+> patterns like `(.*){56}` (an anonymous `{}` immediately followed by an
+> unescaped, digit-only `{N}`, which `std::regex` parses as a repetition
+> quantifier). This is now fixed in `add_escape_chars()`
+> (`src/util_regex.hpp`): any `{...}` group shaped like a `std::regex`
+> quantifier (digits and at most one comma) is escaped to `\{...\}` so it
+> is always treated as literal text instead. See
+> `gtest/step_finder.cc` (`quantifier_shaped_literal_braces_*` tests) and
+> `fuzz/corpus/step_finder/anonymous_then_literal_brace_count.seed` for the
+> regression coverage.
 
 ### CMake build options
 

@@ -214,30 +214,27 @@ value for `fuzz-replace-variables`) — see the top-of-file comment in each
 harness (`fuzz_step_finder.cpp`, `fuzz_replace_variables.cpp`) for the exact
 split.
 
-### Known limitation: regex denial-of-service (ReDoS), not treated as a crash to fix
+### Fixed finding: regex denial-of-service (ReDoS) via unescaped digit-only braces
 
-`fuzz-step-finder` will reliably find inputs that make `std::regex_match`
-hang for a very long time (until libFuzzer's `-timeout=` kills it) rather
-than crash. The minimal repro is a step definition like `I have {}{56}
-things` matched against a long enough feature step: the anonymous `{}`
-expression compiles to `(.*)`, and an unescaped, immediately-following
-digit-only literal brace group like `{56}` is interpreted by `std::regex` as
-a *repetition count* applied to it, producing `(.*){56}`. Matching that
-against a long input line triggers catastrophic backtracking in libstdc++'s
-regex engine — this reproduces identically with plain `std::regex_match`,
-with no cwt-cucumber code involved at all.
+`fuzz-step-finder` found an input that made `std::regex_match` hang for a
+very long time (until libFuzzer's `-timeout=` kills it) rather than crash.
+The minimal repro was a step definition like `I have {}{56} things` matched
+against a long enough feature step: the anonymous `{}` expression compiles
+to `(.*)`, and an unescaped, immediately-following digit-only literal brace
+group like `{56}` was interpreted by `std::regex` as a *repetition count*
+applied to it, producing `(.*){56}`. Matching that against a long input line
+triggered catastrophic backtracking in libstdc++'s regex engine — this
+reproduced identically with plain `std::regex_match`, with no cwt-cucumber
+code involved at all.
 
-This is a known, structural limitation of `std::regex` itself, not a bug we
-can fix in this codebase. The existing mitigation is what
-`docs/chapters/step_definitions.rst` already documents: **always escape
-literal curly braces** as `\{` / `\}` in step definitions. Because this
-"crash" is really an unbounded hang rather than a deterministic
-crash-and-exit, no regression seed for it is committed to
-`fuzz/corpus/step_finder/` — a seed that reliably hangs would make every
-future fuzzing run immediately report a timeout, which defeats the purpose
-of the seed corpus. If you rediscover this class of hang while fuzzing,
-recognize the pattern (`(.*){N}`, or similar unescaped brace/quantifier
-combinations after an anonymous or `{word}` expression) rather than
-reporting it as a new bug.
+This is now fixed: `add_escape_chars()` (`src/util_regex.hpp`) detects any
+`{...}` group shaped like a `std::regex` repetition quantifier (digits and
+at most one comma, e.g. `{56}`, `{2,4}`) that is not itself a recognized
+Cucumber expression key, and escapes its braces to `\{...\}` so it is always
+treated as literal text and can never be misparsed as a quantifier. See
+`gtest/step_finder.cc` (`quantifier_shaped_literal_braces_*` tests) for unit
+coverage, and `fuzz/corpus/step_finder/anonymous_then_literal_brace_count.seed`
+for the fuzz regression seed (previously withheld because, before the fix,
+it reliably hung).
 
 
