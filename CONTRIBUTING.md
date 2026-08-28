@@ -43,31 +43,33 @@ performance impact (not a precise, cross-platform benchmark — see
 ./build/bin/step-matching-benchmark
 ```
 
-## Fuzz testing the parser
+## Fuzz testing
 
-If you touch the scanner, lexer, or parser, it's worth running the
-libFuzzer harness for a couple of minutes to check for crashes on
-malformed input (requires Clang — on macOS use Homebrew LLVM, not Xcode's
-bundled Clang; first time doing this? see [`fuzz/README.md`](fuzz/README.md)
-for a full beginner walkthrough; see
+If you touch the scanner, lexer, parser, or the step-matching regex code
+(`create_regex_definition`/`step_finder`/`replace_variables`), it's worth
+running the relevant libFuzzer harness for a couple of minutes to check for
+crashes on malformed input (requires Clang — on macOS use Homebrew LLVM,
+not Xcode's bundled Clang; first time doing this? see
+[`fuzz/README.md`](fuzz/README.md) for a full beginner walkthrough; see
 [Fuzz testing](AGENTS.md#fuzz-testing) in AGENTS.md for the terse
-reference):
+reference and the full list of targets):
 
 ```sh
 cmake -S . -B build-fuzz -DCMAKE_CXX_COMPILER=clang++ -DCUCUMBER_BUILD_FUZZERS=ON
-cmake --build build-fuzz --target fuzz-parser
+cmake --build build-fuzz --target fuzz-parser   # or fuzz-scanner / fuzz-step-finder / fuzz-replace-variables
 cp -r fuzz/corpus/parser parser-corpus-scratch
 ./build-fuzz/bin/fuzz-parser -max_total_time=120 parser-corpus-scratch
 ```
 
-`fuzz/corpus/parser/` is a tracked seed corpus of real and edge-case `.feature`
-files — always fuzz with a copy of it (`parser-corpus-scratch/`, gitignored)
-rather than from scratch or directly against `fuzz/corpus/parser/` itself: it
-makes the fuzzer reach much deeper into the parser in the same amount of
-time, and keeps libFuzzer's generated artifacts out of the tracked
-directory. If you fix a crash found by fuzzing, add its input to
-`fuzz/corpus/parser/` as a new
-`edge_*.feature` file alongside a `gtest/ast.cc` regression test.
+Each target has its own tracked seed corpus under `fuzz/corpus/<target>/`
+(real and edge-case input files) — always fuzz with a scratch copy of it
+(`<target>-corpus-scratch/`, gitignored) rather than from scratch or
+directly against the tracked directory itself: it makes the fuzzer reach
+much deeper in the same amount of time, and keeps libFuzzer's generated
+artifacts out of the tracked directory. If you fix a crash found by
+fuzzing, add its (minimized) input to the matching `fuzz/corpus/<target>/`
+directory as a new, descriptively-named seed file alongside a unit-test
+regression.
 
 ### Using a Mac? 
 
@@ -84,7 +86,7 @@ cmake -S . -B build-fuzz \
   -DCUCUMBER_BUILD_FUZZERS=ON \
   -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
 
-# 3. Build just the fuzzer
+# 3. Build just the fuzzer you need
 cmake --build build-fuzz --target fuzz-parser
 
 # 4. Copy the tracked seed corpus to a gitignored scratch dir, then run

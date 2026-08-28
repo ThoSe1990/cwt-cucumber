@@ -185,3 +185,59 @@ waiting for the fuzzer to find it again.
    tracked and should be committed if you added a new regression seed to
    it in the previous step.
 
+## Other fuzz targets
+
+`fuzz-parser` (this walkthrough) is one of several harnesses in this
+directory — each targets a different, independently-reachable piece of the
+interpreter, with its own seed corpus directory. Everything above (build
+flags, crash-file/artifact behavior, stack-trace reading, fix-verify-clean
+workflow) applies the same way to all of them; just swap the target name
+and corpus path:
+
+| Target | Fuzzes | Corpus |
+|---|---|---|
+| `fuzz-parser` | `cuke::parser::parse_script()` — the full Scanner → Lexer → Parser → AST pipeline | `fuzz/corpus/parser/` |
+| `fuzz-scanner` | `cuke::internal::scanner` tokenization in isolation, no parser involved | `fuzz/corpus/scanner/` |
+| `fuzz-step-finder` | `create_regex_definition()` + `step_finder::step_matches()` — turning a step definition into a regex and matching feature step text against it | `fuzz/corpus/step_finder/` |
+| `fuzz-replace-variables` | `replace_variables()` — Scenario Outline `<placeholder>` substitution, both the doc-string and step/scenario-name code paths | `fuzz/corpus/replace_variables/` |
+
+```sh
+cmake --build build-fuzz --target fuzz-scanner
+cp -r fuzz/corpus/scanner scanner-corpus-scratch
+./build-fuzz/bin/fuzz-scanner -max_total_time=30 scanner-corpus-scratch
+```
+
+`fuzz-step-finder` and `fuzz-replace-variables` split their fuzzed input on
+the first `\n` into multiple logical fields (step definition text / feature
+step text for `fuzz-step-finder`; step text / Examples column key / column
+value for `fuzz-replace-variables`) — see the top-of-file comment in each
+harness (`fuzz_step_finder.cpp`, `fuzz_replace_variables.cpp`) for the exact
+split.
+
+### Known limitation: regex denial-of-service (ReDoS), not treated as a crash to fix
+
+`fuzz-step-finder` will reliably find inputs that make `std::regex_match`
+hang for a very long time (until libFuzzer's `-timeout=` kills it) rather
+than crash. The minimal repro is a step definition like `I have {}{56}
+things` matched against a long enough feature step: the anonymous `{}`
+expression compiles to `(.*)`, and an unescaped, immediately-following
+digit-only literal brace group like `{56}` is interpreted by `std::regex` as
+a *repetition count* applied to it, producing `(.*){56}`. Matching that
+against a long input line triggers catastrophic backtracking in libstdc++'s
+regex engine — this reproduces identically with plain `std::regex_match`,
+with no cwt-cucumber code involved at all.
+
+This is a known, structural limitation of `std::regex` itself, not a bug we
+can fix in this codebase. The existing mitigation is what
+`docs/chapters/step_definitions.rst` already documents: **always escape
+literal curly braces** as `\{` / `\}` in step definitions. Because this
+"crash" is really an unbounded hang rather than a deterministic
+crash-and-exit, no regression seed for it is committed to
+`fuzz/corpus/step_finder/` — a seed that reliably hangs would make every
+future fuzzing run immediately report a timeout, which defeats the purpose
+of the seed corpus. If you rediscover this class of hang while fuzzing,
+recognize the pattern (`(.*){N}`, or similar unescaped brace/quantifier
+combinations after an anonymous or `{word}` expression) rather than
+reporting it as a new bug.
+
+

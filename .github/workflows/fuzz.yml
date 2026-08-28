@@ -14,7 +14,15 @@ on:
         default: "300"
 
 jobs:
-  fuzz-parser:
+  fuzz:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - parser
+          - scanner
+          - step-finder
+          - replace-variables
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -36,18 +44,28 @@ jobs:
             -DCUCUMBER_BUILD_FUZZERS=ON \
             -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
 
-      - name: Build fuzz-parser
-        run: cmake --build ./build --target fuzz-parser -j"$(nproc)"
+      - name: Build fuzz-${{ matrix.target }}
+        run: cmake --build ./build --target "fuzz-${{ matrix.target }}" -j"$(nproc)"
 
       - name: Run fuzzer
         run: |
-          cp -r fuzz/corpus/parser parser-corpus-scratch
+          corpus_dir="fuzz/corpus/$(echo "${{ matrix.target }}" | tr '-' '_')"
+          cp -r "$corpus_dir" corpus-scratch
           seconds="${{ github.event.inputs.seconds || '300' }}"
-          ./build/bin/fuzz-parser -max_total_time="${seconds}" parser-corpus-scratch
+          # -timeout=30: treat any single input taking >30s as a hang and
+          # report it, instead of silently eating the whole run budget.
+          # Note: fuzz-step-finder can rediscover the known std::regex
+          # ReDoS documented in fuzz/README.md ("Known limitation" section)
+          # - if it fails with a timeout-* artifact matching that pattern
+          # ((.*){N} from an unescaped brace after {}), that's expected and
+          # not a new bug.
+          "./build/bin/fuzz-${{ matrix.target }}" -timeout=30 -max_total_time="${seconds}" corpus-scratch
 
       - name: Upload crash artifact
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: fuzz-parser-crash
-          path: crash-*
+          name: fuzz-${{ matrix.target }}-crash
+          path: |
+            crash-*
+            timeout-*

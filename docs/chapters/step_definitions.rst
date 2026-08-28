@@ -71,6 +71,17 @@ Supported Cucumber expressions include:
 - Anonymous placeholders: ``{}`` → read as ``std::string``
 - Custom Parameter Types: ``{your_type}`` → see :ref:`subch-step-def-custom-parameters` for examples
 
+.. caution::
+   Literal curly braces containing only digits (e.g. ``{56}``) must be
+   escaped as ``\{56\}``, especially directly after an anonymous ``{}`` or
+   ``{word}`` placeholder. Left unescaped, a pattern like ``{}{56}`` compiles
+   to the regex ``(.*){56}``, and matching that against a long line can
+   trigger catastrophic backtracking in ``std::regex`` (effectively an
+   unbounded hang, found via fuzz testing the step-matching regex builder).
+   This is a limitation of the underlying regex engine, not something
+   cwt-cucumber can fully prevent - always escape literal braces with
+   ``\{`` / ``\}``.
+
 Asserts
 ^^^^^^^
 

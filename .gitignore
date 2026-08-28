@@ -15,4 +15,5 @@ docs/api/xml/
 __pycache__
 _version.py
 crash-*
+timeout-*
 *-corpus-scratch/

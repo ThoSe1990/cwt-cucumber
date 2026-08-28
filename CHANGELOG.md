@@ -8,6 +8,7 @@
 - `CUKE_DOC_STRING_TYPE()` to access a doc string's content type tag (e.g. `json` in ` ```json`) ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
 - `benchmarks/step-matching-benchmark` target to measure `step_finder::find()` lookup throughput
 - `fuzz/fuzz-parser` libFuzzer harness for `cuke::parser::parse_script()` (Clang only, opt-in via `CUCUMBER_BUILD_FUZZERS`)
+- `fuzz/fuzz-scanner`, `fuzz/fuzz-step-finder`, and `fuzz/fuzz-replace-variables` libFuzzer harnesses covering scanner tokenization, step-definition regex compilation/matching, and Scenario Outline placeholder substitution, each with its own tracked seed corpus under `fuzz/corpus/`
 
 ### Changed
 
@@ -24,6 +25,7 @@
 - A doc string with no content lines between its opening and closing delimiter on the same source line (e.g. `"""x"""`) crashed with an uncaught SEGV in `doc_string_to_vector()` (found via fuzz testing, after fixing the instrumentation gap above)
 - A `Scenario Outline` step or name referencing a placeholder with no matching `Examples` column (e.g. a typo'd `<value>`) crashed with an uncaught `std::runtime_error`; it is now left unchanged and logged as an error instead, matching the existing doc string behavior (found via fuzz testing)
 - An `Examples:` block appearing before any `Scenario`/`Scenario Outline` in a feature crashed with an uncaught SEGV instead of reporting a parse error (found via fuzz testing)
+- Documented (in `docs/chapters/step_definitions.rst`) a `std::regex` catastrophic-backtracking hang triggered by an unescaped, digit-only literal brace group immediately after an anonymous `{}` expression (e.g. `{}{56}`), found via fuzz testing `create_regex_definition()`/`step_finder`; the existing guidance to escape literal braces (`\{`, `\}`) already prevents it, this was previously undocumented for this specific case
 
 ## [2.9] 2026-06-26
 
