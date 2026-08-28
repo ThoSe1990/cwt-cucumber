@@ -38,6 +38,16 @@ This produces one executable: `build-fuzz/bin/fuzz-parser`. That binary
 **is** the fuzzer — it has libFuzzer's engine linked in, plus our harness
 code.
 
+Under the hood, `fuzz/CMakeLists.txt` compiles a second, private copy of the
+library sources (`cucumber-fuzz-instrumented`) with sanitizer/coverage flags
+and links `fuzz-parser` against that, instead of the normal `cucumber-no-main`
+library. This matters: libFuzzer can only tell whether a mutation reached new
+code if the code it's fuzzing was itself compiled with coverage
+instrumentation — if only the harness were instrumented, the fuzzer would be
+"blind" past the first few lines of `fuzz_parser.cpp` and would never learn
+anything from mutating its input. `cucumber-no-main` stays uninstrumented so
+it keeps working normally for the unit tests, examples, and benchmarks.
+
 ## Step 2 — Give it a starting point (the "corpus")
 
 A fuzzer doesn't know anything about Gherkin syntax. Starting from empty or

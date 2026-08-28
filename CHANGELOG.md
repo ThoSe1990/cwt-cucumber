@@ -20,6 +20,10 @@
 - An unterminated doc string ending exactly at end-of-input (e.g. a lone `` ``` ``) crashed with an uncaught `std::out_of_range` instead of reporting "Unterminated doc string." (found via fuzz testing)
 - A `Feature:`/`Scenario:`/etc. keyword immediately followed by a `#` comment running to end-of-input with no trailing linebreak crashed with an uncaught `std::length_error` while parsing the (empty) name (found via fuzz testing)
 - Missing `<vector>`/`<iterator>` includes in `src/util.hpp`/`src/table.cpp` that only built by accident via transitive includes on some standard library implementations
+- `fuzz/fuzz-parser` was only sanitizer/coverage-instrumenting the harness itself, not the library code it fuzzes, so libFuzzer had no feedback signal and could never mutate past the first few bytes of a `Feature:` line; the harness now links a dedicated instrumented build of the library sources
+- A doc string with no content lines between its opening and closing delimiter on the same source line (e.g. `"""x"""`) crashed with an uncaught SEGV in `doc_string_to_vector()` (found via fuzz testing, after fixing the instrumentation gap above)
+- A `Scenario Outline` step or name referencing a placeholder with no matching `Examples` column (e.g. a typo'd `<value>`) crashed with an uncaught `std::runtime_error`; it is now left unchanged and logged as an error instead, matching the existing doc string behavior (found via fuzz testing)
+- An `Examples:` block appearing before any `Scenario`/`Scenario Outline` in a feature crashed with an uncaught SEGV instead of reporting a parse error (found via fuzz testing)
 
 ## [2.9] 2026-06-26
 

@@ -27,6 +27,14 @@ set(cucumber-src
 add_library(cucumber ${cucumber-src} ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 add_library(cucumber-no-main ${cucumber-src} )
 
+# Expose the source list so fuzz/CMakeLists.txt can build its own
+# sanitizer-instrumented copy (fuzzing requires the library code itself
+# to be compiled with -fsanitize=fuzzer,address,undefined, not just the
+# harness, otherwise libFuzzer has no coverage feedback for the actual
+# scanner/lexer/parser code and never learns anything past the first
+# few bytes).
+set(cucumber-src ${cucumber-src} PARENT_SCOPE)
+
 if (nlohmann_json_FOUND)
     target_link_libraries(cucumber nlohmann_json::nlohmann_json)
     target_link_libraries(cucumber-no-main nlohmann_json::nlohmann_json)

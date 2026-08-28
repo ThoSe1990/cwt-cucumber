@@ -98,7 +98,10 @@ std::vector<std::string> doc_string_to_vector(const std::string_view s)
   {
     lines.push_back(trim(std::string(line.begin(), line.end())));
   }
-  lines.pop_back();
+  if (!lines.empty())
+  {
+    lines.pop_back();
+  }
   return lines;
 }
 
@@ -318,7 +321,7 @@ std::vector<std::unique_ptr<cuke::ast::node>> parse_scenarios(
       scenarios.push_back(
           make_scenario_outline(lex, std::move(tags), current_rule));
     }
-    else if (lex.check(token_type::examples) &&
+    else if (lex.check(token_type::examples) && !scenarios.empty() &&
              scenarios.back()->type() == cuke::ast::node_type::scenario_outline)
     {
       static_cast<cuke::ast::scenario_outline_node&>(*scenarios.back())

@@ -24,15 +24,30 @@ namespace cuke::internal
   while (std::regex_search(search_start, step.cend(), match, pattern))
   {
     std::string key = match[1].str();
-    if (!row.contains(key) && ignore_missing_key)
+    if (!row.contains(key))
     {
-      // Not an Examples column (e.g. XML/HTML tag in a doc string) - leave
-      // the original text untouched and continue searching after it.
-      cuke::log::verbose(
-          std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
-                      "Examples, left unchanged",
-                      key),
-          cuke::log::new_line);
+      // No matching Examples column for this placeholder. This can be a
+      // deliberate non-Examples angle-bracket tag (e.g. XML/HTML in a doc
+      // string, ignore_missing_key == true) or a genuine authoring mistake
+      // (typo'd placeholder, missing Examples column). Either way, never
+      // throw on malformed/mismatched input - leave the original text
+      // untouched and keep searching after it.
+      if (ignore_missing_key)
+      {
+        cuke::log::verbose(
+            std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
+                        "Examples, left unchanged",
+                        key),
+            cuke::log::new_line);
+      }
+      else
+      {
+        cuke::log::error(
+            std::format("Placeholder '<{}>' not found in Examples, left "
+                        "unchanged",
+                        key),
+            cuke::log::new_line);
+      }
       result.append(search_start, match[0].second);
       search_start = match[0].second;
     }
