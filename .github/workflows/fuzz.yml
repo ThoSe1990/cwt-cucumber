@@ -1,0 +1,53 @@
+name: Fuzz
+
+on:
+  schedule:
+    # Nightly, low-cost regression fuzz run. Not run on every PR: fuzzing
+    # needs sustained wall-clock time to be useful, unlike the fast
+    # clang-tidy/unittests jobs.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "Seconds to fuzz for"
+        required: false
+        default: "300"
+
+jobs:
+  fuzz-parser:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
+    env:
+      HOME: /root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          conan install . -of ./build --build missing
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCMAKE_C_COMPILER=clang-17 \
+            -DCMAKE_CXX_COMPILER=clang++-17 \
+            -DCUCUMBER_BUILD_FUZZERS=ON \
+            -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
+
+      - name: Build fuzz-parser
+        run: cmake --build ./build --target fuzz-parser -j"$(nproc)"
+
+      - name: Run fuzzer
+        run: |
+          cp -r fuzz/corpus/parser parser-corpus-scratch
+          seconds="${{ github.event.inputs.seconds || '300' }}"
+          ./build/bin/fuzz-parser -max_total_time="${seconds}" parser-corpus-scratch
+
+      - name: Upload crash artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-parser-crash
+          path: crash-*

@@ -63,12 +63,72 @@ It is a plain, dependency-free timer harness (`cuke::internal::execute_and_count
 not a statistical microbenchmarking framework — treat results as a rough
 relative signal, not an absolute number to publish.
 
+### Fuzz testing
+
+A libFuzzer harness (`fuzz/fuzz_parser.cpp`) feeds arbitrary byte strings
+directly into `cuke::parser::parse_script()`, exercising the full
+Scanner → Lexer → Parser → AST pipeline. It looks for crashes, sanitizer
+violations (ASan/UBSan), and hangs (e.g. catastrophic regex backtracking)
+triggered by malformed/adversarial `.feature` content — cases hand-written
+unit tests are unlikely to think of. It does not execute step definitions.
+
+> New to fuzzing? See [`fuzz/README.md`](fuzz/README.md) for a
+> step-by-step, beginner-friendly walkthrough of building, running, and
+> analyzing a crash. The summary below is the terse reference version.
+
+**Requires Clang** (libFuzzer ships with Clang, not GCC). On macOS, Xcode's
+bundled Clang does not include the libFuzzer runtime — the link step fails
+with `library '...libclang_rt.fuzzer_osx.a' not found`. Use Homebrew LLVM
+instead (`brew install llvm`), and point `CMAKE_CXX_COMPILER` at its full
+path — plain `clang++` on macOS resolves to Xcode's, not Homebrew's.
+
+```sh
+# Separate build directory, Clang required, gated behind its own option
+cmake -S . -B build-fuzz \
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ \
+  -DCUCUMBER_BUILD_FUZZERS=ON -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
+cmake --build build-fuzz --target fuzz-parser
+
+# Copy the tracked seed corpus to a scratch dir first — libFuzzer writes
+# newly-discovered inputs back into whatever directory you pass it, and
+# parser-corpus-scratch/ is gitignored so nothing generated ends up tracked.
+cp -r fuzz/corpus/parser parser-corpus-scratch
+
+# Fuzz for 2 minutes (increase the duration for a deeper, unattended run)
+./build-fuzz/bin/fuzz-parser -max_total_time=120 parser-corpus-scratch
+```
+
+On Linux, plain `clang++`/`clang++-17` (as already used by CI) works fine.
+
+`fuzz/corpus/parser/` is a tracked, ready-to-use seed corpus: copies of the real
+`.feature` files from `examples/features/` and `stress-tests/features/`
+(covering scenarios, outlines, backgrounds, tags, tables, doc strings,
+custom parameters, rules), plus small `edge_*.feature` files that each
+reproduce a previously-found crash. When you fix a fuzz-discovered bug,
+add its crashing input to `fuzz/corpus/parser/` as a new `edge_*.feature` file
+(in addition to a `gtest/ast.cc` regression test) so future fuzzing runs
+start by re-checking it immediately. **Never point the fuzzer directly at
+`fuzz/corpus/parser/`** — always fuzz from a `parser-corpus-scratch/` copy instead, so
+generated artifacts never risk being committed.
+
+Any crash is written to a `crash-<hash>` file in the current directory
+(gitignored). Reproduce and debug it with:
+
+```sh
+./build-fuzz/bin/fuzz-parser crash-<hash>
+```
+
+Once fixed, turn the crashing input into a regression test in
+`gtest/ast.cc` (e.g. `parser::parse_script` with the literal input) so it
+can never silently regress.
+
 ### CMake build options
 
 | Option | Default | Effect |
 |---|---|---|
 | `CUCUMBER_BUILD_TESTS_AND_EXAMPLES` | `ON` | Build `unittests`, `example`, `stress-tests`, `step-matching-benchmark` targets |
 | `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE` | `ON` | Final result is FAILED if any step has no definition. Set `OFF` in CI and agent runs |
+| `CUCUMBER_BUILD_FUZZERS` | `OFF` | Build the `fuzz-parser` libFuzzer harness in `fuzz/`. Requires Clang |
 
 ---
 
@@ -115,6 +175,11 @@ cwt-cucumber/
 ├── benchmarks/
 │   ├── step_matching_benchmark.cpp  # step_finder::find() throughput harness
 │   └── CMakeLists.txt
+├── fuzz/
+│   ├── fuzz_parser.cpp      # libFuzzer harness for parser::parse_script()
+│   ├── CMakeLists.txt       # Clang-only, built via CUCUMBER_BUILD_FUZZERS
+│   ├── README.md            # Beginner-friendly fuzzing walkthrough
+│   └── corpus/              # Tracked seed corpus (real + edge-case .feature files)
 ├── .github/workflows/
 │   ├── copilot-setup-steps.yml  # Pre-builds env for Copilot cloud agent
 │   └── unittests.yml            # CI: Linux (GCC 13 + Clang 17), Windows, macOS

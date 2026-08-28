@@ -14,3 +14,5 @@ site/
 docs/api/xml/
 __pycache__
 _version.py
+crash-*
+*-corpus-scratch/

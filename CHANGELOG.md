@@ -6,6 +6,8 @@
 
 - `cuke::current_feature()`, `cuke::current_scenario()` and `cuke::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
 - `CUKE_DOC_STRING_TYPE()` to access a doc string's content type tag (e.g. `json` in ` ```json`) ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
+- `benchmarks/step-matching-benchmark` target to measure `step_finder::find()` lookup throughput
+- `fuzz/fuzz-parser` libFuzzer harness for `cuke::parser::parse_script()` (Clang only, opt-in via `CUCUMBER_BUILD_FUZZERS`)
 
 ### Changed
 
