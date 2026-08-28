@@ -21,6 +21,13 @@ std::pair<std::string, std::string> parse_keyword_and_name(lexer& lex,
   auto make_name = [](lexer& lex)
   {
     token begin = lex.current();
+    if (begin.type == token_type::eof)
+    {
+      // Nothing left to read as a name (e.g. a keyword immediately
+      // followed by a to-EOF comment with no trailing linebreak) - avoid
+      // constructing an inverted [begin, end) range below.
+      return std::string("");
+    }
     lex.advance_to(token_type::linebreak, token_type::eof);
     token end = lex.previous();
     return create_string(begin, end);

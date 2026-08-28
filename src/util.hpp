@@ -5,6 +5,7 @@
 #include <fstream>
 #include <ranges>
 #include <unordered_set>
+#include <vector>
 
 #include "token.hpp"
 #include "log.hpp"

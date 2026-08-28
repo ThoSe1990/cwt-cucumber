@@ -15,6 +15,9 @@
 
 - Literal parentheses `()` and curly braces `{}` in step text are not matched; escape them with `\(`, `\)`, `\{`, `\}` to use them literally instead of as optional text or a parameter type ([129](https://github.com/ThoSe1990/cwt-cucumber/pull/129))
 - `Scenario Outline` doc strings containing angle-bracket text that is not an Examples column (e.g. XML/HTML tags) crashed with an uncaught exception; such placeholders are now left untouched instead ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
+- An unterminated doc string ending exactly at end-of-input (e.g. a lone `` ``` ``) crashed with an uncaught `std::out_of_range` instead of reporting "Unterminated doc string." (found via fuzz testing)
+- A `Feature:`/`Scenario:`/etc. keyword immediately followed by a `#` comment running to end-of-input with no trailing linebreak crashed with an uncaught `std::length_error` while parsing the (empty) name (found via fuzz testing)
+- Missing `<vector>`/`<iterator>` includes in `src/util.hpp`/`src/table.cpp` that only built by accident via transitive includes on some standard library implementations
 
 ## [2.9] 2026-06-26
 
