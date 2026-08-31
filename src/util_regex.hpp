@@ -1,5 +1,7 @@
 #pragma once
+#include <cctype>
 #include <format>
+#include <optional>
 #include <regex>
 #include <unordered_set>
 
@@ -24,15 +26,30 @@ namespace cuke::internal
   while (std::regex_search(search_start, step.cend(), match, pattern))
   {
     std::string key = match[1].str();
-    if (!row.contains(key) && ignore_missing_key)
+    if (!row.contains(key))
     {
-      // Not an Examples column (e.g. XML/HTML tag in a doc string) - leave
-      // the original text untouched and continue searching after it.
-      cuke::log::verbose(
-          std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
-                      "Examples, left unchanged",
-                      key),
-          cuke::log::new_line);
+      // No matching Examples column for this placeholder. This can be a
+      // deliberate non-Examples angle-bracket tag (e.g. XML/HTML in a doc
+      // string, ignore_missing_key == true) or a genuine authoring mistake
+      // (typo'd placeholder, missing Examples column). Either way, never
+      // throw on malformed/mismatched input - leave the original text
+      // untouched and keep searching after it.
+      if (ignore_missing_key)
+      {
+        cuke::log::verbose(
+            std::format("[   VERBOSE   ] Doc string key '<{}>' not found in "
+                        "Examples, left unchanged",
+                        key),
+            cuke::log::new_line);
+      }
+      else
+      {
+        cuke::log::error(
+            std::format("Placeholder '<{}>' not found in Examples, left "
+                        "unchanged",
+                        key),
+            cuke::log::new_line);
+      }
       result.append(search_start, match[0].second);
       search_start = match[0].second;
     }
@@ -132,6 +149,49 @@ static std::string add_escape_chars(const std::string& input)
       '.', '^', '$', '*', '+', '?', '[', ']', /* '(', ')', */ '\\',
       /* '|' */};
 
+  // A literal "{...}" group whose contents look like a regex repetition
+  // quantifier (only digits and at most one comma, e.g. "{56}", "{2,}",
+  // "{1,3}") is otherwise passed straight through unescaped by the loop
+  // below - {int}/{word}/{your_type} etc. must stay untouched so they are
+  // still recognized as expression keys later in create_regex_definition().
+  // Left as-is, std::regex interprets such a group as an actual quantifier
+  // rather than literal text; when it follows a wildcard-producing
+  // expression like {} (-> "(.*)"), the result (e.g. "(.*){56}") triggers
+  // catastrophic backtracking in std::regex_match on sufficiently long
+  // input - effectively an unbounded hang (found via fuzz testing). So we
+  // detect this shape here and escape the braces to keep it literal,
+  // unless the whole "{...}" token is itself a registered expression key
+  // (standard or custom) - e.g. a user may register a numeric-looking
+  // custom expression such as "{56}", which must keep matching normally.
+  auto is_quantifier_shaped =
+      [&input](std::size_t open) -> std::optional<std::size_t>
+  {
+    std::size_t i = open + 1;
+    bool has_digit = false;
+    bool has_comma = false;
+    for (; i < input.size(); ++i)
+    {
+      const char c = input[i];
+      if (c == '}')
+      {
+        return has_digit ? std::optional<std::size_t>(i) : std::nullopt;
+      }
+      if (std::isdigit(static_cast<unsigned char>(c)))
+      {
+        has_digit = true;
+      }
+      else if (c == ',' && !has_comma)
+      {
+        has_comma = true;
+      }
+      else
+      {
+        return std::nullopt;
+      }
+    }
+    return std::nullopt;
+  };
+
   std::string result;
   for (std::size_t i = 0; i < input.size(); ++i)
   {
@@ -145,6 +205,27 @@ static std::string add_escape_chars(const std::string& input)
       result += input[i + 1];
       ++i;
       continue;
+    }
+
+    if (c == '{')
+    {
+      if (const auto close = is_quantifier_shaped(i))
+      {
+        // A registered custom expression key may itself look like a
+        // quantifier (e.g. a user registering "{56}" as a custom type).
+        // Such keys must stay unescaped so they are still recognized by
+        // create_regex_definition()'s expression lookup - only escape
+        // when the whole "{...}" token is *not* a known expression key.
+        const std::string token(input, i, *close - i + 1);
+        if (!cuke::registry().has_expression(token))
+        {
+          result += "\\{";
+          result.append(input, i + 1, *close - i - 1);
+          result += "\\}";
+          i = *close;
+          continue;
+        }
+      }
     }
 
     if (special_chars.find(c) != special_chars.end())

@@ -477,7 +477,24 @@ TEST_F(run_scenarios_5, data_table_w_vars_key_doesnt_exist)
   )*";
 
   cuke::parser p;
-  EXPECT_THROW({ p.parse_script(script); }, std::runtime_error);
+  // A placeholder with no matching Examples column no longer crashes the
+  // whole parse - it's left in the output unchanged (and logged as an
+  // error) instead, same treatment as a doc string XML/HTML tag. Both
+  // Examples rows run; the static expected_* members reflect the last one.
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenarios_5::expected_int, 3);
+  ASSERT_EQ(run_scenarios_5::expected_table.cells_count(), 4);
+  ASSERT_EQ(run_scenarios_5::expected_table[0][0].to_string(),
+            std::string("1"));
+  ASSERT_EQ(run_scenarios_5::expected_table[0][1].to_string(),
+            std::string("1"));
+  ASSERT_EQ(run_scenarios_5::expected_table[1][0].to_string(),
+            std::string("3"));
+  ASSERT_EQ(run_scenarios_5::expected_table[1][1].to_string(),
+            std::string("<non existing>"));
 }
 
 class run_scenarios_6 : public ::testing::Test

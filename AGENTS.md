@@ -63,12 +63,91 @@ It is a plain, dependency-free timer harness (`cuke::internal::execute_and_count
 not a statistical microbenchmarking framework — treat results as a rough
 relative signal, not an absolute number to publish.
 
+### Fuzz testing
+
+libFuzzer harnesses in `fuzz/` feed arbitrary byte strings directly into
+specific, independently-reachable pieces of the interpreter, looking for
+crashes, sanitizer violations (ASan/UBSan), and hangs (e.g. catastrophic
+regex backtracking) triggered by malformed/adversarial input — cases
+hand-written unit tests are unlikely to think of. None of them execute
+step definitions.
+
+| Target | Fuzzes | Corpus |
+|---|---|---|
+| `fuzz-parser` | `cuke::parser::parse_script()` — the full Scanner → Lexer → Parser → AST pipeline | `fuzz/corpus/parser/` |
+| `fuzz-scanner` | `cuke::internal::scanner` tokenization in isolation | `fuzz/corpus/scanner/` |
+| `fuzz-step-finder` | `create_regex_definition()` + `step_finder::step_matches()` (step-definition-to-regex compilation and step-text matching) | `fuzz/corpus/step_finder/` |
+| `fuzz-replace-variables` | `replace_variables()` — Scenario Outline `<placeholder>` substitution | `fuzz/corpus/replace_variables/` |
+
+> New to fuzzing? See [`fuzz/README.md`](fuzz/README.md) for a
+> step-by-step, beginner-friendly walkthrough of building, running, and
+> analyzing a crash. The summary below is the terse reference version.
+
+**Requires Clang** (libFuzzer ships with Clang, not GCC). On macOS, Xcode's
+bundled Clang does not include the libFuzzer runtime — the link step fails
+with `library '...libclang_rt.fuzzer_osx.a' not found`. Use Homebrew LLVM
+instead (`brew install llvm`), and point `CMAKE_CXX_COMPILER` at its full
+path — plain `clang++` on macOS resolves to Xcode's, not Homebrew's.
+
+```sh
+# Separate build directory, Clang required, gated behind its own option
+cmake -S . -B build-fuzz \
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ \
+  -DCUCUMBER_BUILD_FUZZERS=ON -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
+cmake --build build-fuzz --target fuzz-parser   # or fuzz-scanner / fuzz-step-finder / fuzz-replace-variables
+
+# Copy the tracked seed corpus to a scratch dir first — libFuzzer writes
+# newly-discovered inputs back into whatever directory you pass it, and
+# *-corpus-scratch/ is gitignored so nothing generated ends up tracked.
+cp -r fuzz/corpus/parser parser-corpus-scratch
+
+# Fuzz for 2 minutes (increase the duration for a deeper, unattended run)
+./build-fuzz/bin/fuzz-parser -max_total_time=120 parser-corpus-scratch
+```
+
+On Linux, plain `clang++`/`clang++-17` (as already used by CI) works fine.
+
+Each `fuzz/corpus/<target>/` directory is a tracked, ready-to-use seed
+corpus (`fuzz/corpus/parser/` also includes copies of the real `.feature`
+files from `examples/features/` and `stress-tests/features/`). When you fix
+a fuzz-discovered bug, add its (minimized/handcrafted) crashing input to
+the matching corpus directory as a new, descriptively-named seed file (in
+addition to a unit-test regression) so future fuzzing runs start by
+re-checking it immediately. **Never point a fuzzer directly at its tracked
+corpus directory** — always fuzz from a `<name>-corpus-scratch/` copy
+instead, so generated artifacts never risk being committed.
+
+Any crash is written to a `crash-<hash>` file in the current directory
+(gitignored); a hang past `-timeout=<seconds>` (default 1200s) is written to
+`timeout-<hash>` (also gitignored). Reproduce and debug either with:
+
+```sh
+./build-fuzz/bin/fuzz-parser crash-<hash>
+```
+
+Once fixed, turn the crashing input into a regression test (e.g.
+`gtest/ast.cc` for parser bugs, `gtest/step_finder.cc` for step-matching
+bugs) so it can never silently regress.
+
+> **Fixed finding:** `fuzz-step-finder` previously found an input that hung
+> instead of crashed — `std::regex_match`'s catastrophic backtracking on
+> patterns like `(.*){56}` (an anonymous `{}` immediately followed by an
+> unescaped, digit-only `{N}`, which `std::regex` parses as a repetition
+> quantifier). This is now fixed in `add_escape_chars()`
+> (`src/util_regex.hpp`): any `{...}` group shaped like a `std::regex`
+> quantifier (digits and at most one comma) is escaped to `\{...\}` so it
+> is always treated as literal text instead. See
+> `gtest/step_finder.cc` (`quantifier_shaped_literal_braces_*` tests) and
+> `fuzz/corpus/step_finder/anonymous_then_literal_brace_count.seed` for the
+> regression coverage.
+
 ### CMake build options
 
 | Option | Default | Effect |
 |---|---|---|
 | `CUCUMBER_BUILD_TESTS_AND_EXAMPLES` | `ON` | Build `unittests`, `example`, `stress-tests`, `step-matching-benchmark` targets |
 | `CUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE` | `ON` | Final result is FAILED if any step has no definition. Set `OFF` in CI and agent runs |
+| `CUCUMBER_BUILD_FUZZERS` | `OFF` | Build the libFuzzer harnesses (`fuzz-parser`, `fuzz-scanner`, `fuzz-step-finder`, `fuzz-replace-variables`) in `fuzz/`. Requires Clang |
 
 ---
 
@@ -115,6 +194,14 @@ cwt-cucumber/
 ├── benchmarks/
 │   ├── step_matching_benchmark.cpp  # step_finder::find() throughput harness
 │   └── CMakeLists.txt
+├── fuzz/
+│   ├── fuzz_parser.cpp             # libFuzzer harness for parser::parse_script()
+│   ├── fuzz_scanner.cpp            # libFuzzer harness for scanner tokenization
+│   ├── fuzz_step_finder.cpp        # libFuzzer harness for step regex build/match
+│   ├── fuzz_replace_variables.cpp  # libFuzzer harness for outline var substitution
+│   ├── CMakeLists.txt       # Clang-only, built via CUCUMBER_BUILD_FUZZERS
+│   ├── README.md            # Beginner-friendly fuzzing walkthrough
+│   └── corpus/              # Tracked seed corpus, one subdir per target
 ├── .github/workflows/
 │   ├── copilot-setup-steps.yml  # Pre-builds env for Copilot cloud agent
 │   └── unittests.yml            # CI: Linux (GCC 13 + Clang 17), Windows, macOS

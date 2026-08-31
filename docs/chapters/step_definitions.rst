@@ -71,6 +71,15 @@ Supported Cucumber expressions include:
 - Anonymous placeholders: ``{}`` → read as ``std::string``
 - Custom Parameter Types: ``{your_type}`` → see :ref:`subch-step-def-custom-parameters` for examples
 
+.. note::
+   A curly-brace group that is not a recognized Cucumber expression (e.g. a
+   literal ``{56}`` or ``{2,4}``) is automatically treated as literal text
+   rather than a ``std::regex`` repetition quantifier. This prevents
+   catastrophic backtracking that could otherwise occur, for example, from
+   a pattern like ``{}{56}`` (found via fuzz testing the step-matching
+   regex builder). You may still escape literal braces explicitly as
+   ``\{56\}`` for clarity, but it is no longer required for safety.
+
 Asserts
 ^^^^^^^
 

@@ -252,16 +252,15 @@ token scanner::doc_string()
 
   while (!three_consecutive('"') && !three_consecutive('`'))
   {
+    if (is_at_end())
+    {
+      return error_token("Unterminated doc string.");
+    }
     if (end_of_line())
     {
       m_line++;
     }
     advance();
-
-    if (is_at_end())
-    {
-      return error_token("Unterminated doc string.");
-    }
   }
 
   skip();

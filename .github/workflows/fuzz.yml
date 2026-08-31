@@ -1,0 +1,71 @@
+name: Fuzz
+
+on:
+  schedule:
+    # Nightly, low-cost regression fuzz run. Not run on every PR: fuzzing
+    # needs sustained wall-clock time to be useful, unlike the fast
+    # clang-tidy/unittests jobs.
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      seconds:
+        description: "Seconds to fuzz for"
+        required: false
+        default: "300"
+
+jobs:
+  fuzz:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - parser
+          - scanner
+          - step-finder
+          - replace-variables
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    container: ghcr.io/those1990/linux-dev:1.0
+    env:
+      HOME: /root
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          conan install . -of ./build --build missing
+          cmake -S . -B ./build \
+            -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
+            -DCMAKE_C_COMPILER=clang-17 \
+            -DCMAKE_CXX_COMPILER=clang++-17 \
+            -DCUCUMBER_BUILD_FUZZERS=ON \
+            -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
+
+      - name: Build fuzz-${{ matrix.target }}
+        run: cmake --build ./build --target "fuzz-${{ matrix.target }}" -j"$(nproc)"
+
+      - name: Run fuzzer
+        run: |
+          corpus_dir="fuzz/corpus/$(echo "${{ matrix.target }}" | tr '-' '_')"
+          cp -r "$corpus_dir" corpus-scratch
+          seconds="${{ github.event.inputs.seconds || '300' }}"
+          # -timeout=30: treat any single input taking >30s as a hang and
+          # report it, instead of silently eating the whole run budget.
+          # Note: fuzz-step-finder can rediscover the known std::regex
+          # ReDoS documented in fuzz/README.md ("Known limitation" section)
+          # - if it fails with a timeout-* artifact matching that pattern
+          # ((.*){N} from an unescaped brace after {}), that's expected and
+          # not a new bug.
+          "./build/bin/fuzz-${{ matrix.target }}" -timeout=30 -max_total_time="${seconds}" corpus-scratch
+
+      - name: Upload crash artifact
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-${{ matrix.target }}-crash
+          path: |
+            crash-*
+            timeout-*

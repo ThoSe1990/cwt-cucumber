@@ -14,7 +14,7 @@ conan install . -of ./build --build missing
 cmake -S . -B ./build \
   -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake \
   -DCUCUMBER_UNDEFINED_STEPS_ARE_A_FAILURE=OFF
-cmake --build ./build -j$(nproc)
+cmake --build ./build -j12
 ```
 
 ---
@@ -42,6 +42,59 @@ performance impact (not a precise, cross-platform benchmark — see
 ```sh
 ./build/bin/step-matching-benchmark
 ```
+
+## Fuzz testing
+
+If you touch the scanner, lexer, parser, or the step-matching regex code
+(`create_regex_definition`/`step_finder`/`replace_variables`), it's worth
+running the relevant libFuzzer harness for a couple of minutes to check for
+crashes on malformed input (requires Clang — on macOS use Homebrew LLVM,
+not Xcode's bundled Clang; first time doing this? see
+[`fuzz/README.md`](fuzz/README.md) for a full beginner walkthrough; see
+[Fuzz testing](AGENTS.md#fuzz-testing) in AGENTS.md for the terse
+reference and the full list of targets):
+
+```sh
+cmake -S . -B build-fuzz -DCMAKE_CXX_COMPILER=clang++ -DCUCUMBER_BUILD_FUZZERS=ON
+cmake --build build-fuzz --target fuzz-parser   # or fuzz-scanner / fuzz-step-finder / fuzz-replace-variables
+cp -r fuzz/corpus/parser parser-corpus-scratch
+./build-fuzz/bin/fuzz-parser -max_total_time=120 parser-corpus-scratch
+```
+
+Each target has its own tracked seed corpus under `fuzz/corpus/<target>/`
+(real and edge-case input files) — always fuzz with a scratch copy of it
+(`<target>-corpus-scratch/`, gitignored) rather than from scratch or
+directly against the tracked directory itself: it makes the fuzzer reach
+much deeper in the same amount of time, and keeps libFuzzer's generated
+artifacts out of the tracked directory. If you fix a crash found by
+fuzzing, add its (minimized) input to the matching `fuzz/corpus/<target>/`
+directory as a new, descriptively-named seed file alongside a unit-test
+regression.
+
+### Using a Mac? 
+
+Its possible that XCode's Clang does not ship the fuzzing library, so install `llvm` with `brew` 
+and set its compiler explicitly: 
+
+```sh
+# 1. Ensure Homebrew LLVM is installed (has the libFuzzer runtime; Xcode's clang doesn't)
+brew install llvm
+
+# 2. Configure a separate build dir pointing at Homebrew's clang++ by full path
+cmake -S . -B build-fuzz \
+  -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ \
+  -DCUCUMBER_BUILD_FUZZERS=ON \
+  -DCUCUMBER_BUILD_TESTS_AND_EXAMPLES=OFF
+
+# 3. Build just the fuzzer you need
+cmake --build build-fuzz --target fuzz-parser
+
+# 4. Copy the tracked seed corpus to a gitignored scratch dir, then run
+#    (fuzzes for 2 minutes here, increase as needed)
+cp -r fuzz/corpus/parser parser-corpus-scratch
+./build-fuzz/bin/fuzz-parser -max_total_time=120 parser-corpus-scratch
+```
+
 
 ---
 
