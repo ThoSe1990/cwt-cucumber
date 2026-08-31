@@ -926,3 +926,28 @@ TEST_F(custom_types, custom_conversions_7)
   EXPECT_EQ(i1, 93);
   EXPECT_EQ(i2, 5);
 }
+
+TEST_F(custom_types, registered_numeric_custom_expression_is_not_escaped)
+{
+  // Regression test: add_escape_chars() escapes a digit-only "{...}" group
+  // (e.g. "{56}") to keep std::regex from misparsing it as a repetition
+  // quantifier - but it must not do so when that exact token is itself a
+  // registered expression key, otherwise a custom type such as "{56}"
+  // registered via CUSTOM_PARAMETER would be turned into unmatched literal
+  // text and never invoke its conversion callback.
+  cuke::registry().push_expression(
+      "{56}", {R"((\d+) apples)", "fifty-six apples",
+               [](cuke::value_array::const_iterator begin,
+                  std::size_t count) -> any
+               { return get_param_value(begin, count, 1).as<int>(); }});
+
+  auto [pattern, types] =
+      create_regex_definition(add_escape_chars("I have {56}"));
+  ASSERT_EQ(types.size(), 1);
+  EXPECT_EQ(types.at(0).description, std::string("fifty-six apples"));
+
+  step_finder sf("I have 7 apples");
+  ASSERT_TRUE(sf.step_matches(pattern));
+  ASSERT_EQ(sf.values().size(), 1);
+  EXPECT_EQ(sf.values().at(0).as<int>(), 7);
+}

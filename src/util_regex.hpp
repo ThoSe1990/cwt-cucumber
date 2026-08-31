@@ -159,7 +159,10 @@ static std::string add_escape_chars(const std::string& input)
   // expression like {} (-> "(.*)"), the result (e.g. "(.*){56}") triggers
   // catastrophic backtracking in std::regex_match on sufficiently long
   // input - effectively an unbounded hang (found via fuzz testing). So we
-  // detect this shape here and escape the braces to keep it literal.
+  // detect this shape here and escape the braces to keep it literal,
+  // unless the whole "{...}" token is itself a registered expression key
+  // (standard or custom) - e.g. a user may register a numeric-looking
+  // custom expression such as "{56}", which must keep matching normally.
   auto is_quantifier_shaped =
       [&input](std::size_t open) -> std::optional<std::size_t>
   {
@@ -208,11 +211,20 @@ static std::string add_escape_chars(const std::string& input)
     {
       if (const auto close = is_quantifier_shaped(i))
       {
-        result += "\\{";
-        result.append(input, i + 1, *close - i - 1);
-        result += "\\}";
-        i = *close;
-        continue;
+        // A registered custom expression key may itself look like a
+        // quantifier (e.g. a user registering "{56}" as a custom type).
+        // Such keys must stay unescaped so they are still recognized by
+        // create_regex_definition()'s expression lookup - only escape
+        // when the whole "{...}" token is *not* a known expression key.
+        const std::string token(input, i, *close - i + 1);
+        if (!cuke::registry().has_expression(token))
+        {
+          result += "\\{";
+          result.append(input, i + 1, *close - i - 1);
+          result += "\\}";
+          i = *close;
+          continue;
+        }
       }
     }
 
