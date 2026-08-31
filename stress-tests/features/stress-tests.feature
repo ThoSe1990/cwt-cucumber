@@ -113,3 +113,19 @@ Feature: Stress tests
   Scenario: Literal curly braces in step text
     When I see {status} in the raw output
     Then The captured text should be "{status}"
+
+  Scenario: Anonymous placeholder followed by an unescaped digit-only literal brace group
+    When I have foo{56} things
+    Then The captured value should be "foo"
+
+  Scenario: Digit-only literal brace group with a comma stays literal
+    When The range is {2,4} units
+    Then The range match should succeed
+
+  Scenario: Digit-only literal parenthesis group was never special
+    When The reference number is (56)
+    Then The reference number match should succeed
+
+  Scenario: Registered custom expression with a digit-only key still matches
+    When I have 56 apples
+    Then The apple count should be 56
