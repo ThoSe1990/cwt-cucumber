@@ -31,6 +31,7 @@
 //   ./build-fuzz/bin/fuzz-step-finder crash-<hash>
 
 #include <cstdint>
+#include <regex>
 #include <string>
 #include <string_view>
 
@@ -68,11 +69,14 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     cuke::internal::step_finder finder(feature_text);
     [[maybe_unused]] bool matched = finder.step_matches(pattern);
   }
-  catch (const std::exception&)
+  catch (const std::regex_error&)
   {
     // std::regex may legitimately throw std::regex_error on malformed
     // patterns produced from fuzzed definition text; that is expected,
-    // recoverable behavior, not a bug.
+    // recoverable behavior, not a bug. Deliberately narrower than
+    // std::exception: other exceptions (e.g. std::bad_alloc from runaway
+    // allocation on a pathological pattern) must propagate to libFuzzer
+    // instead of being silently treated as a successful run.
   }
 
   return 0;
