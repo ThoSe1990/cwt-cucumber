@@ -6,9 +6,9 @@
 
 - `cuke::current_feature()`, `cuke::current_scenario()` and `cuke::current_step()` to access the feature/scenario/step currently being executed from hooks or step definitions ([125](https://github.com/ThoSe1990/cwt-cucumber/pull/125))
 - `CUKE_DOC_STRING_TYPE()` to access a doc string's content type tag (e.g. `json` in ` ```json`) ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
-- `benchmarks/step-matching-benchmark` target to measure `step_finder::find()` lookup throughput
-- `fuzz/fuzz-parser` libFuzzer harness for `cuke::parser::parse_script()` (Clang only, opt-in via `CUCUMBER_BUILD_FUZZERS`)
-- `fuzz/fuzz-scanner`, `fuzz/fuzz-step-finder`, and `fuzz/fuzz-replace-variables` libFuzzer harnesses covering scanner tokenization, step-definition regex compilation/matching, and Scenario Outline placeholder substitution, each with its own tracked seed corpus under `fuzz/corpus/`
+- `benchmarks/step-matching-benchmark` target to measure `step_finder::find()` lookup throughput ([140](https://github.com/ThoSe1990/cwt-cucumber/pull/140))
+- `fuzz/fuzz-parser` libFuzzer harness for `cuke::parser::parse_script()` (Clang only, opt-in via `CUCUMBER_BUILD_FUZZERS`) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- `fuzz/fuzz-scanner`, `fuzz/fuzz-step-finder`, and `fuzz/fuzz-replace-variables` libFuzzer harnesses covering scanner tokenization, step-definition regex compilation/matching, and Scenario Outline placeholder substitution, each with its own tracked seed corpus under `fuzz/corpus/` ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
 
 ### Changed
 
@@ -18,14 +18,15 @@
 
 - Literal parentheses `()` and curly braces `{}` in step text are not matched; escape them with `\(`, `\)`, `\{`, `\}` to use them literally instead of as optional text or a parameter type ([129](https://github.com/ThoSe1990/cwt-cucumber/pull/129))
 - `Scenario Outline` doc strings containing angle-bracket text that is not an Examples column (e.g. XML/HTML tags) crashed with an uncaught exception; such placeholders are now left untouched instead ([130](https://github.com/ThoSe1990/cwt-cucumber/pull/130))
-- An unterminated doc string ending exactly at end-of-input (e.g. a lone `` ``` ``) crashed with an uncaught `std::out_of_range` instead of reporting "Unterminated doc string." (found via fuzz testing)
-- A `Feature:`/`Scenario:`/etc. keyword immediately followed by a `#` comment running to end-of-input with no trailing linebreak crashed with an uncaught `std::length_error` while parsing the (empty) name (found via fuzz testing)
-- Missing `<vector>`/`<iterator>` includes in `src/util.hpp`/`src/table.cpp` that only built by accident via transitive includes on some standard library implementations
-- `fuzz/fuzz-parser` was only sanitizer/coverage-instrumenting the harness itself, not the library code it fuzzes, so libFuzzer had no feedback signal and could never mutate past the first few bytes of a `Feature:` line; the harness now links a dedicated instrumented build of the library sources
-- A doc string with no content lines between its opening and closing delimiter on the same source line (e.g. `"""x"""`) crashed with an uncaught SEGV in `doc_string_to_vector()` (found via fuzz testing, after fixing the instrumentation gap above)
-- A `Scenario Outline` step or name referencing a placeholder with no matching `Examples` column (e.g. a typo'd `<value>`) crashed with an uncaught `std::runtime_error`; it is now left unchanged and logged as an error instead, matching the existing doc string behavior (found via fuzz testing)
-- An `Examples:` block appearing before any `Scenario`/`Scenario Outline` in a feature crashed with an uncaught SEGV instead of reporting a parse error (found via fuzz testing)
-- A digit-only literal curly-brace group (e.g. `{56}`, `{2,4}`) that is not a recognized Cucumber expression key is now automatically treated as literal text in step definitions; previously, if left unescaped directly after an anonymous `{}`/`{word}` expression, it was misparsed by `std::regex` as a repetition quantifier (e.g. `(.*){56}`), causing catastrophic backtracking / an unbounded hang on matching input (found via fuzz testing `create_regex_definition()`/`step_finder`)
+- An unterminated doc string ending exactly at end-of-input (e.g. a lone `` ``` ``) crashed with an uncaught `std::out_of_range` instead of reporting "Unterminated doc string." (found via fuzz testing) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- A `Feature:`/`Scenario:`/etc. keyword immediately followed by a `#` comment running to end-of-input with no trailing linebreak crashed with an uncaught `std::length_error` while parsing the (empty) name (found via fuzz testing) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- Missing `<vector>`/`<iterator>` includes in `src/util.hpp`/`src/table.cpp` that only built by accident via transitive includes on some standard library implementations ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- `fuzz/fuzz-parser` was only sanitizer/coverage-instrumenting the harness itself, not the library code it fuzzes, so libFuzzer had no feedback signal and could never mutate past the first few bytes of a `Feature:` line; the harness now links a dedicated instrumented build of the library sources ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- A doc string with no content lines between its opening and closing delimiter on the same source line (e.g. `"""x"""`) crashed with an uncaught SEGV in `doc_string_to_vector()` (found via fuzz testing, after fixing the instrumentation gap above) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- A `Scenario Outline` step or name referencing a placeholder with no matching `Examples` column (e.g. a typo'd `<value>`) crashed with an uncaught `std::runtime_error`; it is now left unchanged and logged as an error instead, matching the existing doc string behavior (found via fuzz testing) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- An `Examples:` block appearing before any `Scenario`/`Scenario Outline` in a feature crashed with an uncaught SEGV instead of reporting a parse error (found via fuzz testing) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- A digit-only literal curly-brace group (e.g. `{56}`, `{2,4}`) that is not a recognized Cucumber expression key is now automatically treated as literal text in step definitions; previously, if left unescaped directly after an anonymous `{}`/`{word}` expression, it was misparsed by `std::regex` as a repetition quantifier (e.g. `(.*){56}`), causing catastrophic backtracking / an unbounded hang on matching input (found via fuzz testing `create_regex_definition()`/`step_finder`) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- A registered custom expression whose key itself looks like a digit-only quantifier (e.g. a custom type named `{56}`) was unintentionally escaped to literal text by the ReDoS fix above and stopped being recognized; such registered keys are now left unescaped ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
 
 ## [2.9] 2026-06-26
 

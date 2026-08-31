@@ -936,10 +936,10 @@ TEST_F(custom_types, registered_numeric_custom_expression_is_not_escaped)
   // registered via CUSTOM_PARAMETER would be turned into unmatched literal
   // text and never invoke its conversion callback.
   cuke::registry().push_expression(
-      "{56}", {R"((\d+) apples)", "fifty-six apples",
-               [](cuke::value_array::const_iterator begin,
-                  std::size_t count) -> any
-               { return get_param_value(begin, count, 1).as<int>(); }});
+      "{56}",
+      {R"((\d+) apples)", "fifty-six apples",
+       [](cuke::value_array::const_iterator begin, std::size_t count) -> any
+       { return get_param_value(begin, count, 1).as<int>(); }});
 
   auto [pattern, types] =
       create_regex_definition(add_escape_chars("I have {56}"));
