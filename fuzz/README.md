@@ -198,7 +198,7 @@ and corpus path:
 |---|---|---|
 | `fuzz-parser` | `cuke::parser::parse_script()` — the full Scanner → Lexer → Parser → AST pipeline | `fuzz/corpus/parser/` |
 | `fuzz-scanner` | `cuke::internal::scanner` tokenization in isolation, no parser involved | `fuzz/corpus/scanner/` |
-| `fuzz-step-finder` | `create_regex_definition()` + `step_finder::step_matches()` — turning a step definition into a regex and matching feature step text against it | `fuzz/corpus/step_finder/` |
+| `fuzz-step-finder` | `create_regex_definition()` — turning a step definition into a regex (compile only; no `step_matches`) | `fuzz/corpus/step_finder/` |
 | `fuzz-replace-variables` | `replace_variables()` — Scenario Outline `<placeholder>` substitution, both the doc-string and step/scenario-name code paths | `fuzz/corpus/replace_variables/` |
 
 ```sh
@@ -207,12 +207,11 @@ cp -r fuzz/corpus/scanner scanner-corpus-scratch
 ./build-fuzz/bin/fuzz-scanner -max_total_time=30 scanner-corpus-scratch
 ```
 
-`fuzz-step-finder` and `fuzz-replace-variables` split their fuzzed input on
-the first `\n` into multiple logical fields (step definition text / feature
-step text for `fuzz-step-finder`; step text / Examples column key / column
-value for `fuzz-replace-variables`) — see the top-of-file comment in each
-harness (`fuzz_step_finder.cpp`, `fuzz_replace_variables.cpp`) for the exact
-split.
+`fuzz-step-finder` uses the first line as a step definition and only
+compiles it (it does not call `step_matches`, so `std::regex` ReDoS on
+chained `(.*)` cannot run). `fuzz-replace-variables` splits on `\n` into
+step text / Examples column key / column value — see the top-of-file
+comment in `fuzz_replace_variables.cpp`.
 
 ### Fixed finding: regex denial-of-service (ReDoS) via unescaped digit-only braces
 
