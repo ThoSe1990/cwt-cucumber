@@ -76,7 +76,7 @@ step definitions.
 |---|---|---|
 | `fuzz-parser` | `cuke::parser::parse_script()` — the full Scanner → Lexer → Parser → AST pipeline | `fuzz/corpus/parser/` |
 | `fuzz-scanner` | `cuke::internal::scanner` tokenization in isolation | `fuzz/corpus/scanner/` |
-| `fuzz-step-finder` | `create_regex_definition()` + `step_finder::step_matches()` (step-definition-to-regex compilation and step-text matching) | `fuzz/corpus/step_finder/` |
+| `fuzz-step-finder` | `create_regex_definition()` (step-definition-to-regex compilation only; matching is unit-tested, not fuzzed) | `fuzz/corpus/step_finder/` |
 | `fuzz-replace-variables` | `replace_variables()` — Scenario Outline `<placeholder>` substitution | `fuzz/corpus/replace_variables/` |
 
 > New to fuzzing? See [`fuzz/README.md`](fuzz/README.md) for a
