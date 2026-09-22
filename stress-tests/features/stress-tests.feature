@@ -129,3 +129,28 @@ Feature: Stress tests
   Scenario: Registered custom expression with a digit-only key still matches
     When I have 56 apples
     Then The apple count should be 56
+
+  # A data table cell is raw text delimited by '|'. A double quote, a '#' or
+  # an escaped '\|' inside it carries no Gherkin syntax and must reach the
+  # step unchanged.
+  Scenario: Quotes and hashes inside data table cells
+    When The table cells are read literally
+      | ["x = 1"]          |
+      | ["m 7", "eval n"]  |
+      | "unterminated      |
+      | #1                 |
+      | issue #7           |
+      | a#b                |
+      | a\|b               |
+
+  Scenario: A comment line directly after a data table
+    When The table cells are read literally
+      | ["x = 1"]          |
+      | ["m 7", "eval n"]  |
+      | "unterminated      |
+      | #1                 |
+      | issue #7           |
+      | a#b                |
+      | a\|b               |
+    # this comment must not be read as an eighth row
+    Then The table had 7 rows

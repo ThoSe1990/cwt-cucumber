@@ -205,3 +205,32 @@ THEN(registered_numeric_custom_expression_check,
   const int expected = CUKE_ARG(1);
   cuke::equal(expected, cuke::context<int>());
 }
+
+// A data table cell is raw text delimited by '|': quotes, '#' and '\|' in it
+// are content, not syntax.
+WHEN(literal_table_cells, "The table cells are read literally")
+{
+  const auto& table = CUKE_TABLE();
+  const std::vector<std::string> expected{
+      R"(["x = 1"])",     R"(["m 7", "eval n"])",
+      R"("unterminated)", "#1",
+      "issue #7",         "a#b",
+      R"(a\|b)"};
+
+  cuke::equal(expected.size(), table.row_count());
+  cuke::equal(std::size_t{1}, table.col_count());
+
+  std::size_t row_index = 0;
+  for (const auto& row : table.raw())
+  {
+    cuke::equal(expected.at(row_index), row[0].to_string());
+    ++row_index;
+  }
+  cuke::context<std::size_t>() = table.row_count();
+}
+
+THEN(literal_table_cells_rows, "The table had {int} rows")
+{
+  const int expected = CUKE_ARG(1);
+  cuke::equal(static_cast<std::size_t>(expected), cuke::context<std::size_t>());
+}

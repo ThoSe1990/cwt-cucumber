@@ -265,10 +265,15 @@ A `.feature` file flows through this pipeline:
 Scanner (scanner.cpp)
   Reads raw text, recognises keywords (Feature:, Scenario:, Given, …),
   produces token_type tokens.
+  A '#' starts a comment only as the first non blank character of a line.
+  While reading data table cells (scanner::set_table_cell_mode) a cell is
+  raw text: a '"' does not open a string value and an unescaped '|' ends
+  the cell, while '\|' stays inside it.
     │
     ▼
 Lexer (lexer.cpp)
   Wraps Scanner, advances the token stream, provides lookahead to the Parser.
+  lexer::table_cell_scope turns cell reading on for the rows of one table.
     │
     ▼
 Parser (parser.hpp — header-only, recursive-descent)
@@ -278,6 +283,8 @@ Parser (parser.hpp — header-only, recursive-descent)
     parser::parse_script(string_view)   ← used in unit tests
   Traversal:
     parser::for_each_scenario(node_visitor&)
+      A failed parse clears the document, so this returns without visiting
+      anything; check parser::error() to tell the two cases apart.
     │
     ▼
 AST nodes (ast.hpp)
@@ -888,6 +895,8 @@ THEN(special_word_then, "It should equal {string}")
 | `Scenario: Doc string with a content type tag` / `Scenario: Doc string without a content type tag` | `CUKE_DOC_STRING_TYPE()` with and without a ` ```json`/`"""json` tag |
 | `Scenario: Empty cells in data table` | `CUKE_TABLE()` with fully empty rows |
 | `Scenario Outline: Empty cells in examples` | `{word}`, `{}`, `{string}` with empty outline cells (`""` sentinel) |
+| `Scenario: Quotes and hashes inside data table cells` | Quotes, `#` and `\|` as literal cell text |
+| `Scenario: A comment line directly after a data table` | A comment line after a table is not read as a row |
 
 ---
 

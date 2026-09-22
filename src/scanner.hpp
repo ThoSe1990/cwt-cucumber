@@ -34,6 +34,8 @@ class scanner
   [[nodiscard]] bool is_whitespace() const;
   [[nodiscard]] bool three_consecutive(const char c) const;
   [[nodiscard]] bool end_of_line() const;
+  [[nodiscard]] bool at_line_start() const;
+  [[nodiscard]] bool preceded_by_escape() const;
   [[nodiscard]] token make_token(token_type type) const;
   [[nodiscard]] token make_token(token_type type, std::size_t length) const;
   [[nodiscard]] token make_token(token_type type, std::size_t start,
@@ -48,6 +50,18 @@ class scanner
   [[nodiscard]] token parameter();
   [[nodiscard]] std::string_view make_string_view_here(std::size_t length);
 
+ public:
+  /**
+   * @brief Reads following tokens as data table cells.
+   * @details A cell is raw text delimited by '|', so a double quote in
+   * it does not open a string value and an unescaped '|' ends the cell.
+   * Use cuke::internal::lexer::table_cell_scope to enable it.
+   */
+  void set_table_cell_mode(bool enabled) noexcept
+  {
+    m_table_cell_mode = enabled;
+  }
+
  private:
   std::size_t m_line{1};
   std::size_t m_pos{0};
@@ -55,6 +69,7 @@ class scanner
   static constexpr const std::string_view m_lan_keyword{"language:"};
   std::shared_ptr<identifier> m_identifiers = std::make_shared<english>();
   std::string_view m_source;
+  bool m_table_cell_mode{false};
 };
 
 }  // namespace cuke::internal

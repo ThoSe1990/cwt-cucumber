@@ -72,7 +72,9 @@ class test_result
   [[nodiscard]] std::size_t steps_failed() const noexcept;
   [[nodiscard]] std::size_t steps_skipped() const noexcept;
   [[nodiscard]] std::size_t steps_undefined() const noexcept;
+  [[nodiscard]] std::size_t parse_errors() const noexcept;
 
+  void add_parse_error() noexcept;
   void add_scenario(test_status status) noexcept;
   void add_step(test_status status) noexcept;
 
@@ -81,6 +83,8 @@ class test_result
 
  private:
   std::vector<feature> m_data;
+
+  std::size_t m_parse_errors{0};
 
   std::size_t m_scenarios_count{0};
   std::size_t m_steps_count{0};

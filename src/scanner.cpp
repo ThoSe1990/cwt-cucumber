@@ -156,6 +156,31 @@ bool scanner::is_whitespace() const
   const char c = peek();
   return c == ' ' || c == '\t';
 }
+bool scanner::at_line_start() const
+{
+  for (std::size_t i = m_pos; i > 0; --i)
+  {
+    const char c = m_source[i - 1];
+    if (c == '\n')
+    {
+      return true;
+    }
+    if (c != ' ' && c != '\t' && c != '\r')
+    {
+      return false;
+    }
+  }
+  return true;
+}
+bool scanner::preceded_by_escape() const
+{
+  std::size_t backslashes = 0;
+  for (std::size_t i = m_pos; i > 0 && m_source[i - 1] == '\\'; --i)
+  {
+    ++backslashes;
+  }
+  return backslashes % 2 == 1;
+}
 bool scanner::end_of_line() const
 {
   return peek() == '\n' || (peek() == '\r' && peek_next() == '\n');
@@ -188,6 +213,10 @@ void scanner::skip()
         advance();
         break;
       case '#':
+        if (!at_line_start())
+        {
+          return;
+        }
         while (!is_at_end() && !end_of_line())
         {
           advance();
@@ -235,6 +264,10 @@ token scanner::string()
     {
       return error_token("Unexpected linebreak in string value.");
     }
+    if (peek() == '\\' && peek_next() != '\0')
+    {
+      advance();
+    }
     advance();
   }
 
@@ -273,7 +306,9 @@ token scanner::doc_string()
 
 token scanner::word()
 {
-  while (!is_whitespace() && peek() != '{' && !end_of_line() && !is_at_end())
+  while (!is_whitespace() && peek() != '{' && peek() != '"' &&
+         !(m_table_cell_mode && peek() == '|' && !preceded_by_escape()) &&
+         !end_of_line() && !is_at_end())
   {
     advance();
   }
@@ -381,6 +416,10 @@ token scanner::scan_token()
       if (peek() == '"' && peek_next() == '"')
       {
         return doc_string();
+      }
+      else if (m_table_cell_mode)
+      {
+        return word();
       }
       else
       {
