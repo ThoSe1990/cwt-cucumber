@@ -191,3 +191,52 @@ TEST_F(hook_results, a_failing_after_hook_fails_a_dry_run_scenario)
   EXPECT_EQ(scenario.status, cuke::results::test_status::failed);
 }
 
+#ifdef WITH_JSON
+#include "../src/report.hpp"
+#include <nlohmann/json.hpp>
+
+TEST_F(hook_results, the_report_carries_the_hook_records)
+{
+  cuke::registry().push_hook_before(
+      cuke::internal::hook([]() { cuke::equal(1, 2); }));
+  cuke::registry().push_hook_after(cuke::internal::hook([]() {}));
+  run(one_scenario);
+
+  const nlohmann::json report = nlohmann::json::parse(cuke::report::as_json());
+  const auto& element = report.at(0).at("elements").at(0);
+
+  ASSERT_TRUE(element.contains("before"));
+  ASSERT_EQ(element.at("before").size(), 1);
+  EXPECT_EQ(element.at("before").at(0).at("result").at("status"), "failed");
+  EXPECT_TRUE(
+      element.at("before").at(0).at("result").contains("error_message"));
+
+  ASSERT_TRUE(element.contains("after"));
+  ASSERT_EQ(element.at("after").size(), 1);
+  EXPECT_EQ(element.at("after").at(0).at("result").at("status"), "passed");
+}
+
+// A scenario with no hook that ran gets no before/after key at all - an
+// empty array would claim an execution that never happened. A scenario
+// with one hook that ran gets the key with exactly that one record.
+TEST_F(hook_results, before_after_keys_appear_only_when_a_hook_ran)
+{
+  run(one_scenario);
+
+  const nlohmann::json no_hooks_report =
+      nlohmann::json::parse(cuke::report::as_json());
+  const auto& no_hooks_element = no_hooks_report.at(0).at("elements").at(0);
+  EXPECT_FALSE(no_hooks_element.contains("before"));
+  EXPECT_FALSE(no_hooks_element.contains("after"));
+
+  cuke::registry().push_hook_before(cuke::internal::hook([]() {}));
+  run(one_scenario);
+
+  const nlohmann::json one_hook_report =
+      nlohmann::json::parse(cuke::report::as_json());
+  const auto& one_hook_element = one_hook_report.at(1).at("elements").at(0);
+  ASSERT_TRUE(one_hook_element.contains("before"));
+  EXPECT_EQ(one_hook_element.at("before").size(), 1);
+  EXPECT_FALSE(one_hook_element.contains("after"));
+}
+#endif  // WITH_JSON
