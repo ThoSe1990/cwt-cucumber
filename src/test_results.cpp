@@ -16,8 +16,6 @@ void test_result::clear() noexcept
 {
   m_data.clear();
 
-  m_parse_errors = 0;
-
   m_scenarios_count = 0;
 
   m_scenarios_failed = 0;
@@ -30,13 +28,20 @@ void test_result::clear() noexcept
   m_steps_undefined = 0;
   m_steps_skipped = 0;
   m_steps_passed = 0;
+
+  m_parse_errors = 0;
+  m_run_failed = false;
 }
 
 std::size_t test_result::parse_errors() const noexcept
 {
   return m_parse_errors;
 }
+bool test_result::run_failed() const noexcept { return m_run_failed; }
+
 void test_result::add_parse_error() noexcept { ++m_parse_errors; }
+void test_result::add_run_failure() noexcept { m_run_failed = true; }
+
 std::size_t test_result::scenarios_passed() const noexcept
 {
   return m_scenarios_passed;
@@ -273,6 +278,10 @@ std::string step_prefix(test_status status)
 
 test_status final_result()
 {
+  if (test_results().run_failed())
+  {
+    return test_status::failed;
+  }
   if (test_results().parse_errors() > 0)
   {
     return test_status::failed;
@@ -336,7 +345,10 @@ step& new_step(const cuke::ast::step_node& current)
 
 void set_step_to(test_status status)
 {
-  test_results().back().scenarios.back().steps.back().status = status;
+  if (has_current_step())
+  {
+    steps_back().status = status;
+  }
 }
 
 feature& features_back() { return test_results().back(); }
@@ -344,6 +356,88 @@ scenario& scenarios_back() { return test_results().back().scenarios.back(); }
 step& steps_back()
 {
   return test_results().back().scenarios.back().steps.back();
+}
+
+bool has_current_step() noexcept
+{
+  return !test_results().data().empty() &&
+         !test_results().back().scenarios.empty() &&
+         !test_results().back().scenarios.back().steps.empty();
+}
+
+namespace
+{
+// Which hook record a failure belongs to, if any. Named by an absolute
+// path (feature index, scenario index, kind, record index) rather than a
+// pointer or "whatever is current": a hook_scope nested inside another can
+// grow the same vector, which a pointer would not survive, and a feature or
+// scenario pushed while a scope is open would make "current" mean something
+// else. hook_scope saves and restores this, so the innermost open scope is
+// the one that owns a failure.
+hook_cursor g_hook_cursor;
+}  // namespace
+
+hook_scope::hook_scope(hook_kind kind) : m_previous(g_hook_cursor)
+{
+  if (test_results().data().empty() || test_results().back().scenarios.empty())
+  {
+    // No scenario to attach to: detach from whatever the outer scope (if
+    // any) was pointing at, so a hook running here does not silently write
+    // into the outer hook's record. m_previous still remembers it, so the
+    // destructor restores it once this scope ends.
+    g_hook_cursor = hook_cursor{};
+    return;
+  }
+  const std::size_t feature_index = test_results().data().size() - 1;
+  feature& parent_feature = test_results().back();
+  const std::size_t scenario_index = parent_feature.scenarios.size() - 1;
+  scenario& current = parent_feature.scenarios.back();
+  std::vector<hook_result>& records =
+      kind == hook_kind::before ? current.before : current.after;
+  records.emplace_back();
+  g_hook_cursor = hook_cursor{true, feature_index, scenario_index, kind,
+                              records.size() - 1};
+}
+
+hook_scope::~hook_scope() { g_hook_cursor = m_previous; }
+
+void fail_current(std::string_view error_msg)
+{
+  if (g_hook_cursor.active &&
+      g_hook_cursor.feature < test_results().data().size())
+  {
+    feature& target_feature = test_results().data()[g_hook_cursor.feature];
+    if (g_hook_cursor.scenario < target_feature.scenarios.size())
+    {
+      scenario& target = target_feature.scenarios[g_hook_cursor.scenario];
+      std::vector<hook_result>& records =
+          g_hook_cursor.kind == hook_kind::before ? target.before
+                                                  : target.after;
+      if (g_hook_cursor.index < records.size())
+      {
+        records[g_hook_cursor.index].status = test_status::failed;
+        records[g_hook_cursor.index].error_msg = error_msg;
+        return;
+      }
+    }
+  }
+  if (has_current_step())
+  {
+    step& current = steps_back();
+    current.status = test_status::failed;
+    current.error_msg = error_msg;
+    return;
+  }
+  // Neither a hook record nor a step: this is a BEFORE_ALL hook, which
+  // runs before any feature or scenario exists. Record it against the run
+  // itself so final_result() does not silently report success.
+  //
+  // A failing AFTER_ALL hook never reaches this branch: it runs after the
+  // whole run, when has_current_step() above is already true (the last
+  // scenario's last step), so it is charged to that step instead,
+  // retroactively, after that step was already counted passed. Known
+  // limitation, not a design choice made here.
+  test_results().add_run_failure();
 }
 
 }  // namespace cuke::results

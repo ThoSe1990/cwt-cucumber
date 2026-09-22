@@ -85,19 +85,28 @@ struct scenario_pipeline_context
                      });
 }
 
+[[nodiscard]] bool has_failed_hooks(const results::scenario& scenario)
+{
+  const auto failed = [](const results::hook_result& hook)
+  { return hook.status == results::test_status::failed; };
+  return std::any_of(scenario.before.begin(), scenario.before.end(), failed) ||
+         std::any_of(scenario.after.begin(), scenario.after.end(), failed);
+}
+
 void update_scenario_status(scenario_pipeline_context& context)
 {
-  const auto& steps = results::scenarios_back().steps;
+  const auto& steps = context.result.steps;
   if (context.skip_scenario)
   {
+    // --dry-run and skip_scenario() skip only steps; hooks still run. A
+    // failed hook must still fail the scenario, or the terminal and the
+    // JSON report disagree about the same scenario again.
+    bool must_fail = has_failed_hooks(context.result);
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
-    if (has_undefined_steps(steps))
-    {
-      context.result.status = results::test_status::failed;
-    }
-    else
+    must_fail = must_fail || has_undefined_steps(steps);
 #endif  // UNDEFINED_STEPS_ARE_A_FAILURE
-      context.result.status = results::test_status::skipped;
+    context.result.status = must_fail ? results::test_status::failed
+                                      : results::test_status::skipped;
   }
   else if (internal::get_runtime_options().fail_scenario().is_set)
   {
@@ -112,7 +121,8 @@ void update_scenario_status(scenario_pipeline_context& context)
   }
   else
   {
-    if (has_failed_or_undefined_steps(steps))
+    if (has_failed_or_undefined_steps(steps) ||
+        has_failed_hooks(context.result))
     {
       context.result.status = results::test_status::failed;
     }
@@ -235,7 +245,13 @@ void verbose_start_print(scenario_pipeline_context& context)
 }
 void hook_before_scenario(scenario_pipeline_context& context)
 {
-  cuke::registry().run_hook_before(context.scenario.tags());
+  cuke::registry().run_hook_before(
+      context.scenario.tags(),
+      [](const auto& h)
+      {
+        results::hook_scope record(results::hook_kind::before);
+        h.call();
+      });
 }
 void is_scenario_ignored(scenario_pipeline_context& context)
 {
@@ -283,7 +299,13 @@ void hook_after_scenario(scenario_pipeline_context& context)
 {
   if (!internal::get_runtime_options().fail_scenario().is_set)
   {
-    cuke::registry().run_hook_after(context.scenario.tags());
+    cuke::registry().run_hook_after(
+        context.scenario.tags(),
+        [](const auto& h)
+        {
+          results::hook_scope record(results::hook_kind::after);
+          h.call();
+        });
   }
 }
 void reset_user_context(scenario_pipeline_context&)
