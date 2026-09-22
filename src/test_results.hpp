@@ -35,6 +35,14 @@ struct step
   std::string error_msg;
   cuke::table table;
 };
+/**
+ * @brief The outcome of one hook execution around a scenario.
+ */
+struct hook_result
+{
+  test_status status{test_status::passed};
+  std::string error_msg;
+};
 struct scenario
 {
   std::string id;
@@ -44,6 +52,8 @@ struct scenario
   std::string description;
   std::string keyword;
   std::vector<step> steps{};
+  std::vector<hook_result> before{};
+  std::vector<hook_result> after{};
   std::vector<std::string> tags;
 };
 struct feature
@@ -72,19 +82,35 @@ class test_result
   [[nodiscard]] std::size_t steps_failed() const noexcept;
   [[nodiscard]] std::size_t steps_skipped() const noexcept;
   [[nodiscard]] std::size_t steps_undefined() const noexcept;
-  [[nodiscard]] std::size_t parse_errors() const noexcept;
 
-  void add_parse_error() noexcept;
   void add_scenario(test_status status) noexcept;
   void add_step(test_status status) noexcept;
 
   [[nodiscard]] std::size_t scenarios_count() const noexcept;
   [[nodiscard]] std::size_t steps_count() const noexcept;
 
+  /**
+   * @brief Two run-level failures: neither has a scenario or step to
+   * attach to, so neither shows up in data(), and both must be checked
+   * before it.
+   * @details parse_errors() counts feature files that failed to parse (see
+   * add_parse_error(), called from test_runner::run()). run_failed() is a
+   * single flag for an assertion failing before any feature or scenario
+   * exists, which today only happens inside a `BEFORE_ALL` hook, since
+   * fail_current() then has neither a hook record nor a step to write to
+   * (see add_run_failure()). final_result() consults both first, the same
+   * way scenarios_failed() is consulted for an ordinary scenario failure.
+   * @note An assertion inside `AFTER_ALL` does not reach add_run_failure();
+   * see fail_current()'s documentation for why.
+   */
+  [[nodiscard]] std::size_t parse_errors() const noexcept;
+  [[nodiscard]] bool run_failed() const noexcept;
+
+  void add_parse_error() noexcept;
+  void add_run_failure() noexcept;
+
  private:
   std::vector<feature> m_data;
-
-  std::size_t m_parse_errors{0};
 
   std::size_t m_scenarios_count{0};
   std::size_t m_steps_count{0};
@@ -97,6 +123,9 @@ class test_result
   std::size_t m_steps_failed{0};
   std::size_t m_steps_skipped{0};
   std::size_t m_steps_undefined{0};
+
+  std::size_t m_parse_errors{0};
+  bool m_run_failed{false};
 };
 
 [[nodiscard]] test_result& test_results();
@@ -112,6 +141,87 @@ void new_feature(const cuke::ast::feature_node& current);
 [[nodiscard]] step& new_step(const cuke::ast::step_node& current);
 void remove_last_scenario();
 void set_step_to(test_status status);
+
+/**
+ * @brief True when a step is being executed and can carry a failure.
+ */
+[[nodiscard]] bool has_current_step() noexcept;
+/**
+ * @brief Records a failure against whatever is currently executing.
+ * @details A hook record when one is open, otherwise the current step, and
+ * a run-level failure (test_result::add_run_failure()) only when neither
+ * exists - which is the case in a `BEFORE_ALL` hook, since it runs before
+ * any feature or scenario exists.
+ * @attention A failing assertion inside `AFTER_ALL` does NOT take the
+ * run-level path above: `AFTER_ALL` runs after the whole run, when
+ * has_current_step() is already true (the last scenario's last step), so
+ * it is charged to that step instead, retroactively, after that step was
+ * already counted passed - the terminal-vs-JSON disagreement this fix
+ * otherwise removes. Known limitation of this sink, not a design choice;
+ * fixing it means teaching fail_current() to tell "a scenario is
+ * executing" apart from "a step record exists," which is a decision for
+ * whoever owns this library, not something this fix takes on.
+ */
+void fail_current(std::string_view error_msg);
+
+enum class hook_kind
+{
+  before,
+  after
+};
+
+/**
+ * @brief Which hook record a failure belongs to, if any.
+ * @details Names the record by an absolute path - feature index, scenario
+ * index, hook kind, and record index - rather than by a pointer or by
+ * "whatever is current". Neither a vector reallocation nor a feature or
+ * scenario pushed while this cursor is active can make the path resolve to
+ * a different record: fail_current bounds-checks every step of the path
+ * before writing through it, and falls back to the current step otherwise.
+ */
+struct hook_cursor
+{
+  bool active{false};
+  std::size_t feature{0};
+  std::size_t scenario{0};
+  hook_kind kind{hook_kind::before};
+  std::size_t index{0};
+};
+
+/**
+ * @brief Opens a hook record on the current scenario for its lifetime.
+ * @details While one is alive, an assertion inside the hook is recorded
+ * against that hook rather than against whatever step last ran. The record
+ * is named by position, not by reference: the feature, the scenario, the
+ * hook kind, and the index within that kind's vector, all captured when the
+ * scope opens.
+ * @attention A hook must not run a nested test run while a scope is open.
+ * Position stays valid as long as the containers it is measured against
+ * only ever grow; results::remove_last_scenario() breaks that, since it can
+ * pop a scenario and let a later one take its place, leaving an open
+ * scope's index in range but naming a scenario it was never opened on. The
+ * bounds checks in fail_current mean this can only misattribute or drop a
+ * record - never read or write out of bounds - but it is still the wrong
+ * record, so treat this as a hard rule and not a risk to weigh.
+ */
+class hook_scope
+{
+ public:
+  explicit hook_scope(hook_kind kind);
+  ~hook_scope();
+  hook_scope(const hook_scope&) = delete;
+  hook_scope& operator=(const hook_scope&) = delete;
+
+ private:
+  // fail_current resolves the active hook_cursor at call time, not a
+  // pointer held across the scope's lifetime. test_runner, parser and
+  // registry are all public API, so a hook could in principle construct and
+  // run a nested test_runner, nesting hook_scope instances on the same
+  // vector; saving the cursor's previous value here and restoring it on
+  // destruction is what keeps that safe, rather than relying on no caller
+  // ever nesting a scope today.
+  hook_cursor m_previous;
+};
 
 [[nodiscard]] feature& features_back();
 [[nodiscard]] scenario& scenarios_back();

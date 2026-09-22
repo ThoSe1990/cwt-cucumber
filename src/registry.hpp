@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 
 #include "log.hpp"
 #include "step.hpp"
@@ -59,13 +60,17 @@ static void run_hook(const std::vector<Hook>& hooks)
         h.call();
       });
 }
-template <typename Hook>
+// Runs every hook whose tag expression matches, handing each one that
+// actually runs to on_run rather than calling it directly: the caller
+// decides what "running a hook" means (e.g. opening a results record around
+// it) without this function - or registry - knowing anything about that.
+template <typename Hook, typename OnRun>
 static void run_hook(const std::vector<Hook>& hooks,
-                     const std::vector<std::string>& tags)
+                     const std::vector<std::string>& tags, OnRun&& on_run)
 {
   std::for_each(
       hooks.begin(), hooks.end(),
-      [&tags](const auto& h)
+      [&tags, &on_run](const auto& h)
       {
         bool tag_evaluation = h.valid_tag(tags);
         cuke::log::verbose(
@@ -93,7 +98,7 @@ static void run_hook(const std::vector<Hook>& hooks,
         }
         if (tag_evaluation)
         {
-          h.call();
+          on_run(h);
         }
       });
 }
@@ -242,13 +247,32 @@ class registry
     return m_hooks.after_step;
   }
 
+  // on_run is invoked once per hook that actually runs (tag expression
+  // matched), in the order it runs - never for a hook a tag expression
+  // skips, and never once for the whole call regardless of hook count.
+  template <typename OnRun>
+  void run_hook_before(const std::vector<std::string>& tags,
+                       OnRun&& on_run) const
+  {
+    run_hook(m_hooks.before, tags, std::forward<OnRun>(on_run));
+  }
+  // Kept for source compatibility with callers that only ever want the
+  // hooks run, with no interest in observing each one via on_run.
   void run_hook_before(const std::vector<std::string>& tags) const noexcept
   {
-    run_hook(m_hooks.before, tags);
+    run_hook_before(tags, [](const auto& h) { h.call(); });
   }
+  template <typename OnRun>
+  void run_hook_after(const std::vector<std::string>& tags,
+                      OnRun&& on_run) const
+  {
+    run_hook(m_hooks.after, tags, std::forward<OnRun>(on_run));
+  }
+  // Kept for source compatibility with callers that only ever want the
+  // hooks run, with no interest in observing each one via on_run.
   void run_hook_after(const std::vector<std::string>& tags) const noexcept
   {
-    run_hook(m_hooks.after, tags);
+    run_hook_after(tags, [](const auto& h) { h.call(); });
   }
   void run_hook_before_step() const noexcept { run_hook(m_hooks.before_step); }
   void run_hook_after_step() const noexcept { run_hook(m_hooks.after_step); }

@@ -174,6 +174,7 @@ Hooks
 Hooks allow you to execute code **before or after scenarios or steps**.  
 They are easy to implement and can be used for setup, teardown, logging, or conditional scenario handling.  
 Multiple hooks of the same type are allowed; they are executed in the order they are defined.
+A ``BEFORE``/``AFTER`` hook must not run a nested test run of its own, since doing so can misattribute which record an assertion inside it fails against.
 
 Basic Hooks
 ^^^^^^^^^^^

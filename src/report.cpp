@@ -40,6 +40,24 @@ nlohmann::json to_json(const cuke::table& t)
   }
   return field_table;
 }
+
+nlohmann::json to_json(const std::vector<cuke::results::hook_result>& hooks)
+{
+  using json = nlohmann::json;
+
+  json field_hooks = json::array();
+  for (const auto& hook : hooks)
+  {
+    json field_hook = {
+        {"result", {{"status", results::to_string(hook.status)}}}};
+    if (!hook.error_msg.empty())
+    {
+      field_hook["result"]["error_message"] = hook.error_msg;
+    }
+    field_hooks.push_back(field_hook);
+  }
+  return field_hooks;
+}
 #endif  // WITH_JSON
 
 }  // namespace internal
@@ -78,6 +96,18 @@ std::string as_json(std::size_t indents /* = 2 */)
           {"type", scenario.name},
       };
       internal::push_tags(field_scenario, scenario.tags);
+
+      // A scenario with no hook that ran gets no before/after key at all:
+      // an empty array would claim "I looked, and there were none", which
+      // is not a claim the reporter is in a position to make.
+      if (!scenario.before.empty())
+      {
+        field_scenario["before"] = internal::to_json(scenario.before);
+      }
+      if (!scenario.after.empty())
+      {
+        field_scenario["after"] = internal::to_json(scenario.after);
+      }
 
       for (const results::step& step : scenario.steps)
       {

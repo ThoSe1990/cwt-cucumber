@@ -58,6 +58,48 @@ TEST_F(registry_tests, scenario_hook_after_tag)
   EXPECT_TRUE(cuke::registry().hooks_after().at(0).valid_tag(
       std::vector<std::string>{std::string("@tag1")}));
 }
+namespace
+{
+bool g_before_hook_called = false;
+bool g_after_hook_called = false;
+}  // namespace
+
+// A downstream caller compiled against the pre-callback API only ever
+// passed the tags. Both single-argument overloads must keep compiling and
+// still run every hook whose tag expression matches.
+TEST_F(registry_tests, run_hook_before_with_only_tags_still_compiles)
+{
+  g_before_hook_called = false;
+  cuke::registry().push_hook_before(
+      cuke::internal::hook([]() { g_before_hook_called = true; }, ""));
+  cuke::registry().run_hook_before(std::vector<std::string>{});
+  EXPECT_TRUE(g_before_hook_called);
+}
+TEST_F(registry_tests, run_hook_after_with_only_tags_still_compiles)
+{
+  g_after_hook_called = false;
+  cuke::registry().push_hook_after(
+      cuke::internal::hook([]() { g_after_hook_called = true; }, ""));
+  cuke::registry().run_hook_after(std::vector<std::string>{});
+  EXPECT_TRUE(g_after_hook_called);
+}
+
+// main's single-argument run_hook_before/run_hook_after are `const
+// noexcept`. Since C++17 noexcept is part of the function type, so a
+// downstream caller that takes &registry::run_hook_before through that
+// exact pointer-to-member type still fails to compile if the restored
+// overload is only `const`. Pin the type, not just callability.
+TEST_F(registry_tests, run_hook_before_after_keep_the_noexcept_pointer_type)
+{
+  using hook_ptr_t =
+      void (cuke::internal::registry::*)(const std::vector<std::string>&)
+          const noexcept;
+  [[maybe_unused]] hook_ptr_t before_ptr =
+      &cuke::internal::registry::run_hook_before;
+  [[maybe_unused]] hook_ptr_t after_ptr =
+      &cuke::internal::registry::run_hook_after;
+  SUCCEED();
+}
 TEST_F(registry_tests, step_hook_before)
 {
   cuke::registry().push_hook_before_step(cuke::internal::hook([]() {}));
