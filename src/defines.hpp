@@ -146,6 +146,9 @@
  * @def BEFORE(function_name)
  * @brief Creates a hook which is executed before every Scenario
  *
+ * @attention Must not run a nested test run; see cuke::results::hook_scope's
+ * contract in test_results.hpp for why.
+ *
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
@@ -185,6 +188,9 @@
 /**
  * @def AFTER(function_name)
  * @brief Creates a hook which is executed after every scenario
+ *
+ * @attention Must not run a nested test run; see cuke::results::hook_scope's
+ * contract in test_results.hpp for why.
  *
  * @param function_name A unique function name, this function name has no
  * technical impact
