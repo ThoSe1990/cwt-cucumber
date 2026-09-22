@@ -358,3 +358,105 @@ TEST(scanner, scan_token_until_word)
   EXPECT_EQ(s.scan_token_until(delimiter).value, std::string_view("Number"));
   EXPECT_EQ(s.scan_token().value, std::string_view("word"));
 }
+
+// A comment is a line whose first non blank character is '#'. A '#' anywhere
+// else on the line is ordinary text.
+TEST(scanner, hash_at_line_start_is_a_comment)
+{
+  scanner s("head\n# a comment\ntail");
+  EXPECT_EQ(s.scan_token().value, std::string_view("head"));
+  EXPECT_EQ(s.scan_token().type, token_type::linebreak);
+  EXPECT_EQ(s.scan_token().type, token_type::linebreak);
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+TEST(scanner, indented_hash_is_a_comment)
+{
+  scanner s("head\n   \t# a comment\ntail");
+  EXPECT_EQ(s.scan_token().value, std::string_view("head"));
+  EXPECT_EQ(s.scan_token().type, token_type::linebreak);
+  EXPECT_EQ(s.scan_token().type, token_type::linebreak);
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+TEST(scanner, hash_inside_a_word_is_text)
+{
+  scanner s("a#b tail");
+  EXPECT_EQ(s.scan_token().value, std::string_view("a#b"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+TEST(scanner, hash_after_a_word_is_text)
+{
+  scanner s("value #comment-looking tail");
+  EXPECT_EQ(s.scan_token().value, std::string_view("value"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("#comment-looking"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+
+// A quoted value begins where the quote is, not only where a token starts.
+TEST(scanner, string_value_begins_mid_token)
+{
+  scanner s("key=\"a b\"");
+  EXPECT_EQ(s.scan_token().value, std::string_view("key="));
+  const token t = s.scan_token();
+  EXPECT_EQ(t.type, token_type::string_value);
+  EXPECT_EQ(t.value, std::string_view("\"a b\""));
+}
+
+// An escaped quote does not close a string value. Without this the closing
+// quote is read as the opening quote of a new, unterminated string.
+TEST(scanner, escaped_quote_does_not_close_a_string)
+{
+  scanner s("\"a \\\" b\" tail");
+  const token t = s.scan_token();
+  EXPECT_EQ(t.type, token_type::string_value);
+  EXPECT_EQ(t.value, std::string_view("\"a \\\" b\""));
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+TEST(scanner, escaped_backslash_still_closes_a_string)
+{
+  scanner s("\"a \\\\\" tail");
+  const token t = s.scan_token();
+  EXPECT_EQ(t.type, token_type::string_value);
+  EXPECT_EQ(t.value, std::string_view("\"a \\\\\""));
+  EXPECT_EQ(s.scan_token().value, std::string_view("tail"));
+}
+TEST(scanner, unterminated_string_still_reports_an_error)
+{
+  scanner s("\"no closing quote\ntail");
+  EXPECT_EQ(s.scan_token().type, token_type::error);
+}
+
+// In table cell mode a quote is ordinary text and an unescaped '|' ends the
+// cell, while '\|' stays inside it.
+TEST(scanner, table_cell_mode_reads_a_quote_as_text)
+{
+  scanner s("[\"x = 1\"] |");
+  s.set_table_cell_mode(true);
+  EXPECT_EQ(s.scan_token().value, std::string_view("["));
+  EXPECT_EQ(s.scan_token().value, std::string_view("\"x"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("="));
+  EXPECT_EQ(s.scan_token().value, std::string_view("1"));
+  EXPECT_EQ(s.scan_token().value, std::string_view("\"]"));
+  EXPECT_EQ(s.scan_token().type, token_type::vertical);
+}
+TEST(scanner, table_cell_mode_ends_a_word_at_the_delimiter)
+{
+  scanner s("abc|def");
+  s.set_table_cell_mode(true);
+  EXPECT_EQ(s.scan_token().value, std::string_view("abc"));
+  EXPECT_EQ(s.scan_token().type, token_type::vertical);
+  EXPECT_EQ(s.scan_token().value, std::string_view("def"));
+}
+TEST(scanner, table_cell_mode_keeps_an_escaped_delimiter)
+{
+  scanner s("a\\|b|c");
+  s.set_table_cell_mode(true);
+  EXPECT_EQ(s.scan_token().value, std::string_view("a\\|b"));
+  EXPECT_EQ(s.scan_token().type, token_type::vertical);
+  EXPECT_EQ(s.scan_token().value, std::string_view("c"));
+}
+TEST(scanner, table_cell_mode_still_reads_a_doc_string)
+{
+  scanner s("\"\"\"\nhello\n\"\"\"");
+  s.set_table_cell_mode(true);
+  EXPECT_EQ(s.scan_token().type, token_type::doc_string);
+}

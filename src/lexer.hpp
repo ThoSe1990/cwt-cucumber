@@ -73,6 +73,25 @@ class lexer
   void skip_linebreaks();
   void error_at(const token& t, std::string_view msg) noexcept;
 
+  /**
+   * @brief Reads data table cells for as long as it is alive.
+   * @details See cuke::internal::scanner::set_table_cell_mode.
+   */
+  class table_cell_scope
+  {
+   public:
+    explicit table_cell_scope(lexer& lex) : m_lexer(lex)
+    {
+      m_lexer.m_scanner.set_table_cell_mode(true);
+    }
+    ~table_cell_scope() { m_lexer.m_scanner.set_table_cell_mode(false); }
+    table_cell_scope(const table_cell_scope&) = delete;
+    table_cell_scope& operator=(const table_cell_scope&) = delete;
+
+   private:
+    lexer& m_lexer;
+  };
+
  private:
   scanner m_scanner;
   // TODO current & previous aren't initialized

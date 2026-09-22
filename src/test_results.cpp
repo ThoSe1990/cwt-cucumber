@@ -16,6 +16,8 @@ void test_result::clear() noexcept
 {
   m_data.clear();
 
+  m_parse_errors = 0;
+
   m_scenarios_count = 0;
 
   m_scenarios_failed = 0;
@@ -30,6 +32,11 @@ void test_result::clear() noexcept
   m_steps_passed = 0;
 }
 
+std::size_t test_result::parse_errors() const noexcept
+{
+  return m_parse_errors;
+}
+void test_result::add_parse_error() noexcept { ++m_parse_errors; }
 std::size_t test_result::scenarios_passed() const noexcept
 {
   return m_scenarios_passed;
@@ -266,6 +273,10 @@ std::string step_prefix(test_status status)
 
 test_status final_result()
 {
+  if (test_results().parse_errors() > 0)
+  {
+    return test_status::failed;
+  }
   if (test_results().data().empty())
   {
     return test_status::passed;

@@ -186,6 +186,7 @@ cuke::value_array parse_row(lexer& lex, bool remove_quotes_from_strings)
 std::pair<cuke::table, std::vector<std::size_t>> parse_table(
     lexer& lex, bool remove_quotes_from_strings)
 {
+  lexer::table_cell_scope cells(lex);
   if (!lex.match(token_type::vertical))
   {
     return {};
@@ -429,6 +430,10 @@ const ast::scenario_node* parser::get_scenario_from_line(std::size_t line) const
 
 void parser::for_each_scenario(ast::node_visitor& visitor) const
 {
+  if (!m_head.has_feature())
+  {
+    return;
+  }
   visitor.visit(m_head.feature());
   for (const auto& n : m_head.feature().scenarios())
   {
