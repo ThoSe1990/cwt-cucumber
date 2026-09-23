@@ -24,9 +24,10 @@ bool is_catalog_or_report(cuke::internal::program_args::arg key)
 }
 
 std::string get_optional_file_path(std::span<const char*>::iterator it,
-                                   std::span<const char*>::iterator end)
+                                   std::span<const char*>::iterator end,
+                                   bool next_token_is_an_option)
 {
-  if (it == end)
+  if (it == end || next_token_is_an_option)
   {
     return "";
   }
@@ -46,11 +47,12 @@ std::string get_optional_file_path(std::span<const char*>::iterator it,
 
 std::string get_option_value(cuke::internal::program_args::arg key,
                              std::span<const char*>::iterator it,
-                             std::span<const char*>::iterator end)
+                             std::span<const char*>::iterator end,
+                             bool next_token_is_an_option)
 {
   if (is_catalog_or_report(key))
   {
-    return get_optional_file_path(it, end);
+    return get_optional_file_path(it, end, next_token_is_an_option);
   }
   return it != end ? std::string(*it) : "";
 }
@@ -110,7 +112,14 @@ void program_args::initialize(int argc, const char* argv[])
       case program_args::arg_type::option:
       {
         auto next = it + 1;
-        auto value = get_option_value(opt.key, next, args.end());
+        // A recognized flag/option right after an optional-value option
+        // (e.g. '--report-json --quiet') is the next option, not a file
+        // path for this one; without this check it would be swallowed as
+        // this option's value and never parsed as its own flag.
+        bool next_token_is_an_option =
+            next != args.end() && keys().contains(*next);
+        auto value = get_option_value(opt.key, next, args.end(),
+                                      next_token_is_an_option);
         if (!value.empty()) ++it;
         m_options[opt.key] = {true, value};
       }

@@ -137,6 +137,28 @@ TEST(options, tag_expression_2)
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
 }
 
+// A flag right after an optional-value option (--report-json, or either
+// --steps-catalog variant) is the next option, not a file path for this
+// one: '--report-json --quiet' must not swallow '--quiet' as the report's
+// file name and lose the flag.
+TEST(options, report_json_before_quiet_does_not_swallow_quiet)
+{
+  const char* argv[] = {"program", "--report-json", "--quiet"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  cuke::internal::program_args prog_args;
+  prog_args.initialize(argc, argv);
+  // initialize() acts on the process-wide logger singleton (--quiet here
+  // disables it), not just on this local prog_args object; leaving it
+  // disabled would silently break whichever test happens to run next.
+  cuke::log::enable();
+
+  ASSERT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::report_json));
+  EXPECT_TRUE(
+      prog_args.get_value(cuke::internal::program_args::arg::report_json)
+          .empty());
+  EXPECT_TRUE(prog_args.is_set(cuke::internal::program_args::arg::quiet));
+}
+
 // Pins the terminal half of the --quiet / --report-json matrix: --quiet
 // decides whether the human report (the live run and the final summary)
 // reaches the terminal at all, and nothing else. --report-json is covered
