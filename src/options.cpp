@@ -144,10 +144,9 @@ void program_args::initialize(int argc, const char* argv[])
     }
   }
 
-  if (is_set(program_args::arg::report_json))
-  {
-    cuke::log::disable();
-  }
+  // --report-json owns only where the JSON report goes (stdout or a named
+  // file, decided in report::print_json_to_sink()); it does not touch the
+  // logger, so it never silences the human report.
   // --quiet owns whether the human report reaches the terminal at all: it
   // disables the logger outright, so every log::* call, including the run
   // and the final summary, becomes a no-op.

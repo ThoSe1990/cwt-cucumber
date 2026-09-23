@@ -489,12 +489,12 @@ TEST_F(stdout_print, log_disabled)
   EXPECT_TRUE(output.empty());
 }
 #ifdef WITH_JSON
-TEST_F(stdout_print, log_disabled_w_json_output)
+TEST_F(stdout_print, report_json_keeps_live_output_and_prints_valid_json)
 {
   const char* script = R"*(
-    Feature: a feature 
-    Scenario: a scenario 
-    Given a step 
+    Feature: a feature
+    Scenario: a scenario
+    Given a step
   )*";
 
   const char* argv[] = {"program", "--report-json"};
@@ -507,7 +507,9 @@ TEST_F(stdout_print, log_disabled_w_json_output)
   cuke::test_runner runner;
   p.for_each_scenario(runner);
   std::string output = testing::internal::GetCapturedStdout();
-  ASSERT_TRUE(output.empty());
+  // --report-json only decides where the JSON goes; it no longer silences
+  // the live run.
+  ASSERT_TRUE(has_substr(output, "Scenario: a scenario"));
 
   testing::internal::CaptureStdout();
   cuke::report::print_json_to_sink();

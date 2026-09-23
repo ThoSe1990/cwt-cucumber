@@ -71,7 +71,10 @@ all steps will run regardless of intermediate failures.
 JSON Report: ``--report-json``
 ------------------------------
 
-Print test results as JSON to stdout or a specified file.  
+Print test results as JSON: to stdout with no argument, to the named file
+with one. It says nothing about the human report, which prints as usual
+either way (unless ``--quiet`` suppresses it); with no file named, the
+JSON follows the human report on stdout.
 A small example of the JSON report output:
 
 .. code-block:: json
