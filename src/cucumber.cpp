@@ -67,17 +67,22 @@ void cwt_cucumber::run_tests() const noexcept
 }
 void cwt_cucumber::print_results() const noexcept
 {
+  // --report-json and --quiet decide two independent things, so neither is
+  // consulted here to decide the other. The human report is always
+  // attempted first; --quiet suppresses it (including this function's own
+  // log::report() calls) by having already disabled the logger in
+  // program_args::initialize(). The JSON is then written whenever
+  // --report-json is set, in addition to whatever the human report above
+  // printed, which is why a bare --report-json shows the run and the
+  // summary before the JSON that follows it on stdout.
+  print_failed_scenarios();
+  log::report(log::new_line);
+  log::report(results::scenarios_to_string(), log::new_line);
+  log::report(results::steps_to_string(), log::new_line);
   if (internal::get_program_args().is_set(
           internal::program_args::arg::report_json))
   {
     report::print_json_to_sink();
-  }
-  else
-  {
-    print_failed_scenarios();
-    log::report(log::new_line);
-    log::report(results::scenarios_to_string(), log::new_line);
-    log::report(results::steps_to_string(), log::new_line);
   }
 }
 

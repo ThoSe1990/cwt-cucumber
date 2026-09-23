@@ -125,7 +125,7 @@ class program_args
   // clang-format off
   static constexpr const definition defs[] = {
       {"-h", "--help", "", arg::help, arg_type::flag, "Print the help screen to stdout"},
-      {"-q", "--quiet", "", arg::quiet, arg_type::flag, "Quiet mode, only the final result will be printed to stdout."},
+      {"-q", "--quiet", "", arg::quiet, arg_type::flag, "Quiet mode, suppress all terminal output, including the final summary."},
       {"-d", "--dry-run", "", arg::dry_run, arg_type::flag, "Dry run, execute cucumber without invoking steps. Steps will still be checked if they are defined"},
       {"-v", "--verbose", "", arg::verbose, arg_type::flag, "Print detailed information, e.g. skipped scenarios, tag evaluation"},
       {"-c", "--continue-on-failure", "", arg::continue_on_failure, arg_type::flag, "Do not skip subsequent steps in a scenario after a failed step, all steps will run regardless of intermediate failures\n"},
