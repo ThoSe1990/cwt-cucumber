@@ -27,7 +27,6 @@ enum class level
 {
   verbose = 0,
   info,
-  quiet,
   error,
   report
 };
@@ -54,12 +53,6 @@ class logger
     if (m_disabled) return;
 
     (std::cout << ... << std::forward<Args>(args));
-  }
-
-  template <typename... Args>
-  void quiet(Args&&... args)
-  {
-    log_message(level::quiet, std::forward<Args>(args)...);
   }
 
   template <typename... Args>
@@ -118,12 +111,6 @@ template <typename... Args>
 void report(Args&&... args)
 {
   logger::instance().report(std::forward<Args>(args)...);
-}
-
-template <typename... Args>
-void quiet(Args&&... args)
-{
-  logger::instance().quiet(std::forward<Args>(args)...);
 }
 
 template <typename... Args>

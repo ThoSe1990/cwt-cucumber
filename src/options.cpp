@@ -139,9 +139,12 @@ void program_args::initialize(int argc, const char* argv[])
   {
     cuke::log::disable();
   }
+  // --quiet owns whether the human report reaches the terminal at all: it
+  // disables the logger outright, so every log::* call, including the run
+  // and the final summary, becomes a no-op.
   if (is_set(program_args::arg::quiet))
   {
-    cuke::log::set_level(cuke::log::level::quiet);
+    cuke::log::disable();
   }
   if (is_set(program_args::arg::verbose))
   {

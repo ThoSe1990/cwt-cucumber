@@ -47,7 +47,9 @@ Examples of tag expressions:
 Quiet Mode: ``-q`` / ``--quiet``
 --------------------------------
 
-Suppress detailed output and print only the final result.
+Suppress the human report on the terminal entirely, including the final
+summary. It says nothing about ``--report-json``: a JSON report, to stdout
+or to a file, is written regardless of ``--quiet``.
 
 Dry Run: ``-d`` / ``--dry-run``
 -------------------------------

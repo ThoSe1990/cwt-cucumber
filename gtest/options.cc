@@ -5,6 +5,11 @@
 
 #include "../src/options.hpp"
 #include "../src/tags.hpp"
+#include "../src/log.hpp"
+#include "../src/parser.hpp"
+#include "../src/test_runner.hpp"
+#include "../src/test_results.hpp"
+#include "../src/cucumber.hpp"
 
 #include "test_paths.hpp"
 
@@ -130,4 +135,66 @@ TEST(options, tag_expression_2)
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag1"}}));
   EXPECT_TRUE(tags.evaluate(std::vector{std::string{"@tag2"}}));
   EXPECT_FALSE(tags.evaluate(std::vector{std::string{"@tag3"}}));
+}
+
+// Pins the terminal half of the --quiet / --report-json matrix: --quiet
+// decides whether the human report (the live run and the final summary)
+// reaches the terminal at all, and nothing else. --report-json is covered
+// separately below; here it is always unset.
+class print_results_matrix : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
+    cuke::registry().push_step(cuke::internal::step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&) {},
+        "a step"));
+  }
+  void TearDown() override
+  {
+    cuke::internal::get_program_args(0, {}).clear();
+    cuke::log::enable();
+  }
+
+  // Runs one scenario the way the CLI does: the live per-step lines from
+  // the run itself, immediately followed by print_results()'s summary (and
+  // JSON, once --report-json is in play), captured as a single block of
+  // stdout so the assertions below see exactly what a terminal would.
+  static std::string run_and_print(int argc, const char* argv[])
+  {
+    [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
+
+    const char* script = R"*(
+      Feature: a feature
+      Scenario: a scenario
+      Given a step
+    )*";
+    cuke::parser p;
+    p.parse_script(script);
+
+    testing::internal::CaptureStdout();
+    cuke::test_runner runner;
+    p.for_each_scenario(runner);
+
+    cuke::cwt_cucumber cucumber(argc, argv);
+    cucumber.print_results();
+    return testing::internal::GetCapturedStdout();
+  }
+};
+
+TEST_F(print_results_matrix, no_options_show_the_run_and_the_summary)
+{
+  const char* argv[] = {"cucumber"};
+  const std::string out = run_and_print(1, argv);
+  EXPECT_NE(out.find("a scenario"), std::string::npos);
+  EXPECT_NE(out.find("1 Scenario ("), std::string::npos);
+}
+
+TEST_F(print_results_matrix, quiet_alone_suppresses_everything)
+{
+  const char* argv[] = {"cucumber", "--quiet"};
+  const std::string out = run_and_print(2, argv);
+  EXPECT_TRUE(out.empty());
 }

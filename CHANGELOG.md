@@ -13,6 +13,7 @@
 ### Changed
 
 - Step matching now reuses a precompiled regex per step definition instead of recompiling it on every match attempt ([136](https://github.com/ThoSe1990/cwt-cucumber/pull/136))
+- `--quiet` now suppresses the human report on the terminal entirely, including the final summary and a failed assertion's message; before, the summary still printed ([145](https://github.com/ThoSe1990/cwt-cucumber/issues/145))
 
 ### Fixed
 
