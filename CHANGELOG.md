@@ -27,6 +27,10 @@
 - An `Examples:` block appearing before any `Scenario`/`Scenario Outline` in a feature crashed with an uncaught SEGV instead of reporting a parse error (found via fuzz testing) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
 - A digit-only literal curly-brace group (e.g. `{56}`, `{2,4}`) that is not a recognized Cucumber expression key is now automatically treated as literal text in step definitions; previously, if left unescaped directly after an anonymous `{}`/`{word}` expression, it was misparsed by `std::regex` as a repetition quantifier (e.g. `(.*){56}`), causing catastrophic backtracking / an unbounded hang on matching input (found via fuzz testing `create_regex_definition()`/`step_finder`) ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
 - A registered custom expression whose key itself looks like a digit-only quantifier (e.g. a custom type named `{56}`) was unintentionally escaped to literal text by the ReDoS fix above and stopped being recognized; such registered keys are now left unescaped ([141](https://github.com/ThoSe1990/cwt-cucumber/pull/141))
+- Data table cells are read as raw text: a `"` no longer opens a string value and a `#` no longer starts a comment inside a cell, so the closing `|` is no longer swallowed and the row is no longer mis-split; write `\|` for a pipe that belongs to the cell ([144](https://github.com/ThoSe1990/cwt-cucumber/pull/144))
+- A `#` starts a comment only as the first non blank character of a line, so `a#b` and `issue #7` stay text ([144](https://github.com/ThoSe1990/cwt-cucumber/pull/144))
+- An escaped `\"` no longer closes a string value, so the real closing quote is no longer read as the opening quote of a new, unterminated one ([144](https://github.com/ThoSe1990/cwt-cucumber/pull/144))
+- A feature file that does not parse crashed the runner with a SEGV in `parser::for_each_scenario()`, which dereferenced the document the parser had already cleared; such a file is now skipped and fails the run instead of being reported as a success ([144](https://github.com/ThoSe1990/cwt-cucumber/pull/144))
 
 ## [2.9] 2026-06-26
 

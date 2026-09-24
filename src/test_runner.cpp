@@ -345,6 +345,11 @@ void test_runner::run()
   {
     parser p;
     p.parse_from_file(feature.path);
+    if (p.error())
+    {
+      results::test_results().add_parse_error();
+      continue;
+    }
     if (!feature.lines_to_run.empty())
     {
       m_line_filter.emplace(feature.lines_to_run);

@@ -452,6 +452,10 @@ class feature_node : public node
 class gherkin_document
 {
  public:
+  [[nodiscard]] bool has_feature() const noexcept
+  {
+    return m_feature != nullptr;
+  }
   [[nodiscard]] const feature_node& feature() const { return *m_feature; }
   void clear() { m_feature.reset(); }
 

@@ -146,6 +146,41 @@ See :ref:`subch-step-def-datatables` for examples of how to handle tables in ste
     | QUANTITY | 3                  |
   Then The box contains 3 items
 
+**Cell content**
+
+A cell is the raw text between two ``|``. Nothing inside it is Gherkin
+syntax: a double quote does not open a string value and a ``#`` does not
+start a comment. The text reaches the step exactly as written.
+
+.. code-block:: gherkin
+
+  Given A table with literal cells
+    | ["x = 1"]         | a quoted list  |
+    | issue #7          | a hash sign    |
+    | "unterminated     | a single quote |
+
+Write ``\|`` for a pipe that belongs to the cell, so that it does not end
+the cell:
+
+.. code-block:: gherkin
+
+  Given A table with an escaped delimiter
+    | a\|b | an escaped pipe |
+
+Comments
+--------
+
+A comment is a line whose first non blank character is ``#``. A ``#``
+anywhere else on a line is ordinary text, both in step text and in a data
+table cell.
+
+.. code-block:: gherkin
+
+  # this whole line is a comment
+  Scenario: A scenario
+    Given The ticket is #7
+      | issue #7 | still text |
+
 Tags
 ----
 
