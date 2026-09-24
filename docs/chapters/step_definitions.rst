@@ -214,6 +214,8 @@ CWT-Cucumber provides several types of hooks:
       // Runs once at program end
   }
 
+If an assertion fails or a failure is triggered in ``BEFORE_ALL``, the entire test run is marked as failed and all scenarios are skipped (unless ``--continue-on-failure`` is passed). A failure in ``AFTER_ALL`` also marks the test run as failed.
+
 Tagged Hooks
 ^^^^^^^^^^^^
 
