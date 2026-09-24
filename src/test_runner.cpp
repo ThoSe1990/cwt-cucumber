@@ -88,18 +88,7 @@ struct scenario_pipeline_context
 void update_scenario_status(scenario_pipeline_context& context)
 {
   const auto& steps = results::scenarios_back().steps;
-  if (context.skip_scenario)
-  {
-#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
-    if (has_undefined_steps(steps))
-    {
-      context.result.status = results::test_status::failed;
-    }
-    else
-#endif  // UNDEFINED_STEPS_ARE_A_FAILURE
-      context.result.status = results::test_status::skipped;
-  }
-  else if (internal::get_runtime_options().fail_scenario().is_set)
+  if (internal::get_runtime_options().fail_scenario().is_set)
   {
     const std::string& msg =
         internal::get_runtime_options().fail_scenario().msg;
@@ -114,6 +103,17 @@ void update_scenario_status(scenario_pipeline_context& context)
         step.error_msg = msg;
       }
     }
+  }
+  else if (context.skip_scenario)
+  {
+#ifdef UNDEFINED_STEPS_ARE_A_FAILURE
+    if (has_undefined_steps(steps))
+    {
+      context.result.status = results::test_status::failed;
+    }
+    else
+#endif  // UNDEFINED_STEPS_ARE_A_FAILURE
+      context.result.status = results::test_status::skipped;
   }
   else
   {

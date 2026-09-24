@@ -438,6 +438,7 @@ class run_scenario_hook_asserts : public ::testing::Test
   {
     cuke::registry().clear();
     cuke::results::test_results().clear();
+    cuke::internal::get_program_args(0, {}).clear();
   }
   static std::size_t calls;
 };
@@ -721,4 +722,60 @@ TEST_F(run_scenario_hook_asserts,
             cuke::results::test_status::skipped);
   EXPECT_EQ(scenarios.at(0).steps.at(1).error_msg,
             std::string("Value 1 is not equal to 2"));
+}
+
+TEST_F(run_scenario_hook_asserts, assert_in_after_hook_fails_skipped_scenario)
+{
+  cuke::registry().push_hook_before(
+      hook([]() { cuke::skip_scenario(); }, "@skip_and_after_fail"));
+  cuke::registry().push_hook_after(
+      hook([]() { cuke::equal(1, 2); }, "@skip_and_after_fail"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @skip_and_after_fail
+    Scenario: Skipped scenario with failing after hook
+    Given a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(scenarios.at(0).status, cuke::results::test_status::failed);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
+}
+
+TEST_F(run_scenario_hook_asserts, assert_in_after_hook_fails_dry_run_scenario)
+{
+  const char* argv[] = {"program", "--dry-run"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
+
+  cuke::registry().push_hook_after(
+      hook([]() { cuke::equal(1, 2); }, "@dry_run_after_fail"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @dry_run_after_fail
+    Scenario: Dry-run scenario with failing after hook
+    Given a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(scenarios.at(0).status, cuke::results::test_status::failed);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
 }
