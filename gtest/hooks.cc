@@ -242,6 +242,7 @@ TEST_F(hooks_before_all,
 
   EXPECT_FALSE(step1_called);
   EXPECT_FALSE(step2_called);
+  EXPECT_EQ(cuke::results::test_results().scenarios_skipped(), 2);
   EXPECT_EQ(cuke::results::final_result(), cuke::results::test_status::failed);
 }
 
@@ -285,6 +286,7 @@ TEST_F(hooks_before_all,
 
   EXPECT_TRUE(step1_called);
   EXPECT_TRUE(step2_called);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 2);
   EXPECT_EQ(cuke::results::final_result(), cuke::results::test_status::failed);
 
   [[maybe_unused]] auto& clear_args = cuke::internal::get_program_args(0, {});
