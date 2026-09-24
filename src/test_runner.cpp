@@ -105,12 +105,11 @@ void update_scenario_status(scenario_pipeline_context& context)
         internal::get_runtime_options().fail_scenario().msg;
     log::error(msg, log::new_line);
     context.result.status = results::test_status::failed;
-    if (context.result.steps.empty() ||
-        std::all_of(context.result.steps.begin(), context.result.steps.end(),
-                    [](const results::step& s)
-                    { return s.status == results::test_status::skipped; }))
+    for (results::step& step : context.result.steps)
     {
-      for (results::step& step : context.result.steps)
+      if ((step.status == results::test_status::skipped ||
+           step.status == results::test_status::undefined) &&
+          step.error_msg.empty())
       {
         step.error_msg = msg;
       }
@@ -160,6 +159,10 @@ void skip_step(step_pipeline_context& context)
     context.result.status = context.step.has_step_definition()
                                 ? results::test_status::skipped
                                 : results::test_status::undefined;
+    if (!context.step.has_step_definition())
+    {
+      context.result.error_msg = "Undefined step";
+    }
   }
 }
 

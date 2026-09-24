@@ -682,3 +682,43 @@ TEST_F(run_scenario_hook_asserts, assert_in_after_step_hook_fails_active_step)
   EXPECT_EQ(scenarios.at(0).steps.at(0).error_msg,
             std::string("Value 1 is not equal to 2"));
 }
+
+TEST_F(run_scenario_hook_asserts,
+       before_hook_error_copied_only_when_error_msg_empty)
+{
+  cuke::registry().push_hook_before(
+      hook([]() { cuke::equal(1, 2); }, "@before_fail"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @before_fail
+    Scenario: Before hook fails with undefined and skipped steps
+    Given an undefined step
+    And a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(scenarios.at(0).status, cuke::results::test_status::failed);
+  ASSERT_EQ(scenarios.at(0).steps.size(), 2);
+
+  // Undefined step already had its error_msg set to "Undefined step", so it
+  // must not be overwritten
+  EXPECT_EQ(scenarios.at(0).steps.at(0).status,
+            cuke::results::test_status::undefined);
+  EXPECT_EQ(scenarios.at(0).steps.at(0).error_msg,
+            std::string("Undefined step"));
+
+  // The skipped step had an empty error_msg, so it gets the BEFORE hook failure
+  // message
+  EXPECT_EQ(scenarios.at(0).steps.at(1).status,
+            cuke::results::test_status::skipped);
+  EXPECT_EQ(scenarios.at(0).steps.at(1).error_msg,
+            std::string("Value 1 is not equal to 2"));
+}
