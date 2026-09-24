@@ -156,6 +156,7 @@ class hooks_before_all : public ::testing::Test
     hook_called = false;
     step_called = false;
     cuke::registry().clear();
+    cuke::results::test_results().clear();
 
     cuke::registry().push_hook_before_all(
         cuke::internal::hook([]() { hook_called = true; }));
@@ -168,6 +169,13 @@ class hooks_before_all : public ::testing::Test
         },
         "a step"));
   }
+
+  void TearDown() override
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
+  }
+
   static bool step_called;
   static bool hook_called;
   static bool step1_called;
@@ -303,6 +311,13 @@ class hooks_after_all : public ::testing::Test
         },
         "a step"));
   }
+
+  void TearDown() override
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
+  }
+
   static bool step_called;
   static bool step_after_called;
   static bool hook_called;
