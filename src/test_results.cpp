@@ -17,6 +17,7 @@ void test_result::clear() noexcept
   m_data.clear();
 
   m_parse_errors = 0;
+  m_hook_errors = 0;
 
   m_scenarios_count = 0;
 
@@ -37,6 +38,8 @@ std::size_t test_result::parse_errors() const noexcept
   return m_parse_errors;
 }
 void test_result::add_parse_error() noexcept { ++m_parse_errors; }
+std::size_t test_result::hook_errors() const noexcept { return m_hook_errors; }
+void test_result::add_hook_error() noexcept { ++m_hook_errors; }
 std::size_t test_result::scenarios_passed() const noexcept
 {
   return m_scenarios_passed;
@@ -273,7 +276,7 @@ std::string step_prefix(test_status status)
 
 test_status final_result()
 {
-  if (test_results().parse_errors() > 0)
+  if (test_results().parse_errors() > 0 || test_results().hook_errors() > 0)
   {
     return test_status::failed;
   }

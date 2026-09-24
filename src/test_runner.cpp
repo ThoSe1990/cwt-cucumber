@@ -152,7 +152,12 @@ void skip_step(step_pipeline_context& context)
     }
   }();
 
-  if (continue_on_failure_or_prev_step_failed ||
+  const bool before_all_failed = results::test_results().hook_errors() > 0;
+  const bool continue_on_failure = internal::get_program_args().is_set(
+      internal::program_args::arg::continue_on_failure);
+
+  if ((before_all_failed && !continue_on_failure) ||
+      continue_on_failure_or_prev_step_failed ||
       context.scenario_already_skpped ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
@@ -334,8 +339,24 @@ test_runner::test_runner()
               : "")
 {
 }
-void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
-void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
+void test_runner::setup() const
+{
+  cuke::registry().run_hook_before_all();
+  if (internal::get_runtime_options().fail_scenario().is_set)
+  {
+    results::test_results().add_hook_error();
+    internal::get_runtime_options().reset_fail_scenario();
+  }
+}
+void test_runner::teardown() const
+{
+  cuke::registry().run_hook_after_all();
+  if (internal::get_runtime_options().fail_scenario().is_set)
+  {
+    results::test_results().add_hook_error();
+    internal::get_runtime_options().reset_fail_scenario();
+  }
+}
 void test_runner::run()
 {
   if (internal::get_program_args().is_set(
