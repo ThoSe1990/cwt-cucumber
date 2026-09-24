@@ -262,6 +262,7 @@ void is_scenario_ignored(scenario_pipeline_context& context)
     log::verbose_ignore();
     log::verbose_end();
     internal::get_runtime_options().skip_scenario(false);
+    internal::get_runtime_options().reset_fail_scenario();
     context.ignore = true;
     results::remove_last_scenario();
   }

@@ -779,3 +779,66 @@ TEST_F(run_scenario_hook_asserts, assert_in_after_hook_fails_dry_run_scenario)
   EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 1);
   EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
 }
+
+TEST_F(run_scenario_hook_asserts,
+       assert_failure_in_before_hook_on_ignored_scenario_does_not_leak)
+{
+  cuke::registry().push_hook_before(
+      hook([]() { cuke::equal(1, 2); }, "@ignored_tag"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @ignored_tag
+    Scenario: Ignored scenario with failing before hook
+    Given a step
+
+    Scenario: Normal scenario that should pass
+    Given a step
+  )*";
+
+  const char* argv[] = {"program", "-t", "not @ignored_tag"};
+  int argc = sizeof(argv) / sizeof(argv[0]);
+  [[maybe_unused]] auto& args = cuke::internal::get_program_args(argc, argv);
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 0);
+  EXPECT_EQ(run_scenario_hook_asserts::calls, 1);
+}
+
+TEST_F(run_scenario_hook_asserts,
+       assert_failure_in_before_hook_with_ignore_scenario_does_not_leak)
+{
+  cuke::registry().push_hook_before(hook(
+      []()
+      {
+        cuke::equal(1, 2);
+        cuke::ignore_scenario();
+      },
+      "@ignore_me"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @ignore_me
+    Scenario: Explicitly ignored scenario with failing before hook
+    Given a step
+
+    Scenario: Normal scenario that should pass
+    Given a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 0);
+  EXPECT_EQ(run_scenario_hook_asserts::calls, 1);
+}
