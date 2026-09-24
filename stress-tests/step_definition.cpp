@@ -1,5 +1,5 @@
 #include "../src/cucumber.hpp"
-#include "../examples/box.hpp" #include "asserts.hpp"
+#include "../examples/box.hpp"
 
 struct foo
 {
