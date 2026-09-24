@@ -153,7 +153,7 @@ inline void greater_or_equal(
   if constexpr (is_comparable<T, U>::value)
   {
     std::string msg = custom_msg.value_or(
-        std::format("Value {} is not greater or equal to {}", lhs, rhs));
+        std::format("Value {} is not greater than or equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs >= rhs, msg);
   }
   else
@@ -211,7 +211,7 @@ inline void less_or_equal(
   if constexpr (is_comparable<T, U>::value)
   {
     std::string msg = custom_msg.value_or(
-        std::format("Value {} is not less or equal to {}", lhs, rhs));
+        std::format("Value {} is not less than or equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs <= rhs, msg);
   }
   else
