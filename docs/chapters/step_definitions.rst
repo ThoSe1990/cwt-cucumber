@@ -105,6 +105,8 @@ Each assert function optionally accepts a custom error message:
     cuke::equal(my_box.items_count(), items_count, "Items count is incorrect!");
   }
 
+Assertions can also be used in scenario hooks (such as ``BEFORE`` and ``AFTER``) to validate setup or teardown conditions; a failed assertion in a hook marks the scenario as failed.
+
 For more details, see :ref:`subch-api-ref-asserts`.
 
 Scenario Context (``cuke::context``)
@@ -211,6 +213,8 @@ CWT-Cucumber provides several types of hooks:
   {
       // Runs once at program end
   }
+
+If an assertion fails or a failure is triggered in ``BEFORE_ALL``, the entire test run is marked as failed and all scenarios are skipped (unless ``--continue-on-failure`` is passed). A failure in ``AFTER_ALL`` also marks the test run as failed.
 
 Tagged Hooks
 ^^^^^^^^^^^^

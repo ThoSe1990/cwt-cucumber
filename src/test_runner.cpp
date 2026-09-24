@@ -88,7 +88,23 @@ struct scenario_pipeline_context
 void update_scenario_status(scenario_pipeline_context& context)
 {
   const auto& steps = results::scenarios_back().steps;
-  if (context.skip_scenario)
+  if (internal::get_runtime_options().fail_scenario().is_set)
+  {
+    const std::string& msg =
+        internal::get_runtime_options().fail_scenario().msg;
+    log::error(msg, log::new_line);
+    context.result.status = results::test_status::failed;
+    for (results::step& step : context.result.steps)
+    {
+      if ((step.status == results::test_status::skipped ||
+           step.status == results::test_status::undefined) &&
+          step.error_msg.empty())
+      {
+        step.error_msg = msg;
+      }
+    }
+  }
+  else if (context.skip_scenario)
   {
 #ifdef UNDEFINED_STEPS_ARE_A_FAILURE
     if (has_undefined_steps(steps))
@@ -98,17 +114,6 @@ void update_scenario_status(scenario_pipeline_context& context)
     else
 #endif  // UNDEFINED_STEPS_ARE_A_FAILURE
       context.result.status = results::test_status::skipped;
-  }
-  else if (internal::get_runtime_options().fail_scenario().is_set)
-  {
-    const std::string& msg =
-        internal::get_runtime_options().fail_scenario().msg;
-    log::error(msg, log::new_line);
-    context.result.status = results::test_status::failed;
-    for (results::step& step : context.result.steps)
-    {
-      step.error_msg = msg;
-    }
   }
   else
   {
@@ -147,13 +152,22 @@ void skip_step(step_pipeline_context& context)
     }
   }();
 
-  if (continue_on_failure_or_prev_step_failed ||
+  const bool before_all_failed = results::test_results().hook_errors() > 0;
+  const bool continue_on_failure = internal::get_program_args().is_set(
+      internal::program_args::arg::continue_on_failure);
+
+  if ((before_all_failed && !continue_on_failure) ||
+      continue_on_failure_or_prev_step_failed ||
       context.scenario_already_skpped ||
       internal::get_runtime_options().fail_scenario().is_set)
   {
     context.result.status = context.step.has_step_definition()
                                 ? results::test_status::skipped
                                 : results::test_status::undefined;
+    if (!context.step.has_step_definition())
+    {
+      context.result.error_msg = "Undefined step";
+    }
   }
 }
 
@@ -213,6 +227,8 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
       .result = results::new_step(step),
       .scenario_already_skpped = scenario_already_skpped};
 
+  results::set_has_active_step(true);
+
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
@@ -222,6 +238,8 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
       break;
     }
   }
+
+  results::set_has_active_step(false);
 }
 
 void verbose_start_print(scenario_pipeline_context& context)
@@ -244,6 +262,7 @@ void is_scenario_ignored(scenario_pipeline_context& context)
     log::verbose_ignore();
     log::verbose_end();
     internal::get_runtime_options().skip_scenario(false);
+    internal::get_runtime_options().reset_fail_scenario();
     context.ignore = true;
     results::remove_last_scenario();
   }
@@ -251,8 +270,12 @@ void is_scenario_ignored(scenario_pipeline_context& context)
 void is_scenario_skipped(scenario_pipeline_context& context)
 {
   context.skip_scenario =
-      skip_flag() || internal::get_program_args().is_set(
-                         cuke::internal::program_args::arg::dry_run);
+      skip_flag() ||
+      internal::get_program_args().is_set(
+          cuke::internal::program_args::arg::dry_run) ||
+      (results::test_results().hook_errors() > 0 &&
+       !internal::get_program_args().is_set(
+           internal::program_args::arg::continue_on_failure));
 
   if (context.skip_scenario)
   {
@@ -321,8 +344,24 @@ test_runner::test_runner()
               : "")
 {
 }
-void test_runner::setup() const { cuke::registry().run_hook_before_all(); }
-void test_runner::teardown() const { cuke::registry().run_hook_after_all(); }
+void test_runner::setup() const
+{
+  cuke::registry().run_hook_before_all();
+  if (internal::get_runtime_options().fail_scenario().is_set)
+  {
+    results::test_results().add_hook_error();
+    internal::get_runtime_options().reset_fail_scenario();
+  }
+}
+void test_runner::teardown() const
+{
+  cuke::registry().run_hook_after_all();
+  if (internal::get_runtime_options().fail_scenario().is_set)
+  {
+    results::test_results().add_hook_error();
+    internal::get_runtime_options().reset_fail_scenario();
+  }
+}
 void test_runner::run()
 {
   if (internal::get_program_args().is_set(

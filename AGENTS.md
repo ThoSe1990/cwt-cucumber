@@ -550,8 +550,9 @@ cuke::is_true(condition);
 cuke::is_false(condition);
 ```
 
-A failing assertion marks the current step and scenario as **FAILED** but does
-not throw — execution of the step body continues unless you return early.
+A failing assertion marks the current step and scenario as **FAILED** (or
+fails the scenario if called outside an active step, e.g. in a hook) but does
+not throw — execution continues unless you return early.
 
 ### Hook macros
 

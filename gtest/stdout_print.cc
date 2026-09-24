@@ -382,8 +382,8 @@ TEST_F(stdout_print, scenario_fail_final_form_file_quiet)
   cuke::print_failed_scenarios();
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_FALSE(has_substr(output, "[   PASSED    ] Given a step"));
-  EXPECT_FALSE(
-      has_substr(output, "Expected given condition true, but its false:"));
+  EXPECT_FALSE(has_substr(
+      output, "Expected given condition to be true, but it was false"));
   EXPECT_FALSE(has_substr(output, "[   FAILED    ] And this fails"));
 }
 TEST_F(stdout_print, scenario_fail_final_form_file_q)
@@ -411,8 +411,8 @@ TEST_F(stdout_print, scenario_fail_final_form_file_q)
   cuke::print_failed_scenarios();
   std::string output = testing::internal::GetCapturedStdout();
   EXPECT_FALSE(has_substr(output, "[   PASSED    ] Given a step"));
-  EXPECT_FALSE(
-      has_substr(output, "Expected given condition true, but its false:"));
+  EXPECT_FALSE(has_substr(
+      output, "Expected given condition to be true, but it was false"));
   EXPECT_FALSE(has_substr(output, "[   FAILED    ] And this fails"));
 }
 TEST_F(stdout_print, verbose_tags)

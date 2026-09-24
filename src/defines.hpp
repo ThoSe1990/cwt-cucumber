@@ -276,6 +276,10 @@
  * @def BEFORE_ALL(function_name)
  * @brief Creates a hook which is executed before any scenario/feature
  *
+ * @details If an assertion fails or a failure is triggered in a BEFORE_ALL
+ * hook, the test run is marked as failed and all scenario steps are skipped
+ * (unless the `--continue-on-failure` CLI flag is set).
+ *
  * @param function_name A unique function name, this function name has no
  * technical impact
  */
@@ -300,6 +304,9 @@
 /**
  * @def AFTER_ALL(function_name)
  * @brief Creates a hook which is executed after the test run
+ *
+ * @details If an assertion fails or a failure is triggered in an AFTER_ALL
+ * hook, the overall test run is marked as failed.
  *
  * @param function_name A unique function name, this function name has no
  * technical impact

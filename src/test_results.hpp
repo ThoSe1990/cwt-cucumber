@@ -73,8 +73,10 @@ class test_result
   [[nodiscard]] std::size_t steps_skipped() const noexcept;
   [[nodiscard]] std::size_t steps_undefined() const noexcept;
   [[nodiscard]] std::size_t parse_errors() const noexcept;
+  [[nodiscard]] std::size_t hook_errors() const noexcept;
 
   void add_parse_error() noexcept;
+  void add_hook_error() noexcept;
   void add_scenario(test_status status) noexcept;
   void add_step(test_status status) noexcept;
 
@@ -85,6 +87,7 @@ class test_result
   std::vector<feature> m_data;
 
   std::size_t m_parse_errors{0};
+  std::size_t m_hook_errors{0};
 
   std::size_t m_scenarios_count{0};
   std::size_t m_steps_count{0};
@@ -112,6 +115,9 @@ void new_feature(const cuke::ast::feature_node& current);
 [[nodiscard]] step& new_step(const cuke::ast::step_node& current);
 void remove_last_scenario();
 void set_step_to(test_status status);
+
+[[nodiscard]] bool has_active_step() noexcept;
+void set_has_active_step(bool value) noexcept;
 
 [[nodiscard]] feature& features_back();
 [[nodiscard]] scenario& scenarios_back();
