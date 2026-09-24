@@ -255,7 +255,7 @@ TEST_F(report, failing_scenario)
             },
             "name": "this fails",
             "result": {
-              "error_message": "Expected given condition true, but its false:",
+              "error_message": "Expected given condition to be true, but it was false",
               "status": "failed"
             }
           }

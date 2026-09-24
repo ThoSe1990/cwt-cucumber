@@ -114,8 +114,9 @@ TEST_F(test_results_1, scenario_fails_1)
             cuke::results::test_status::failed);
   EXPECT_EQ(cuke::results::steps_back().status,
             cuke::results::test_status::failed);
-  EXPECT_EQ(cuke::results::steps_back().error_msg,
-            std::string("Expected given condition true, but its false:"));
+  EXPECT_EQ(
+      cuke::results::steps_back().error_msg,
+      std::string("Expected given condition to be true, but it was false"));
 }
 TEST_F(test_results_1, scenario_fails_2)
 {

@@ -4,6 +4,7 @@
 #include <string_view>
 
 #include "log.hpp"
+#include "options.hpp"
 #include "test_results.hpp"
 
 namespace cuke::internal
@@ -13,8 +14,15 @@ inline void internal_assert(bool condition, std::string_view error_msg)
 {
   if (condition == false)
   {
-    cuke::results::set_step_to(cuke::results::test_status::failed);
-    cuke::results::steps_back().error_msg = error_msg;
+    if (cuke::results::has_active_step())
+    {
+      cuke::results::set_step_to(cuke::results::test_status::failed);
+      cuke::results::steps_back().error_msg = error_msg;
+    }
+    else
+    {
+      cuke::fail_scenario(error_msg);
+    }
     cuke::log::info(log::color::red());
     cuke::log::info(error_msg);
     cuke::log::info(log::color::reset());
@@ -57,8 +65,8 @@ inline void equal(const T& lhs, const U& rhs,
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not equal to {} in following step:", lhs, rhs));
+    std::string msg = custom_msg.value_or(
+        std::format("Value {} is not equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs == rhs, msg);
   }
   else
@@ -86,8 +94,8 @@ inline void not_equal(
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not equal to {} in following step:", lhs, rhs));
+    std::string msg =
+        custom_msg.value_or(std::format("Value {} is equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs != rhs, msg);
   }
   else
@@ -114,8 +122,8 @@ inline void greater(const T& lhs, const U& rhs,
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not greater than {} in following step:", lhs, rhs));
+    std::string msg = custom_msg.value_or(
+        std::format("Value {} is not greater than {}", lhs, rhs));
     cuke::internal::internal_assert(lhs > rhs, msg);
   }
   else
@@ -144,9 +152,8 @@ inline void greater_or_equal(
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not greater or equal than {} in following step:", lhs,
-        rhs));
+    std::string msg = custom_msg.value_or(
+        std::format("Value {} is not greater or equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs >= rhs, msg);
   }
   else
@@ -173,8 +180,8 @@ inline void less(const T& lhs, const U& rhs,
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not less than {} in following step:", lhs, rhs));
+    std::string msg = custom_msg.value_or(
+        std::format("Value {} is not less than {}", lhs, rhs));
     cuke::internal::internal_assert(lhs < rhs, msg);
   }
   else
@@ -203,8 +210,8 @@ inline void less_or_equal(
 {
   if constexpr (is_comparable<T, U>::value)
   {
-    std::string msg = custom_msg.value_or(std::format(
-        "Value {} is not less or equal than {} in following step:", lhs, rhs));
+    std::string msg = custom_msg.value_or(
+        std::format("Value {} is not less or equal to {}", lhs, rhs));
     cuke::internal::internal_assert(lhs <= rhs, msg);
   }
   else
@@ -224,8 +231,8 @@ inline void less_or_equal(
 inline void is_true(bool condition,
                     const std::optional<std::string>& custom_msg = std::nullopt)
 {
-  std::string msg =
-      custom_msg.value_or("Expected given condition true, but its false:");
+  std::string msg = custom_msg.value_or(
+      "Expected given condition to be true, but it was false");
   cuke::internal::internal_assert(condition, msg);
 }
 /**
@@ -239,8 +246,8 @@ inline void is_true(bool condition,
 inline void is_false(
     bool condition, const std::optional<std::string>& custom_msg = std::nullopt)
 {
-  std::string msg =
-      custom_msg.value_or("Expected given condition true, but its false:");
+  std::string msg = custom_msg.value_or(
+      "Expected given condition to be false, but it was true");
   cuke::internal::internal_assert(!condition, msg);
 }
 };  // namespace cuke

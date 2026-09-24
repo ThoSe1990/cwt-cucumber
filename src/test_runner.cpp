@@ -105,9 +105,15 @@ void update_scenario_status(scenario_pipeline_context& context)
         internal::get_runtime_options().fail_scenario().msg;
     log::error(msg, log::new_line);
     context.result.status = results::test_status::failed;
-    for (results::step& step : context.result.steps)
+    if (context.result.steps.empty() ||
+        std::all_of(context.result.steps.begin(), context.result.steps.end(),
+                    [](const results::step& s)
+                    { return s.status == results::test_status::skipped; }))
     {
-      step.error_msg = msg;
+      for (results::step& step : context.result.steps)
+      {
+        step.error_msg = msg;
+      }
     }
   }
   else
@@ -213,6 +219,8 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
       .result = results::new_step(step),
       .scenario_already_skpped = scenario_already_skpped};
 
+  results::set_has_active_step(true);
+
   for (const auto& pipeline_step : step_pipeline)
   {
     pipeline_step(context);
@@ -222,6 +230,8 @@ void run_step(const ast::step_node& step, bool scenario_already_skpped)
       break;
     }
   }
+
+  results::set_has_active_step(false);
 }
 
 void verbose_start_print(scenario_pipeline_context& context)

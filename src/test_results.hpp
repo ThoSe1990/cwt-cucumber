@@ -109,6 +109,9 @@ void new_feature(const cuke::ast::feature_node& current);
 void remove_last_scenario();
 void set_step_to(test_status status);
 
+[[nodiscard]] bool has_active_step() noexcept;
+void set_has_active_step(bool value) noexcept;
+
 [[nodiscard]] feature& features_back();
 [[nodiscard]] scenario& scenarios_back();
 [[nodiscard]] step& steps_back();

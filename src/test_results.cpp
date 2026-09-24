@@ -328,6 +328,14 @@ void set_step_to(test_status status)
   test_results().back().scenarios.back().steps.back().status = status;
 }
 
+namespace
+{
+bool g_has_active_step = false;
+}
+
+bool has_active_step() noexcept { return g_has_active_step; }
+void set_has_active_step(bool value) noexcept { g_has_active_step = value; }
+
 feature& features_back() { return test_results().back(); }
 scenario& scenarios_back() { return test_results().back().scenarios.back(); }
 step& steps_back()

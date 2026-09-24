@@ -4,6 +4,7 @@
 #include "../src/parser.hpp"
 #include "../src/options.hpp"
 #include "../src/test_results.hpp"
+#include "../src/asserts.hpp"
 
 using namespace cuke::internal;
 
@@ -420,4 +421,88 @@ TEST_F(run_scenario_hook_fail_step, set_step_to_failed_3)
   EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
   EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 2);
   EXPECT_EQ(cuke::results::test_results().steps_failed(), 3);
+}
+
+class run_scenario_hook_asserts : public ::testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    calls = 0;
+
+    cuke::registry().push_step(step_definition(
+        [](const cuke::value_array&, const auto&, const auto&, const auto&)
+        { ++calls; }, "a step"));
+  }
+  void TearDown() override
+  {
+    cuke::registry().clear();
+    cuke::results::test_results().clear();
+  }
+  static std::size_t calls;
+};
+std::size_t run_scenario_hook_asserts::calls = 0;
+
+TEST_F(run_scenario_hook_asserts, assert_in_before_hook_fails_scenario)
+{
+  cuke::registry().push_hook_before(
+      hook([]() { cuke::equal(1, 2); }, "@assert_fails"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @assert_fails
+    Scenario: Before hook assertion fails
+    Given a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenario_hook_asserts::calls, 0);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 1);
+  EXPECT_EQ(cuke::results::test_results().steps_skipped(), 1);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(scenarios.at(0).status, cuke::results::test_status::failed);
+  ASSERT_EQ(scenarios.at(0).steps.size(), 1);
+  EXPECT_EQ(scenarios.at(0).steps.at(0).status,
+            cuke::results::test_status::skipped);
+}
+
+TEST_F(run_scenario_hook_asserts,
+       assert_in_after_hook_fails_scenario_without_affecting_step)
+{
+  cuke::registry().push_hook_after(
+      hook([]() { cuke::equal(1, 2); }, "@assert_fails"));
+
+  const char* script = R"*(
+    Feature: a feature
+
+    @assert_fails
+    Scenario: After hook assertion fails
+    Given a step
+  )*";
+
+  cuke::parser p;
+  p.parse_script(script);
+  cuke::test_runner runner;
+  p.for_each_scenario(runner);
+
+  EXPECT_EQ(run_scenario_hook_asserts::calls, 1);
+  EXPECT_EQ(cuke::results::test_results().scenarios_passed(), 0);
+  EXPECT_EQ(cuke::results::test_results().scenarios_failed(), 1);
+  EXPECT_EQ(cuke::results::test_results().steps_passed(), 1);
+
+  const auto& scenarios = cuke::results::test_results().back().scenarios;
+  ASSERT_EQ(scenarios.size(), 1);
+  EXPECT_EQ(scenarios.at(0).status, cuke::results::test_status::failed);
+  ASSERT_EQ(scenarios.at(0).steps.size(), 1);
+  EXPECT_EQ(scenarios.at(0).steps.at(0).status,
+            cuke::results::test_status::passed);
+  EXPECT_TRUE(scenarios.at(0).steps.at(0).error_msg.empty());
 }
