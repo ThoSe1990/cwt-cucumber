@@ -105,6 +105,8 @@ Each assert function optionally accepts a custom error message:
     cuke::equal(my_box.items_count(), items_count, "Items count is incorrect!");
   }
 
+Assertions can also be used in scenario hooks (such as ``BEFORE`` and ``AFTER``) to validate setup or teardown conditions; a failed assertion in a hook marks the scenario as failed.
+
 For more details, see :ref:`subch-api-ref-asserts`.
 
 Scenario Context (``cuke::context``)
